@@ -1,3 +1,4 @@
+import type { Injector } from '@furystack/inject'
 import { ObservableAlreadyDisposedError } from '@furystack/utils'
 import type { MatchOptions, MatchResult } from 'path-to-regexp'
 import { match } from 'path-to-regexp'
@@ -8,15 +9,36 @@ import { createComponent, setRenderMode } from '../shade-component.js'
 import { Shade } from '../shade.js'
 
 /**
+ * Options passed to a dynamic title resolver function.
+ * @typeParam TMatchResult - The type of matched URL parameters
+ */
+export type TitleResolverOptions<TMatchResult = unknown> = {
+  match: MatchResult<TMatchResult extends object ? TMatchResult : object>
+  injector: Injector
+}
+
+/**
  * Metadata associated with a route entry.
  * Used by consumers (breadcrumbs, document title, navigation trees) to
  * derive display information from the route hierarchy.
+ *
+ * This is an `interface` so that applications can augment it with custom fields
+ * via declaration merging:
+ *
+ * @example
+ * ```typescript
+ * declare module '@furystack/shades' {
+ *   interface NestedRouteMeta {
+ *     icon?: IconDefinition
+ *     hidden?: boolean
+ *   }
+ * }
+ * ```
+ *
  * @typeParam TMatchResult - The type of matched URL parameters
  */
-export type NestedRouteMeta<TMatchResult = unknown> = {
-  title?:
-    | string
-    | ((match: MatchResult<TMatchResult extends object ? TMatchResult : object>) => string | Promise<string>)
+export interface NestedRouteMeta<TMatchResult = unknown> {
+  title?: string | ((options: TitleResolverOptions<TMatchResult>) => string | Promise<string>)
 }
 
 /**

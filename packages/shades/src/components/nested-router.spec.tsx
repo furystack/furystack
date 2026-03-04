@@ -1007,7 +1007,9 @@ describe('NestedRouter + RouteMatchService integration', () => {
           <NestedRouter
             routes={{
               '/users/:id': {
-                meta: { title: (match) => `User ${(match.params as { id: string }).id}` },
+                meta: {
+                  title: ({ match }: { match: { params: Record<string, string> } }) => `User ${match.params.id}`,
+                },
                 component: ({ match }) => <div id="content">user-{(match.params as { id: string }).id}</div>,
               },
             }}

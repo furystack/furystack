@@ -1,7 +1,9 @@
 import type { NestedRoute } from '@furystack/shades'
 import { createComponent, LazyLoad } from '@furystack/shades'
+import { icons } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
+import './route-meta-augmentation.js'
 import { Navigate } from './components/navigate.js'
 import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
@@ -25,7 +27,7 @@ const withFadeTransition = {
  */
 export const appRoutes = {
   '/layout-tests': {
-    meta: { title: 'Layout Tests' },
+    meta: { title: 'Layout Tests', icon: icons.ruler },
     component: ({ outlet }) => {
       return (
         outlet ?? (
@@ -155,7 +157,7 @@ export const appRoutes = {
     ),
     children: {
       '/inputs-and-forms': {
-        meta: { title: 'Inputs & Forms' },
+        meta: { title: 'Inputs & Forms', icon: icons.fileText },
         component: ({ outlet }) => outlet ?? <Navigate to="/inputs-and-forms/buttons" />,
         children: {
           '/buttons': {
@@ -306,7 +308,7 @@ export const appRoutes = {
         },
       },
       '/data-display': {
-        meta: { title: 'Data Display' },
+        meta: { title: 'Data Display', icon: icons.barChart },
         component: ({ outlet }) => outlet ?? <Navigate to="/data-display/grid" />,
         children: {
           '/accordion': {
@@ -507,7 +509,7 @@ export const appRoutes = {
         },
       },
       '/navigation': {
-        meta: { title: 'Navigation' },
+        meta: { title: 'Navigation', icon: icons.compass },
         component: ({ outlet }) => outlet ?? <Navigate to="/navigation/tabs" />,
         children: {
           '/tabs': {
@@ -604,7 +606,7 @@ export const appRoutes = {
         },
       },
       '/feedback': {
-        meta: { title: 'Feedback' },
+        meta: { title: 'Feedback', icon: icons.bell },
         component: ({ outlet }) => outlet ?? <Navigate to="/feedback/alert" />,
         children: {
           '/alert': {
@@ -662,7 +664,7 @@ export const appRoutes = {
         },
       },
       '/layout': {
-        meta: { title: 'Layout' },
+        meta: { title: 'Layout', icon: icons.ruler },
         component: ({ outlet }) => outlet ?? <Navigate to="/layout/divider" />,
         children: {
           '/divider': {
@@ -681,7 +683,7 @@ export const appRoutes = {
         },
       },
       '/surfaces': {
-        meta: { title: 'Surfaces' },
+        meta: { title: 'Surfaces', icon: icons.appWindow },
         component: ({ outlet }) => outlet ?? <Navigate to="/surfaces/card" />,
         children: {
           '/card': {
@@ -739,7 +741,7 @@ export const appRoutes = {
         },
       },
       '/integrations': {
-        meta: { title: 'Integrations' },
+        meta: { title: 'Integrations', icon: icons.plug },
         component: ({ outlet }) => outlet ?? <Navigate to="/integrations/monaco" />,
         children: {
           '/monaco': {
@@ -823,7 +825,7 @@ export const appRoutes = {
         },
       },
       '/utilities': {
-        meta: { title: 'Utilities' },
+        meta: { title: 'Utilities', icon: icons.wrench },
         component: ({ outlet }) => outlet ?? <Navigate to="/utilities/search-state" />,
         children: {
           '/search-state': {
@@ -855,7 +857,7 @@ export const appRoutes = {
         },
       },
       '/themes': {
-        meta: { title: 'Themes' },
+        meta: { title: 'Themes', icon: icons.sun },
         ...withFadeTransition,
         component: () => (
           <LazyLoad

@@ -1,9 +1,13 @@
-import { createComponent, LocationService, Shade } from '@furystack/shades'
+import { createComponent, extractNavTree, LocationService, Shade, type NavTreeNode } from '@furystack/shades'
 import { cssVariableTheme, Icon, icons } from '@furystack/shades-common-components'
 
-import { navigationConfig, type NavCategory, type NavPage } from '../navigation.js'
+import '../route-meta-augmentation.js'
+import { appRoutes } from '../routes.js'
 
-const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
+let categoryNodes: NavTreeNode[] | undefined
+const getCategoryNodes = () => (categoryNodes ??= extractNavTree(appRoutes['/'].children, '/'))
+
+const SidebarPageLink = Shade<{ node: NavTreeNode; categoryPath: string }>({
   shadowDomName: 'sidebar-page-link',
   css: {
     display: 'block',
@@ -32,7 +36,7 @@ const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
     const locationService = injector.getInstance(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
 
-    const href = `/${props.category.slug}/${props.page.slug}`
+    const href = `${props.categoryPath}${props.node.pattern}`
     const isActive = currentPath === href
 
     return (
@@ -44,13 +48,13 @@ const SidebarPageLink = Shade<{ category: NavCategory; page: NavPage }>({
           history.pushState({}, '', href)
         }}
       >
-        {props.page.label}
+        {props.node.meta?.title ?? props.node.pattern}
       </a>
     )
   },
 })
 
-const SidebarCategory = Shade<{ category: NavCategory }>({
+const SidebarCategory = Shade<{ node: NavTreeNode }>({
   shadowDomName: 'sidebar-category',
   css: {
     display: 'block',
@@ -94,23 +98,24 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
     const locationService = injector.getInstance(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
 
-    const categoryPrefix = `/${props.category.slug}/`
-    const isCategoryActive = currentPath.startsWith(categoryPrefix) || currentPath === `/${props.category.slug}`
+    const categoryPath = props.node.fullPath
+    const categoryPrefix = `${categoryPath}/`
+    const isCategoryActive = currentPath.startsWith(categoryPrefix) || currentPath === categoryPath
 
     const [isExpanded, setIsExpanded] = useState('isExpanded', isCategoryActive)
 
-    // Auto-expand when navigating into this category
     if (isCategoryActive && !isExpanded) {
       setIsExpanded(true)
     }
 
-    const hasChildren = props.category.children.length > 0
+    const children = props.node.children ?? []
+    const hasChildren = children.length > 0
 
     const handleHeaderClick = () => {
       if (hasChildren) {
         setIsExpanded(!isExpanded)
       } else {
-        history.pushState({}, '', `/${props.category.slug}`)
+        history.pushState({}, '', categoryPath)
       }
     }
 
@@ -118,13 +123,13 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
       <div>
         <div className={`category-header${isCategoryActive ? ' active' : ''}`} onclick={handleHeaderClick}>
           {hasChildren && <span className={`expand-arrow${isExpanded ? ' expanded' : ''}`}>▶</span>}
-          <Icon icon={props.category.icon} size={16} />
-          <span>{props.category.label}</span>
+          {props.node.meta?.icon && <Icon icon={props.node.meta.icon} size={16} />}
+          <span>{props.node.meta?.title ?? props.node.pattern}</span>
         </div>
         {hasChildren && isExpanded && (
           <div className="category-children">
-            {props.category.children.map((page) => (
-              <SidebarPageLink category={props.category} page={page} />
+            {children.map((child) => (
+              <SidebarPageLink node={child} categoryPath={categoryPath} />
             ))}
           </div>
         )}
@@ -135,8 +140,8 @@ const SidebarCategory = Shade<{ category: NavCategory }>({
 
 /**
  * Left sidebar navigation component.
- * Renders the full navigation hierarchy with expandable categories
- * and highlights the current page.
+ * Renders the full navigation hierarchy from route metadata with expandable
+ * categories and highlights the current page.
  */
 export const SidebarNavigation = Shade({
   shadowDomName: 'sidebar-navigation',
@@ -207,8 +212,8 @@ export const SidebarNavigation = Shade({
         </a>
         <div className="sidebar-divider" />
         <div className="sidebar-section-label">Components</div>
-        {navigationConfig.map((category) => (
-          <SidebarCategory category={category} />
+        {getCategoryNodes().map((node) => (
+          <SidebarCategory node={node} />
         ))}
       </nav>
     )

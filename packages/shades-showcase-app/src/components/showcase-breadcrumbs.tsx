@@ -10,16 +10,12 @@ export const ShowcaseBreadcrumbComponent = Shade({
   shadowDomName: 'showcase-breadcrumb-component',
   render: ({ injector, useObservable, useState }) => {
     const routeMatchService = injector.getInstance(RouteMatchService)
-    const [matchChain] = useObservable('matchChain', routeMatchService.currentMatchChain, {
-      onChange: (chain) => {
-        void resolveAndSetTitles(chain)
-      },
-    })
 
     const [resolvedItems, setResolvedItems] = useState<BreadcrumbItem[]>('resolvedItems', [])
+    const [initializedRef] = useState<{ current: boolean }>('initialized', { current: false })
 
     const resolveAndSetTitles = async (chain: MatchChainEntry[]) => {
-      const titles = await resolveRouteTitles(chain)
+      const titles = await resolveRouteTitles(chain, injector)
       const items: BreadcrumbItem[] = []
       let accumulatedPath = ''
 
@@ -38,7 +34,16 @@ export const ShowcaseBreadcrumbComponent = Shade({
       setResolvedItems(items)
     }
 
-    void resolveAndSetTitles(matchChain)
+    const [matchChain] = useObservable('matchChain', routeMatchService.currentMatchChain, {
+      onChange: (chain) => {
+        void resolveAndSetTitles(chain)
+      },
+    })
+
+    if (!initializedRef.current) {
+      initializedRef.current = true
+      void resolveAndSetTitles(matchChain)
+    }
 
     return (
       <ShowcaseBreadcrumbItem

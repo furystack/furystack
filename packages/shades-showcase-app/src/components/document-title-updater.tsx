@@ -9,13 +9,15 @@ const APP_TITLE = 'FuryStack Shades'
  */
 export const DocumentTitleUpdater = Shade({
   shadowDomName: 'document-title-updater',
-  render: ({ injector, useObservable }) => {
+  render: ({ injector, useObservable, useState }) => {
     const routeMatchService = injector.getInstance(RouteMatchService)
 
     const updateTitle = async (chain: MatchChainEntry[]) => {
-      const titles = await resolveRouteTitles(chain)
+      const titles = await resolveRouteTitles(chain, injector)
       document.title = buildDocumentTitle(titles, { prefix: APP_TITLE, separator: ' / ' })
     }
+
+    const [initializedRef] = useState<{ current: boolean }>('initialized', { current: false })
 
     const [matchChain] = useObservable('matchChain', routeMatchService.currentMatchChain, {
       onChange: (chain) => {
@@ -23,7 +25,10 @@ export const DocumentTitleUpdater = Shade({
       },
     })
 
-    void updateTitle(matchChain)
+    if (!initializedRef.current) {
+      initializedRef.current = true
+      void updateTitle(matchChain)
+    }
 
     return <></>
   },

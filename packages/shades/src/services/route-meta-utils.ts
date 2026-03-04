@@ -1,24 +1,31 @@
+import type { Injector } from '@furystack/inject'
+
 import type { MatchChainEntry, NestedRoute, NestedRouteMeta } from '../components/nested-router.js'
 
 /**
  * Resolves the title for a single match chain entry.
- * If the title is a function, it is called with the match result (supports async).
+ * If the title is a function, it is called with `{ match, injector }` (supports async).
  * @param entry - A matched route entry from the match chain
+ * @param injector - The injector instance to pass to dynamic title resolvers
  * @returns The resolved title string, or undefined if no title is configured
  */
-export const resolveRouteTitle = async (entry: MatchChainEntry): Promise<string | undefined> => {
+export const resolveRouteTitle = async (entry: MatchChainEntry, injector: Injector): Promise<string | undefined> => {
   const title = entry.route.meta?.title
-  if (typeof title === 'function') return await title(entry.match)
+  if (typeof title === 'function') return await title({ match: entry.match, injector })
   return title
 }
 
 /**
  * Resolves all titles from a match chain in parallel.
  * @param chain - The match chain from outermost to innermost route
+ * @param injector - The injector instance to pass to dynamic title resolvers
  * @returns An array of resolved titles (some may be undefined if no title is configured)
  */
-export const resolveRouteTitles = async (chain: MatchChainEntry[]): Promise<Array<string | undefined>> => {
-  return Promise.all(chain.map(resolveRouteTitle))
+export const resolveRouteTitles = async (
+  chain: MatchChainEntry[],
+  injector: Injector,
+): Promise<Array<string | undefined>> => {
+  return Promise.all(chain.map((entry) => resolveRouteTitle(entry, injector)))
 }
 
 /**

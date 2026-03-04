@@ -1,14 +1,17 @@
+import { Injector } from '@furystack/inject'
 import { describe, expect, it } from 'vitest'
 import type { MatchChainEntry, NestedRoute } from '../components/nested-router.js'
 import { buildDocumentTitle, extractNavTree, resolveRouteTitle, resolveRouteTitles } from './route-meta-utils.js'
 
 describe('resolveRouteTitle', () => {
+  const injector = new Injector()
+
   it('should return undefined when no meta is configured', async () => {
     const entry: MatchChainEntry = {
       route: { component: () => ({}) as JSX.Element },
       match: { path: '/about', params: {} },
     }
-    expect(await resolveRouteTitle(entry)).toBeUndefined()
+    expect(await resolveRouteTitle(entry, injector)).toBeUndefined()
   })
 
   it('should return undefined when meta has no title', async () => {
@@ -16,7 +19,7 @@ describe('resolveRouteTitle', () => {
       route: { meta: {}, component: () => ({}) as JSX.Element },
       match: { path: '/about', params: {} },
     }
-    expect(await resolveRouteTitle(entry)).toBeUndefined()
+    expect(await resolveRouteTitle(entry, injector)).toBeUndefined()
   })
 
   it('should return a static string title', async () => {
@@ -24,26 +27,26 @@ describe('resolveRouteTitle', () => {
       route: { meta: { title: 'About' }, component: () => ({}) as JSX.Element },
       match: { path: '/about', params: {} },
     }
-    expect(await resolveRouteTitle(entry)).toBe('About')
+    expect(await resolveRouteTitle(entry, injector)).toBe('About')
   })
 
   it('should resolve a synchronous function title', async () => {
     const entry: MatchChainEntry = {
       route: {
-        meta: { title: (match) => `User ${(match.params as { id: string }).id}` },
+        meta: { title: ({ match }) => `User ${(match.params as { id: string }).id}` },
         component: () => ({}) as JSX.Element,
       },
       match: { path: '/users/42', params: { id: '42' } },
     }
-    expect(await resolveRouteTitle(entry)).toBe('User 42')
+    expect(await resolveRouteTitle(entry, injector)).toBe('User 42')
   })
 
   it('should resolve an async function title', async () => {
     const entry: MatchChainEntry = {
       route: {
         meta: {
-          title: async (match) => {
-            const {id} = (match.params as { id: string })
+          title: async ({ match }) => {
+            const { id } = match.params as { id: string }
             return `Movie ${id}`
           },
         },
@@ -51,11 +54,26 @@ describe('resolveRouteTitle', () => {
       },
       match: { path: '/movies/7', params: { id: '7' } },
     }
-    expect(await resolveRouteTitle(entry)).toBe('Movie 7')
+    expect(await resolveRouteTitle(entry, injector)).toBe('Movie 7')
+  })
+
+  it('should pass the injector to the title resolver', async () => {
+    const entry: MatchChainEntry = {
+      route: {
+        meta: {
+          title: ({ injector: inj }) => (inj instanceof Injector ? 'has-injector' : 'no-injector'),
+        },
+        component: () => ({}) as JSX.Element,
+      },
+      match: { path: '/test', params: {} },
+    }
+    expect(await resolveRouteTitle(entry, injector)).toBe('has-injector')
   })
 })
 
 describe('resolveRouteTitles', () => {
+  const injector = new Injector()
+
   it('should resolve all titles in a mixed chain', async () => {
     const chain: MatchChainEntry[] = [
       {
@@ -68,18 +86,18 @@ describe('resolveRouteTitles', () => {
       },
       {
         route: {
-          meta: { title: async (match) => `Movie ${(match.params as { id: string }).id}` },
+          meta: { title: async ({ match }) => `Movie ${(match.params as { id: string }).id}` },
           component: () => ({}) as JSX.Element,
         },
         match: { path: '/7', params: { id: '7' } },
       },
     ]
-    const titles = await resolveRouteTitles(chain)
+    const titles = await resolveRouteTitles(chain, injector)
     expect(titles).toEqual(['Media', 'Movies', 'Movie 7'])
   })
 
   it('should return an empty array for an empty chain', async () => {
-    const titles = await resolveRouteTitles([])
+    const titles = await resolveRouteTitles([], injector)
     expect(titles).toEqual([])
   })
 
@@ -94,7 +112,7 @@ describe('resolveRouteTitles', () => {
         match: { path: '/child', params: {} },
       },
     ]
-    const titles = await resolveRouteTitles(chain)
+    const titles = await resolveRouteTitles(chain, injector)
     expect(titles).toEqual(['Root', undefined])
   })
 })
