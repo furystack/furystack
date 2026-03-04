@@ -134,6 +134,39 @@ describe('Shade edge cases', () => {
       })
     })
 
+    it('should not re-render when updateComponentSync is called after removal', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const renderCounter = vi.fn()
+
+        const ExampleComponent = Shade({
+          shadowDomName: 'shade-no-sync-render-after-disconnect',
+          render: () => {
+            renderCounter()
+            return <div>content</div>
+          },
+        })
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <ExampleComponent />,
+        })
+        await flushUpdates()
+
+        const element = document.querySelector('shade-no-sync-render-after-disconnect') as JSX.Element
+        expect(element.getRenderCount()).toBe(1)
+        expect(renderCounter).toBeCalledTimes(1)
+
+        element.remove()
+        await flushUpdates()
+        ;(element as unknown as { updateComponentSync: () => void }).updateComponentSync()
+
+        expect(element.getRenderCount()).toBe(1)
+        expect(renderCounter).toBeCalledTimes(1)
+      })
+    })
+
     it('should not re-render when an observable fires during disposal', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement

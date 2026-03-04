@@ -24,7 +24,7 @@ appear before simple list items within each section.
 
 ## 🐛 Bug Fixes
 
-- Fixed ghost rendering race conditions where `updateComponent()` and `updateComponentSync()` could trigger re-renders on disconnected components. Added `isConnected` guards to both methods so that observable changes fired during disposal no longer cause stale render passes.
+- Fixed ghost rendering race conditions where `updateComponent()` and `updateComponentSync()` could trigger re-renders on disconnected components. Added disconnected-state guards to both methods so that observable changes fired during disposal no longer cause stale render passes.
 
 ## 📚 Documentation
 
@@ -40,7 +40,7 @@ appear before simple list items within each section.
 
 ## 🧪 Tests
 
-- Added tests verifying that `updateComponent()` is a no-op after the element is removed from the DOM
+- Added tests verifying that `updateComponent()` and `updateComponentSync()` are no-ops after the element is removed from the DOM
 - Added tests verifying that observable changes fired during disposal do not trigger additional renders
 
 ## 📦 Build
