@@ -1,15 +1,15 @@
 import type { TSESLint } from '@typescript-eslint/utils'
+import { recommended, recommendedStrict } from './configs/recommended.js'
+import { shades, shadesStrict } from './configs/shades.js'
+import { noCssStateHooks } from './rules/no-css-state-hooks.js'
 import { noDirectPhysicalStore } from './rules/no-direct-physical-store.js'
-import { requireDisposableForObservableOwner } from './rules/require-disposable-for-observable-owner.js'
-import { requireObservableDisposal } from './rules/require-observable-disposal.js'
-import { preferUsingWrapper } from './rules/prefer-using-wrapper.js'
 import { noModuleLevelJsx } from './rules/no-module-level-jsx.js'
 import { noRemovedShadeApis } from './rules/no-removed-shade-apis.js'
-import { validShadowDomName } from './rules/valid-shadow-dom-name.js'
 import { preferUseState } from './rules/prefer-use-state.js'
-import { noCssStateHooks } from './rules/no-css-state-hooks.js'
-import { recommended } from './configs/recommended.js'
-import { shades } from './configs/shades.js'
+import { preferUsingWrapper } from './rules/prefer-using-wrapper.js'
+import { requireDisposableForObservableOwner } from './rules/require-disposable-for-observable-owner.js'
+import { requireObservableDisposal } from './rules/require-observable-disposal.js'
+import { validShadowDomName } from './rules/valid-shadow-dom-name.js'
 
 const rules = {
   'no-direct-physical-store': noDirectPhysicalStore,
@@ -27,7 +27,9 @@ const plugin = {
   rules,
   configs: {
     recommended,
+    recommendedStrict,
     shades,
+    shadesStrict,
   },
 }
 

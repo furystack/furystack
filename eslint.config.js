@@ -1,11 +1,11 @@
 // @ts-check
 
 import eslint from '@eslint/js'
+import furystack from '@furystack/eslint-plugin'
 import prettierConfig from 'eslint-config-prettier'
 import jsdoc from 'eslint-plugin-jsdoc'
 import playwright from 'eslint-plugin-playwright'
 import tseslint from 'typescript-eslint'
-import furystack from '@furystack/eslint-plugin'
 
 export default tseslint.config(
   {
@@ -94,7 +94,7 @@ export default tseslint.config(
     plugins: {
       furystack,
     },
-    ...furystack.configs.recommended,
+    ...furystack.configs.recommendedStrict,
   },
   {
     files: [
@@ -113,6 +113,6 @@ export default tseslint.config(
       'packages/shades-mfe/**/*.ts',
       'packages/shades-mfe/**/*.tsx',
     ],
-    ...furystack.configs.shades,
+    ...furystack.configs.shadesStrict,
   },
 )

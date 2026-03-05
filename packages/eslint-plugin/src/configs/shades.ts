@@ -9,3 +9,13 @@ export const shades: TSESLint.FlatConfig.Config = {
     'furystack/no-css-state-hooks': 'warn',
   },
 }
+
+export const shadesStrict: TSESLint.FlatConfig.Config = {
+  rules: {
+    'furystack/no-module-level-jsx': 'error',
+    'furystack/no-removed-shade-apis': 'error',
+    'furystack/valid-shadow-dom-name': 'error',
+    'furystack/prefer-use-state': 'error',
+    'furystack/no-css-state-hooks': 'error',
+  },
+}

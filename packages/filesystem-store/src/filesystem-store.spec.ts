@@ -86,7 +86,7 @@ describe('FileSystemStore', () => {
           primaryKey: 'id' as const,
           model: TestClass,
         }),
-        (store) => {
+        () => {
           expect(emitSpy).toHaveBeenCalledWith('onWatcherError', { error: expect.any(Error) as Error })
           emitSpy.mockRestore()
         },
