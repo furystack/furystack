@@ -1,7 +1,7 @@
 import type { Cache, CacheWithValue } from '@furystack/cache'
 import { hasCacheValue, isFailedCacheResult, isObsoleteCacheResult } from '@furystack/cache'
 import type { PartialElement, ShadeComponent, ViewTransitionConfig } from '@furystack/shades'
-import { Shade, createComponent, maybeViewTransition } from '@furystack/shades'
+import { Shade, createComponent, transitionedValue } from '@furystack/shades'
 
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { Button } from './button.js'
@@ -100,17 +100,13 @@ export const CacheView = Shade<InternalCacheViewProps>({
     const getCategory = (r: typeof result) =>
       isFailedCacheResult(r) ? 'error' : hasCacheValue(r) ? 'value' : 'loading'
 
-    const [displayedResult, setDisplayedResult] = useState('displayedResult', result)
-    const resultCategory = getCategory(result)
-    const displayedCategory = getCategory(displayedResult)
-
-    if (result !== displayedResult) {
-      if (resultCategory !== displayedCategory) {
-        void maybeViewTransition(viewTransition, () => setDisplayedResult(result))
-      } else {
-        setDisplayedResult(result)
-      }
-    }
+    const displayedResult = transitionedValue(
+      useState,
+      'displayedResult',
+      result,
+      viewTransition,
+      (prev, next) => getCategory(prev) !== getCategory(next),
+    )
 
     const [lastReloadedArgsKey, setLastReloadedArgsKey] = useState<string | null>('lastReloadedArgsKey', null)
 

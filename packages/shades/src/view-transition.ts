@@ -31,3 +31,36 @@ export const maybeViewTransition = (
     update()
   }
 }
+
+/**
+ * Keeps a "displayed" copy of `value` that is updated through a view transition
+ * whenever the value changes and `shouldTransition` returns true.
+ *
+ * When the transition is skipped (config is falsy or `shouldTransition` returns false),
+ * the displayed value is updated synchronously without an animation.
+ *
+ * @param useState - The component's `useState` hook
+ * @param key - Unique state key for caching the displayed value
+ * @param value - The latest source value (e.g. from `useObservable` or derived from props)
+ * @param config - View transition configuration forwarded to `maybeViewTransition`
+ * @param shouldTransition - Predicate that decides whether a value change warrants a transition.
+ *   Defaults to `() => true` (always transition).
+ * @returns The currently displayed value
+ */
+export const transitionedValue = <T>(
+  useState: <S>(key: string, initialValue: S) => [S, (v: S) => void],
+  key: string,
+  value: T,
+  config: boolean | ViewTransitionConfig | undefined,
+  shouldTransition: (prev: T, next: T) => boolean = () => true,
+): T => {
+  const [displayed, setDisplayed] = useState(key, value)
+  if (value !== displayed) {
+    if (shouldTransition(displayed, value)) {
+      void maybeViewTransition(config, () => setDisplayed(value))
+    } else {
+      setDisplayed(value)
+    }
+  }
+  return displayed
+}

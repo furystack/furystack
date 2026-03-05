@@ -1,5 +1,5 @@
 import type { ViewTransitionConfig } from '@furystack/shades'
-import { LocationService, Shade, createComponent, maybeViewTransition } from '@furystack/shades'
+import { LocationService, Shade, createComponent, transitionedValue } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { close } from './icons/icon-definitions.js'
 import { Icon } from './icons/icon.js'
@@ -227,10 +227,7 @@ export const Tabs = Shade<{
 
     const activeKey = isControlled ? props.activeKey! : hash.replace('#', '')
 
-    const [displayedKey, setDisplayedKey] = useState('displayedKey', activeKey)
-    if (activeKey !== displayedKey) {
-      void maybeViewTransition(props.viewTransition, () => setDisplayedKey(activeKey))
-    }
+    const displayedKey = transitionedValue(useState, 'displayedKey', activeKey, props.viewTransition)
 
     const displayedTab = props.tabs.find((t) => t.hash === displayedKey)
 
