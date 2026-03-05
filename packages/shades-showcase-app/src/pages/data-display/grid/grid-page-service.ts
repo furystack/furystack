@@ -47,6 +47,7 @@ export class GridPageService implements Disposable {
   }
 
   public [Symbol.dispose]() {
+    this.findOptions[Symbol.dispose]()
     this.collectionService[Symbol.dispose]()
   }
 }

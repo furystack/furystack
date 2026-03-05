@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import type { ClientSyncMessage, ServerSyncMessage } from '@furystack/entity-sync'
 import { Injector } from '@furystack/inject'
 import type { ObservableValue } from '@furystack/utils'
+import { using, usingAsync } from '@furystack/utils'
 import { EntitySyncService } from './entity-sync-service.js'
 import { useEntitySync, useCollectionSync } from './shades-hooks.js'
 import type { SyncHookContext } from './shades-hooks.js'
@@ -121,27 +122,28 @@ describe('Shades convenience hooks', () => {
 
     it('should return same disposable on repeated calls with same key', async () => {
       const mockWs = createMockWebSocket()
-      const injector = new Injector()
+      await usingAsync(new Injector(), async (injector) => {
+        using(
+          new EntitySyncService({
+            wsUrl: 'ws://test',
+            createWebSocket: () => mockWs as unknown as WebSocket,
+            reconnect: false,
+          }),
+          (service) => {
+            service.registerModel(User)
+            injector.setExplicitInstance(service, EntitySyncService)
 
-      const service = new EntitySyncService({
-        wsUrl: 'ws://test',
-        createWebSocket: () => mockWs as unknown as WebSocket,
-        reconnect: false,
+            const context = createMockContext(injector)
+            mockWs.simulateOpen()
+
+            useEntitySync(context, User, '123')
+            useEntitySync(context, User, '123')
+
+            // Should only have created one subscription
+            expect(mockWs.send).toHaveBeenCalledTimes(1)
+          },
+        )
       })
-      service.registerModel(User)
-      injector.setExplicitInstance(service, EntitySyncService)
-
-      const context = createMockContext(injector)
-      mockWs.simulateOpen()
-
-      useEntitySync(context, User, '123')
-      useEntitySync(context, User, '123')
-
-      // Should only have created one subscription
-      expect(mockWs.send).toHaveBeenCalledTimes(1)
-
-      service[Symbol.dispose]()
-      await injector[Symbol.asyncDispose]()
     })
   })
 

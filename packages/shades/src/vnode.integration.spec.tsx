@@ -335,6 +335,8 @@ describe('VNode reconciliation integration tests', () => {
         const ExampleComponent = Shade({
           shadowDomName: 'morph-animation-test',
           render: ({ useState }) => {
+            // We want to test the animation continuity, so we need to disable the rule
+            // eslint-disable-next-line furystack/no-css-state-hooks
             const [isActive, setIsActive] = useState('isActive', false)
             return (
               <div>

@@ -43,6 +43,9 @@ export class LocationService implements Disposable {
     this.onLocationSearchChanged[Symbol.dispose]()
     this.onDeserializedLocationSearchChanged[Symbol.dispose]()
     this.locationDeserializerObserver[Symbol.dispose]()
+    this.onLocationPathChanged[Symbol.dispose]()
+    this.onLocationHashChanged[Symbol.dispose]()
+    this.onLocationSearchChanged[Symbol.dispose]()
 
     window.history.pushState = this.originalPushState
     window.history.replaceState = this.originalReplaceState

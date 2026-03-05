@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { sleepAsync } from './sleep-async.js'
 import { using } from './using.js'
+import { usingAsync } from './using-async.js'
 import { Semaphore, SemaphoreDisposedError } from './semaphore.js'
 
 export const semaphoreTests = describe('Semaphore', () => {
@@ -16,375 +17,374 @@ export const semaphoreTests = describe('Semaphore', () => {
   })
 
   it('should execute a single task and return its result', async () => {
-    const s = new Semaphore(2)
-    const result = await s.execute(async () => 42)
-    expect(result).toBe(42)
-    expect(s.completedCount.getValue()).toBe(1)
-    expect(s.runningCount.getValue()).toBe(0)
-    s[Symbol.dispose]()
+    await usingAsync(new Semaphore(2), async (s) => {
+      const result = await s.execute(async () => 42)
+      expect(result).toBe(42)
+      expect(s.completedCount.getValue()).toBe(1)
+      expect(s.runningCount.getValue()).toBe(0)
+    })
   })
 
   it('should execute up to N tasks concurrently and queue the rest', async () => {
-    const s = new Semaphore(2)
-    const running: string[] = []
-    const resolvers: Array<() => void> = []
+    await usingAsync(new Semaphore(2), async (s) => {
+      const running: string[] = []
+      const resolvers: Array<() => void> = []
 
-    const createTask = (name: string) =>
-      s.execute(async () => {
-        running.push(name)
-        await new Promise<void>((resolve) => resolvers.push(resolve))
-        return name
-      })
+      const createTask = (name: string) =>
+        s.execute(async () => {
+          running.push(name)
+          await new Promise<void>((resolve) => resolvers.push(resolve))
+          return name
+        })
 
-    const p1 = createTask('a')
-    const p2 = createTask('b')
-    const p3 = createTask('c')
+      const p1 = createTask('a')
+      const p2 = createTask('b')
+      const p3 = createTask('c')
 
-    await sleepAsync(10)
+      await sleepAsync(10)
 
-    expect(running).toEqual(['a', 'b'])
-    expect(s.runningCount.getValue()).toBe(2)
-    expect(s.pendingCount.getValue()).toBe(1)
+      expect(running).toEqual(['a', 'b'])
+      expect(s.runningCount.getValue()).toBe(2)
+      expect(s.pendingCount.getValue()).toBe(1)
 
-    resolvers[0]()
-    await p1
+      resolvers[0]()
+      await p1
 
-    await sleepAsync(10)
+      await sleepAsync(10)
 
-    expect(running).toEqual(['a', 'b', 'c'])
-    expect(s.runningCount.getValue()).toBe(2)
-    expect(s.pendingCount.getValue()).toBe(0)
+      expect(running).toEqual(['a', 'b', 'c'])
+      expect(s.runningCount.getValue()).toBe(2)
+      expect(s.pendingCount.getValue()).toBe(0)
 
-    resolvers[1]()
-    resolvers[2]()
-    await Promise.all([p2, p3])
+      resolvers[1]()
+      resolvers[2]()
+      await Promise.all([p2, p3])
 
-    expect(s.completedCount.getValue()).toBe(3)
-    expect(s.runningCount.getValue()).toBe(0)
-    s[Symbol.dispose]()
+      expect(s.completedCount.getValue()).toBe(3)
+      expect(s.runningCount.getValue()).toBe(0)
+    })
   })
 
   it('should propagate task rejection to the caller and continue processing', async () => {
-    const s = new Semaphore(1)
-    const taskError = new Error('task failed')
+    await usingAsync(new Semaphore(1), async (s) => {
+      const taskError = new Error('task failed')
 
-    const p1 = s.execute(async () => {
-      throw taskError
+      const p1 = s.execute(async () => {
+        throw taskError
+      })
+      const p2 = s.execute(async () => 'ok')
+
+      await expect(p1).rejects.toThrow('task failed')
+
+      const result = await p2
+      expect(result).toBe('ok')
+      expect(s.failedCount.getValue()).toBe(1)
+      expect(s.completedCount.getValue()).toBe(1)
     })
-    const p2 = s.execute(async () => 'ok')
-
-    await expect(p1).rejects.toThrow('task failed')
-
-    const result = await p2
-    expect(result).toBe('ok')
-    expect(s.failedCount.getValue()).toBe(1)
-    expect(s.completedCount.getValue()).toBe(1)
-    s[Symbol.dispose]()
   })
 
   describe('ObservableValue counters', () => {
     it('should update pendingCount and runningCount on transitions', async () => {
-      const s = new Semaphore(1)
-      const pendingChanges: number[] = []
-      const runningChanges: number[] = []
+      await usingAsync(new Semaphore(1), async (s) => {
+        const pendingChanges: number[] = []
+        const runningChanges: number[] = []
 
-      s.pendingCount.subscribe((v) => {
-        pendingChanges.push(v)
+        s.pendingCount.subscribe((v) => {
+          pendingChanges.push(v)
+        })
+        s.runningCount.subscribe((v) => {
+          runningChanges.push(v)
+        })
+
+        let resolve!: () => void
+        const p1 = s.execute(async () => {
+          await new Promise<void>((r) => (resolve = r))
+        })
+
+        const p2 = s.execute(async () => 'done')
+
+        await sleepAsync(10)
+
+        expect(pendingChanges).toContain(1)
+        expect(runningChanges).toContain(1)
+
+        resolve()
+        await p1
+        await sleepAsync(10)
+        await p2
+
+        expect(s.pendingCount.getValue()).toBe(0)
+        expect(s.runningCount.getValue()).toBe(0)
+        expect(s.completedCount.getValue()).toBe(2)
       })
-      s.runningCount.subscribe((v) => {
-        runningChanges.push(v)
-      })
-
-      let resolve!: () => void
-      const p1 = s.execute(async () => {
-        await new Promise<void>((r) => (resolve = r))
-      })
-
-      const p2 = s.execute(async () => 'done')
-
-      await sleepAsync(10)
-
-      expect(pendingChanges).toContain(1)
-      expect(runningChanges).toContain(1)
-
-      resolve()
-      await p1
-      await sleepAsync(10)
-      await p2
-
-      expect(s.pendingCount.getValue()).toBe(0)
-      expect(s.runningCount.getValue()).toBe(0)
-      expect(s.completedCount.getValue()).toBe(2)
-      s[Symbol.dispose]()
     })
 
     it('should update completedCount and failedCount correctly', async () => {
-      const s = new Semaphore(2)
+      await usingAsync(new Semaphore(2), async (s) => {
+        await s.execute(async () => 'ok')
+        await s
+          .execute(async () => {
+            throw new Error('fail')
+          })
+          .catch(() => {})
 
-      await s.execute(async () => 'ok')
-      await s
-        .execute(async () => {
-          throw new Error('fail')
-        })
-        .catch(() => {})
-
-      expect(s.completedCount.getValue()).toBe(1)
-      expect(s.failedCount.getValue()).toBe(1)
-      s[Symbol.dispose]()
+        expect(s.completedCount.getValue()).toBe(1)
+        expect(s.failedCount.getValue()).toBe(1)
+      })
     })
   })
 
   describe('AbortSignal support', () => {
     it('should abort a pending task when the caller signal aborts', async () => {
-      const s = new Semaphore(1)
-      let resolve!: () => void
+      await usingAsync(new Semaphore(1), async (s) => {
+        let resolve!: () => void
 
-      const p1 = s.execute(async () => {
-        await new Promise<void>((r) => (resolve = r))
+        const p1 = s.execute(async () => {
+          await new Promise<void>((r) => (resolve = r))
+        })
+
+        const controller = new AbortController()
+        const p2 = s.execute(async () => 'should not run', { signal: controller.signal })
+
+        await sleepAsync(10)
+        expect(s.pendingCount.getValue()).toBe(1)
+
+        controller.abort(new Error('cancelled'))
+        await expect(p2).rejects.toThrow('cancelled')
+        expect(s.pendingCount.getValue()).toBe(0)
+
+        resolve()
+        await p1
       })
-
-      const controller = new AbortController()
-      const p2 = s.execute(async () => 'should not run', { signal: controller.signal })
-
-      await sleepAsync(10)
-      expect(s.pendingCount.getValue()).toBe(1)
-
-      controller.abort(new Error('cancelled'))
-      await expect(p2).rejects.toThrow('cancelled')
-      expect(s.pendingCount.getValue()).toBe(0)
-
-      resolve()
-      await p1
-      s[Symbol.dispose]()
     })
 
     it('should reject immediately if the caller signal is already aborted', async () => {
-      const s = new Semaphore(1)
-      const controller = new AbortController()
-      controller.abort(new Error('pre-aborted'))
+      await usingAsync(new Semaphore(1), async (s) => {
+        const controller = new AbortController()
+        controller.abort(new Error('pre-aborted'))
 
-      await expect(s.execute(async () => 'should not run', { signal: controller.signal })).rejects.toThrow(
-        'pre-aborted',
-      )
+        await expect(s.execute(async () => 'should not run', { signal: controller.signal })).rejects.toThrow(
+          'pre-aborted',
+        )
 
-      expect(s.pendingCount.getValue()).toBe(0)
-      expect(s.runningCount.getValue()).toBe(0)
-      s[Symbol.dispose]()
+        expect(s.pendingCount.getValue()).toBe(0)
+        expect(s.runningCount.getValue()).toBe(0)
+      })
     })
 
     it('should clean up the caller signal listener when the task completes normally', async () => {
-      const s = new Semaphore(1)
-      const controller = new AbortController()
+      await usingAsync(new Semaphore(1), async (s) => {
+        const controller = new AbortController()
 
-      const removeSpy = vi.spyOn(controller.signal, 'removeEventListener')
+        const removeSpy = vi.spyOn(controller.signal, 'removeEventListener')
 
-      await s.execute(async () => 'done', { signal: controller.signal })
+        await s.execute(async () => 'done', { signal: controller.signal })
 
-      expect(removeSpy).toHaveBeenCalledWith('abort', expect.any(Function))
-      removeSpy.mockRestore()
-      s[Symbol.dispose]()
+        expect(removeSpy).toHaveBeenCalledWith('abort', expect.any(Function))
+        removeSpy.mockRestore()
+      })
     })
 
     it('should abort the signal passed to a running task when the caller signal aborts', async () => {
-      const s = new Semaphore(1)
-      const signalAborted = vi.fn()
+      await usingAsync(new Semaphore(1), async (s) => {
+        const signalAborted = vi.fn()
 
-      const controller = new AbortController()
-      const p = s.execute(
-        async ({ signal }) => {
-          signal.addEventListener('abort', signalAborted)
-          await new Promise<void>((resolve) => {
-            signal.addEventListener('abort', () => resolve())
-          })
-          throw signal.reason
-        },
-        { signal: controller.signal },
-      )
+        const controller = new AbortController()
+        const p = s.execute(
+          async ({ signal }) => {
+            signal.addEventListener('abort', signalAborted)
+            await new Promise<void>((resolve) => {
+              signal.addEventListener('abort', () => resolve())
+            })
+            throw signal.reason
+          },
+          { signal: controller.signal },
+        )
 
-      await sleepAsync(10)
-      expect(s.runningCount.getValue()).toBe(1)
+        await sleepAsync(10)
+        expect(s.runningCount.getValue()).toBe(1)
 
-      controller.abort(new Error('stop'))
-      await expect(p).rejects.toThrow('stop')
-      expect(signalAborted).toBeCalledTimes(1)
-      s[Symbol.dispose]()
+        controller.abort(new Error('stop'))
+        await expect(p).rejects.toThrow('stop')
+        expect(signalAborted).toBeCalledTimes(1)
+      })
     })
   })
 
   describe('EventHub events', () => {
     it('should emit taskStarted when a task begins running', async () => {
-      const s = new Semaphore(1)
-      const listener = vi.fn()
-      s.subscribe('taskStarted', listener)
+      await usingAsync(new Semaphore(1), async (s) => {
+        const listener = vi.fn()
+        s.subscribe('taskStarted', listener)
 
-      await s.execute(async () => 'done')
+        await s.execute(async () => 'done')
 
-      expect(listener).toBeCalledTimes(1)
-      s[Symbol.dispose]()
+        expect(listener).toBeCalledTimes(1)
+      })
     })
 
     it('should emit taskCompleted when a task resolves', async () => {
-      const s = new Semaphore(1)
-      const listener = vi.fn()
-      s.subscribe('taskCompleted', listener)
+      await usingAsync(new Semaphore(1), async (s) => {
+        const listener = vi.fn()
+        s.subscribe('taskCompleted', listener)
 
-      await s.execute(async () => 'done')
+        await s.execute(async () => 'done')
 
-      expect(listener).toBeCalledTimes(1)
-      s[Symbol.dispose]()
+        expect(listener).toBeCalledTimes(1)
+      })
     })
 
     it('should emit taskFailed with the error when a task rejects', async () => {
-      const s = new Semaphore(1)
-      const listener = vi.fn()
-      s.subscribe('taskFailed', listener)
+      await usingAsync(new Semaphore(1), async (s) => {
+        const listener = vi.fn()
+        s.subscribe('taskFailed', listener)
 
-      const taskError = new Error('boom')
-      await s
-        .execute(async () => {
-          throw taskError
-        })
-        .catch(() => {})
+        const taskError = new Error('boom')
+        await s
+          .execute(async () => {
+            throw taskError
+          })
+          .catch(() => {})
 
-      expect(listener).toBeCalledTimes(1)
-      expect(listener).toBeCalledWith({ error: taskError })
-      s[Symbol.dispose]()
+        expect(listener).toBeCalledTimes(1)
+        expect(listener).toBeCalledWith({ error: taskError })
+      })
     })
 
     it('should emit events in correct order for queued tasks', async () => {
-      const s = new Semaphore(1)
-      const events: string[] = []
+      await usingAsync(new Semaphore(1), async (s) => {
+        const events: string[] = []
 
-      s.subscribe('taskStarted', () => {
-        events.push('started')
+        s.subscribe('taskStarted', () => {
+          events.push('started')
+        })
+        s.subscribe('taskCompleted', () => {
+          events.push('completed')
+        })
+
+        await Promise.all([s.execute(async () => 'a'), s.execute(async () => 'b')])
+
+        await sleepAsync(10)
+
+        expect(events).toEqual(['started', 'completed', 'started', 'completed'])
       })
-      s.subscribe('taskCompleted', () => {
-        events.push('completed')
-      })
-
-      await Promise.all([s.execute(async () => 'a'), s.execute(async () => 'b')])
-
-      await sleepAsync(10)
-
-      expect(events).toEqual(['started', 'completed', 'started', 'completed'])
-      s[Symbol.dispose]()
     })
   })
 
   describe('setMaxConcurrent', () => {
     it('should return the updated value from getMaxConcurrent', () => {
-      const s = new Semaphore(2)
-      s.setMaxConcurrent(5)
-      expect(s.getMaxConcurrent()).toBe(5)
-      s[Symbol.dispose]()
+      using(new Semaphore(2), (s) => {
+        s.setMaxConcurrent(5)
+        expect(s.getMaxConcurrent()).toBe(5)
+      })
     })
 
     it('should throw when given a non-positive integer', () => {
-      const s = new Semaphore(2)
-      expect(() => s.setMaxConcurrent(0)).toThrow('maxConcurrent must be a positive integer')
-      expect(() => s.setMaxConcurrent(-1)).toThrow('maxConcurrent must be a positive integer')
-      expect(() => s.setMaxConcurrent(1.5)).toThrow('maxConcurrent must be a positive integer')
-      s[Symbol.dispose]()
+      using(new Semaphore(2), (s) => {
+        expect(() => s.setMaxConcurrent(0)).toThrow('maxConcurrent must be a positive integer')
+        expect(() => s.setMaxConcurrent(-1)).toThrow('maxConcurrent must be a positive integer')
+        expect(() => s.setMaxConcurrent(1.5)).toThrow('maxConcurrent must be a positive integer')
+      })
     })
 
     it('should immediately start queued tasks when increased', async () => {
-      const s = new Semaphore(1)
-      const running: string[] = []
-      const resolvers: Array<() => void> = []
+      await usingAsync(new Semaphore(1), async (s) => {
+        const running: string[] = []
+        const resolvers: Array<() => void> = []
 
-      const createTask = (name: string) =>
-        s.execute(async () => {
-          running.push(name)
-          await new Promise<void>((resolve) => resolvers.push(resolve))
-          return name
-        })
+        const createTask = (name: string) =>
+          s.execute(async () => {
+            running.push(name)
+            await new Promise<void>((resolve) => resolvers.push(resolve))
+            return name
+          })
 
-      const p1 = createTask('a')
-      const p2 = createTask('b')
-      const p3 = createTask('c')
+        const p1 = createTask('a')
+        const p2 = createTask('b')
+        const p3 = createTask('c')
 
-      await sleepAsync(10)
-      expect(running).toEqual(['a'])
-      expect(s.runningCount.getValue()).toBe(1)
-      expect(s.pendingCount.getValue()).toBe(2)
+        await sleepAsync(10)
+        expect(running).toEqual(['a'])
+        expect(s.runningCount.getValue()).toBe(1)
+        expect(s.pendingCount.getValue()).toBe(2)
 
-      s.setMaxConcurrent(3)
+        s.setMaxConcurrent(3)
 
-      await sleepAsync(10)
-      expect(running).toEqual(['a', 'b', 'c'])
-      expect(s.runningCount.getValue()).toBe(3)
-      expect(s.pendingCount.getValue()).toBe(0)
+        await sleepAsync(10)
+        expect(running).toEqual(['a', 'b', 'c'])
+        expect(s.runningCount.getValue()).toBe(3)
+        expect(s.pendingCount.getValue()).toBe(0)
 
-      resolvers.forEach((r) => r())
-      await Promise.all([p1, p2, p3])
-      s[Symbol.dispose]()
+        resolvers.forEach((r) => r())
+        await Promise.all([p1, p2, p3])
+      })
     })
 
     it('should not abort running tasks when decreased', async () => {
-      const s = new Semaphore(3)
-      const resolvers: Array<() => void> = []
+      await usingAsync(new Semaphore(3), async (s) => {
+        const resolvers: Array<() => void> = []
 
-      const createTask = () =>
-        s.execute(async () => {
-          await new Promise<void>((resolve) => resolvers.push(resolve))
-        })
+        const createTask = () =>
+          s.execute(async () => {
+            await new Promise<void>((resolve) => resolvers.push(resolve))
+          })
 
-      const p1 = createTask()
-      const p2 = createTask()
-      const p3 = createTask()
+        const p1 = createTask()
+        const p2 = createTask()
+        const p3 = createTask()
 
-      await sleepAsync(10)
-      expect(s.runningCount.getValue()).toBe(3)
+        await sleepAsync(10)
+        expect(s.runningCount.getValue()).toBe(3)
 
-      s.setMaxConcurrent(1)
+        s.setMaxConcurrent(1)
 
-      expect(s.runningCount.getValue()).toBe(3)
+        expect(s.runningCount.getValue()).toBe(3)
 
-      resolvers.forEach((r) => r())
-      await Promise.all([p1, p2, p3])
-      expect(s.completedCount.getValue()).toBe(3)
-      s[Symbol.dispose]()
+        resolvers.forEach((r) => r())
+        await Promise.all([p1, p2, p3])
+        expect(s.completedCount.getValue()).toBe(3)
+      })
     })
 
     it('should not start new tasks until running count drops below new lower limit', async () => {
-      const s = new Semaphore(2)
-      const running: string[] = []
-      const resolvers: Array<() => void> = []
+      await usingAsync(new Semaphore(2), async (s) => {
+        const running: string[] = []
+        const resolvers: Array<() => void> = []
 
-      const createTask = (name: string) =>
-        s.execute(async () => {
-          running.push(name)
-          await new Promise<void>((resolve) => resolvers.push(resolve))
-          return name
-        })
+        const createTask = (name: string) =>
+          s.execute(async () => {
+            running.push(name)
+            await new Promise<void>((resolve) => resolvers.push(resolve))
+            return name
+          })
 
-      const p1 = createTask('a')
-      const p2 = createTask('b')
-      const p3 = createTask('c')
+        const p1 = createTask('a')
+        const p2 = createTask('b')
+        const p3 = createTask('c')
 
-      await sleepAsync(10)
-      expect(running).toEqual(['a', 'b'])
-      expect(s.pendingCount.getValue()).toBe(1)
+        await sleepAsync(10)
+        expect(running).toEqual(['a', 'b'])
+        expect(s.pendingCount.getValue()).toBe(1)
 
-      s.setMaxConcurrent(1)
+        s.setMaxConcurrent(1)
 
-      resolvers[0]()
-      await p1
-      await sleepAsync(10)
+        resolvers[0]()
+        await p1
+        await sleepAsync(10)
 
-      expect(running).toEqual(['a', 'b'])
-      expect(s.pendingCount.getValue()).toBe(1)
+        expect(running).toEqual(['a', 'b'])
+        expect(s.pendingCount.getValue()).toBe(1)
 
-      resolvers[1]()
-      await p2
-      await sleepAsync(10)
+        resolvers[1]()
+        await p2
+        await sleepAsync(10)
 
-      expect(running).toEqual(['a', 'b', 'c'])
-      expect(s.pendingCount.getValue()).toBe(0)
+        expect(running).toEqual(['a', 'b', 'c'])
+        expect(s.pendingCount.getValue()).toBe(0)
 
-      resolvers[2]()
-      await p3
-      s[Symbol.dispose]()
+        resolvers[2]()
+        await p3
+      })
     })
   })
 
@@ -460,7 +460,7 @@ export const semaphoreTests = describe('Semaphore', () => {
 
       s[Symbol.dispose]()
 
-      s.emit('taskStarted', undefined)
+      expect(() => s.emit('taskStarted', undefined)).not.toThrow()
       expect(listener).not.toBeCalled()
     })
   })

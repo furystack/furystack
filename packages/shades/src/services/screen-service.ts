@@ -83,6 +83,10 @@ export class ScreenService implements Disposable {
    */
   public [Symbol.dispose]() {
     window.removeEventListener('resize', this.onResizeListener)
+    this.orientation[Symbol.dispose]()
+    Object.values(this.screenSize.atLeast).forEach((observable) => {
+      observable[Symbol.dispose]()
+    })
   }
 
   /**

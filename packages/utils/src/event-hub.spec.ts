@@ -95,6 +95,8 @@ describe('EventHub', () => {
     const listener = vi.fn((_val: string) => {})
 
     hub.addListener('test', listener)
+    // We want to test the dispose behavior, so we need to disable the rule
+    // eslint-disable-next-line furystack/prefer-using-wrapper
     hub[Symbol.dispose]()
     hub.emit('test', 'test')
     expect(listener).not.toBeCalled()

@@ -243,6 +243,8 @@ export const Input = Shade<TextInputProps>({
 
     const themeProvider = injector.getInstance(ThemeProviderService)
 
+    // We want to use the CSS state hooks for the focused and validity states, so we need to disable the rule
+    // eslint-disable-next-line furystack/no-css-state-hooks
     const [focused, setFocused] = useState('focused', props.autofocus || false)
     const [validity, setValidity] = useState('validity', inputRef.current?.validity || emptyValidity)
 
