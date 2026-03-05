@@ -10,6 +10,7 @@ import {
   findDivergenceIndex,
   NestedRouter,
   renderMatchChain,
+  resolveViewTransition,
   type MatchChainEntry,
   type NestedRoute,
 } from './nested-router.js'
@@ -1021,6 +1022,254 @@ describe('NestedRouter + RouteMatchService integration', () => {
       const chain = routeMatchService.currentMatchChain.getValue()
       expect(chain).toHaveLength(1)
       expect(chain[0].match.params).toEqual({ id: '42' })
+    })
+  })
+})
+
+describe('resolveViewTransition', () => {
+  const makeEntry = (viewTransition?: boolean | { types?: string[] }): MatchChainEntry => ({
+    route: { component: () => <div />, viewTransition },
+    match: { path: '/', params: {} },
+  })
+
+  it('should return false when router config is undefined and route has no override', () => {
+    expect(resolveViewTransition(undefined, [makeEntry()])).toBe(false)
+  })
+
+  it('should return false when router config is false', () => {
+    expect(resolveViewTransition(false, [makeEntry()])).toBe(false)
+  })
+
+  it('should return config when router config is true', () => {
+    expect(resolveViewTransition(true, [makeEntry()])).toEqual({ types: undefined })
+  })
+
+  it('should return false when router is true but leaf route opts out', () => {
+    expect(resolveViewTransition(true, [makeEntry(false)])).toBe(false)
+  })
+
+  it('should use router-level types when route has no override', () => {
+    expect(resolveViewTransition({ types: ['slide'] }, [makeEntry()])).toEqual({ types: ['slide'] })
+  })
+
+  it('should prefer route-level types over router-level types', () => {
+    expect(resolveViewTransition({ types: ['slide'] }, [makeEntry({ types: ['fade'] })])).toEqual({
+      types: ['fade'],
+    })
+  })
+
+  it('should enable transitions when only the leaf route enables it', () => {
+    expect(resolveViewTransition(undefined, [makeEntry(true)])).toEqual({ types: undefined })
+  })
+
+  it('should use types from the innermost (leaf) route in a chain', () => {
+    const parent = makeEntry({ types: ['parent-type'] })
+    const child = makeEntry({ types: ['child-type'] })
+    expect(resolveViewTransition(true, [parent, child])).toEqual({ types: ['child-type'] })
+  })
+})
+
+describe('NestedRouter view transitions', () => {
+  let startViewTransitionSpy: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+    startViewTransitionSpy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+      const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+      update?.()
+      return {
+        finished: Promise.resolve(),
+        ready: Promise.resolve(),
+        updateCallbackDone: Promise.resolve(),
+        skipTransition: vi.fn(),
+      } as unknown as ViewTransition
+    })
+    document.startViewTransition = startViewTransitionSpy as typeof document.startViewTransition
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+    delete (document as unknown as Record<string, unknown>).startViewTransition
+  })
+
+  it('should call startViewTransition when viewTransition is enabled', async () => {
+    history.pushState(null, '', '/')
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <NestedRouteLink id="go-about" href="/about">
+              about
+            </NestedRouteLink>
+            <NestedRouter
+              viewTransition
+              routes={{
+                '/about': { component: () => <div id="content">about</div> },
+                '/': { component: () => <div id="content">home</div> },
+              }}
+            />
+          </div>
+        ),
+      })
+
+      await flushUpdates()
+      startViewTransitionSpy.mockClear()
+
+      document.getElementById('go-about')?.click()
+      await flushUpdates()
+
+      expect(startViewTransitionSpy).toHaveBeenCalledTimes(1)
+      expect(document.getElementById('content')?.innerHTML).toBe('about')
+    })
+  })
+
+  it('should not call startViewTransition when viewTransition is not set', async () => {
+    history.pushState(null, '', '/')
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <NestedRouteLink id="go-about" href="/about">
+              about
+            </NestedRouteLink>
+            <NestedRouter
+              routes={{
+                '/about': { component: () => <div id="content">about</div> },
+                '/': { component: () => <div id="content">home</div> },
+              }}
+            />
+          </div>
+        ),
+      })
+
+      await flushUpdates()
+      startViewTransitionSpy.mockClear()
+
+      document.getElementById('go-about')?.click()
+      await flushUpdates()
+
+      expect(startViewTransitionSpy).not.toHaveBeenCalled()
+      expect(document.getElementById('content')?.innerHTML).toBe('about')
+    })
+  })
+
+  it('should pass types to startViewTransition when configured', async () => {
+    history.pushState(null, '', '/')
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <NestedRouteLink id="go-about" href="/about">
+              about
+            </NestedRouteLink>
+            <NestedRouter
+              viewTransition={{ types: ['slide'] }}
+              routes={{
+                '/about': { component: () => <div id="content">about</div> },
+                '/': { component: () => <div id="content">home</div> },
+              }}
+            />
+          </div>
+        ),
+      })
+
+      await flushUpdates()
+      startViewTransitionSpy.mockClear()
+
+      document.getElementById('go-about')?.click()
+      await flushUpdates()
+
+      expect(startViewTransitionSpy).toHaveBeenCalledWith(expect.objectContaining({ types: ['slide'] }))
+    })
+  })
+
+  it('should respect per-route viewTransition: false override', async () => {
+    history.pushState(null, '', '/')
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <NestedRouteLink id="go-about" href="/about">
+              about
+            </NestedRouteLink>
+            <NestedRouter
+              viewTransition
+              routes={{
+                '/about': {
+                  component: () => <div id="content">about</div>,
+                  viewTransition: false,
+                },
+                '/': { component: () => <div id="content">home</div> },
+              }}
+            />
+          </div>
+        ),
+      })
+
+      await flushUpdates()
+      startViewTransitionSpy.mockClear()
+
+      document.getElementById('go-about')?.click()
+      await flushUpdates()
+
+      expect(startViewTransitionSpy).not.toHaveBeenCalled()
+      expect(document.getElementById('content')?.innerHTML).toBe('about')
+    })
+  })
+
+  it('should fall back gracefully when startViewTransition is not available', async () => {
+    delete (document as unknown as Record<string, unknown>).startViewTransition
+
+    history.pushState(null, '', '/')
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <div>
+            <NestedRouteLink id="go-about" href="/about">
+              about
+            </NestedRouteLink>
+            <NestedRouter
+              viewTransition
+              routes={{
+                '/about': { component: () => <div id="content">about</div> },
+                '/': { component: () => <div id="content">home</div> },
+              }}
+            />
+          </div>
+        ),
+      })
+
+      await flushUpdates()
+
+      document.getElementById('go-about')?.click()
+      await flushUpdates()
+
+      expect(document.getElementById('content')?.innerHTML).toBe('about')
     })
   })
 })

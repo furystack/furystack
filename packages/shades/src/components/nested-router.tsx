@@ -42,6 +42,15 @@ export interface NestedRouteMeta<TMatchResult = unknown> {
 }
 
 /**
+ * Configuration for the View Transition API integration.
+ * When provided as an object, allows specifying transition types for CSS targeting
+ * via the `:active-view-transition-type()` pseudo-class.
+ */
+export type ViewTransitionConfig = {
+  types?: string[]
+}
+
+/**
  * A single route entry in a NestedRouter configuration.
  * Unlike flat `Route`, the URL is the Record key (not a field), and the
  * `component` receives an `outlet` for rendering matched child content.
@@ -55,9 +64,20 @@ export type NestedRoute<TMatchResult = unknown> = {
     outlet?: JSX.Element
   }) => JSX.Element
   routingOptions?: MatchOptions
+  /**
+   * Called after the route's DOM has been mounted (and after the view transition callback, if enabled).
+   * Use for imperative side effects like data fetching or focus management — not for visual
+   * animations, which are handled by the View Transition API when `viewTransition` is enabled.
+   */
   onVisit?: (options: RenderOptions<unknown> & { element: JSX.Element }) => Promise<void>
+  /**
+   * Called before the route's DOM is removed (and before the view transition starts, if enabled).
+   * Use for cleanup or teardown logic — not for exit animations, which are handled by the
+   * View Transition API when `viewTransition` is enabled.
+   */
   onLeave?: (options: RenderOptions<unknown> & { element: JSX.Element }) => Promise<void>
   children?: Record<string, NestedRoute<any>>
+  viewTransition?: boolean | ViewTransitionConfig
 }
 
 /**
@@ -67,6 +87,7 @@ export type NestedRoute<TMatchResult = unknown> = {
 export type NestedRouterProps = {
   routes: Record<string, NestedRoute<any>>
   notFound?: JSX.Element
+  viewTransition?: boolean | ViewTransitionConfig
 }
 
 /**
@@ -201,6 +222,29 @@ export const renderMatchChain = (chain: MatchChainEntry[], currentUrl: string): 
 }
 
 /**
+ * Resolves the effective view transition config for a navigation by merging
+ * the router-level default with the innermost (leaf) route's override.
+ * A per-route `false` disables transitions even when the router default is on.
+ */
+export const resolveViewTransition = (
+  routerConfig: boolean | ViewTransitionConfig | undefined,
+  newChain: MatchChainEntry[],
+): ViewTransitionConfig | false => {
+  if (!routerConfig && routerConfig !== undefined) return false
+
+  const leafRoute = newChain[newChain.length - 1]?.route
+  const routeConfig = leafRoute?.viewTransition
+
+  if (routeConfig === false) return false
+  if (!routerConfig && !routeConfig) return false
+
+  const baseTypes = typeof routerConfig === 'object' ? routerConfig.types : undefined
+  const routeTypes = typeof routeConfig === 'object' ? routeConfig.types : undefined
+
+  return { types: routeTypes ?? baseTypes }
+}
+
+/**
  * A nested router component that supports hierarchical route definitions
  * with parent/child relationships. Parent routes receive an `outlet` prop
  * containing the rendered child route, enabling layout composition.
@@ -237,7 +281,6 @@ export const NestedRouter = Shade<NestedRouterProps>({
           if (hasChanged) {
             const version = ++versionRef.current
 
-            // Call onLeave for routes that are being left (from divergence point to end of old chain)
             for (let i = lastChainEntries.length - 1; i >= divergeIndex; i--) {
               await lastChainEntries[i].route.onLeave?.({ ...options, element: lastChainElements[i] })
               if (version !== versionRef.current) return
@@ -251,10 +294,23 @@ export const NestedRouter = Shade<NestedRouterProps>({
               setRenderMode(false)
             }
             if (version !== versionRef.current) return
-            setState({ matchChain: newChain, jsx: newResult.jsx, chainElements: newResult.chainElements })
-            injector.getInstance(RouteMatchService).currentMatchChain.setValue(newChain)
 
-            // Call onVisit for routes that are being entered (from divergence point to end of new chain)
+            const applyUpdate = () => {
+              setState({ matchChain: newChain, jsx: newResult.jsx, chainElements: newResult.chainElements })
+              injector.getInstance(RouteMatchService).currentMatchChain.setValue(newChain)
+            }
+
+            const vtConfig = resolveViewTransition(options.props.viewTransition, newChain)
+            if (vtConfig !== false && document.startViewTransition) {
+              const vtOptions: StartViewTransitionOptions = {
+                update: applyUpdate,
+                ...(vtConfig.types?.length ? { types: vtConfig.types } : {}),
+              }
+              document.startViewTransition(vtOptions)
+            } else {
+              applyUpdate()
+            }
+
             for (let i = divergeIndex; i < newChain.length; i++) {
               await newChain[i].route.onVisit?.({ ...options, element: newResult.chainElements[i] })
               if (version !== versionRef.current) return
@@ -263,18 +319,25 @@ export const NestedRouter = Shade<NestedRouterProps>({
         } else if (lastChain !== null) {
           const version = ++versionRef.current
 
-          // No match found — call onLeave for all active routes and show notFound.
-          // The null sentinel prevents re-entering this block on re-render.
           for (let i = (lastChain?.length ?? 0) - 1; i >= 0; i--) {
             await lastChain[i].route.onLeave?.({ ...options, element: lastChainElements[i] })
             if (version !== versionRef.current) return
           }
-          setState({
-            matchChain: null,
-            jsx: options.props.notFound || <div />,
-            chainElements: [],
-          })
-          injector.getInstance(RouteMatchService).currentMatchChain.setValue([])
+
+          const applyNotFound = () => {
+            setState({
+              matchChain: null,
+              jsx: options.props.notFound || <div />,
+              chainElements: [],
+            })
+            injector.getInstance(RouteMatchService).currentMatchChain.setValue([])
+          }
+
+          if (options.props.viewTransition && document.startViewTransition) {
+            document.startViewTransition({ update: applyNotFound })
+          } else {
+            applyNotFound()
+          }
         }
       } catch (e) {
         if (!(e instanceof ObservableAlreadyDisposedError)) {

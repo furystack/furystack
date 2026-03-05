@@ -8,17 +8,6 @@ import { Navigate } from './components/navigate.js'
 import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
 
-const withFadeTransition = {
-  /*
-  !!!TODO!!!
-  onVisit: async (options: RenderOptions<unknown>) => {
-    // await fadeIn(options, {})
-  },
-  onLeave: async (options: RenderOptions<unknown>) => {
-    // await fadeOut(options, {})
-  },*/
-}
-
 /**
  * Top-level route definitions for the NestedRouter.
  *
@@ -162,7 +151,7 @@ export const appRoutes = {
         children: {
           '/buttons': {
             meta: { title: 'Buttons' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -176,7 +165,7 @@ export const appRoutes = {
           },
           '/button-group': {
             meta: { title: 'Button Group' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -189,7 +178,7 @@ export const appRoutes = {
           },
           '/checkboxes': {
             meta: { title: 'Checkboxes' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -202,7 +191,7 @@ export const appRoutes = {
           },
           '/input-number': {
             meta: { title: 'Input Number' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -215,7 +204,7 @@ export const appRoutes = {
           },
           '/inputs': {
             meta: { title: 'Inputs' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -228,7 +217,7 @@ export const appRoutes = {
           },
           '/radio': {
             meta: { title: 'Radio' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -241,7 +230,7 @@ export const appRoutes = {
           },
           '/rating': {
             meta: { title: 'Rating' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -254,7 +243,7 @@ export const appRoutes = {
           },
           '/select': {
             meta: { title: 'Select' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -267,7 +256,7 @@ export const appRoutes = {
           },
           '/slider': {
             meta: { title: 'Slider' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -280,7 +269,7 @@ export const appRoutes = {
           },
           '/switch': {
             meta: { title: 'Switch' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -293,7 +282,7 @@ export const appRoutes = {
           },
           '/form': {
             meta: { title: 'Form' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -313,7 +302,7 @@ export const appRoutes = {
         children: {
           '/accordion': {
             meta: { title: 'Accordion' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -326,7 +315,7 @@ export const appRoutes = {
           },
           '/grid': {
             meta: { title: 'Grid' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -339,7 +328,7 @@ export const appRoutes = {
           },
           '/list': {
             meta: { title: 'List' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -352,7 +341,7 @@ export const appRoutes = {
           },
           '/tree': {
             meta: { title: 'Tree' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -365,7 +354,7 @@ export const appRoutes = {
           },
           '/avatar': {
             meta: { title: 'Avatar' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -378,7 +367,7 @@ export const appRoutes = {
           },
           '/badge': {
             meta: { title: 'Badge' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -391,7 +380,7 @@ export const appRoutes = {
           },
           '/breadcrumb': {
             meta: { title: 'Breadcrumb' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -404,7 +393,7 @@ export const appRoutes = {
           },
           '/carousel': {
             meta: { title: 'Carousel' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -417,7 +406,7 @@ export const appRoutes = {
           },
           '/chip': {
             meta: { title: 'Chip' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -430,7 +419,7 @@ export const appRoutes = {
           },
           '/icons': {
             meta: { title: 'Icons' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -443,7 +432,7 @@ export const appRoutes = {
           },
           '/image': {
             meta: { title: 'Image' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -456,7 +445,7 @@ export const appRoutes = {
           },
           '/timeline': {
             meta: { title: 'Timeline' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -469,7 +458,7 @@ export const appRoutes = {
           },
           '/tooltip': {
             meta: { title: 'Tooltip' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -482,7 +471,7 @@ export const appRoutes = {
           },
           '/typography': {
             meta: { title: 'Typography' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -495,7 +484,7 @@ export const appRoutes = {
           },
           '/cache-view': {
             meta: { title: 'Cache View' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -514,7 +503,7 @@ export const appRoutes = {
         children: {
           '/tabs': {
             meta: { title: 'Tabs' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -527,7 +516,7 @@ export const appRoutes = {
           },
           '/menu': {
             meta: { title: 'Menu' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -540,7 +529,7 @@ export const appRoutes = {
           },
           '/dropdown': {
             meta: { title: 'Dropdown' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -553,7 +542,7 @@ export const appRoutes = {
           },
           '/context-menu': {
             meta: { title: 'Context Menu' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -566,7 +555,7 @@ export const appRoutes = {
           },
           '/command-palette': {
             meta: { title: 'Command Palette' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -579,7 +568,7 @@ export const appRoutes = {
           },
           '/suggest': {
             meta: { title: 'Suggest' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -592,13 +581,26 @@ export const appRoutes = {
           },
           '/pagination': {
             meta: { title: 'Pagination' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
                 component={async () => {
                   const { PaginationPage } = await import('./pages/navigation/pagination.js')
                   return <PaginationPage />
+                }}
+              />
+            ),
+          },
+          '/view-transitions': {
+            meta: { title: 'View Transitions' },
+
+            component: () => (
+              <LazyLoad
+                loader={<PageLoader />}
+                component={async () => {
+                  const { ViewTransitionsPage } = await import('./pages/navigation/view-transitions.js')
+                  return <ViewTransitionsPage />
                 }}
               />
             ),
@@ -611,7 +613,7 @@ export const appRoutes = {
         children: {
           '/alert': {
             meta: { title: 'Alert' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -624,7 +626,7 @@ export const appRoutes = {
           },
           '/notifications': {
             meta: { title: 'Notifications' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -637,7 +639,7 @@ export const appRoutes = {
           },
           '/progress': {
             meta: { title: 'Progress' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -650,7 +652,7 @@ export const appRoutes = {
           },
           '/result': {
             meta: { title: 'Result' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -669,7 +671,7 @@ export const appRoutes = {
         children: {
           '/divider': {
             meta: { title: 'Divider' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -688,7 +690,7 @@ export const appRoutes = {
         children: {
           '/card': {
             meta: { title: 'Card' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -701,7 +703,7 @@ export const appRoutes = {
           },
           '/wizard': {
             meta: { title: 'Wizard' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -714,7 +716,7 @@ export const appRoutes = {
           },
           '/dialog': {
             meta: { title: 'Dialog' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -727,7 +729,7 @@ export const appRoutes = {
           },
           '/fab': {
             meta: { title: 'FAB' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -746,7 +748,7 @@ export const appRoutes = {
         children: {
           '/monaco': {
             meta: { title: 'Monaco' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -759,7 +761,7 @@ export const appRoutes = {
           },
           '/lottie': {
             meta: { title: 'Lottie' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -772,7 +774,7 @@ export const appRoutes = {
           },
           '/nipple': {
             meta: { title: 'Nipple' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -785,7 +787,7 @@ export const appRoutes = {
           },
           '/mfe': {
             meta: { title: 'MFE' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -798,7 +800,7 @@ export const appRoutes = {
           },
           '/i18n': {
             meta: { title: 'I18N' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -811,7 +813,7 @@ export const appRoutes = {
           },
           '/markdown': {
             meta: { title: 'Markdown' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -830,7 +832,7 @@ export const appRoutes = {
         children: {
           '/search-state': {
             meta: { title: 'Search State' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -843,7 +845,7 @@ export const appRoutes = {
           },
           '/stored-state': {
             meta: { title: 'Stored State' },
-            ...withFadeTransition,
+
             component: () => (
               <LazyLoad
                 loader={<PageLoader />}
@@ -858,7 +860,6 @@ export const appRoutes = {
       },
       '/themes': {
         meta: { title: 'Themes', icon: icons.sun },
-        ...withFadeTransition,
         component: () => (
           <LazyLoad
             loader={<PageLoader />}
