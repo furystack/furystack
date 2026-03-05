@@ -40,15 +40,18 @@ const statusColorMap: Record<ResultStatus, string> = {
   '500': paletteMainColors.error.main,
 }
 
-const defaultIcons: Record<ResultStatus, JSX.Element> = {
-  success: (<Icon icon={checkCircle} size={64} />) as unknown as JSX.Element,
-  error: (<Icon icon={errorCircle} size={64} />) as unknown as JSX.Element,
-  warning: (<Icon icon={warningIcon} size={64} />) as unknown as JSX.Element,
-  info: (<Icon icon={infoIcon} size={64} />) as unknown as JSX.Element,
-  '403': (<Icon icon={forbidden} size={64} />) as unknown as JSX.Element,
-  '404': (<Icon icon={searchOff} size={64} />) as unknown as JSX.Element,
-  '500': (<Icon icon={serverError} size={64} />) as unknown as JSX.Element,
+const defaultIconDefs: Record<ResultStatus, typeof checkCircle> = {
+  success: checkCircle,
+  error: errorCircle,
+  warning: warningIcon,
+  info: infoIcon,
+  '403': forbidden,
+  '404': searchOff,
+  '500': serverError,
 }
+
+const getDefaultIcon = (status: ResultStatus): JSX.Element =>
+  (<Icon icon={defaultIconDefs[status]} size={64} />) as unknown as JSX.Element
 
 const defaultTitles: Record<ResultStatus, string> = {
   success: 'Success',
@@ -114,7 +117,7 @@ export const Result = Shade<ResultProps>({
   render: ({ props, children, useHostProps }) => {
     const { status, title, subtitle, icon, style } = props
 
-    const displayIcon = icon ?? defaultIcons[status]
+    const displayIcon = icon ?? getDefaultIcon(status)
     const statusColor = statusColorMap[status]
 
     useHostProps({
@@ -146,4 +149,8 @@ export const Result = Shade<ResultProps>({
   },
 })
 
-export { defaultIcons as resultDefaultIcons, defaultTitles as resultDefaultTitles }
+export {
+  getDefaultIcon as resultGetDefaultIcon,
+  defaultIconDefs as resultDefaultIconDefs,
+  defaultTitles as resultDefaultTitles,
+}
