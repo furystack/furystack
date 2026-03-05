@@ -6,3 +6,6 @@ releases:
   "@furystack/shades-mfe": patch
   "@furystack/shades-nipple": patch
   "@furystack/shades-showcase-app": patch
+
+declined:
+  - furystack
