@@ -8,8 +8,9 @@ describe('maybeViewTransition', () => {
   })
 
   const mockStartViewTransition = () => {
-    const spy = vi.fn((opts: StartViewTransitionOptions) => {
-      opts.update?.()
+    const spy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+      const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+      update?.()
       return {
         finished: Promise.resolve(),
         ready: Promise.resolve(),
@@ -55,11 +56,11 @@ describe('maybeViewTransition', () => {
     expect(result).toBeInstanceOf(Promise)
   })
 
-  it('should not pass types when config is true', () => {
+  it('should use callback form when config is true', () => {
     const spy = mockStartViewTransition()
     const update = vi.fn()
     void maybeViewTransition(true, update)
-    expect(spy).toHaveBeenCalledWith({ update })
+    expect(spy).toHaveBeenCalledWith(update)
   })
 
   it('should pass types when config is an object with types', () => {
@@ -70,20 +71,20 @@ describe('maybeViewTransition', () => {
     expect(spy).toHaveBeenCalledWith({ update, types: ['slide', 'fade'] })
   })
 
-  it('should not pass types when config object has empty types array', () => {
+  it('should use callback form when config object has empty types array', () => {
     const spy = mockStartViewTransition()
     const update = vi.fn()
     const config: ViewTransitionConfig = { types: [] }
     void maybeViewTransition(config, update)
-    expect(spy).toHaveBeenCalledWith({ update })
+    expect(spy).toHaveBeenCalledWith(update)
   })
 
-  it('should not pass types when config object has no types', () => {
+  it('should use callback form when config object has no types', () => {
     const spy = mockStartViewTransition()
     const update = vi.fn()
     const config: ViewTransitionConfig = {}
     void maybeViewTransition(config, update)
-    expect(spy).toHaveBeenCalledWith({ update })
+    expect(spy).toHaveBeenCalledWith(update)
   })
 
   it('should return updateCallbackDone promise when transition is started', async () => {

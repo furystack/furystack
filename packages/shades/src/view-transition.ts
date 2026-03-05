@@ -24,8 +24,8 @@ export const maybeViewTransition = (
   update: () => void,
 ): Promise<void> | undefined => {
   if (config && document.startViewTransition) {
-    const types = typeof config === 'object' ? config.types : undefined
-    const transition = document.startViewTransition({ update, ...(types?.length ? { types } : {}) })
+    const types = typeof config === 'object' && config.types?.length ? config.types : undefined
+    const transition = types ? document.startViewTransition({ update, types }) : document.startViewTransition(update)
     return transition.updateCallbackDone
   } else {
     update()
