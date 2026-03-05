@@ -70,6 +70,7 @@ export const navigationConfig: NavCategory[] = [
       { label: 'Command Palette', slug: 'command-palette' },
       { label: 'Suggest', slug: 'suggest' },
       { label: 'Pagination', slug: 'pagination' },
+      { label: 'View Transitions', slug: 'view-transitions' },
     ],
   },
   {

@@ -13,6 +13,7 @@ describe('Lazy Load', () => {
   })
   afterEach(() => {
     document.body.innerHTML = ''
+    delete (document as unknown as Record<string, unknown>).startViewTransition
   })
 
   it('Shuld display the loader and completed state', async () => {
@@ -72,7 +73,7 @@ describe('Lazy Load', () => {
     })
   })
 
-  it('Shuld display the failed state with a retryer', async () => {
+  it('Should succeed on retry after initial failure', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       let counter = 0
@@ -109,6 +110,82 @@ describe('Lazy Load', () => {
       expect(load).toBeCalledTimes(2)
       await flushUpdates()
       expect(document.body.innerHTML).toBe('<div id="root"><lazy-load><div>success</div></lazy-load></div>')
+    })
+  })
+
+  it('should call startViewTransition when viewTransition is enabled and component loads', async () => {
+    const startViewTransitionSpy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+      const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+      update?.()
+      return {
+        finished: Promise.resolve(),
+        ready: Promise.resolve(),
+        updateCallbackDone: Promise.resolve(),
+        skipTransition: vi.fn(),
+      } as unknown as ViewTransition
+    })
+    document.startViewTransition = startViewTransitionSpy as typeof document.startViewTransition
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <LazyLoad
+            viewTransition
+            loader={<div>Loading...</div>}
+            component={async () => {
+              await sleepAsync(50)
+              return <div>Loaded</div>
+            }}
+          />
+        ),
+      })
+      await flushUpdates()
+      expect(document.body.innerHTML).toContain('Loading...')
+
+      await sleepAsync(100)
+      expect(startViewTransitionSpy).toHaveBeenCalledTimes(1)
+      expect(document.body.innerHTML).toContain('Loaded')
+    })
+  })
+
+  it('should not call startViewTransition when viewTransition is not set', async () => {
+    const startViewTransitionSpy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+      const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+      update?.()
+      return {
+        finished: Promise.resolve(),
+        ready: Promise.resolve(),
+        updateCallbackDone: Promise.resolve(),
+        skipTransition: vi.fn(),
+      } as unknown as ViewTransition
+    })
+    document.startViewTransition = startViewTransitionSpy as typeof document.startViewTransition
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <LazyLoad
+            loader={<div>Loading...</div>}
+            component={async () => {
+              await sleepAsync(50)
+              return <div>Loaded</div>
+            }}
+          />
+        ),
+      })
+      await flushUpdates()
+      await sleepAsync(100)
+
+      expect(startViewTransitionSpy).not.toHaveBeenCalled()
+      expect(document.body.innerHTML).toContain('Loaded')
     })
   })
 })

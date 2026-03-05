@@ -46,6 +46,158 @@ const ControlledTabsDemo = Shade({
   },
 })
 
+const CardTabsDemo = Shade({
+  shadowDomName: 'card-tabs-demo',
+  render: ({ useState }) => {
+    const [activeKey, setActiveKey] = useState('activeKey', 'card-1')
+
+    return (
+      <Tabs
+        type="card"
+        activeKey={activeKey}
+        onTabChange={(key) => setActiveKey(key)}
+        tabs={[
+          {
+            hash: 'card-1',
+            header: <span>Overview</span>,
+            component: <Paper style={{ padding: '16px' }}>Overview content</Paper>,
+          },
+          {
+            hash: 'card-2',
+            header: <span>Details</span>,
+            component: <Paper style={{ padding: '16px' }}>Detailed information</Paper>,
+          },
+          {
+            hash: 'card-3',
+            header: <span>History</span>,
+            component: <Paper style={{ padding: '16px' }}>History log</Paper>,
+          },
+        ]}
+      />
+    )
+  },
+})
+
+const VerticalTabsDemo = Shade({
+  shadowDomName: 'vertical-tabs-demo',
+  render: ({ useState }) => {
+    const [activeKey, setActiveKey] = useState('activeKey', 'vert-1')
+
+    return (
+      <Tabs
+        orientation="vertical"
+        activeKey={activeKey}
+        onTabChange={(key) => setActiveKey(key)}
+        containerStyle={{ height: '200px' }}
+        tabs={[
+          {
+            hash: 'vert-1',
+            header: <span>General</span>,
+            component: <Paper style={{ padding: '16px', flex: '1' }}>General settings panel</Paper>,
+          },
+          {
+            hash: 'vert-2',
+            header: <span>Security</span>,
+            component: <Paper style={{ padding: '16px', flex: '1' }}>Security settings panel</Paper>,
+          },
+          {
+            hash: 'vert-3',
+            header: <span>Notifications</span>,
+            component: <Paper style={{ padding: '16px', flex: '1' }}>Notification preferences</Paper>,
+          },
+        ]}
+      />
+    )
+  },
+})
+
+const VerticalCardTabsDemo = Shade({
+  shadowDomName: 'vertical-card-tabs-demo',
+  render: ({ useState }) => {
+    const [activeKey, setActiveKey] = useState('activeKey', 'vcard-1')
+
+    return (
+      <Tabs
+        orientation="vertical"
+        type="card"
+        activeKey={activeKey}
+        onTabChange={(key) => setActiveKey(key)}
+        containerStyle={{ height: '200px' }}
+        tabs={[
+          {
+            hash: 'vcard-1',
+            header: <span>Account</span>,
+            component: <Paper style={{ padding: '16px', flex: '1' }}>Account details</Paper>,
+          },
+          {
+            hash: 'vcard-2',
+            header: <span>Billing</span>,
+            component: <Paper style={{ padding: '16px', flex: '1' }}>Billing information</Paper>,
+          },
+          {
+            hash: 'vcard-3',
+            header: <span>API Keys</span>,
+            component: <Paper style={{ padding: '16px', flex: '1' }}>API key management</Paper>,
+          },
+        ]}
+      />
+    )
+  },
+})
+
+const ViewTransitionTabsDemo = Shade({
+  shadowDomName: 'view-transition-tabs-demo',
+  render: ({ useState }) => {
+    const [activeKey, setActiveKey] = useState('activeKey', 'vt-1')
+
+    return (
+      <Tabs
+        viewTransition
+        activeKey={activeKey}
+        onTabChange={(key) => setActiveKey(key)}
+        tabs={[
+          {
+            hash: 'vt-1',
+            header: <span>Photos</span>,
+            component: (
+              <Paper style={{ padding: '24px', minHeight: '120px' }}>
+                <Typography variant="h4">Photo Gallery</Typography>
+                <Typography variant="body1" style={{ marginTop: '8px' }}>
+                  Browse your uploaded photos and albums.
+                </Typography>
+              </Paper>
+            ),
+          },
+          {
+            hash: 'vt-2',
+            header: <span>Videos</span>,
+            component: (
+              <Paper style={{ padding: '24px', minHeight: '120px' }}>
+                <Typography variant="h4">Video Library</Typography>
+                <Typography variant="body1" style={{ marginTop: '8px' }}>
+                  Watch and manage your video collection.
+                </Typography>
+              </Paper>
+            ),
+          },
+          {
+            hash: 'vt-3',
+            header: <span>Music</span>,
+            component: (
+              <Paper style={{ padding: '24px', minHeight: '120px' }}>
+                <Typography variant="h4">Music Player</Typography>
+                <Typography variant="body1" style={{ marginTop: '8px' }}>
+                  Listen to your favorite tracks and playlists.
+                </Typography>
+              </Paper>
+            ),
+          },
+        ]}
+      />
+    )
+  },
+})
+
 const ClosableTabsDemo = Shade({
   shadowDomName: 'closable-tabs-demo',
   render: ({ useState }) => {
@@ -145,84 +297,28 @@ export const TabsPage = Shade({
           Card type
         </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <Tabs
-            type="card"
-            activeKey="card-1"
-            tabs={[
-              {
-                hash: 'card-1',
-                header: <span>Overview</span>,
-                component: <Paper style={{ padding: '16px' }}>Overview content</Paper>,
-              },
-              {
-                hash: 'card-2',
-                header: <span>Details</span>,
-                component: <Paper style={{ padding: '16px' }}>Detailed information</Paper>,
-              },
-              {
-                hash: 'card-3',
-                header: <span>History</span>,
-                component: <Paper style={{ padding: '16px' }}>History log</Paper>,
-              },
-            ]}
-          />
+          <CardTabsDemo />
         </Paper>
 
         <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
           Vertical orientation
         </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <Tabs
-            orientation="vertical"
-            activeKey="vert-1"
-            containerStyle={{ height: '200px' }}
-            tabs={[
-              {
-                hash: 'vert-1',
-                header: <span>General</span>,
-                component: <Paper style={{ padding: '16px', flex: '1' }}>General settings panel</Paper>,
-              },
-              {
-                hash: 'vert-2',
-                header: <span>Security</span>,
-                component: <Paper style={{ padding: '16px', flex: '1' }}>Security settings panel</Paper>,
-              },
-              {
-                hash: 'vert-3',
-                header: <span>Notifications</span>,
-                component: <Paper style={{ padding: '16px', flex: '1' }}>Notification preferences</Paper>,
-              },
-            ]}
-          />
+          <VerticalTabsDemo />
         </Paper>
 
         <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
           Vertical + Card type
         </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
-          <Tabs
-            orientation="vertical"
-            type="card"
-            activeKey="vcard-1"
-            containerStyle={{ height: '200px' }}
-            tabs={[
-              {
-                hash: 'vcard-1',
-                header: <span>Account</span>,
-                component: <Paper style={{ padding: '16px', flex: '1' }}>Account details</Paper>,
-              },
-              {
-                hash: 'vcard-2',
-                header: <span>Billing</span>,
-                component: <Paper style={{ padding: '16px', flex: '1' }}>Billing information</Paper>,
-              },
-              {
-                hash: 'vcard-3',
-                header: <span>API Keys</span>,
-                component: <Paper style={{ padding: '16px', flex: '1' }}>API key management</Paper>,
-              },
-            ]}
-          />
+          <VerticalCardTabsDemo />
+        </Paper>
+
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          View transitions
+        </Typography>
+        <Paper elevation={3} style={{ padding: '32px' }}>
+          <ViewTransitionTabsDemo />
         </Paper>
 
         <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>

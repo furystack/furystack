@@ -19,7 +19,9 @@ const config: PlaywrightTestConfig = {
   use: {
     trace: 'on-first-retry',
     baseURL: 'http://localhost:8080/',
-    reducedMotion: 'reduce',
+    contextOptions: {
+      reducedMotion: 'reduce',
+    },
   },
   projects: [
     {

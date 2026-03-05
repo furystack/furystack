@@ -273,4 +273,81 @@ describe('CacheView', () => {
       cache[Symbol.dispose]()
     })
   })
+
+  describe('view transitions', () => {
+    const mockStartViewTransition = () => {
+      const spy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+        const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+        update?.()
+        return {
+          finished: Promise.resolve(),
+          ready: Promise.resolve(),
+          updateCallbackDone: Promise.resolve(),
+          skipTransition: vi.fn(),
+        } as unknown as ViewTransition
+      })
+      document.startViewTransition = spy as typeof document.startViewTransition
+      return spy
+    }
+
+    it('should call startViewTransition when viewTransition is enabled and cache state category changes', async () => {
+      const spy = mockStartViewTransition()
+      const cache = new Cache<string, [string]>({ load: async (key) => `loaded-${key}` })
+
+      const el = (
+        <div>
+          <CacheView
+            cache={cache}
+            args={['test']}
+            content={TestContent}
+            loader={<span className="loader">Loading</span>}
+            viewTransition
+          />
+        </div>
+      )
+      const cacheView = el.firstElementChild as JSX.Element
+      cacheView.updateComponent()
+      await flushUpdates()
+
+      expect(cacheView.querySelector('.loader')).toBeTruthy()
+      spy.mockClear()
+
+      await cache.get('test')
+      cacheView.updateComponent()
+      await flushUpdates()
+
+      expect(spy).toHaveBeenCalled()
+      cache[Symbol.dispose]()
+      delete (document as unknown as Record<string, unknown>).startViewTransition
+    })
+
+    it('should not call startViewTransition when viewTransition is not set', async () => {
+      const spy = mockStartViewTransition()
+      const cache = new Cache<string, [string]>({ load: async (key) => `loaded-${key}` })
+
+      const el = (
+        <div>
+          <CacheView
+            cache={cache}
+            args={['test']}
+            content={TestContent}
+            loader={<span className="loader">Loading</span>}
+          />
+        </div>
+      )
+      const cacheView = el.firstElementChild as JSX.Element
+      cacheView.updateComponent()
+      await flushUpdates()
+
+      spy.mockClear()
+
+      await cache.get('test')
+      cacheView.updateComponent()
+      await flushUpdates()
+
+      expect(spy).not.toHaveBeenCalled()
+      cache[Symbol.dispose]()
+      delete (document as unknown as Record<string, unknown>).startViewTransition
+    })
+  })
 })

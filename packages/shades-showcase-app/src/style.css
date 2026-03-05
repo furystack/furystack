@@ -28,3 +28,18 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* View Transition API — document-level styles for route transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+  }
+}

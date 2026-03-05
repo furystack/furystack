@@ -1,4 +1,5 @@
-import { LocationService, Shade, createComponent } from '@furystack/shades'
+import type { ViewTransitionConfig } from '@furystack/shades'
+import { LocationService, Shade, createComponent, transitionedValue } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { close } from './icons/icon-definitions.js'
 import { Icon } from './icons/icon.js'
@@ -71,6 +72,7 @@ export const Tabs = Shade<{
   onClose?: (key: string) => void
   /** Called when the add button is clicked (only shown when this callback is provided) */
   onAdd?: () => void
+  viewTransition?: boolean | ViewTransitionConfig
 }>({
   shadowDomName: 'shade-tabs',
   css: {
@@ -212,7 +214,7 @@ export const Tabs = Shade<{
         borderRight: `1px solid ${cssVariableTheme.background.paper}`,
       },
   },
-  render: ({ props, useObservable, injector, useHostProps }) => {
+  render: ({ props, useObservable, injector, useHostProps, useState }) => {
     useHostProps({
       ...(props.containerStyle ? { style: props.containerStyle as Record<string, string> } : {}),
       ...(props.orientation === 'vertical' ? { 'data-orientation': 'vertical' } : {}),
@@ -224,7 +226,10 @@ export const Tabs = Shade<{
     const [hash] = useObservable('updateLocation', injector.getInstance(LocationService).onLocationHashChanged)
 
     const activeKey = isControlled ? props.activeKey! : hash.replace('#', '')
-    const activeTab = props.tabs.find((t) => t.hash === activeKey)
+
+    const displayedKey = transitionedValue(useState, 'displayedKey', activeKey, props.viewTransition)
+
+    const displayedTab = props.tabs.find((t) => t.hash === displayedKey)
 
     const handleTabClick = (e: MouseEvent, tab: Tab, index: number) => {
       const target = e.target as HTMLElement
@@ -277,7 +282,7 @@ export const Tabs = Shade<{
             </button>
           ) : null}
         </div>
-        {activeTab?.component}
+        {displayedTab?.component}
       </>
     )
   },

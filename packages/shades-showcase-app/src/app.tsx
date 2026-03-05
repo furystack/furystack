@@ -15,7 +15,7 @@ export const App = Shade({
     return (
       <>
         <DocumentTitleUpdater />
-        <NestedRouter routes={appRoutes} notFound={<NotFoundPage />} />
+        <NestedRouter routes={appRoutes} notFound={<NotFoundPage />} viewTransition />
       </>
     )
   },
