@@ -70,6 +70,79 @@ const isInsideUsingCallback = (node: TSESTree.Node): boolean => {
   return false
 }
 
+/**
+ * Checks if the dispose call is inside a dispose-delegation arrow function
+ * in a returned object, e.g.:
+ *   return { [Symbol.dispose]: () => hub[Symbol.dispose]() }
+ */
+const isDisposeDelegationInReturn = (node: TSESTree.CallExpression): boolean => {
+  const fn = getEnclosingFunction(node)
+  if (!fn || fn.type !== AST_NODE_TYPES.ArrowFunctionExpression) return false
+
+  const prop = fn.parent
+  if (prop?.type !== AST_NODE_TYPES.Property) return false
+
+  if (
+    prop.computed &&
+    prop.key.type === AST_NODE_TYPES.MemberExpression &&
+    prop.key.object.type === AST_NODE_TYPES.Identifier &&
+    prop.key.object.name === 'Symbol' &&
+    prop.key.property.type === AST_NODE_TYPES.Identifier &&
+    (prop.key.property.name === 'dispose' || prop.key.property.name === 'asyncDispose')
+  ) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Checks if the dispose call is inside an expect() callback, e.g.:
+ *   await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrow(...)
+ */
+const isInsideExpectCallback = (node: TSESTree.CallExpression): boolean => {
+  const fn = getEnclosingFunction(node)
+  if (!fn) return false
+
+  const callParent = fn.parent
+  if (callParent?.type !== AST_NODE_TYPES.CallExpression) return false
+
+  const { callee } = callParent
+  if (callee.type === AST_NODE_TYPES.Identifier && callee.name === 'expect') return true
+  if (
+    callee.type === AST_NODE_TYPES.MemberExpression &&
+    callee.object.type === AST_NODE_TYPES.Identifier &&
+    callee.object.name === 'expect'
+  ) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Unwraps AwaitExpression nodes to get the underlying expression.
+ */
+const unwrapAwait = (expr: TSESTree.Expression): TSESTree.Expression => {
+  if (expr.type === AST_NODE_TYPES.AwaitExpression) return unwrapAwait(expr.argument)
+  return expr
+}
+
+/**
+ * Checks if an expression is an expect() call or expect().xxx.yyy() chain
+ * (e.g. expect(...).rejects.toThrowError(...)).
+ */
+const isExpectExpression = (expr: TSESTree.Expression): boolean => {
+  const unwrapped = unwrapAwait(expr)
+  if (unwrapped.type === AST_NODE_TYPES.CallExpression) {
+    const { callee } = unwrapped
+    if (callee.type === AST_NODE_TYPES.Identifier && callee.name === 'expect') return true
+    if (callee.type === AST_NODE_TYPES.MemberExpression) return isExpectExpression(callee.object)
+  }
+  if (unwrapped.type === AST_NODE_TYPES.MemberExpression) return isExpectExpression(unwrapped.object)
+  return false
+}
+
 const isFollowedByExpect = (node: TSESTree.CallExpression): boolean => {
   let current: TSESTree.Node | undefined = node.parent
   while (current && current.type === AST_NODE_TYPES.AwaitExpression) {
@@ -86,23 +159,7 @@ const isFollowedByExpect = (node: TSESTree.CallExpression): boolean => {
 
   const next = statements[idx + 1]
   if (next.type === AST_NODE_TYPES.ExpressionStatement) {
-    const expr = next.expression
-    if (
-      expr.type === AST_NODE_TYPES.CallExpression &&
-      expr.callee.type === AST_NODE_TYPES.Identifier &&
-      expr.callee.name === 'expect'
-    ) {
-      return true
-    }
-    if (
-      expr.type === AST_NODE_TYPES.CallExpression &&
-      expr.callee.type === AST_NODE_TYPES.MemberExpression &&
-      expr.callee.object.type === AST_NODE_TYPES.CallExpression &&
-      expr.callee.object.callee.type === AST_NODE_TYPES.Identifier &&
-      expr.callee.object.callee.name === 'expect'
-    ) {
-      return true
-    }
+    return isExpectExpression(next.expression)
   }
   return false
 }
@@ -132,6 +189,8 @@ export const preferUsingWrapper = createRule({
 
         if (isInsideUsingCallback(node)) return
         if (isInsideFinallyBlock(node)) return
+        if (isDisposeDelegationInReturn(node)) return
+        if (isInsideExpectCallback(node)) return
         if (isFollowedByExpect(node)) return
 
         const enclosing = getEnclosingFunction(node)

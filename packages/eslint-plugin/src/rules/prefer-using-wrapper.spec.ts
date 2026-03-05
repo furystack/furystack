@@ -31,6 +31,16 @@ tester.run('prefer-using-wrapper', preferUsingWrapper, {
       `,
     },
     {
+      name: 'testing post-disposal behavior (await expect follows dispose)',
+      code: `
+        async function test() {
+          const i = new Injector()
+          await i[Symbol.asyncDispose]()
+          await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowError('already disposed')
+        }
+      `,
+    },
+    {
       name: 'dispose on a non-local variable',
       code: `
         function cleanup(service) {
@@ -63,6 +73,50 @@ tester.run('prefer-using-wrapper', preferUsingWrapper, {
             service[Symbol.dispose]()
             await injector[Symbol.asyncDispose]()
           }
+        }
+      `,
+    },
+    {
+      name: 'dispose delegation in returned object',
+      code: `
+        function createStore() {
+          const hub = new EventHub()
+          return {
+            subscribe: hub.subscribe.bind(hub),
+            [Symbol.dispose]: () => hub[Symbol.dispose](),
+          }
+        }
+      `,
+    },
+    {
+      name: 'async dispose delegation in returned object',
+      code: `
+        async function renderButton() {
+          const injector = new Injector()
+          initializeShadeRoot({ injector })
+          return {
+            injector,
+            [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
+          }
+        }
+      `,
+    },
+    {
+      name: 'dispose inside expect callback (testing disposal throws)',
+      code: `
+        async function test() {
+          const i = new Injector()
+          i.getInstance(TestDisposableThrows)
+          await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowError('error')
+        }
+      `,
+    },
+    {
+      name: 'dispose inside expect callback with chained assertion',
+      code: `
+        async function test() {
+          const i = new Injector()
+          await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowErrorMatchingInlineSnapshot('snap')
         }
       `,
     },
