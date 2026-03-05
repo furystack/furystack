@@ -7,6 +7,8 @@ import { LocationService } from '../services/location-service.js'
 import { RouteMatchService } from '../services/route-match-service.js'
 import { createComponent, setRenderMode } from '../shade-component.js'
 import { Shade } from '../shade.js'
+import type { ViewTransitionConfig } from '../view-transition.js'
+import { maybeViewTransition } from '../view-transition.js'
 
 /**
  * Options passed to a dynamic title resolver function.
@@ -39,15 +41,6 @@ export type TitleResolverOptions<TMatchResult = unknown> = {
  */
 export interface NestedRouteMeta<TMatchResult = unknown> {
   title?: string | ((options: TitleResolverOptions<TMatchResult>) => string | Promise<string>)
-}
-
-/**
- * Configuration for the View Transition API integration.
- * When provided as an object, allows specifying transition types for CSS targeting
- * via the `:active-view-transition-type()` pseudo-class.
- */
-export type ViewTransitionConfig = {
-  types?: string[]
 }
 
 /**
@@ -301,15 +294,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
             }
 
             const vtConfig = resolveViewTransition(options.props.viewTransition, newChain)
-            if (vtConfig !== false && document.startViewTransition) {
-              const vtOptions: StartViewTransitionOptions = {
-                update: applyUpdate,
-                ...(vtConfig.types?.length ? { types: vtConfig.types } : {}),
-              }
-              document.startViewTransition(vtOptions)
-            } else {
-              applyUpdate()
-            }
+            maybeViewTransition(vtConfig === false ? undefined : vtConfig, applyUpdate)
 
             for (let i = divergeIndex; i < newChain.length; i++) {
               await newChain[i].route.onVisit?.({ ...options, element: newResult.chainElements[i] })
@@ -333,11 +318,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
             injector.getInstance(RouteMatchService).currentMatchChain.setValue([])
           }
 
-          if (options.props.viewTransition && document.startViewTransition) {
-            document.startViewTransition({ update: applyNotFound })
-          } else {
-            applyNotFound()
-          }
+          maybeViewTransition(options.props.viewTransition, applyNotFound)
         }
       } catch (e) {
         if (!(e instanceof ObservableAlreadyDisposedError)) {

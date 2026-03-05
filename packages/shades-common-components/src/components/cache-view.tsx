@@ -1,7 +1,7 @@
 import type { Cache, CacheWithValue } from '@furystack/cache'
 import { hasCacheValue, isFailedCacheResult, isObsoleteCacheResult } from '@furystack/cache'
-import type { PartialElement, ShadeComponent } from '@furystack/shades'
-import { Shade, createComponent } from '@furystack/shades'
+import type { PartialElement, ShadeComponent, ViewTransitionConfig } from '@furystack/shades'
+import { Shade, createComponent, maybeViewTransition } from '@furystack/shades'
 
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { Button } from './button.js'
@@ -32,6 +32,7 @@ export type CacheViewProps<
    * If not provided, a default Result + retry Button is shown.
    */
   error?: (error: unknown, retry: () => void) => JSX.Element
+  viewTransition?: boolean | ViewTransitionConfig
 } & (keyof Omit<TContentProps, 'data' | keyof PartialElement<HTMLElement>> extends never
   ? { contentProps?: never }
   : { contentProps: Omit<TContentProps, 'data' | keyof PartialElement<HTMLElement>> })
@@ -80,6 +81,7 @@ type InternalCacheViewProps = {
   contentProps?: Record<string, unknown>
   loader?: JSX.Element
   error?: (error: unknown, retry: () => void) => JSX.Element
+  viewTransition?: boolean | ViewTransitionConfig
 }
 
 export const CacheView = Shade<InternalCacheViewProps>({
@@ -88,12 +90,27 @@ export const CacheView = Shade<InternalCacheViewProps>({
     fontFamily: cssVariableTheme.typography.fontFamily,
   },
   render: ({ props, useObservable, useState }): JSX.Element | null => {
-    const { cache, args, content, loader, error, contentProps } = props
+    const { cache, args, content, loader, error, contentProps, viewTransition } = props
 
     const argsKey = JSON.stringify(args)
     const observable = cache.getObservable(...args)
 
     const [result] = useObservable(`cache-${argsKey}`, observable)
+
+    const getCategory = (r: typeof result) =>
+      isFailedCacheResult(r) ? 'error' : hasCacheValue(r) ? 'value' : 'loading'
+
+    const [displayedResult, setDisplayedResult] = useState('displayedResult', result)
+    const resultCategory = getCategory(result)
+    const displayedCategory = getCategory(displayedResult)
+
+    if (result !== displayedResult) {
+      if (resultCategory !== displayedCategory) {
+        maybeViewTransition(viewTransition, () => setDisplayedResult(result))
+      } else {
+        setDisplayedResult(result)
+      }
+    }
 
     const [lastReloadedArgsKey, setLastReloadedArgsKey] = useState<string | null>('lastReloadedArgsKey', null)
 
@@ -104,14 +121,14 @@ export const CacheView = Shade<InternalCacheViewProps>({
     }
 
     // 1. Error first
-    if (isFailedCacheResult(result)) {
+    if (isFailedCacheResult(displayedResult)) {
       const errorRenderer = error ?? getDefaultErrorUi
-      return errorRenderer(result.error, retry)
+      return errorRenderer(displayedResult.error, retry)
     }
 
     // 2. Value next
-    if (hasCacheValue(result)) {
-      if (isObsoleteCacheResult(result)) {
+    if (hasCacheValue(displayedResult)) {
+      if (isObsoleteCacheResult(displayedResult)) {
         if (lastReloadedArgsKey !== argsKey) {
           setLastReloadedArgsKey(argsKey)
           cache.reload(...args).catch(() => {
@@ -122,7 +139,7 @@ export const CacheView = Shade<InternalCacheViewProps>({
         setLastReloadedArgsKey(null)
       }
       return createComponent(content, {
-        data: result,
+        data: displayedResult,
         ...(contentProps ?? {}),
       }) as unknown as JSX.Element
     }

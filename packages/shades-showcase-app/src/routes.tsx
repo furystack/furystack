@@ -21,6 +21,7 @@ export const appRoutes = {
       return (
         outlet ?? (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { LayoutTestsIndex } = await import('./pages/layout-tests/index.js')
@@ -35,6 +36,7 @@ export const appRoutes = {
         meta: { title: 'AppBar Only' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { AppBarOnlyTest } = await import('./pages/layout-tests/index.js')
@@ -47,6 +49,7 @@ export const appRoutes = {
         meta: { title: 'AppBar + Left Drawer' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { AppBarLeftDrawerTest } = await import('./pages/layout-tests/index.js')
@@ -59,6 +62,7 @@ export const appRoutes = {
         meta: { title: 'AppBar + Right Drawer' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { AppBarRightDrawerTest } = await import('./pages/layout-tests/index.js')
@@ -71,6 +75,7 @@ export const appRoutes = {
         meta: { title: 'AppBar + Both Drawers' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { AppBarBothDrawersTest } = await import('./pages/layout-tests/index.js')
@@ -83,6 +88,7 @@ export const appRoutes = {
         meta: { title: 'Collapsible Drawer' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { CollapsibleDrawerTest } = await import('./pages/layout-tests/index.js')
@@ -95,6 +101,7 @@ export const appRoutes = {
         meta: { title: 'Auto-hide AppBar' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { AutoHideAppBarTest } = await import('./pages/layout-tests/index.js')
@@ -107,6 +114,7 @@ export const appRoutes = {
         meta: { title: 'Responsive Layout' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { ResponsiveLayoutTest } = await import('./pages/layout-tests/index.js')
@@ -119,6 +127,7 @@ export const appRoutes = {
         meta: { title: 'Temporary Drawer' },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { TemporaryDrawerTest } = await import('./pages/layout-tests/index.js')
@@ -135,6 +144,7 @@ export const appRoutes = {
       <ShowcaseLayout>
         {outlet ?? (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { HomePage } = await import('./pages/home/index.js')
@@ -154,6 +164,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ButtonsPage } = await import('./pages/inputs-and-forms/buttons.js')
@@ -168,6 +179,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ButtonGroupPage } = await import('./pages/inputs-and-forms/button-group.js')
@@ -181,6 +193,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { CheckboxesPage } = await import('./pages/inputs-and-forms/checkboxes.js')
@@ -194,6 +207,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { InputNumberPage } = await import('./pages/inputs-and-forms/input-number.js')
@@ -207,6 +221,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { InputsPage } = await import('./pages/inputs-and-forms/inputs.js')
@@ -220,6 +235,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { RadioPage } = await import('./pages/inputs-and-forms/radio.js')
@@ -233,6 +249,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { RatingPage } = await import('./pages/inputs-and-forms/rating.js')
@@ -246,6 +263,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { SelectPage } = await import('./pages/inputs-and-forms/select.js')
@@ -259,6 +277,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { SliderPage } = await import('./pages/inputs-and-forms/slider.js')
@@ -272,6 +291,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { SwitchPage } = await import('./pages/inputs-and-forms/switch.js')
@@ -285,6 +305,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   await sleepAsync(1000)
@@ -305,6 +326,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { AccordionPage } = await import('./pages/data-display/accordion.js')
@@ -318,6 +340,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { GridPage } = await import('./pages/data-display/grid/index.js')
@@ -331,6 +354,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ListPage } = await import('./pages/data-display/list.js')
@@ -344,6 +368,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { TreePage } = await import('./pages/data-display/tree.js')
@@ -357,6 +382,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { AvatarPage } = await import('./pages/data-display/avatar.js')
@@ -370,6 +396,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { BadgePage } = await import('./pages/data-display/badge.js')
@@ -383,6 +410,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { BreadcrumbPage } = await import('./pages/data-display/breadcrumb.js')
@@ -396,6 +424,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { CarouselPage } = await import('./pages/data-display/carousel.js')
@@ -409,6 +438,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ChipPage } = await import('./pages/data-display/chip.js')
@@ -422,6 +452,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { IconsPage } = await import('./pages/data-display/icons.js')
@@ -435,6 +466,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ImagePage } = await import('./pages/data-display/image.js')
@@ -448,6 +480,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { TimelinePage } = await import('./pages/data-display/timeline.js')
@@ -461,6 +494,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { TooltipPage } = await import('./pages/data-display/tooltip.js')
@@ -474,6 +508,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { TypographyPage } = await import('./pages/data-display/typography.js')
@@ -487,6 +522,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { CacheViewPage } = await import('./pages/data-display/cache-view.js')
@@ -506,6 +542,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { TabsPage } = await import('./pages/navigation/tabs.js')
@@ -519,6 +556,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { MenuPage } = await import('./pages/navigation/menu.js')
@@ -532,6 +570,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { DropdownPage } = await import('./pages/navigation/dropdown.js')
@@ -545,6 +584,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ContextMenuPage } = await import('./pages/navigation/context-menu.js')
@@ -558,6 +598,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { CommandPalettePage } = await import('./pages/navigation/command-palette.js')
@@ -571,6 +612,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { SuggestPage } = await import('./pages/navigation/suggest.js')
@@ -584,6 +626,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { PaginationPage } = await import('./pages/navigation/pagination.js')
@@ -597,6 +640,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ViewTransitionsPage } = await import('./pages/navigation/view-transitions.js')
@@ -616,6 +660,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { AlertPage } = await import('./pages/feedback/alert.js')
@@ -629,6 +674,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { NotysPage } = await import('./pages/feedback/notifications.js')
@@ -642,6 +688,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ProgressPage } = await import('./pages/feedback/progress.js')
@@ -655,6 +702,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { ResultPage } = await import('./pages/feedback/result.js')
@@ -674,6 +722,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { DividerPage } = await import('./pages/layout/divider.js')
@@ -693,6 +742,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { CardPage } = await import('./pages/surfaces/card.js')
@@ -706,6 +756,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { WizardPage } = await import('./pages/surfaces/wizard/index.js')
@@ -719,6 +770,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { DialogPage } = await import('./pages/surfaces/dialog.js')
@@ -732,6 +784,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { FabPage } = await import('./pages/surfaces/fab.js')
@@ -751,6 +804,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { MonacoEditorPage } = await import('./pages/integrations/monaco.js')
@@ -764,6 +818,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { LottiePage } = await import('./pages/integrations/lottie.js')
@@ -777,6 +832,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { NipplePage } = await import('./pages/integrations/nipple.js')
@@ -790,6 +846,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { MFEPage } = await import('./pages/integrations/mfe/mfe-page.js')
@@ -803,6 +860,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { I18NPage } = await import('./pages/integrations/i18n/i18n.tsx')
@@ -816,6 +874,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { MarkdownPage } = await import('./pages/integrations/markdown.js')
@@ -835,6 +894,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { SearchStatePage } = await import('./pages/utilities/search-state.js')
@@ -848,6 +908,7 @@ export const appRoutes = {
 
             component: () => (
               <LazyLoad
+                viewTransition
                 loader={<PageLoader />}
                 component={async () => {
                   const { StoredStatePage } = await import('./pages/utilities/stored-state.js')
@@ -862,6 +923,7 @@ export const appRoutes = {
         meta: { title: 'Themes', icon: icons.sun },
         component: () => (
           <LazyLoad
+            viewTransition
             loader={<PageLoader />}
             component={async () => {
               const { ThemesPage } = await import('./pages/themes.js')

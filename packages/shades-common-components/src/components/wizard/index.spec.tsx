@@ -67,12 +67,13 @@ describe('Wizard', () => {
 
   afterEach(() => {
     document.body.innerHTML = ''
+    delete (document as unknown as Record<string, unknown>).startViewTransition
   })
 
   const renderWizard = async (
     steps: Array<(props: WizardStepProps, children: ChildrenList) => JSX.Element>,
     onFinish?: () => void,
-    options?: { stepLabels?: string[]; showProgress?: boolean },
+    options?: { stepLabels?: string[]; showProgress?: boolean; viewTransition?: boolean },
   ) => {
     const injector = new Injector()
     const root = document.getElementById('root')!
@@ -85,6 +86,7 @@ describe('Wizard', () => {
           onFinish={onFinish}
           stepLabels={options?.stepLabels}
           showProgress={options?.showProgress}
+          viewTransition={options?.viewTransition}
         />
       ),
     })
@@ -344,6 +346,59 @@ describe('Wizard', () => {
       await usingAsync(await renderWizard([Step1]), async ({ wizard }) => {
         const paper = wizard.querySelector('div[is="shade-paper"]')
         expect(paper?.getAttribute('data-elevation')).toBe('3')
+      })
+    })
+  })
+
+  describe('view transitions', () => {
+    const mockStartViewTransition = () => {
+      const spy = vi.fn((opts: StartViewTransitionOptions) => {
+        opts.update?.()
+        return {
+          finished: Promise.resolve(),
+          ready: Promise.resolve(),
+          updateCallbackDone: Promise.resolve(),
+          skipTransition: vi.fn(),
+        } as unknown as ViewTransition
+      })
+      document.startViewTransition = spy as typeof document.startViewTransition
+      return spy
+    }
+
+    it('should call startViewTransition on next when viewTransition is enabled', async () => {
+      const spy = mockStartViewTransition()
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, { viewTransition: true }),
+        async ({ clickNext, getStepName }) => {
+          spy.mockClear()
+          await clickNext()
+          expect(spy).toHaveBeenCalledTimes(1)
+          expect(getStepName()).toBe('step2')
+        },
+      )
+    })
+
+    it('should call startViewTransition on prev when viewTransition is enabled', async () => {
+      const spy = mockStartViewTransition()
+      await usingAsync(
+        await renderWizard([Step1, Step2, Step3], undefined, { viewTransition: true }),
+        async ({ clickNext, clickPrev, getStepName }) => {
+          await clickNext()
+          spy.mockClear()
+          await clickPrev()
+          expect(spy).toHaveBeenCalledTimes(1)
+          expect(getStepName()).toBe('step1')
+        },
+      )
+    })
+
+    it('should not call startViewTransition when viewTransition is not set', async () => {
+      const spy = mockStartViewTransition()
+      await usingAsync(await renderWizard([Step1, Step2, Step3]), async ({ clickNext, getStepName }) => {
+        spy.mockClear()
+        await clickNext()
+        expect(spy).not.toHaveBeenCalled()
+        expect(getStepName()).toBe('step2')
       })
     })
   })

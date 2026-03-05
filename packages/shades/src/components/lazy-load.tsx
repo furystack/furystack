@@ -1,9 +1,12 @@
 import { Shade } from '../shade.js'
+import type { ViewTransitionConfig } from '../view-transition.js'
+import { maybeViewTransition } from '../view-transition.js'
 
 export interface LazyLoadProps {
   loader: JSX.Element
   error?: (error: unknown, retry: () => Promise<void>) => JSX.Element
   component: () => Promise<JSX.Element>
+  viewTransition?: boolean | ViewTransitionConfig
 }
 
 export const LazyLoad = Shade<LazyLoadProps>({
@@ -36,8 +39,10 @@ export const LazyLoad = Shade<LazyLoadProps>({
       factory()
         .then((loaded) => {
           if (tracker.active && tracker.factory === factory) {
-            setError(undefined)
-            setComponent(loaded)
+            maybeViewTransition(props.viewTransition, () => {
+              setError(undefined)
+              setComponent(loaded)
+            })
           }
         })
         .catch((err: unknown) => {
@@ -60,7 +65,9 @@ export const LazyLoad = Shade<LazyLoadProps>({
           setComponent(undefined)
           const loaded = await factory()
           if (tracker.active && tracker.factory === factory) {
-            setComponent(loaded)
+            maybeViewTransition(props.viewTransition, () => {
+              setComponent(loaded)
+            })
           }
         } catch (e) {
           if (tracker.active && tracker.factory === factory) {

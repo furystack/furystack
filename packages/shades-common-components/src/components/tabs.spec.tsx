@@ -13,6 +13,7 @@ describe('Tabs', () => {
   afterEach(() => {
     document.body.innerHTML = ''
     window.location.hash = ''
+    delete (document as unknown as Record<string, unknown>).startViewTransition
   })
 
   const createTabs = (): Tab[] => [
@@ -592,6 +593,76 @@ describe('Tabs', () => {
         ;(tabHeaders[1] as HTMLElement).click()
 
         expect(onTabChange).toHaveBeenCalledWith('tab2')
+      })
+    })
+  })
+
+  describe('view transitions', () => {
+    const mockStartViewTransition = () => {
+      const spy = vi.fn((opts: StartViewTransitionOptions) => {
+        opts.update?.()
+        return {
+          finished: Promise.resolve(),
+          ready: Promise.resolve(),
+          updateCallbackDone: Promise.resolve(),
+          skipTransition: vi.fn(),
+        } as unknown as ViewTransition
+      })
+      document.startViewTransition = spy as typeof document.startViewTransition
+      return spy
+    }
+
+    it('should call startViewTransition when viewTransition is enabled and hash changes', async () => {
+      const spy = mockStartViewTransition()
+
+      await usingAsync(new Injector(), async (injector) => {
+        window.location.hash = '#tab1'
+
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} viewTransition />,
+        })
+
+        await flushUpdates()
+        spy.mockClear()
+
+        window.location.hash = '#tab2'
+        injector.getInstance(LocationService).updateState()
+        await flushUpdates()
+
+        expect(spy).toHaveBeenCalled()
+        expect(document.getElementById('content-2')).toBeTruthy()
+      })
+    })
+
+    it('should not call startViewTransition when viewTransition is not set', async () => {
+      const spy = mockStartViewTransition()
+
+      await usingAsync(new Injector(), async (injector) => {
+        window.location.hash = '#tab1'
+
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const tabs = createTabs()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Tabs tabs={tabs} />,
+        })
+
+        await flushUpdates()
+        spy.mockClear()
+
+        window.location.hash = '#tab2'
+        injector.getInstance(LocationService).updateState()
+        await flushUpdates()
+
+        expect(spy).not.toHaveBeenCalled()
+        expect(document.getElementById('content-2')).toBeTruthy()
       })
     })
   })

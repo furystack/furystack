@@ -117,6 +117,40 @@ export const ViewTransitionsPage = Shade({
         </Paper>
 
         <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Component-level support
+        </Typography>
+        <Paper elevation={3} style={{ padding: '24px' }}>
+          <Typography variant="body1" style={{ marginBottom: '12px' }}>
+            Beyond routing, view transitions are supported on individual components that swap content. Each accepts the
+            same <code>viewTransition</code> prop:
+          </Typography>
+          <Paper
+            elevation={1}
+            style={{
+              padding: '16px',
+              fontFamily: 'Source Code Pro, monospace',
+              fontSize: '14px',
+              whiteSpace: 'pre',
+              overflow: 'auto',
+            }}
+          >
+            {`// LazyLoad: loader → loaded content
+<LazyLoad viewTransition loader={<Skeleton />}
+  component={async () => <MyPage />} />
+
+// Tabs: cross-fade between tab panels
+<Tabs viewTransition tabs={myTabs} activeKey={key} />
+
+// Wizard: animate between steps
+<Wizard viewTransition steps={mySteps} />
+
+// CacheView: loading → content transitions
+<CacheView viewTransition cache={myCache}
+  args={[id]} content={MyContent} />`}
+          </Paper>
+        </Paper>
+
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
           Customizing with CSS
         </Typography>
         <Paper elevation={3} style={{ padding: '24px' }}>

@@ -1,5 +1,5 @@
-import type { ChildrenList } from '@furystack/shades'
-import { createComponent, Shade } from '@furystack/shades'
+import type { ChildrenList, ViewTransitionConfig } from '@furystack/shades'
+import { createComponent, maybeViewTransition, Shade } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Paper } from '../paper.js'
 
@@ -39,6 +39,7 @@ export interface WizardProps {
    * When true, a progress bar is shown above the content.
    */
   showProgress?: boolean
+  viewTransition?: boolean | ViewTransitionConfig
 }
 
 export const Wizard = Shade<WizardProps>({
@@ -182,14 +183,14 @@ export const Wizard = Shade<WizardProps>({
             maxPages={props.steps.length}
             onNext={() => {
               if (currentPage < props.steps.length - 1) {
-                setCurrentPage(currentPage + 1)
+                maybeViewTransition(props.viewTransition, () => setCurrentPage(currentPage + 1))
               } else {
                 props.onFinish?.()
               }
             }}
             onPrev={() => {
               if (currentPage > 0) {
-                setCurrentPage(currentPage - 1)
+                maybeViewTransition(props.viewTransition, () => setCurrentPage(currentPage - 1))
               }
             }}
           />
