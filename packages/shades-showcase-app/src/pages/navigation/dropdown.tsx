@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@furystack/shades-common-components'
 
-const basicItems: MenuEntry[] = [
+const getBasicItems = (): MenuEntry[] => [
   { key: 'cut', label: 'Cut', icon: <Icon icon={icons.cut} size="small" /> },
   { key: 'copy', label: 'Copy', icon: <Icon icon={icons.clipboard} size="small" /> },
   { key: 'paste', label: 'Paste', icon: <Icon icon={icons.paste} size="small" /> },
@@ -19,7 +19,7 @@ const basicItems: MenuEntry[] = [
   { key: 'select-all', label: 'Select All' },
 ]
 
-const groupedItems: MenuEntry[] = [
+const getGroupedItems = (): MenuEntry[] => [
   {
     type: 'group',
     key: 'file-group',
@@ -42,7 +42,7 @@ const groupedItems: MenuEntry[] = [
   },
 ]
 
-const withDisabledItems: MenuEntry[] = [
+const getWithDisabledItems = (): MenuEntry[] => [
   { key: 'view', label: 'View', icon: <Icon icon={icons.eye} size="small" /> },
   { key: 'edit', label: 'Edit', icon: <Icon icon={icons.edit} size="small" /> },
   { key: 'delete', label: 'Delete', icon: <Icon icon={icons.trash} size="small" />, disabled: true },
@@ -58,10 +58,10 @@ const BasicDropdownDemo = Shade({
     return (
       <div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Dropdown items={basicItems} onSelect={(key) => setLastSelected(key)}>
+          <Dropdown items={getBasicItems()} onSelect={(key) => setLastSelected(key)}>
             <Button variant="outlined">Actions</Button>
           </Dropdown>
-          <Dropdown items={basicItems} onSelect={(key) => setLastSelected(key)} placement="bottomRight">
+          <Dropdown items={getBasicItems()} onSelect={(key) => setLastSelected(key)} placement="bottomRight">
             <Button variant="outlined">Bottom Right</Button>
           </Dropdown>
         </div>
@@ -99,7 +99,7 @@ export const DropdownPage = Shade({
           <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             Dropdown items can be organized into labeled groups.
           </Typography>
-          <Dropdown items={groupedItems} onSelect={(key) => console.log('Selected:', key)}>
+          <Dropdown items={getGroupedItems()} onSelect={(key) => console.log('Selected:', key)}>
             <Button variant="contained" color="primary">
               File Menu
             </Button>
@@ -111,7 +111,7 @@ export const DropdownPage = Shade({
           <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             Individual items can be disabled while others remain interactive.
           </Typography>
-          <Dropdown items={withDisabledItems} onSelect={(key) => console.log('Selected:', key)}>
+          <Dropdown items={getWithDisabledItems()} onSelect={(key) => console.log('Selected:', key)}>
             <Button variant="outlined" color="warning">
               More Options
             </Button>
@@ -123,7 +123,7 @@ export const DropdownPage = Shade({
           <Typography variant="body1" style={{ opacity: '0.7', marginBottom: '16px' }}>
             The entire dropdown can be disabled, preventing it from opening.
           </Typography>
-          <Dropdown items={basicItems} disabled>
+          <Dropdown items={getBasicItems()} disabled>
             <Button variant="outlined" disabled>
               Disabled
             </Button>

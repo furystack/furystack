@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import type { MenuEntry } from '@furystack/shades-common-components'
 import { Icon, icons, Menu, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
-const horizontalItems: MenuEntry[] = [
+const getHorizontalItems = (): MenuEntry[] => [
   { key: 'home', label: 'Home', icon: <Icon icon={icons.home} size="small" /> },
   { key: 'products', label: 'Products', icon: <Icon icon={icons.packageIcon} size="small" /> },
   { key: 'about', label: 'About', icon: <Icon icon={icons.info} size="small" /> },
@@ -11,7 +11,7 @@ const horizontalItems: MenuEntry[] = [
   { key: 'disabled', label: 'Disabled', disabled: true },
 ]
 
-const verticalItems: MenuEntry[] = [
+const getVerticalItems = (): MenuEntry[] => [
   { key: 'dashboard', label: 'Dashboard', icon: <Icon icon={icons.barChart} size="small" /> },
   { key: 'users', label: 'Users', icon: <Icon icon={icons.users} size="small" /> },
   { type: 'divider' },
@@ -29,7 +29,7 @@ const verticalItems: MenuEntry[] = [
   { key: 'logout', label: 'Log Out', icon: <Icon icon={icons.logOut} size="small" /> },
 ]
 
-const inlineItems: MenuEntry[] = [
+const getInlineItems = (): MenuEntry[] => [
   { key: 'inbox', label: 'Inbox', icon: <Icon icon={icons.inbox} size="small" /> },
   { key: 'sent', label: 'Sent', icon: <Icon icon={icons.send} size="small" /> },
   {
@@ -60,7 +60,12 @@ const HorizontalMenuDemo = Shade({
 
     return (
       <div>
-        <Menu items={horizontalItems} mode="horizontal" selectedKey={selected} onSelect={(key) => setSelected(key)} />
+        <Menu
+          items={getHorizontalItems()}
+          mode="horizontal"
+          selectedKey={selected}
+          onSelect={(key) => setSelected(key)}
+        />
         <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
           Selected: {selected}
         </Typography>
@@ -77,7 +82,12 @@ const VerticalMenuDemo = Shade({
     return (
       <div>
         <div style={{ maxWidth: '280px' }}>
-          <Menu items={verticalItems} mode="vertical" selectedKey={selected} onSelect={(key) => setSelected(key)} />
+          <Menu
+            items={getVerticalItems()}
+            mode="vertical"
+            selectedKey={selected}
+            onSelect={(key) => setSelected(key)}
+          />
         </div>
         <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
           Selected: {selected}
@@ -95,7 +105,7 @@ const InlineMenuDemo = Shade({
     return (
       <div>
         <div style={{ maxWidth: '280px' }}>
-          <Menu items={inlineItems} mode="inline" selectedKey={selected} onSelect={(key) => setSelected(key)} />
+          <Menu items={getInlineItems()} mode="inline" selectedKey={selected} onSelect={(key) => setSelected(key)} />
         </div>
         <Typography variant="body1" style={{ marginTop: '8px', fontSize: '14px', opacity: '0.6' }}>
           Selected: {selected}

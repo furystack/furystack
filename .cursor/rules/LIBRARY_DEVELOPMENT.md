@@ -524,6 +524,34 @@ const [count, setCount] = useState('count', 0)
 
 Reserve `useDisposable` + `ObservableValue` for cases where the observable must be passed to a service or shared across component boundaries (not just parent-to-child). For parent-to-child state, prefer plain props.
 
+### Anti-pattern: Module-Level JSX Constants
+
+**NEVER store JSX elements in module-level constants.** JSX expressions create VNode objects. When stored at module level, the same VNode instance is reused across every mount/render cycle. Since Shades associates DOM nodes with VNodes, this causes duplicated or stale elements on subsequent mounts.
+
+```typescript
+// ❌ Bad - VNode created once, reused across mounts → duplication bug
+const defaultIcons: Record<string, JSX.Element> = {
+  success: (<Icon icon={checkCircle} size={64} />) as unknown as JSX.Element,
+  error: (<Icon icon={errorCircle} size={64} />) as unknown as JSX.Element,
+}
+
+// ❌ Bad - same issue with arrays of objects containing JSX
+const menuItems: MenuEntry[] = [
+  { key: 'home', label: 'Home', icon: <Icon icon={icons.home} size="small" /> },
+]
+
+// ✅ Good - factory function creates fresh VNodes per call
+const getDefaultIcon = (status: string): JSX.Element =>
+  (<Icon icon={iconDefs[status]} size={64} />) as unknown as JSX.Element
+
+// ✅ Good - factory returns fresh array with fresh JSX
+const getMenuItems = (): MenuEntry[] => [
+  { key: 'home', label: 'Home', icon: <Icon icon={icons.home} size="small" /> },
+]
+```
+
+Plain data (strings, numbers, objects without JSX) at module level is fine. Only JSX / VNode creation must happen inside render functions or factory functions called at render time.
+
 ### VNode Reconciliation
 
 Shades uses a VNode-based reconciler with **positional (index-based) child matching**. There is no key-based reconciliation. When list items reorder, all children from the reorder point onward are patched or replaced.

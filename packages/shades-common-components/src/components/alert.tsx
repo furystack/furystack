@@ -28,12 +28,15 @@ const severityColorMap: Record<AlertSeverity, { main: string; mainContrast: stri
   success: { ...paletteMainColors.success, light: cssVariableTheme.palette.success.light },
 }
 
-const defaultIcons: Record<AlertSeverity, JSX.Element> = {
-  error: (<Icon icon={errorCircle} size="small" />) as unknown as JSX.Element,
-  warning: (<Icon icon={warningIcon} size="small" />) as unknown as JSX.Element,
-  info: (<Icon icon={infoIcon} size="small" />) as unknown as JSX.Element,
-  success: (<Icon icon={checkCircle} size="small" />) as unknown as JSX.Element,
+const defaultIconDefs: Record<AlertSeverity, typeof checkCircle> = {
+  error: errorCircle,
+  warning: warningIcon,
+  info: infoIcon,
+  success: checkCircle,
 }
+
+const getDefaultIcon = (severity: AlertSeverity): JSX.Element =>
+  (<Icon icon={defaultIconDefs[severity]} size="small" />) as unknown as JSX.Element
 
 export const Alert = Shade<AlertProps>({
   shadowDomName: 'shade-alert',
@@ -159,7 +162,7 @@ export const Alert = Shade<AlertProps>({
       },
     })
 
-    const displayIcon = icon ?? defaultIcons[severity]
+    const displayIcon = icon ?? getDefaultIcon(severity)
 
     return (
       <>
