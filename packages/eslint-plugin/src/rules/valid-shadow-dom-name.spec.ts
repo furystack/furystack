@@ -30,9 +30,10 @@ tester.run('valid-shadow-dom-name', validShadowDomName, {
       errors: [{ messageId: 'missingHyphen', data: { name: 'mycomponent' } }],
     },
     {
-      name: 'uppercase letters',
+      name: 'auto-fix: uppercase letters lowercased',
       code: `Shade({ shadowDomName: 'My-Component', render: () => null })`,
       errors: [{ messageId: 'notLowercase', data: { name: 'My-Component' } }],
+      output: `Shade({ shadowDomName: 'my-component', render: () => null })`,
     },
     {
       name: 'starts with hyphen',
@@ -45,12 +46,13 @@ tester.run('valid-shadow-dom-name', validShadowDomName, {
       errors: [{ messageId: 'invalidStart', data: { name: '3d-viewer' } }],
     },
     {
-      name: 'multiple issues: uppercase and no hyphen',
+      name: 'multiple issues: uppercase and no hyphen (only lowercase is auto-fixed)',
       code: `Shade({ shadowDomName: 'MyComponent', render: () => null })`,
       errors: [
         { messageId: 'missingHyphen', data: { name: 'MyComponent' } },
         { messageId: 'notLowercase', data: { name: 'MyComponent' } },
       ],
+      output: `Shade({ shadowDomName: 'mycomponent', render: () => null })`,
     },
   ],
 })

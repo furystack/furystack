@@ -12,60 +12,70 @@ tester.run('require-observable-disposal', requireObservableDisposal, {
   valid: [
     {
       name: 'all ObservableValues disposed',
-      code: `
-        class MyService {
-          public data = new ObservableValue(null)
-          public count = new ObservableValue(0)
-          public [Symbol.dispose]() {
-            this.data[Symbol.dispose]()
-            this.count[Symbol.dispose]()
-          }
-        }
-      `,
+      code: [
+        'class MyService {',
+        '  public data = new ObservableValue(null)',
+        '  public count = new ObservableValue(0)',
+        '  public [Symbol.dispose]() {',
+        '    this.data[Symbol.dispose]()',
+        '    this.count[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
     },
     {
       name: 'class without ObservableValues',
-      code: `
-        class MyService {
-          public name = 'hello'
-          public [Symbol.dispose]() {}
-        }
-      `,
+      code: ['class MyService {', '  public name = "hello"', '  public [Symbol.dispose]() {}', '}'].join('\n'),
     },
     {
       name: 'class without dispose method is handled by require-disposable-for-observable-owner',
-      code: `
-        class MyService {
-          public data = new ObservableValue(null)
-        }
-      `,
+      code: ['class MyService {', '  public data = new ObservableValue(null)', '}'].join('\n'),
     },
   ],
   invalid: [
     {
-      name: 'ObservableValue not disposed',
-      code: `
-        class ScreenService {
-          public orientation = new ObservableValue('portrait')
-          public [Symbol.dispose]() {
-            window.removeEventListener('resize', this.onResizeListener)
-          }
-        }
-      `,
+      name: 'auto-fix: appends missing disposal call',
+      code: [
+        'class ScreenService {',
+        '  public orientation = new ObservableValue("portrait")',
+        '  public [Symbol.dispose]() {',
+        '    window.removeEventListener("resize", this.onResizeListener)',
+        '  }',
+        '}',
+      ].join('\n'),
       errors: [{ messageId: 'undisposedObservable', data: { fieldName: 'orientation' } }],
+      output: [
+        'class ScreenService {',
+        '  public orientation = new ObservableValue("portrait")',
+        '  public [Symbol.dispose]() {',
+        '    window.removeEventListener("resize", this.onResizeListener)',
+        '    this.orientation[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
     },
     {
-      name: 'partially disposed ObservableValues',
-      code: `
-        class MyService {
-          public data = new ObservableValue(null)
-          public findOptions = new ObservableValue({})
-          public [Symbol.dispose]() {
-            this.data[Symbol.dispose]()
-          }
-        }
-      `,
+      name: 'auto-fix: appends only missing field',
+      code: [
+        'class MyService {',
+        '  public data = new ObservableValue(null)',
+        '  public findOptions = new ObservableValue({})',
+        '  public [Symbol.dispose]() {',
+        '    this.data[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
       errors: [{ messageId: 'undisposedObservable', data: { fieldName: 'findOptions' } }],
+      output: [
+        'class MyService {',
+        '  public data = new ObservableValue(null)',
+        '  public findOptions = new ObservableValue({})',
+        '  public [Symbol.dispose]() {',
+        '    this.data[Symbol.dispose]()',
+        '    this.findOptions[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
     },
   ],
 })

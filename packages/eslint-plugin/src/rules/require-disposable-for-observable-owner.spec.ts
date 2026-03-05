@@ -43,23 +43,39 @@ tester.run('require-disposable-for-observable-owner', requireDisposableForObserv
   ],
   invalid: [
     {
-      name: 'class with ObservableValue but no dispose method',
-      code: `
-        class MyService {
-          public data = new ObservableValue(null)
-        }
-      `,
+      name: 'auto-fix: inserts [Symbol.dispose]() with single field',
+      code: ['class MyService {', '  public data = new ObservableValue(null)', '}'].join('\n'),
       errors: [{ messageId: 'missingDisposable', data: { className: 'MyService' } }],
+      output: [
+        'class MyService {',
+        '  public data = new ObservableValue(null)',
+        '',
+        '  public [Symbol.dispose]() {',
+        '    this.data[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
     },
     {
-      name: 'class with multiple ObservableValues but no dispose method',
-      code: `
-        class LayoutService {
-          public drawerState = new ObservableValue({})
-          public appBarVisible = new ObservableValue(true)
-        }
-      `,
+      name: 'auto-fix: inserts [Symbol.dispose]() with multiple fields',
+      code: [
+        'class LayoutService {',
+        '  public drawerState = new ObservableValue({})',
+        '  public appBarVisible = new ObservableValue(true)',
+        '}',
+      ].join('\n'),
       errors: [{ messageId: 'missingDisposable', data: { className: 'LayoutService' } }],
+      output: [
+        'class LayoutService {',
+        '  public drawerState = new ObservableValue({})',
+        '  public appBarVisible = new ObservableValue(true)',
+        '',
+        '  public [Symbol.dispose]() {',
+        '    this.drawerState[Symbol.dispose]()',
+        '    this.appBarVisible[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
     },
   ],
 })

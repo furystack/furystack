@@ -9,6 +9,7 @@ export const validShadowDomName = createRule({
       description:
         'Validate the shadowDomName string in Shade() calls. Custom element names must be lowercase, contain a hyphen, and not start with a digit or hyphen.',
     },
+    fixable: 'code',
     messages: {
       missingHyphen: 'shadowDomName "{{ name }}" must contain at least one hyphen (Custom Elements spec requirement).',
       notLowercase: 'shadowDomName "{{ name }}" must be all lowercase.',
@@ -38,7 +39,14 @@ export const validShadowDomName = createRule({
             context.report({ node: prop.value, messageId: 'missingHyphen', data: { name } })
           }
           if (name !== name.toLowerCase()) {
-            context.report({ node: prop.value, messageId: 'notLowercase', data: { name } })
+            context.report({
+              node: prop.value,
+              messageId: 'notLowercase',
+              data: { name },
+              fix(fixer) {
+                return fixer.replaceText(prop.value, `'${name.toLowerCase()}'`)
+              },
+            })
           }
           if (/^[\d-]/.test(name)) {
             context.report({ node: prop.value, messageId: 'invalidStart', data: { name } })

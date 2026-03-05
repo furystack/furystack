@@ -30,10 +30,12 @@ const getObservableFieldNames = (body: TSESTree.ClassBody): string[] => {
   return names
 }
 
-const getDisposeMethodBody = (body: TSESTree.ClassBody): TSESTree.BlockStatement | null => {
+const getDisposeMethod = (
+  body: TSESTree.ClassBody,
+): (TSESTree.FunctionExpression | TSESTree.TSEmptyBodyFunctionExpression) | null => {
   for (const member of body.body) {
     if (member.type === AST_NODE_TYPES.MethodDefinition && member.computed && isSymbolDisposeKey(member.key)) {
-      return member.value.body ?? null
+      return member.value
     }
   }
   return null
@@ -79,10 +81,22 @@ const collectDisposedFieldNames = (disposeBody: TSESTree.BlockStatement): Set<st
   return disposed
 }
 
+const getBodyIndent = (lines: string[], disposeBody: TSESTree.BlockStatement): string => {
+  for (const stmt of disposeBody.body) {
+    const line = lines[stmt.loc.start.line - 1]
+    const match = line?.match(/^(\s*)/)
+    if (match?.[1]) return match[1]
+  }
+  const closingLine = lines[disposeBody.loc.end.line - 1]
+  const closingMatch = closingLine?.match(/^(\s*)/)
+  return `${closingMatch?.[1] ?? ''}  `
+}
+
 export const requireObservableDisposal = createRule({
   name: 'require-observable-disposal',
   meta: {
     type: 'suggestion',
+    fixable: 'code',
     docs: {
       description:
         'Each ObservableValue field in a class must be disposed in the [Symbol.dispose]() method to prevent memory leaks.',
@@ -99,13 +113,16 @@ export const requireObservableDisposal = createRule({
       const observableFields = getObservableFieldNames(node.body)
       if (observableFields.length === 0) return
 
-      const disposeBody = getDisposeMethodBody(node.body)
-      if (!disposeBody) return
+      const disposeMethod = getDisposeMethod(node.body)
+      if (!disposeMethod?.body) return
 
-      const disposedFields = collectDisposedFieldNames(disposeBody)
+      const disposedFields = collectDisposedFieldNames(disposeMethod.body)
+      const undisposedFields: string[] = []
 
       for (const fieldName of observableFields) {
         if (!disposedFields.has(fieldName)) {
+          undisposedFields.push(fieldName)
+
           const member = node.body.body.find(
             (m): m is TSESTree.PropertyDefinition =>
               m.type === AST_NODE_TYPES.PropertyDefinition &&
@@ -117,6 +134,23 @@ export const requireObservableDisposal = createRule({
               node: member.key,
               messageId: 'undisposedObservable',
               data: { fieldName },
+              fix(fixer) {
+                const { body: disposeBody } = disposeMethod
+                if (!disposeBody) return null
+
+                const lines = context.sourceCode.getText().split('\n')
+                const indent = getBodyIndent(lines, disposeBody)
+
+                const lastStmt = disposeBody.body[disposeBody.body.length - 1]
+                if (lastStmt) {
+                  return fixer.insertTextAfter(lastStmt, `\n${indent}this.${fieldName}[Symbol.dispose]()`)
+                }
+                const insertPos = disposeBody.range[1] - 1
+                return fixer.insertTextBeforeRange(
+                  [insertPos, insertPos],
+                  `${indent}this.${fieldName}[Symbol.dispose]()\n`,
+                )
+              },
             })
           }
         }

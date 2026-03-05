@@ -38,6 +38,34 @@ tester.run('prefer-using-wrapper', preferUsingWrapper, {
         }
       `,
     },
+    {
+      name: 'dispose inside finally block is already safe',
+      code: `
+        async function test() {
+          const factory = new MongoClientFactory()
+          try {
+            factory.getClientFor('mongodb://localhost')
+          } finally {
+            await factory[Symbol.asyncDispose]()
+          }
+        }
+      `,
+    },
+    {
+      name: 'multiple disposes inside finally block',
+      code: `
+        async function test() {
+          const service = new EntitySyncService({ wsUrl: 'ws://test' })
+          const injector = new Injector()
+          try {
+            doWork(service, injector)
+          } finally {
+            service[Symbol.dispose]()
+            await injector[Symbol.asyncDispose]()
+          }
+        }
+      `,
+    },
   ],
   invalid: [
     {

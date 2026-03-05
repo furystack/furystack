@@ -42,6 +42,21 @@ const getEnclosingFunction = (
   return null
 }
 
+const isInsideFinallyBlock = (node: TSESTree.Node): boolean => {
+  let current: TSESTree.Node | undefined = node.parent
+  while (current) {
+    if (
+      current.type === AST_NODE_TYPES.BlockStatement &&
+      current.parent?.type === AST_NODE_TYPES.TryStatement &&
+      current.parent.finalizer === current
+    ) {
+      return true
+    }
+    current = current.parent
+  }
+  return false
+}
+
 const isInsideUsingCallback = (node: TSESTree.Node): boolean => {
   const fn = getEnclosingFunction(node)
   if (!fn || !fn.parent) return false
@@ -116,6 +131,7 @@ export const preferUsingWrapper = createRule({
         if (!info) return
 
         if (isInsideUsingCallback(node)) return
+        if (isInsideFinallyBlock(node)) return
         if (isFollowedByExpect(node)) return
 
         const enclosing = getEnclosingFunction(node)
