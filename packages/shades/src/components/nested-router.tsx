@@ -58,7 +58,8 @@ export type NestedRoute<TMatchResult = unknown> = {
   }) => JSX.Element
   routingOptions?: MatchOptions
   /**
-   * Called after the route's DOM has been mounted (and after the view transition callback, if enabled).
+   * Called after the route's DOM has been mounted. When view transitions are enabled,
+   * this runs after the transition's update callback has completed and the new DOM is in place.
    * Use for imperative side effects like data fetching or focus management — not for visual
    * animations, which are handled by the View Transition API when `viewTransition` is enabled.
    */
@@ -294,7 +295,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
             }
 
             const vtConfig = resolveViewTransition(options.props.viewTransition, newChain)
-            maybeViewTransition(vtConfig === false ? undefined : vtConfig, applyUpdate)
+            await maybeViewTransition(vtConfig === false ? undefined : vtConfig, applyUpdate)
 
             for (let i = divergeIndex; i < newChain.length; i++) {
               await newChain[i].route.onVisit?.({ ...options, element: newResult.chainElements[i] })
@@ -318,7 +319,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
             injector.getInstance(RouteMatchService).currentMatchChain.setValue([])
           }
 
-          maybeViewTransition(options.props.viewTransition, applyNotFound)
+          await maybeViewTransition(options.props.viewTransition, applyNotFound)
         }
       } catch (e) {
         if (!(e instanceof ObservableAlreadyDisposedError)) {

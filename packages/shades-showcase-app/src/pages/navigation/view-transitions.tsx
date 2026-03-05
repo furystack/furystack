@@ -1,5 +1,14 @@
 import { createComponent, NestedRouteLink, Shade } from '@furystack/shades'
-import { Button, Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
+import {
+  Button,
+  cssVariableTheme,
+  Icon,
+  icons,
+  PageContainer,
+  PageHeader,
+  Paper,
+  Typography,
+} from '@furystack/shades-common-components'
 
 const isViewTransitionSupported = typeof document.startViewTransition === 'function'
 
@@ -29,7 +38,9 @@ export const ViewTransitionsPage = Shade({
               width: '12px',
               height: '12px',
               borderRadius: '50%',
-              backgroundColor: isViewTransitionSupported ? '#4caf50' : '#f44336',
+              backgroundColor: isViewTransitionSupported
+                ? cssVariableTheme.palette.success.main
+                : cssVariableTheme.palette.error.main,
               display: 'inline-block',
               flexShrink: '0',
             }}

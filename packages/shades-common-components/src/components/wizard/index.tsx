@@ -183,14 +183,14 @@ export const Wizard = Shade<WizardProps>({
             maxPages={props.steps.length}
             onNext={() => {
               if (currentPage < props.steps.length - 1) {
-                maybeViewTransition(props.viewTransition, () => setCurrentPage(currentPage + 1))
+                void maybeViewTransition(props.viewTransition, () => setCurrentPage(currentPage + 1))
               } else {
                 props.onFinish?.()
               }
             }}
             onPrev={() => {
               if (currentPage > 0) {
-                maybeViewTransition(props.viewTransition, () => setCurrentPage(currentPage - 1))
+                void maybeViewTransition(props.viewTransition, () => setCurrentPage(currentPage - 1))
               }
             }}
           />

@@ -106,7 +106,7 @@ export const CacheView = Shade<InternalCacheViewProps>({
 
     if (result !== displayedResult) {
       if (resultCategory !== displayedCategory) {
-        maybeViewTransition(viewTransition, () => setDisplayedResult(result))
+        void maybeViewTransition(viewTransition, () => setDisplayedResult(result))
       } else {
         setDisplayedResult(result)
       }

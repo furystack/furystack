@@ -229,7 +229,7 @@ export const Tabs = Shade<{
 
     const [displayedKey, setDisplayedKey] = useState('displayedKey', activeKey)
     if (activeKey !== displayedKey) {
-      maybeViewTransition(props.viewTransition, () => setDisplayedKey(activeKey))
+      void maybeViewTransition(props.viewTransition, () => setDisplayedKey(activeKey))
     }
 
     const displayedTab = props.tabs.find((t) => t.hash === displayedKey)

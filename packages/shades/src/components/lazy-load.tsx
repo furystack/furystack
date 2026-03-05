@@ -39,7 +39,7 @@ export const LazyLoad = Shade<LazyLoadProps>({
       factory()
         .then((loaded) => {
           if (tracker.active && tracker.factory === factory) {
-            maybeViewTransition(props.viewTransition, () => {
+            void maybeViewTransition(props.viewTransition, () => {
               setError(undefined)
               setComponent(loaded)
             })
@@ -65,7 +65,7 @@ export const LazyLoad = Shade<LazyLoadProps>({
           setComponent(undefined)
           const loaded = await factory()
           if (tracker.active && tracker.factory === factory) {
-            maybeViewTransition(props.viewTransition, () => {
+            void maybeViewTransition(props.viewTransition, () => {
               setComponent(loaded)
             })
           }

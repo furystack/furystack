@@ -73,7 +73,7 @@ describe('Lazy Load', () => {
     })
   })
 
-  it('Shuld display the failed state with a retryer', async () => {
+  it('Should succeed on retry after initial failure', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       let counter = 0
