@@ -276,8 +276,9 @@ describe('CacheView', () => {
 
   describe('view transitions', () => {
     const mockStartViewTransition = () => {
-      const spy = vi.fn((opts: StartViewTransitionOptions) => {
-        opts.update?.()
+      const spy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+        const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+        update?.()
         return {
           finished: Promise.resolve(),
           ready: Promise.resolve(),

@@ -114,8 +114,9 @@ describe('Lazy Load', () => {
   })
 
   it('should call startViewTransition when viewTransition is enabled and component loads', async () => {
-    const startViewTransitionSpy = vi.fn((opts: StartViewTransitionOptions) => {
-      opts.update?.()
+    const startViewTransitionSpy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+      const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+      update?.()
       return {
         finished: Promise.resolve(),
         ready: Promise.resolve(),
@@ -152,8 +153,9 @@ describe('Lazy Load', () => {
   })
 
   it('should not call startViewTransition when viewTransition is not set', async () => {
-    const startViewTransitionSpy = vi.fn((opts: StartViewTransitionOptions) => {
-      opts.update?.()
+    const startViewTransitionSpy = vi.fn((optionsOrCallback: StartViewTransitionOptions | (() => void)) => {
+      const update = typeof optionsOrCallback === 'function' ? optionsOrCallback : optionsOrCallback.update
+      update?.()
       return {
         finished: Promise.resolve(),
         ready: Promise.resolve(),
