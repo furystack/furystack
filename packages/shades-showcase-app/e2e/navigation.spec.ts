@@ -52,8 +52,11 @@ const categories = [
   },
   {
     name: 'Layout',
-    url: '/layout/divider',
-    pages: [{ name: 'Divider', url: '/layout/divider' }],
+    url: '/layout/layout-showcase',
+    pages: [
+      { name: 'Layout Showcase', url: '/layout/layout-showcase' },
+      { name: 'Divider', url: '/layout/divider' },
+    ],
   },
   {
     name: 'Surfaces',
