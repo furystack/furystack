@@ -39,7 +39,6 @@ export class LocationService implements Disposable {
   public [Symbol.dispose]() {
     window.removeEventListener('popstate', this.popStateListener)
     window.removeEventListener('hashchange', this.hashChangeListener)
-    this.onLocationPathChanged[Symbol.dispose]()
     this.onLocationSearchChanged[Symbol.dispose]()
     this.onDeserializedLocationSearchChanged[Symbol.dispose]()
     this.locationDeserializerObserver[Symbol.dispose]()
