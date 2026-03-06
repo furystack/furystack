@@ -40,6 +40,28 @@ tester.run('require-disposable-for-observable-owner', requireDisposableForObserv
         }
       `,
     },
+    {
+      name: 'class with Cache and Symbol.dispose',
+      code: `
+        class DataService {
+          private cache = new Cache({ load: async () => [] })
+          public [Symbol.dispose]() {
+            this.cache[Symbol.dispose]()
+          }
+        }
+      `,
+    },
+    {
+      name: 'class with .subscribe() and Symbol.dispose',
+      code: `
+        class ListenerService {
+          private subscription = someObservable.subscribe(() => {})
+          public [Symbol.dispose]() {
+            this.subscription[Symbol.dispose]()
+          }
+        }
+      `,
+    },
   ],
   invalid: [
     {
@@ -76,6 +98,25 @@ tester.run('require-disposable-for-observable-owner', requireDisposableForObserv
         '  }',
         '}',
       ].join('\n'),
+    },
+    {
+      name: 'auto-fix: inserts [Symbol.dispose]() for Cache field',
+      code: ['class DataService {', '  private cache = new Cache({ load: async () => [] })', '}'].join('\n'),
+      errors: [{ messageId: 'missingDisposable', data: { className: 'DataService' } }],
+      output: [
+        'class DataService {',
+        '  private cache = new Cache({ load: async () => [] })',
+        '',
+        '  public [Symbol.dispose]() {',
+        '    this.cache[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
+    },
+    {
+      name: 'reports .subscribe() without dispose (no auto-fix for subscriptions)',
+      code: ['class ListenerService {', '  private subscription = someObservable.subscribe(() => {})', '}'].join('\n'),
+      errors: [{ messageId: 'missingDisposable', data: { className: 'ListenerService' } }],
     },
   ],
 })

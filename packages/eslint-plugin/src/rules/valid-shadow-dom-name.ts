@@ -1,7 +1,9 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
-export const validShadowDomName = createRule({
+type Options = [{ requiredPrefix?: string }]
+
+export const validShadowDomName = createRule<Options, string>({
   name: 'valid-shadow-dom-name',
   meta: {
     type: 'problem',
@@ -14,11 +16,22 @@ export const validShadowDomName = createRule({
       missingHyphen: 'shadowDomName "{{ name }}" must contain at least one hyphen (Custom Elements spec requirement).',
       notLowercase: 'shadowDomName "{{ name }}" must be all lowercase.',
       invalidStart: 'shadowDomName "{{ name }}" must not start with a digit or hyphen.',
+      missingPrefix: 'shadowDomName "{{ name }}" must start with the prefix "{{ prefix }}".',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          requiredPrefix: { type: 'string' },
+        },
+        additionalProperties: false,
+      },
+    ],
   },
-  defaultOptions: [],
-  create(context) {
+  defaultOptions: [{}],
+  create(context, [options]) {
+    const { requiredPrefix } = options
+
     return {
       CallExpression(node) {
         if (node.callee.type !== AST_NODE_TYPES.Identifier || node.callee.name !== 'Shade') return
@@ -50,6 +63,13 @@ export const validShadowDomName = createRule({
           }
           if (/^[\d-]/.test(name)) {
             context.report({ node: prop.value, messageId: 'invalidStart', data: { name } })
+          }
+          if (requiredPrefix && !name.startsWith(requiredPrefix)) {
+            context.report({
+              node: prop.value,
+              messageId: 'missingPrefix',
+              data: { name, prefix: requiredPrefix },
+            })
           }
         }
       },

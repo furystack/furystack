@@ -22,6 +22,11 @@ tester.run('valid-shadow-dom-name', validShadowDomName, {
       name: 'non-Shade call is ignored',
       code: `Other({ shadowDomName: 'NoHyphen' })`,
     },
+    {
+      name: 'valid name with requiredPrefix option',
+      code: `Shade({ shadowDomName: 'shade-my-widget', render: () => null })`,
+      options: [{ requiredPrefix: 'shade-' }],
+    },
   ],
   invalid: [
     {
@@ -53,6 +58,18 @@ tester.run('valid-shadow-dom-name', validShadowDomName, {
         { messageId: 'notLowercase', data: { name: 'MyComponent' } },
       ],
       output: `Shade({ shadowDomName: 'mycomponent', render: () => null })`,
+    },
+    {
+      name: 'missing required prefix',
+      code: `Shade({ shadowDomName: 'my-component', render: () => null })`,
+      options: [{ requiredPrefix: 'shade-' }],
+      errors: [{ messageId: 'missingPrefix', data: { name: 'my-component', prefix: 'shade-' } }],
+    },
+    {
+      name: 'name matches prefix passes validation',
+      code: `Shade({ shadowDomName: 'app-widget', render: () => null })`,
+      options: [{ requiredPrefix: 'shade-' }],
+      errors: [{ messageId: 'missingPrefix', data: { name: 'app-widget', prefix: 'shade-' } }],
     },
   ],
 })

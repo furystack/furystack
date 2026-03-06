@@ -2,6 +2,8 @@ import type { TSESTree } from '@typescript-eslint/utils'
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
+const DISPOSABLE_CONSTRUCTORS = ['ObservableValue', 'Cache']
+
 const isSymbolDisposeKey = (key: TSESTree.Expression | TSESTree.PrivateIdentifier): boolean => {
   if (key.type !== AST_NODE_TYPES.MemberExpression) return false
   return (
@@ -12,30 +14,37 @@ const isSymbolDisposeKey = (key: TSESTree.Expression | TSESTree.PrivateIdentifie
   )
 }
 
-const hasObservableValueAssignment = (body: TSESTree.ClassBody): boolean => {
-  return body.body.some((member) => {
-    if (member.type === AST_NODE_TYPES.PropertyDefinition && member.value) {
-      return isNewObservableValue(member.value)
-    }
-    return false
-  })
-}
-
-const isNewObservableValue = (node: TSESTree.Expression): boolean => {
+const isNewDisposableInstance = (node: TSESTree.Expression): boolean => {
   return (
     node.type === AST_NODE_TYPES.NewExpression &&
     node.callee.type === AST_NODE_TYPES.Identifier &&
-    node.callee.name === 'ObservableValue'
+    DISPOSABLE_CONSTRUCTORS.includes(node.callee.name)
   )
 }
 
-const getObservableFieldNames = (body: TSESTree.ClassBody): string[] => {
+const hasSubscribeCall = (node: TSESTree.Expression): boolean => {
+  return (
+    node.type === AST_NODE_TYPES.CallExpression &&
+    node.callee.type === AST_NODE_TYPES.MemberExpression &&
+    node.callee.property.type === AST_NODE_TYPES.Identifier &&
+    node.callee.property.name === 'subscribe'
+  )
+}
+
+const hasDisposableResource = (body: TSESTree.ClassBody): boolean => {
+  return body.body.some((member) => {
+    if (member.type !== AST_NODE_TYPES.PropertyDefinition || !member.value) return false
+    return isNewDisposableInstance(member.value) || hasSubscribeCall(member.value)
+  })
+}
+
+const getDisposableFieldNames = (body: TSESTree.ClassBody): string[] => {
   const names: string[] = []
   for (const member of body.body) {
     if (
       member.type === AST_NODE_TYPES.PropertyDefinition &&
       member.value &&
-      isNewObservableValue(member.value) &&
+      isNewDisposableInstance(member.value) &&
       member.key.type === AST_NODE_TYPES.Identifier
     ) {
       names.push(member.key.name)
@@ -67,27 +76,29 @@ export const requireDisposableForObservableOwner = createRule({
     fixable: 'code',
     docs: {
       description:
-        'Classes that own ObservableValue instances must implement Disposable by providing a [Symbol.dispose]() or [Symbol.asyncDispose]() method.',
+        'Classes that own disposable resources (ObservableValue, Cache, or subscriptions) must implement Disposable by providing a [Symbol.dispose]() or [Symbol.asyncDispose]() method.',
     },
     messages: {
       missingDisposable:
-        'Class "{{ className }}" owns ObservableValue instances but does not implement Disposable. Add [Symbol.dispose]() to clean up observable subscriptions.',
+        'Class "{{ className }}" owns disposable resources but does not implement Disposable. Add [Symbol.dispose]() to clean them up.',
     },
     schema: [],
   },
   defaultOptions: [],
   create(context) {
     const checkClass = (node: TSESTree.ClassDeclaration | TSESTree.ClassExpression) => {
-      if (!hasObservableValueAssignment(node.body)) return
+      if (!hasDisposableResource(node.body)) return
       if (hasDisposeMethod(node.body)) return
 
-      const fieldNames = getObservableFieldNames(node.body)
+      const fieldNames = getDisposableFieldNames(node.body)
 
       context.report({
         node: node.id ?? node,
         messageId: 'missingDisposable',
         data: { className: node.id?.name ?? '<anonymous>' },
         fix(fixer) {
+          if (fieldNames.length === 0) return null
+
           const memberIndent = getMemberIndent(context.sourceCode.getText(), node.body)
           const bodyIndent = `${memberIndent}  `
           const disposeCalls = fieldNames.map((name) => `${bodyIndent}this.${name}[Symbol.dispose]()`).join('\n')
