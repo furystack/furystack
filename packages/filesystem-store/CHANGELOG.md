@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.1.1] - 2026-03-06
+
+### 🧪 Tests
+
+- Refactored `FileSystemStore` watcher error test to use `using()` wrapper for proper disposal, ensuring cleanup even if assertions fail
+
 ## [7.1.0] - 2026-03-03
 
 ### ✨ Features

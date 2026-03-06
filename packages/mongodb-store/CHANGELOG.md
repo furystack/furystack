@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.1.1] - 2026-03-06
+
+### ⬆️ Dependencies
+
+- Updated internal FuryStack dependencies
+
 ## [10.1.0] - 2026-03-03
 
 ### ✨ Features

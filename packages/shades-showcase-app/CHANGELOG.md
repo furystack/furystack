@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.2.7] - 2026-03-06
+
+### 🐛 Bug Fixes
+
+- Fixed duplicated content on re-render in dropdown and menu demo pages by converting static JSX-containing arrays to factory functions that create fresh elements per render call
+- Added missing `findOptions[Symbol.dispose]()` call in `GridPageService` to prevent memory leaks
+
+### ♻️ Refactoring
+
+- Replaced manual `useDisposable(ObservableValue)` + `useObservable` pattern with `useState()` in `MarkdownPage`, reducing boilerplate for local component state
+
+### 📦 Build
+
+- Added missing TypeScript project references for `@furystack/i18n`, `@furystack/shades-i18n`, and `@furystack/shades-mfe`
+
 ## [8.2.6] - 2026-03-05
 
 ### ✨ Features

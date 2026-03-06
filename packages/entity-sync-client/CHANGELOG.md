@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 2026-03-06
+
+### 🧪 Tests
+
+- Refactored `shades-hooks` tests to use `using()` / `usingAsync()` wrappers for `Injector` and `EntitySyncService` disposal, ensuring proper cleanup even if assertions fail
+
 ## [1.1.0] - 2026-03-03
 
 ### ✨ Features

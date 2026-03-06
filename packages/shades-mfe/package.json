@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-mfe",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "Micro-Frontend support for FuryStack Shades",
   "type": "module",
   "scripts": {

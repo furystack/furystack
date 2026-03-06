@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "12.0.31",
+  "version": "12.0.32",
   "description": "Dependency Injection framework for FuryStack",
   "type": "module",
   "scripts": {

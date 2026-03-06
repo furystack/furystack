@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.33] - 2026-03-06
+
+### 📦 Build
+
+- Updated TypeScript project references
+
 ## [1.0.32] - 2026-03-03
 
 ### ⬆️ Dependencies

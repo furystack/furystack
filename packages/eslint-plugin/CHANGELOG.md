@@ -1,8 +1,8 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/eslint-plugin
+## [1.0.0] - 2026-03-06
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### Initial Major Release
 
@@ -10,7 +10,7 @@ This is the first stable release of `@furystack/eslint-plugin`. As a new package
 
 **Peer dependency:** Requires ESLint >= 9.0.0 (flat config).
 
-## ✨ Features
+### ✨ Features
 
 ### New ESLint Plugin for FuryStack and Shades
 
@@ -66,11 +66,11 @@ export default [
 ]
 ```
 
-## 🧪 Tests
+### 🧪 Tests
 
 - Added rule tests for all 17 rules using `@typescript-eslint/rule-tester` with Vitest integration, covering valid patterns, invalid patterns, error messages, and auto-fix output
 
-## 📦 Build
+### 📦 Build
 
 - Configured TypeScript project with composite references
 - Added Vitest test configuration

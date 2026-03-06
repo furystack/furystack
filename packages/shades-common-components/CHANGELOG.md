@@ -1,5 +1,20 @@
 # Changelog
 
+## [13.4.1] - 2026-03-06
+
+### 🐛 Bug Fixes
+
+- Fixed duplicated content on re-render in `Alert` and `Result` components caused by reusing module-level JSX element constants across renders. Default icons are now created via factory functions (`getDefaultIcon()`) that return fresh elements per render call.
+- Updated `Result` exports: renamed `resultDefaultIcons` to `resultGetDefaultIcon` (factory function) and added `resultDefaultIconDefs` (icon definition map)
+
+### 🧪 Tests
+
+- Refactored `CacheView` tests to use `using()` / `usingAsync()` wrappers for `Cache` disposal, ensuring proper cleanup even if assertions fail
+
+### 🔧 Chores
+
+- Added `eslint-disable` comments for intentional `no-css-state-hooks` usage in `Input` (focused state) and `Select` (isFocused state) components where CSS state management via `useState` is the intended pattern
+
 ## [13.4.0] - 2026-03-05
 
 ### ✨ Features

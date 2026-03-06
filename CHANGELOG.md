@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.1.0] - 2026-03-06
+
+### ✨ Features
+
+- Integrated `@furystack/eslint-plugin` into the monorepo ESLint configuration with `recommendedStrict` for all packages and `shadesStrict` for Shades-related packages
+
+### 📚 Documentation
+
+- Added guidance on avoiding module-level JSX constants to the Shades component development rules
+
+### 📦 Build
+
+- Added `eslint-plugin` to the TypeScript composite project references
+- Added `eslint-plugin` test files to the Vitest configuration
+
 ## [8.0.15] - 2026-03-04
 
 ### ⬆️ Dependencies

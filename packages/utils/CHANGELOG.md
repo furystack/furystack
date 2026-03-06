@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.2.1] - 2026-03-06
+
+### 🧪 Tests
+
+- Refactored all `Semaphore` tests to use `using()` / `usingAsync()` wrappers for proper disposal, ensuring cleanup even if assertions fail
+- Added `eslint-disable` comment in `EventHub` test for intentional post-disposal behavior verification
+
 ## [8.2.0] - 2026-03-03
 
 ### ✨ Features
