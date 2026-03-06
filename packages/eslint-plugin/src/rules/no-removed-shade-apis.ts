@@ -2,10 +2,6 @@ import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
-const isShadeCall = (node: TSESTree.CallExpression): boolean => {
-  return node.callee.type === AST_NODE_TYPES.Identifier && node.callee.name === 'Shade'
-}
-
 export const noRemovedShadeApis = createRule({
   name: 'no-removed-shade-apis',
   meta: {
@@ -27,8 +23,7 @@ export const noRemovedShadeApis = createRule({
   defaultOptions: [],
   create(context) {
     return {
-      CallExpression(node) {
-        if (!isShadeCall(node)) return
+      'CallExpression[callee.name="Shade"]'(node: TSESTree.CallExpression) {
         if (node.arguments.length === 0) return
 
         const arg = node.arguments[0]

@@ -8,6 +8,42 @@ RuleTester.describe = describe
 
 const tester = new RuleTester()
 
+const typedTester = new RuleTester({
+  languageOptions: {
+    parserOptions: {
+      projectService: { allowDefaultProject: ['*.ts'] },
+    },
+  },
+})
+
+typedTester.run('require-disposable-for-observable-owner (typed)', requireDisposableForObservableOwner, {
+  valid: [],
+  invalid: [
+    {
+      name: 'aliased ObservableValue import is caught via type info',
+      code: [
+        'declare class ObservableValue<T> { getValue(): T; [Symbol.dispose](): void }',
+        'const OV = ObservableValue',
+        'class MyService {',
+        '  public data = new OV(null)',
+        '}',
+      ].join('\n'),
+      errors: [{ messageId: 'missingDisposable' }],
+      output: [
+        'declare class ObservableValue<T> { getValue(): T; [Symbol.dispose](): void }',
+        'const OV = ObservableValue',
+        'class MyService {',
+        '  public data = new OV(null)',
+        '',
+        '  public [Symbol.dispose]() {',
+        '    this.data[Symbol.dispose]()',
+        '  }',
+        '}',
+      ].join('\n'),
+    },
+  ],
+})
+
 tester.run('require-disposable-for-observable-owner', requireDisposableForObservableOwner, {
   valid: [
     {

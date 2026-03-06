@@ -1,26 +1,8 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
-
-const isShadeRenderFunction = (node: TSESTree.Node): boolean => {
-  if (
-    node.parent?.type !== AST_NODE_TYPES.Property ||
-    node.parent.key.type !== AST_NODE_TYPES.Identifier ||
-    node.parent.key.name !== 'render'
-  ) {
-    return false
-  }
-
-  const shadeArg = node.parent.parent
-  if (shadeArg?.type !== AST_NODE_TYPES.ObjectExpression) return false
-
-  const shadeCall = shadeArg.parent
-  return (
-    shadeCall?.type === AST_NODE_TYPES.CallExpression &&
-    shadeCall.callee.type === AST_NODE_TYPES.Identifier &&
-    shadeCall.callee.name === 'Shade'
-  )
-}
+import { getEnclosingRenderFunction, isShadeRenderFunction } from '../utils/shade-ast.js'
+import { getTypeServices, isDefinitelyNotType } from '../utils/type-services.js'
 
 const isInsideNestedFunctionOrUseDisposable = (node: TSESTree.Node): boolean => {
   let current: TSESTree.Node | undefined = node.parent
@@ -49,20 +31,6 @@ const isInsideNestedFunctionOrUseDisposable = (node: TSESTree.Node): boolean => 
   return false
 }
 
-const isInsideShadeRender = (node: TSESTree.Node): boolean => {
-  let current: TSESTree.Node | undefined = node.parent
-  while (current) {
-    if (
-      (current.type === AST_NODE_TYPES.ArrowFunctionExpression || current.type === AST_NODE_TYPES.FunctionExpression) &&
-      isShadeRenderFunction(current)
-    ) {
-      return true
-    }
-    current = current.parent
-  }
-  return false
-}
-
 export const noManualSubscribeInRender = createRule({
   name: 'no-manual-subscribe-in-render',
   meta: {
@@ -79,13 +47,17 @@ export const noManualSubscribeInRender = createRule({
   },
   defaultOptions: [],
   create(context) {
+    const typeServices = getTypeServices(context)
+
     return {
       CallExpression(node) {
         if (node.callee.type !== AST_NODE_TYPES.MemberExpression) return
         if (node.callee.property.type !== AST_NODE_TYPES.Identifier || node.callee.property.name !== 'subscribe') return
 
-        if (!isInsideShadeRender(node)) return
+        if (!getEnclosingRenderFunction(node)) return
         if (isInsideNestedFunctionOrUseDisposable(node)) return
+
+        if (typeServices && isDefinitelyNotType(typeServices, node.callee.object, ['ObservableValue'])) return
 
         context.report({ node, messageId: 'noManualSubscribe' })
       },

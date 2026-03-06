@@ -1,4 +1,5 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
+import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
 type Options = [{ requiredPrefix?: string }]
@@ -33,8 +34,7 @@ export const validShadowDomName = createRule<Options, string>({
     const { requiredPrefix } = options
 
     return {
-      CallExpression(node) {
-        if (node.callee.type !== AST_NODE_TYPES.Identifier || node.callee.name !== 'Shade') return
+      'CallExpression[callee.name="Shade"]'(node: TSESTree.CallExpression) {
         if (node.arguments.length === 0) return
 
         const arg = node.arguments[0]

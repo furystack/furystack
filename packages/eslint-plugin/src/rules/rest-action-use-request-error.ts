@@ -1,4 +1,4 @@
-import { AST_NODE_TYPES } from '@typescript-eslint/utils'
+import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
 export const restActionUseRequestError = createRule({
@@ -23,14 +23,8 @@ export const restActionUseRequestError = createRule({
     if (!isActionFile) return {}
 
     return {
-      ThrowStatement(node) {
-        if (!node.argument) return
-        if (node.argument.type !== AST_NODE_TYPES.NewExpression) return
-        if (node.argument.callee.type !== AST_NODE_TYPES.Identifier) return
-
-        if (node.argument.callee.name === 'Error') {
-          context.report({ node: node.argument, messageId: 'useRequestError' })
-        }
+      'ThrowStatement > NewExpression[callee.name="Error"]'(node: TSESTree.NewExpression) {
+        context.report({ node, messageId: 'useRequestError' })
       },
     }
   },

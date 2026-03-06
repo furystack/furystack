@@ -1,25 +1,26 @@
-import type { TSESTree } from '@typescript-eslint/utils'
+import type { TSESTree, ParserServicesWithTypeInformation } from '@typescript-eslint/utils'
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
+import { isSymbolDisposeKey } from '../utils/dispose-ast.js'
+import { getTypeServices, matchesType } from '../utils/type-services.js'
 
 const DISPOSABLE_CONSTRUCTORS = ['ObservableValue', 'Cache']
 
-const isSymbolDisposeKey = (key: TSESTree.Expression | TSESTree.PrivateIdentifier): boolean => {
-  if (key.type !== AST_NODE_TYPES.MemberExpression) return false
-  return (
-    key.object.type === AST_NODE_TYPES.Identifier &&
-    key.object.name === 'Symbol' &&
-    key.property.type === AST_NODE_TYPES.Identifier &&
-    (key.property.name === 'dispose' || key.property.name === 'asyncDispose')
-  )
-}
+const isNewDisposableInstance = (
+  node: TSESTree.Expression,
+  typeServices: ParserServicesWithTypeInformation | null,
+): boolean => {
+  if (node.type !== AST_NODE_TYPES.NewExpression) return false
 
-const isNewDisposableInstance = (node: TSESTree.Expression): boolean => {
-  return (
-    node.type === AST_NODE_TYPES.NewExpression &&
-    node.callee.type === AST_NODE_TYPES.Identifier &&
-    DISPOSABLE_CONSTRUCTORS.includes(node.callee.name)
-  )
+  if (node.callee.type === AST_NODE_TYPES.Identifier && DISPOSABLE_CONSTRUCTORS.includes(node.callee.name)) {
+    return true
+  }
+
+  if (typeServices) {
+    return matchesType(typeServices, node, DISPOSABLE_CONSTRUCTORS)
+  }
+
+  return false
 }
 
 const hasSubscribeCall = (node: TSESTree.Expression): boolean => {
@@ -31,20 +32,26 @@ const hasSubscribeCall = (node: TSESTree.Expression): boolean => {
   )
 }
 
-const hasDisposableResource = (body: TSESTree.ClassBody): boolean => {
+const hasDisposableResource = (
+  body: TSESTree.ClassBody,
+  typeServices: ParserServicesWithTypeInformation | null,
+): boolean => {
   return body.body.some((member) => {
     if (member.type !== AST_NODE_TYPES.PropertyDefinition || !member.value) return false
-    return isNewDisposableInstance(member.value) || hasSubscribeCall(member.value)
+    return isNewDisposableInstance(member.value, typeServices) || hasSubscribeCall(member.value)
   })
 }
 
-const getDisposableFieldNames = (body: TSESTree.ClassBody): string[] => {
+const getDisposableFieldNames = (
+  body: TSESTree.ClassBody,
+  typeServices: ParserServicesWithTypeInformation | null,
+): string[] => {
   const names: string[] = []
   for (const member of body.body) {
     if (
       member.type === AST_NODE_TYPES.PropertyDefinition &&
       member.value &&
-      isNewDisposableInstance(member.value) &&
+      isNewDisposableInstance(member.value, typeServices) &&
       member.key.type === AST_NODE_TYPES.Identifier
     ) {
       names.push(member.key.name)
@@ -86,11 +93,13 @@ export const requireDisposableForObservableOwner = createRule({
   },
   defaultOptions: [],
   create(context) {
+    const typeServices = getTypeServices(context)
+
     const checkClass = (node: TSESTree.ClassDeclaration | TSESTree.ClassExpression) => {
-      if (!hasDisposableResource(node.body)) return
+      if (!hasDisposableResource(node.body, typeServices)) return
       if (hasDisposeMethod(node.body)) return
 
-      const fieldNames = getDisposableFieldNames(node.body)
+      const fieldNames = getDisposableFieldNames(node.body, typeServices)
 
       context.report({
         node: node.id ?? node,

@@ -1,42 +1,8 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
-
-const isShadeRenderFunction = (node: TSESTree.Node): boolean => {
-  if (
-    node.parent?.type !== AST_NODE_TYPES.Property ||
-    node.parent.key.type !== AST_NODE_TYPES.Identifier ||
-    node.parent.key.name !== 'render'
-  ) {
-    return false
-  }
-
-  const shadeArg = node.parent.parent
-  if (shadeArg?.type !== AST_NODE_TYPES.ObjectExpression) return false
-
-  const shadeCall = shadeArg.parent
-  return (
-    shadeCall?.type === AST_NODE_TYPES.CallExpression &&
-    shadeCall.callee.type === AST_NODE_TYPES.Identifier &&
-    shadeCall.callee.name === 'Shade'
-  )
-}
-
-const getEnclosingRenderFunction = (
-  node: TSESTree.Node,
-): TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression | null => {
-  let current: TSESTree.Node | undefined = node.parent
-  while (current) {
-    if (
-      (current.type === AST_NODE_TYPES.ArrowFunctionExpression || current.type === AST_NODE_TYPES.FunctionExpression) &&
-      isShadeRenderFunction(current)
-    ) {
-      return current
-    }
-    current = current.parent
-  }
-  return null
-}
+import { getEnclosingRenderFunction } from '../utils/shade-ast.js'
+import { getTypeServices, isDefinitelyNotType } from '../utils/type-services.js'
 
 /**
  * Checks if the node is inside a nested callback (event handler, prop callback, etc.)
@@ -93,6 +59,8 @@ export const noDirectGetValueInRender = createRule({
   },
   defaultOptions: [],
   create(context) {
+    const typeServices = getTypeServices(context)
+
     return {
       CallExpression(node) {
         if (node.callee.type !== AST_NODE_TYPES.MemberExpression) return
@@ -106,6 +74,8 @@ export const noDirectGetValueInRender = createRule({
         // .getValue() inside event handlers (onclick, onkeyup, etc.) and callback props
         // executes at event/call time, not render time -- this is fine
         if (isInsideNestedCallback(node, renderFn)) return
+
+        if (typeServices && isDefinitelyNotType(typeServices, node.callee.object, ['ObservableValue'])) return
 
         context.report({ node, messageId: 'noDirectGetValue' })
       },

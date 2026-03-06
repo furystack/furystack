@@ -1,30 +1,41 @@
-import type { TSESTree } from '@typescript-eslint/utils'
+import type { TSESTree, ParserServicesWithTypeInformation } from '@typescript-eslint/utils'
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
+import { isSymbolDisposeKey } from '../utils/dispose-ast.js'
+import { getTypeServices, matchesType } from '../utils/type-services.js'
 
-const isSymbolDisposeKey = (key: TSESTree.Expression | TSESTree.PrivateIdentifier): boolean => {
-  if (key.type !== AST_NODE_TYPES.MemberExpression) return false
-  return (
-    key.object.type === AST_NODE_TYPES.Identifier &&
-    key.object.name === 'Symbol' &&
-    key.property.type === AST_NODE_TYPES.Identifier &&
-    (key.property.name === 'dispose' || key.property.name === 'asyncDispose')
-  )
+const isObservableValueInstance = (
+  node: TSESTree.Expression,
+  typeServices: ParserServicesWithTypeInformation | null,
+): boolean => {
+  if (
+    node.type === AST_NODE_TYPES.NewExpression &&
+    node.callee.type === AST_NODE_TYPES.Identifier &&
+    node.callee.name === 'ObservableValue'
+  ) {
+    return true
+  }
+
+  if (typeServices && node.type === AST_NODE_TYPES.NewExpression) {
+    return matchesType(typeServices, node, ['ObservableValue'])
+  }
+
+  return false
 }
 
-const getObservableFieldNames = (body: TSESTree.ClassBody): string[] => {
+const getObservableFieldNames = (
+  body: TSESTree.ClassBody,
+  typeServices: ParserServicesWithTypeInformation | null,
+): string[] => {
   const names: string[] = []
   for (const member of body.body) {
     if (
       member.type === AST_NODE_TYPES.PropertyDefinition &&
       member.value &&
-      member.value.type === AST_NODE_TYPES.NewExpression &&
-      member.value.callee.type === AST_NODE_TYPES.Identifier &&
-      member.value.callee.name === 'ObservableValue'
+      isObservableValueInstance(member.value, typeServices) &&
+      member.key.type === AST_NODE_TYPES.Identifier
     ) {
-      if (member.key.type === AST_NODE_TYPES.Identifier) {
-        names.push(member.key.name)
-      }
+      names.push(member.key.name)
     }
   }
   return names
@@ -109,20 +120,19 @@ export const requireObservableDisposal = createRule({
   },
   defaultOptions: [],
   create(context) {
+    const typeServices = getTypeServices(context)
+
     const checkClass = (node: TSESTree.ClassDeclaration | TSESTree.ClassExpression) => {
-      const observableFields = getObservableFieldNames(node.body)
+      const observableFields = getObservableFieldNames(node.body, typeServices)
       if (observableFields.length === 0) return
 
       const disposeMethod = getDisposeMethod(node.body)
       if (!disposeMethod?.body) return
 
       const disposedFields = collectDisposedFieldNames(disposeMethod.body)
-      const undisposedFields: string[] = []
 
       for (const fieldName of observableFields) {
         if (!disposedFields.has(fieldName)) {
-          undisposedFields.push(fieldName)
-
           const member = node.body.body.find(
             (m): m is TSESTree.PropertyDefinition =>
               m.type === AST_NODE_TYPES.PropertyDefinition &&

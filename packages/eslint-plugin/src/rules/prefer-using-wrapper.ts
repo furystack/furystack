@@ -1,6 +1,7 @@
 import type { TSESTree } from '@typescript-eslint/utils'
 import { AST_NODE_TYPES, TSESLint } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
+import { getEnclosingFunction } from '../utils/dispose-ast.js'
 
 const isSymbolDisposeCall = (node: TSESTree.CallExpression): { objectName: string; isAsync: boolean } | null => {
   const { callee } = node
@@ -23,23 +24,6 @@ const isSymbolDisposeCall = (node: TSESTree.CallExpression): { objectName: strin
   if (obj.type !== AST_NODE_TYPES.Identifier) return null
 
   return { objectName: obj.name, isAsync }
-}
-
-const getEnclosingFunction = (
-  node: TSESTree.Node,
-): TSESTree.FunctionDeclaration | TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression | null => {
-  let current: TSESTree.Node | undefined = node.parent
-  while (current) {
-    if (
-      current.type === AST_NODE_TYPES.FunctionDeclaration ||
-      current.type === AST_NODE_TYPES.FunctionExpression ||
-      current.type === AST_NODE_TYPES.ArrowFunctionExpression
-    ) {
-      return current
-    }
-    current = current.parent
-  }
-  return null
 }
 
 const isInsideFinallyBlock = (node: TSESTree.Node): boolean => {

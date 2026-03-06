@@ -1,34 +1,6 @@
-import type { TSESTree } from '@typescript-eslint/utils'
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
+import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
-
-const containsJsx = (node: TSESTree.Node): boolean => {
-  if (node.type === AST_NODE_TYPES.JSXElement || node.type === AST_NODE_TYPES.JSXFragment) {
-    return true
-  }
-
-  if (node.type === AST_NODE_TYPES.ArrowFunctionExpression || node.type === AST_NODE_TYPES.FunctionExpression) {
-    return false
-  }
-
-  for (const key of Object.keys(node)) {
-    if (key === 'parent') continue
-    const child = (node as unknown as Record<string, unknown>)[key]
-    if (child && typeof child === 'object') {
-      if (Array.isArray(child)) {
-        for (const item of child) {
-          if (item && typeof item === 'object' && 'type' in item && containsJsx(item as TSESTree.Node)) {
-            return true
-          }
-        }
-      } else if ('type' in child && containsJsx(child as TSESTree.Node)) {
-        return true
-      }
-    }
-  }
-
-  return false
-}
 
 export const noModuleLevelJsx = createRule({
   name: 'no-module-level-jsx',
@@ -46,20 +18,32 @@ export const noModuleLevelJsx = createRule({
   },
   defaultOptions: [],
   create(context) {
+    const reported = new WeakSet<TSESTree.VariableDeclarator>()
+
     return {
-      VariableDeclarator(node) {
-        if (node.parent.parent?.type !== AST_NODE_TYPES.Program) return
-        if (!node.init) return
+      'JSXElement, JSXFragment'(node: TSESTree.Node) {
+        let current: TSESTree.Node | undefined = node.parent
+        while (current) {
+          if (
+            current.type === AST_NODE_TYPES.ArrowFunctionExpression ||
+            current.type === AST_NODE_TYPES.FunctionExpression ||
+            current.type === AST_NODE_TYPES.FunctionDeclaration
+          ) {
+            return
+          }
 
-        if (
-          node.init.type === AST_NODE_TYPES.ArrowFunctionExpression ||
-          node.init.type === AST_NODE_TYPES.FunctionExpression
-        ) {
-          return
-        }
+          if (
+            current.type === AST_NODE_TYPES.VariableDeclarator &&
+            current.parent.parent?.type === AST_NODE_TYPES.Program
+          ) {
+            if (!reported.has(current)) {
+              reported.add(current)
+              context.report({ node: current, messageId: 'noModuleLevelJsx' })
+            }
+            return
+          }
 
-        if (containsJsx(node.init)) {
-          context.report({ node, messageId: 'noModuleLevelJsx' })
+          current = current.parent
         }
       },
     }

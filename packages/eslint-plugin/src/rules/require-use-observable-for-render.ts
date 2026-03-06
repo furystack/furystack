@@ -1,73 +1,9 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
-
-const isShadeRenderFunction = (node: TSESTree.Node): boolean => {
-  if (
-    node.parent?.type !== AST_NODE_TYPES.Property ||
-    node.parent.key.type !== AST_NODE_TYPES.Identifier ||
-    node.parent.key.name !== 'render'
-  ) {
-    return false
-  }
-
-  const shadeArg = node.parent.parent
-  if (shadeArg?.type !== AST_NODE_TYPES.ObjectExpression) return false
-
-  const shadeCall = shadeArg.parent
-  return (
-    shadeCall?.type === AST_NODE_TYPES.CallExpression &&
-    shadeCall.callee.type === AST_NODE_TYPES.Identifier &&
-    shadeCall.callee.name === 'Shade'
-  )
-}
-
-const isUseDisposableWithObservable = (node: TSESTree.CallExpression): boolean => {
-  if (node.callee.type !== AST_NODE_TYPES.Identifier || node.callee.name !== 'useDisposable') return false
-  if (node.arguments.length < 2) return false
-
-  const factoryArg = node.arguments[1]
-  if (
-    factoryArg.type !== AST_NODE_TYPES.ArrowFunctionExpression &&
-    factoryArg.type !== AST_NODE_TYPES.FunctionExpression
-  ) {
-    return false
-  }
-
-  const { body } = factoryArg
-  let returnExpr: TSESTree.Expression | null = null
-
-  if (body.type === AST_NODE_TYPES.NewExpression) {
-    returnExpr = body
-  } else if (body.type === AST_NODE_TYPES.BlockStatement) {
-    for (const stmt of body.body) {
-      if (stmt.type === AST_NODE_TYPES.ReturnStatement && stmt.argument) {
-        returnExpr = stmt.argument
-        break
-      }
-    }
-  }
-
-  return (
-    returnExpr?.type === AST_NODE_TYPES.NewExpression &&
-    returnExpr.callee.type === AST_NODE_TYPES.Identifier &&
-    returnExpr.callee.name === 'ObservableValue'
-  )
-}
-
-const getEnclosingRenderFunction = (node: TSESTree.Node): TSESTree.Node | null => {
-  let current: TSESTree.Node | undefined = node.parent
-  while (current) {
-    if (
-      (current.type === AST_NODE_TYPES.ArrowFunctionExpression || current.type === AST_NODE_TYPES.FunctionExpression) &&
-      isShadeRenderFunction(current)
-    ) {
-      return current
-    }
-    current = current.parent
-  }
-  return null
-}
+import { isUseDisposableWithObservable } from '../utils/observable-ast.js'
+import { getEnclosingRenderFunction } from '../utils/shade-ast.js'
+import { getTypeServices } from '../utils/type-services.js'
 
 export const requireUseObservableForRender = createRule({
   name: 'require-use-observable-for-render',
@@ -85,6 +21,8 @@ export const requireUseObservableForRender = createRule({
   },
   defaultOptions: [],
   create(context) {
+    const typeServices = getTypeServices(context)
+
     const observableDisposables = new Map<
       string,
       { variableName: string | null; node: TSESTree.CallExpression; renderScope: TSESTree.Node }
@@ -97,18 +35,16 @@ export const requireUseObservableForRender = createRule({
         const renderScope = getEnclosingRenderFunction(node)
         if (!renderScope) return
 
-        if (isUseDisposableWithObservable(node)) {
-          const keyArg = node.arguments[0]
-          if (keyArg.type === AST_NODE_TYPES.Literal && typeof keyArg.value === 'string') {
-            let variableName: string | null = null
-            if (
-              node.parent?.type === AST_NODE_TYPES.VariableDeclarator &&
-              node.parent.id.type === AST_NODE_TYPES.Identifier
-            ) {
-              variableName = node.parent.id.name
-            }
-            observableDisposables.set(keyArg.value, { variableName, node, renderScope })
+        const key = isUseDisposableWithObservable(node, typeServices)
+        if (key !== null) {
+          let variableName: string | null = null
+          if (
+            node.parent?.type === AST_NODE_TYPES.VariableDeclarator &&
+            node.parent.id.type === AST_NODE_TYPES.Identifier
+          ) {
+            variableName = node.parent.id.name
           }
+          observableDisposables.set(key, { variableName, node, renderScope })
           return
         }
 

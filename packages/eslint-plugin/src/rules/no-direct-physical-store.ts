@@ -1,5 +1,6 @@
 import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
+import { getTypeServices, isDefinitelyNotType } from '../utils/type-services.js'
 
 const ALLOWED_PATH_PATTERNS = [
   /\.spec\.tsx?$/,
@@ -33,6 +34,8 @@ export const noDirectPhysicalStore = createRule({
       return {}
     }
 
+    const typeServices = getTypeServices(context)
+
     return {
       ImportDeclaration(node) {
         if (node.source.value !== '@furystack/core') return
@@ -54,6 +57,8 @@ export const noDirectPhysicalStore = createRule({
           node.parent.type === AST_NODE_TYPES.CallExpression &&
           node.parent.callee === node
         ) {
+          if (typeServices && isDefinitelyNotType(typeServices, node.object, ['StoreManager'])) return
+
           context.report({ node, messageId: 'noGetStoreFor' })
         }
       },
