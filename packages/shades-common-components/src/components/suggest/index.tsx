@@ -83,21 +83,23 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
     useHostProps({
       'data-opened': isOpened ? '' : undefined,
     })
-    manager.isLoading.subscribe((isLoading) => {
-      const loader = loaderRef.current
-      if (!loader) return
-      if (isLoading) {
-        void promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
-          duration: 100,
-          fill: 'forwards',
-        })
-      } else {
-        void promisifyAnimation(loader, [{ opacity: 1 }, { opacity: 0 }], {
-          duration: 100,
-          fill: 'forwards',
-        })
-      }
-    })
+    useDisposable('isLoadingSubscription', () =>
+      manager.isLoading.subscribe((isLoading) => {
+        const loader = loaderRef.current
+        if (!loader) return
+        if (isLoading) {
+          void promisifyAnimation(loader, [{ opacity: 0 }, { opacity: 1 }], {
+            duration: 100,
+            fill: 'forwards',
+          })
+        } else {
+          void promisifyAnimation(loader, [{ opacity: 1 }, { opacity: 0 }], {
+            duration: 100,
+            fill: 'forwards',
+          })
+        }
+      }),
+    )
     useDisposable('onSelectSuggestion', () =>
       manager.subscribe('onSelectSuggestion', props.onSelectSuggestion as (entry: unknown) => void),
     )
@@ -133,6 +135,7 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
           <div className="post-controls">
             <span ref={loaderRef} style={{ display: 'inline-flex' }}>
               <Loader
+                // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Initial opacity only; animated transitions handled by isLoadingSubscription via DOM
                 style={{ width: '20px', height: '20px', opacity: manager.isLoading.getValue() ? '1' : '0' }}
                 delay={0}
                 borderWidth={4}

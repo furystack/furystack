@@ -62,6 +62,7 @@ export const ProgressPage = Shade({
                 type="range"
                 min="0"
                 max="100"
+                // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Initial value for native range input; user interaction updates natively, child components subscribe independently
                 value={String(progressValue.getValue())}
                 oninput={(ev: Event) => progressValue.setValue(Number((ev.target as HTMLInputElement).value))}
                 style={{ flex: '1' }}
@@ -108,6 +109,7 @@ export const ProgressPage = Shade({
                 type="range"
                 min="0"
                 max="100"
+                // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Initial value for native range input; user interaction updates natively, child components subscribe independently
                 value={String(progressValue.getValue())}
                 oninput={(ev: Event) => progressValue.setValue(Number((ev.target as HTMLInputElement).value))}
                 style={{ flex: '1' }}

@@ -89,6 +89,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
 
     const [flattenedNodes] = useObservable('flattenedNodes', props.treeService.flattenedNodes)
 
+    // eslint-disable-next-line furystack/require-use-observable-for-render -- Used as persistent ref, not reactive state; read and written synchronously in same render cycle
     const previousItemsRef = useDisposable('previousTreeItems', () => new ObservableValue<Set<unknown>>(new Set()))
     const previousItems = previousItemsRef.getValue()
     const currentItems = new Set<unknown>(flattenedNodes.map((n) => n.item))
