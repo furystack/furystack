@@ -1,6 +1,7 @@
 // @ts-check
 
 import eslint from '@eslint/js'
+import furystack from '@furystack/eslint-plugin'
 import prettierConfig from 'eslint-config-prettier'
 import jsdoc from 'eslint-plugin-jsdoc'
 import playwright from 'eslint-plugin-playwright'
@@ -88,5 +89,30 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/unbound-method': 'off', // vi.fn() is fine in tests
     },
+  },
+  {
+    plugins: {
+      furystack,
+    },
+    ...furystack.configs.recommendedStrict,
+  },
+  {
+    files: [
+      'packages/shades/**/*.ts',
+      'packages/shades/**/*.tsx',
+      'packages/shades-common-components/**/*.ts',
+      'packages/shades-common-components/**/*.tsx',
+      'packages/shades-showcase-app/**/*.ts',
+      'packages/shades-showcase-app/**/*.tsx',
+      'packages/shades-lottie/**/*.ts',
+      'packages/shades-lottie/**/*.tsx',
+      'packages/shades-nipple/**/*.ts',
+      'packages/shades-nipple/**/*.tsx',
+      'packages/shades-i18n/**/*.ts',
+      'packages/shades-i18n/**/*.tsx',
+      'packages/shades-mfe/**/*.ts',
+      'packages/shades-mfe/**/*.tsx',
+    ],
+    ...furystack.configs.shadesStrict,
   },
 )

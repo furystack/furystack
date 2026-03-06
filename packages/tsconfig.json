@@ -85,6 +85,9 @@
     },
     {
       "path": "./entity-sync-client"
+    },
+    {
+      "path": "./eslint-plugin"
     }
   ]
 }

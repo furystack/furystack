@@ -29,6 +29,14 @@ export default defineConfig({
       },
       {
         test: {
+          name: 'ESLint Plugin',
+          include: ['packages/eslint-plugin/src/**/*.spec.ts'],
+          testTimeout: 30_000,
+          setupFiles: ['./vitest.setup.ts'],
+        },
+      },
+      {
+        test: {
           name: 'Service',
           include: [
             'packages/auth-google/src/**/*.spec.ts',

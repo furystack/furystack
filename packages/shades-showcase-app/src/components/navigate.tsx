@@ -16,7 +16,7 @@ export const Navigate = Shade<NavigateProps>({
       const locationService = injector.getInstance(LocationService)
       const current = locationService.onLocationPathChanged.getValue()
       if (current !== props.to) {
-        history.replaceState({}, '', props.to)
+        locationService.replace(props.to)
       }
       return { [Symbol.dispose]: () => {} }
     })

@@ -13,7 +13,6 @@ import {
   Paper,
   Typography,
 } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 const sampleMarkdown = `# Markdown Components
 
@@ -62,18 +61,14 @@ Track progress by toggling checkboxes:
 
 export const MarkdownPage = Shade({
   shadowDomName: 'shades-markdown-page',
-  render: ({ useDisposable, useObservable }) => {
-    const interactiveContent = useDisposable('interactiveContent', () => new ObservableValue(checkboxSample))
-    const [currentContent] = useObservable('currentContent', interactiveContent)
+  render: ({ useState }) => {
+    const [currentContent, setCurrentContent] = useState('interactiveContent', checkboxSample)
 
-    const editorContent = useDisposable('editorContent', () => new ObservableValue(sampleMarkdown))
-    const [currentEditorContent] = useObservable('editorContent', editorContent)
+    const [currentEditorContent, setCurrentEditorContent] = useState('editorContent', sampleMarkdown)
 
-    const editorLayout = useDisposable('editorLayout', () => new ObservableValue<MarkdownEditorLayout>('side-by-side'))
-    const [currentLayout] = useObservable('editorLayout', editorLayout)
+    const [currentLayout, setCurrentLayout] = useState<MarkdownEditorLayout>('editorLayout', 'side-by-side')
 
-    const formEditorContent = useDisposable('formEditorContent', () => new ObservableValue(''))
-    const [currentFormEditorContent] = useObservable('formEditorContent', formEditorContent)
+    const [currentFormEditorContent, setCurrentFormEditorContent] = useState('formEditorContent', '')
 
     return (
       <PageContainer centered>
@@ -109,7 +104,7 @@ export const MarkdownPage = Shade({
               <MarkdownDisplay
                 content={currentContent}
                 readOnly={false}
-                onChange={(newContent) => interactiveContent.setValue(newContent)}
+                onChange={(newContent) => setCurrentContent(newContent)}
               />
             </div>
             <div style={{ flex: '1', minWidth: '280px' }}>
@@ -142,7 +137,7 @@ export const MarkdownPage = Shade({
           </Typography>
           <MarkdownInput
             value={currentEditorContent}
-            onValueChange={(v) => editorContent.setValue(v)}
+            onValueChange={(v) => setCurrentEditorContent(v)}
             placeholder="Type or paste Markdown here..."
             labelTitle="Markdown Source"
             rows={8}
@@ -170,21 +165,21 @@ export const MarkdownPage = Shade({
               <Button
                 variant={currentLayout === 'side-by-side' ? 'contained' : 'outlined'}
                 size="small"
-                onclick={() => editorLayout.setValue('side-by-side')}
+                onclick={() => setCurrentLayout('side-by-side')}
               >
                 Side by Side
               </Button>
               <Button
                 variant={currentLayout === 'tabs' ? 'contained' : 'outlined'}
                 size="small"
-                onclick={() => editorLayout.setValue('tabs')}
+                onclick={() => setCurrentLayout('tabs')}
               >
                 Tabs
               </Button>
               <Button
                 variant={currentLayout === 'above-below' ? 'contained' : 'outlined'}
                 size="small"
-                onclick={() => editorLayout.setValue('above-below')}
+                onclick={() => setCurrentLayout('above-below')}
               >
                 Above / Below
               </Button>
@@ -195,7 +190,7 @@ export const MarkdownPage = Shade({
           </Typography>
           <MarkdownEditor
             value={currentEditorContent}
-            onValueChange={(v) => editorContent.setValue(v)}
+            onValueChange={(v) => setCurrentEditorContent(v)}
             layout={currentLayout}
             style={{ flex: '1', minHeight: '0' }}
           />
@@ -212,7 +207,7 @@ export const MarkdownPage = Shade({
           </Typography>
           <MarkdownEditor
             value={currentFormEditorContent}
-            onValueChange={(v) => formEditorContent.setValue(v)}
+            onValueChange={(v) => setCurrentFormEditorContent(v)}
             layout="above-below"
             labelTitle="Description"
             required

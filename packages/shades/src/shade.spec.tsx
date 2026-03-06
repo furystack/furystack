@@ -183,6 +183,7 @@ describe('Shade edge cases', () => {
               },
             }))
             renderCounter()
+            // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Test: verifying no re-render during disposal; already subscribed via useObservable above
             return <div>{obs.getValue()}</div>
           },
         })

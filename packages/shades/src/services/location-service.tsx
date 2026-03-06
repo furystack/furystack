@@ -39,10 +39,11 @@ export class LocationService implements Disposable {
   public [Symbol.dispose]() {
     window.removeEventListener('popstate', this.popStateListener)
     window.removeEventListener('hashchange', this.hashChangeListener)
-    this.onLocationPathChanged[Symbol.dispose]()
     this.onLocationSearchChanged[Symbol.dispose]()
     this.onDeserializedLocationSearchChanged[Symbol.dispose]()
     this.locationDeserializerObserver[Symbol.dispose]()
+    this.onLocationPathChanged[Symbol.dispose]()
+    this.onLocationHashChanged[Symbol.dispose]()
 
     window.history.pushState = this.originalPushState
     window.history.replaceState = this.originalReplaceState
@@ -69,6 +70,10 @@ export class LocationService implements Disposable {
     this.onDeserializedLocationSearchChanged.setValue(this.deserializeQueryString(search))
   })
 
+  /**
+   * Synchronizes the observable state with the current browser location.
+   * Called internally after navigation events and history state changes.
+   */
   public updateState = (() => {
     this.onLocationPathChanged.setValue(location.pathname)
     this.onLocationHashChanged.setValue(location.hash.replace('#', ''))
@@ -80,10 +85,25 @@ export class LocationService implements Disposable {
    * The LocationService interceptor ensures routing state is updated correctly.
    */
   public navigate(path: string): void {
+    // eslint-disable-next-line furystack/prefer-location-service -- This IS the LocationService.navigate() implementation.
     history.pushState(null, '', path)
     this.updateState()
   }
 
+  /**
+   * Replace the current history entry with a new path. Use this instead of
+   * raw history.replaceState for SPA redirects (e.g. the intermediate URL
+   * should not appear in the browser's back/forward stack).
+   */
+  public replace(path: string): void {
+    // eslint-disable-next-line furystack/prefer-location-service -- This IS the LocationService.replace() implementation.
+    history.replaceState(null, '', path)
+    this.updateState()
+  }
+
+  /**
+   * Internal cache of per-key search parameter observables created by {@link useSearchParam}.
+   */
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
   /**
@@ -110,6 +130,7 @@ export class LocationService implements Disposable {
         if (currentQueryStringObject[key] !== value) {
           const params = this.serializeToQueryString({ ...currentQueryStringObject, [key]: value })
           const newUrl = `${location.pathname}?${params}`
+          // eslint-disable-next-line furystack/prefer-location-service -- Internal LocationService plumbing for search param sync.
           history.pushState({}, '', newUrl)
         }
       })

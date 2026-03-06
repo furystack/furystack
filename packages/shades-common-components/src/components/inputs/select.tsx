@@ -4,8 +4,8 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import { FormService } from '../form.js'
-import { Icon } from '../icons/icon.js'
 import { check, close } from '../icons/icon-definitions.js'
+import { Icon } from '../icons/icon.js'
 import type { InputValidationResult } from './input.js'
 
 export type SelectOption = {
@@ -384,6 +384,8 @@ export const Select = Shade<SelectProps>({
     }
 
     const [state, setState] = useState<SelectState>('selectState', initialState)
+    // We want to use the CSS state hooks for the focused and dropdown direction states, so we need to disable the rule
+    // eslint-disable-next-line furystack/no-css-state-hooks
     const [isFocused, setIsFocused] = useState('isFocused', false)
     const [dropdownDirection, setDropdownDirection] = useState<'up' | 'down'>('dropdownDirection', 'down')
 

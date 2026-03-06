@@ -27,6 +27,9 @@
       "path": "../core"
     },
     {
+      "path": "../i18n"
+    },
+    {
       "path": "../inject"
     },
     {
@@ -42,7 +45,13 @@
       "path": "../shades-common-components"
     },
     {
+      "path": "../shades-i18n"
+    },
+    {
       "path": "../shades-lottie"
+    },
+    {
+      "path": "../shades-mfe"
     },
     {
       "path": "../shades-nipple"

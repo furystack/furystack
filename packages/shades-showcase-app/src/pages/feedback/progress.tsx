@@ -7,8 +7,7 @@ import {
   Paper,
   Typography,
 } from '@furystack/shades-common-components'
-import type { ObservableValue } from '@furystack/utils'
-import { ObservableValue as OV } from '@furystack/utils'
+import { ObservableValue } from '@furystack/utils'
 
 /**
  * A small component that displays an observable number as text, updating
@@ -34,7 +33,8 @@ const ValueLabel = Shade<{ value: ObservableValue<number>; suffix?: string }>({
 export const ProgressPage = Shade({
   shadowDomName: 'progress-page',
   render: ({ useDisposable }) => {
-    const progressValue = useDisposable('progressValue', () => new OV(40))
+    // eslint-disable-next-line furystack/require-use-observable-for-render
+    const progressValue = useDisposable('progressValue', () => new ObservableValue(40))
 
     return (
       <PageContainer centered>
@@ -62,6 +62,7 @@ export const ProgressPage = Shade({
                 type="range"
                 min="0"
                 max="100"
+                // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Initial value for native range input; user interaction updates natively, child components subscribe independently
                 value={String(progressValue.getValue())}
                 oninput={(ev: Event) => progressValue.setValue(Number((ev.target as HTMLInputElement).value))}
                 style={{ flex: '1' }}
@@ -108,6 +109,7 @@ export const ProgressPage = Shade({
                 type="range"
                 min="0"
                 max="100"
+                // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Initial value for native range input; user interaction updates natively, child components subscribe independently
                 value={String(progressValue.getValue())}
                 oninput={(ev: Event) => progressValue.setValue(Number((ev.target as HTMLInputElement).value))}
                 style={{ flex: '1' }}

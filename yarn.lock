@@ -915,6 +915,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/eslint-plugin@workspace:packages/eslint-plugin":
+  version: 0.0.0-use.local
+  resolution: "@furystack/eslint-plugin@workspace:packages/eslint-plugin"
+  dependencies:
+    "@typescript-eslint/rule-tester": "npm:^8.56.1"
+    "@typescript-eslint/utils": "npm:^8.56.1"
+    typescript: "npm:^5.9.3"
+    vitest: "npm:^4.0.18"
+  peerDependencies:
+    eslint: ">=9.0.0"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/filesystem-store@workspace:packages/filesystem-store":
   version: 0.0.0-use.local
   resolution: "@furystack/filesystem-store@workspace:packages/filesystem-store"
@@ -2198,6 +2211,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript-eslint/rule-tester@npm:^8.56.1":
+  version: 8.56.1
+  resolution: "@typescript-eslint/rule-tester@npm:8.56.1"
+  dependencies:
+    "@typescript-eslint/parser": "npm:8.56.1"
+    "@typescript-eslint/typescript-estree": "npm:8.56.1"
+    "@typescript-eslint/utils": "npm:8.56.1"
+    ajv: "npm:^6.12.6"
+    json-stable-stringify-without-jsonify: "npm:^1.0.1"
+    lodash.merge: "npm:4.6.2"
+    semver: "npm:^7.7.3"
+  peerDependencies:
+    eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+  checksum: 10c0/45d1decdcf530bfb709c37dc8e6e3fde292f67200d6595684451df2a097a17a839245613b9a2404a0d0ab6a07242af6cbd4e513490443177a8c78f737106ed09
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/scope-manager@npm:8.56.1":
   version: 8.56.1
   resolution: "@typescript-eslint/scope-manager@npm:8.56.1"
@@ -2259,7 +2289,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/utils@npm:8.56.1":
+"@typescript-eslint/utils@npm:8.56.1, @typescript-eslint/utils@npm:^8.56.1":
   version: 8.56.1
   resolution: "@typescript-eslint/utils@npm:8.56.1"
   dependencies:
@@ -3062,7 +3092,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^6.14.0":
+"ajv@npm:^6.12.6, ajv@npm:^6.14.0":
   version: 6.14.0
   resolution: "ajv@npm:6.14.0"
   dependencies:
@@ -5391,6 +5421,13 @@ __metadata:
   dependencies:
     p-locate: "npm:^5.0.0"
   checksum: 10c0/d3972ab70dfe58ce620e64265f90162d247e87159b6126b01314dd67be43d50e96a50b517bce2d9452a79409c7614054c277b5232377de50416564a77ac7aad3
+  languageName: node
+  linkType: hard
+
+"lodash.merge@npm:4.6.2":
+  version: 4.6.2
+  resolution: "lodash.merge@npm:4.6.2"
+  checksum: 10c0/402fa16a1edd7538de5b5903a90228aa48eb5533986ba7fa26606a49db2572bf414ff73a2c9f5d5fd36b31c46a5d5c7e1527749c07cbcf965ccff5fbdf32c506
   languageName: node
   linkType: hard
 

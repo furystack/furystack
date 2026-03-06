@@ -335,7 +335,9 @@ describe('VNode reconciliation integration tests', () => {
         const ExampleComponent = Shade({
           shadowDomName: 'morph-animation-test',
           render: ({ useState }) => {
-            const [isActive, setIsActive] = useState('isActive', false)
+            const [isActive, setIsActive] =
+              // eslint-disable-next-line furystack/no-css-state-hooks -- test for re-render behavior, not CSS state
+              useState('isActive', false)
             return (
               <div>
                 <div id="animated-box" className={isActive ? 'active' : 'inactive'} />

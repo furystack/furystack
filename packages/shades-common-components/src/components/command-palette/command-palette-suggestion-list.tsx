@@ -95,7 +95,7 @@ export const CommandPaletteSuggestionList = Shade<{ manager: CommandPaletteManag
         ref={containerRef}
         className="suggestion-items-container"
         style={{
-          opacity: manager.isOpened.getValue() ? '1' : '0',
+          opacity: isOpenedAtRender ? '1' : '0',
           maxHeight: `${window.innerHeight * 0.8}px`,
           width: `calc(${Math.round(hostParentWidth)}px - 3em)`,
           ...(props.fullScreenSuggestions ? { left: '0', width: 'calc(100% - 42px)' } : {}),

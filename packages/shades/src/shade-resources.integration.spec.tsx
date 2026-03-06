@@ -162,6 +162,7 @@ describe('Shade Resources integration tests', () => {
           renderCounter()
           return (
             <div ref={valRef} id="manual-val">
+              {/* eslint-disable-next-line furystack/no-direct-get-value-in-render -- Test: verifying manual DOM update pattern with onChange callback */}
               {obs.getValue()}
             </div>
           )
