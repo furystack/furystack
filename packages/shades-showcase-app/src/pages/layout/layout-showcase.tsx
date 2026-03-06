@@ -98,7 +98,7 @@ const ShowAppBarTab = Shade({
     top: '0',
     left: '50%',
     transform: 'translateX(-50%)',
-    zIndex: '1300',
+    zIndex: cssVariableTheme.zIndex.appBar,
     '& .appbar-hover-tab': {
       background: '#673ab7',
       color: 'white',
