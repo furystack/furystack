@@ -76,6 +76,7 @@ const getMemberIndent = (sourceCode: string, body: TSESTree.ClassBody): string =
   return '  '
 }
 
+/** Requires classes owning disposable resources to implement `[Symbol.dispose]()`. Provides auto-fix. */
 export const requireDisposableForObservableOwner = createRule({
   name: 'require-disposable-for-observable-owner',
   meta: {

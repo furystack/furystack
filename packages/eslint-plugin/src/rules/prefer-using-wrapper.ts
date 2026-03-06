@@ -148,6 +148,7 @@ const isFollowedByExpect = (node: TSESTree.CallExpression): boolean => {
   return false
 }
 
+/** Suggests `using()`/`usingAsync()` over manual create-and-dispose in the same scope. */
 export const preferUsingWrapper = createRule({
   name: 'prefer-using-wrapper',
   meta: {

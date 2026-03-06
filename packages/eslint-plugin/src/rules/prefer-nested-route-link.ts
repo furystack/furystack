@@ -3,6 +3,7 @@ import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 import { getEnclosingRenderFunction } from '../utils/shade-ast.js'
 
+/** Suggests `<NestedRouteLink>` over `<a href="/...">` for in-app navigation inside Shade components. */
 export const preferNestedRouteLink = createRule({
   name: 'prefer-nested-route-link',
   meta: {

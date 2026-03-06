@@ -10,6 +10,7 @@ const ALLOWED_PATH_PATTERNS = [
   /store-manager-helpers\.ts$/,
 ]
 
+/** Prevents direct `StoreManager.getStoreFor()` usage, enforcing `getDataSetFor()` from `@furystack/repository`. */
 export const noDirectPhysicalStore = createRule({
   name: 'no-direct-physical-store',
   meta: {

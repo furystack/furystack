@@ -103,6 +103,7 @@ const getBodyIndent = (lines: string[], disposeBody: TSESTree.BlockStatement): s
   return `${closingMatch?.[1] ?? ''}  `
 }
 
+/** Ensures every `ObservableValue` field is disposed in `[Symbol.dispose]()`. Provides auto-fix. */
 export const requireObservableDisposal = createRule({
   name: 'require-observable-disposal',
   meta: {

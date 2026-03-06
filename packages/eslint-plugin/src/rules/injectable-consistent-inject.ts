@@ -33,6 +33,7 @@ const getTypeAnnotationName = (typeAnnotation: TSESTree.TypeNode | undefined): s
   return null
 }
 
+/** Ensures `@Injected()` properties use `declare` and that the type matches the constructor argument. */
 export const injectableConsistentInject = createRule({
   name: 'injectable-consistent-inject',
   meta: {

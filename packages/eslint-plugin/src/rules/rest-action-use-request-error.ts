@@ -1,6 +1,7 @@
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
+/** Enforces `RequestError` instead of `Error` for thrown exceptions in REST action files. */
 export const restActionUseRequestError = createRule({
   name: 'rest-action-use-request-error',
   meta: {

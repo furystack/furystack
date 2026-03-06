@@ -2,6 +2,7 @@ import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
+/** Prevents usage of removed Shade APIs (`onAttach`, `onDetach`, `element` in render). */
 export const noRemovedShadeApis = createRule({
   name: 'no-removed-shade-apis',
   meta: {

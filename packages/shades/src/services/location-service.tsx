@@ -44,7 +44,6 @@ export class LocationService implements Disposable {
     this.locationDeserializerObserver[Symbol.dispose]()
     this.onLocationPathChanged[Symbol.dispose]()
     this.onLocationHashChanged[Symbol.dispose]()
-    this.onLocationSearchChanged[Symbol.dispose]()
 
     window.history.pushState = this.originalPushState
     window.history.replaceState = this.originalReplaceState
@@ -71,6 +70,10 @@ export class LocationService implements Disposable {
     this.onDeserializedLocationSearchChanged.setValue(this.deserializeQueryString(search))
   })
 
+  /**
+   * Synchronizes the observable state with the current browser location.
+   * Called internally after navigation events and history state changes.
+   */
   public updateState = (() => {
     this.onLocationPathChanged.setValue(location.pathname)
     this.onLocationHashChanged.setValue(location.hash.replace('#', ''))
@@ -98,6 +101,9 @@ export class LocationService implements Disposable {
     this.updateState()
   }
 
+  /**
+   * Internal cache of per-key search parameter observables created by {@link useSearchParam}.
+   */
   public readonly searchParamObservables = new Map<string, ObservableValue<any>>()
 
   /**

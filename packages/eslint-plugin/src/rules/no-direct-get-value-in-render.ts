@@ -43,6 +43,7 @@ const isInsideReturnExpression = (
   return false
 }
 
+/** Warns when `.getValue()` is used in a Shade render return without a corresponding `useObservable`. */
 export const noDirectGetValueInRender = createRule({
   name: 'no-direct-get-value-in-render',
   meta: {

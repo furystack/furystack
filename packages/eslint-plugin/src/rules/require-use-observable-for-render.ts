@@ -5,6 +5,7 @@ import { isUseDisposableWithObservable } from '../utils/observable-ast.js'
 import { getEnclosingRenderFunction } from '../utils/shade-ast.js'
 import { getTypeServices } from '../utils/type-services.js'
 
+/** Requires a matching `useObservable` when `useDisposable` creates an `ObservableValue` used via `.getValue()` in render. */
 export const requireUseObservableForRender = createRule({
   name: 'require-use-observable-for-render',
   meta: {

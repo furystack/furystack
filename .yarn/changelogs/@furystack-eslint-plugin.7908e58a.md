@@ -24,7 +24,7 @@ A dedicated ESLint plugin with custom rules that enforce FuryStack patterns and 
 - `require-disposable-for-observable-owner` - Requires classes that own `ObservableValue` instances to implement `Disposable` with a `[Symbol.dispose]()` method. Provides **auto-fix** that generates the dispose method with all necessary disposal calls
 - `require-observable-disposal` - Ensures every `ObservableValue` field in a class is disposed in the `[Symbol.dispose]()` method to prevent memory leaks. Provides **auto-fix** that appends missing disposal calls
 - `prefer-using-wrapper` - Suggests `using()` / `usingAsync()` wrappers over manual create-and-dispose patterns in the same scope, ensuring disposal even if an exception is thrown
-- `prefer-use-state` - Suggests `useState()` over manual `useDisposable(ObservableValue)` + `useObservable` for local component state
+- `injectable-consistent-inject` - Ensures `@Injected()` decorated properties use the `declare` keyword and that the type annotation matches the constructor argument
 
 #### Shades-specific Rules
 
@@ -32,6 +32,17 @@ A dedicated ESLint plugin with custom rules that enforce FuryStack patterns and 
 - `no-removed-shade-apis` - Prevents usage of removed Shade APIs (`onAttach`, `onDetach`, `element` in render), guiding toward `useDisposable()`, `useHostProps()`, and `useRef()`
 - `valid-shadow-dom-name` - Validates `shadowDomName` strings conform to the Custom Elements spec (lowercase, contains hyphen, valid start character). Provides **auto-fix** for casing issues
 - `no-css-state-hooks` - Warns against using `useState` for CSS-representable states (hover, focus, active, pressed), suggesting CSS pseudo-selectors instead
+- `prefer-use-state` - Suggests `useState()` over manual `useDisposable(ObservableValue)` + `useObservable` for local component state
+- `no-direct-get-value-in-render` - Warns when `.getValue()` is called inside a Shade render return expression without a corresponding `useObservable` subscription
+- `no-manual-subscribe-in-render` - Disallows calling `.subscribe()` directly inside a Shade render function without wrapping it in `useDisposable`
+- `require-use-observable-for-render` - Requires a matching `useObservable` call when `useDisposable` creates an `ObservableValue` and `.getValue()` is used in the render output
+- `prefer-location-service` - Prevents direct `history.pushState`/`replaceState` calls, enforcing `LocationService.navigate()` or `NestedRouteLink` for SPA navigation
+- `prefer-nested-route-link` - Suggests `<NestedRouteLink>` over `<a href="/...">` for in-app navigation inside Shade components
+
+#### REST Rules
+
+- `rest-action-use-request-error` - Enforces using `RequestError` instead of `Error` for thrown exceptions in REST action files, ensuring proper HTTP status codes
+- `rest-action-validate-wrapper` - Enforces that REST endpoint registrations in `useRestService()` API definitions are wrapped with `Validate()` for request validation
 
 **Preset Configurations:**
 
@@ -57,7 +68,7 @@ export default [
 
 ## 🧪 Tests
 
-- Added rule tests for all 9 rules using `@typescript-eslint/rule-tester` with Vitest integration, covering valid patterns, invalid patterns, error messages, and auto-fix output
+- Added rule tests for all 17 rules using `@typescript-eslint/rule-tester` with Vitest integration, covering valid patterns, invalid patterns, error messages, and auto-fix output
 
 ## 📦 Build
 

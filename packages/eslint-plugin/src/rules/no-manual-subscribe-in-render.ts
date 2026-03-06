@@ -31,6 +31,7 @@ const isInsideNestedFunctionOrUseDisposable = (node: TSESTree.Node): boolean => 
   return false
 }
 
+/** Disallows `.subscribe()` directly in Shade render without wrapping it in `useDisposable`. */
 export const noManualSubscribeInRender = createRule({
   name: 'no-manual-subscribe-in-render',
   meta: {

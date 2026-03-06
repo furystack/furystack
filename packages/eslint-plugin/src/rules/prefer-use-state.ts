@@ -5,6 +5,7 @@ import { getEnclosingFunction } from '../utils/dispose-ast.js'
 import { isUseDisposableWithObservable } from '../utils/observable-ast.js'
 import { getTypeServices } from '../utils/type-services.js'
 
+/** Suggests `useState()` over manual `useDisposable(ObservableValue)` + `useObservable` for local component state. */
 export const preferUseState = createRule({
   name: 'prefer-use-state',
   meta: {

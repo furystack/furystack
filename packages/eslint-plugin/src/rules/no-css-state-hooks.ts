@@ -11,6 +11,7 @@ const matchesCssStatePattern = (key: string): string | null => {
   return null
 }
 
+/** Warns against `useState` for CSS-representable states (hover, focus, active), suggesting CSS pseudo-selectors instead. */
 export const noCssStateHooks = createRule({
   name: 'no-css-state-hooks',
   meta: {

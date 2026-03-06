@@ -18,6 +18,7 @@ const isHistoryObject = (node: TSESTree.Expression): boolean => {
   )
 }
 
+/** Prevents direct `history.pushState`/`replaceState` calls, enforcing `LocationService.navigate()` or `NestedRouteLink`. */
 export const preferLocationService = createRule<Options, 'preferLocationService'>({
   name: 'prefer-location-service',
   meta: {

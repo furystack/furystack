@@ -4,6 +4,7 @@ import { createRule } from '../create-rule.js'
 
 type Options = [{ requiredPrefix?: string }]
 
+/** Validates `shadowDomName` in `Shade()` conforms to the Custom Elements spec. Provides auto-fix for casing. */
 export const validShadowDomName = createRule<Options, string>({
   name: 'valid-shadow-dom-name',
   meta: {

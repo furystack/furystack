@@ -2,6 +2,7 @@ import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
+/** Prevents JSX in module-level variable declarations, which create shared VNode instances that cause duplication bugs. */
 export const noModuleLevelJsx = createRule({
   name: 'no-module-level-jsx',
   meta: {

@@ -1,6 +1,10 @@
-<!-- version-type: patch -->
+<!-- version-type: minor -->
 
 # @furystack/shades
+
+## ✨ Features
+
+- Added `LocationService.replace()` method for SPA redirects that replaces the current history entry instead of pushing a new one, preventing intermediate URLs from polluting the browser's back/forward stack
 
 ## 🐛 Bug Fixes
 

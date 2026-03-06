@@ -40,6 +40,7 @@ const isInsideUseRestServiceApi = (node: TSESTree.Property): boolean => {
   )
 }
 
+/** Enforces that REST endpoint registrations in `useRestService()` are wrapped with `Validate()`. */
 export const restActionValidateWrapper = createRule({
   name: 'rest-action-validate-wrapper',
   meta: {
