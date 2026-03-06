@@ -2,6 +2,7 @@ import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { PageContainer } from './index.js'
 
 describe('PageContainer component', () => {
@@ -76,7 +77,7 @@ describe('PageContainer component', () => {
   })
 
   describe('default styling', () => {
-    it('should apply default padding of 24px', async () => {
+    it('should apply default padding from theme spacing', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -88,11 +89,11 @@ describe('PageContainer component', () => {
 
         await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
-        expect(element.style.padding).toBe('24px')
+        expect(element.style.padding).toBe(cssVariableTheme.spacing.md)
       })
     })
 
-    it('should apply default gap of 16px', async () => {
+    it('should apply default gap from theme spacing', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -104,7 +105,7 @@ describe('PageContainer component', () => {
 
         await flushUpdates()
         const element = document.querySelector('div[is="shade-page-container"]') as HTMLDivElement
-        expect(element.style.gap).toBe('16px')
+        expect(element.style.gap).toBe(cssVariableTheme.spacing.md)
       })
     })
 

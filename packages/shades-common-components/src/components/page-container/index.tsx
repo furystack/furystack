@@ -62,7 +62,13 @@ export const PageContainer = Shade<PageContainerProps>({
     position: 'relative',
   },
   render: ({ props, children, useHostProps }) => {
-    const { maxWidth = '100%', centered = false, padding = '24px', gap = '16px', fullHeight = true } = props
+    const {
+      maxWidth = '100%',
+      centered = false,
+      padding = cssVariableTheme.spacing.md,
+      gap = cssVariableTheme.spacing.md,
+      fullHeight = true,
+    } = props
 
     const hostStyle: Record<string, string> = {
       maxWidth,

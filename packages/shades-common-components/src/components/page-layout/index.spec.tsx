@@ -879,4 +879,177 @@ describe('PageLayout component', () => {
       })
     })
   })
+
+  describe('Contained Mode', () => {
+    it('should set data-contained attribute on host when contained is true', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout contained>
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await flushUpdates()
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.hasAttribute('data-contained')).toBe(true)
+      })
+    })
+
+    it('should not set data-contained attribute when contained is not set', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout>
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await flushUpdates()
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.hasAttribute('data-contained')).toBe(false)
+      })
+    })
+
+    it('should have absolute positioning when contained', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout contained>
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await flushUpdates()
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement
+        const computedStyle = window.getComputedStyle(pageLayout)
+        expect(computedStyle.position).toBe('absolute')
+      })
+    })
+
+    it('should work with AppBar and drawers in contained mode', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout
+              contained
+              appBar={{
+                variant: 'permanent',
+                component: <div>AppBar</div>,
+              }}
+              drawer={{
+                left: {
+                  variant: 'collapsible',
+                  component: <div>Left Drawer</div>,
+                },
+              }}
+            >
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await flushUpdates()
+
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
+        expect(pageLayout.hasAttribute('data-contained')).toBe(true)
+        expect(document.body.innerHTML).toContain('page-layout-appbar')
+        expect(document.body.innerHTML).toContain('page-layout-drawer-left')
+        expect(document.body.innerHTML).toContain('page-layout-content')
+
+        const layoutService = pageLayout.injector.getInstance(LayoutService)
+        expect(layoutService.drawerState.getValue().left?.open).toBe(true)
+      })
+    })
+
+    it('should support drawer toggle in contained mode', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout
+              contained
+              drawer={{
+                left: {
+                  variant: 'collapsible',
+                  component: <div>Left Drawer</div>,
+                },
+              }}
+            >
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await flushUpdates()
+
+        const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
+        const layoutService = pageLayout.injector.getInstance(LayoutService)
+
+        expect(pageLayout.hasAttribute('data-drawer-left-closed')).toBe(false)
+
+        layoutService.setDrawerOpen('left', false)
+        await flushUpdates()
+
+        expect(pageLayout.hasAttribute('data-drawer-left-closed')).toBe(true)
+      })
+    })
+
+    it('should support temporary drawer backdrop click in contained mode', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout
+              contained
+              drawer={{
+                left: {
+                  variant: 'temporary',
+                  defaultOpen: true,
+                  component: <div>Temporary Drawer</div>,
+                },
+              }}
+            >
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await flushUpdates()
+        const pageLayout = document.querySelector('shade-page-layout')
+        expect(pageLayout?.hasAttribute('data-backdrop-visible')).toBe(true)
+
+        const backdrop = document.querySelector('.page-layout-drawer-backdrop') as HTMLElement
+        backdrop.click()
+        await flushUpdates()
+
+        expect(pageLayout?.hasAttribute('data-drawer-left-closed')).toBe(true)
+      })
+    })
+  })
 })

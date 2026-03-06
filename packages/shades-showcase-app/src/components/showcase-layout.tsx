@@ -13,7 +13,6 @@ export const ShowcaseLayout = Shade({
   shadowDomName: 'showcase-layout',
   render: ({ children }) => (
     <PageLayout
-      topGap="12px"
       appBar={{
         variant: 'permanent',
         component: <ShowcaseAppBar />,
