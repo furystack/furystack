@@ -1,8 +1,8 @@
 import { createComponent, Shade, type ExtractRoutePaths } from '@furystack/shades'
 import { AppBar, createAppBarLink, cssVariableTheme, Divider } from '@furystack/shades-common-components'
 
-import { type appRoutes as AppRoutes } from '../routes.js'
 import { getCategoryNodes } from '../nav-tree.js'
+import { type appRoutes as AppRoutes } from '../routes.js'
 import { ShowcaseBreadcrumbComponent } from './showcase-breadcrumbs.tsx'
 import { ThemeSwitch } from './theme-switch.js'
 
@@ -15,9 +15,14 @@ const ShowcaseAppBarLinks = createAppBarLink<typeof AppRoutes>()
  */
 export const ShowcaseAppBar = Shade({
   shadowDomName: 'showcase-app-bar',
+  css: {
+    display: 'flex',
+    alignItems: 'center',
+    height: 'inherit',
+  },
   render: () => {
     return (
-      <AppBar>
+      <AppBar style={{ height: 'inherit' }}>
         <div
           style={{
             display: 'flex',
@@ -29,10 +34,7 @@ export const ShowcaseAppBar = Shade({
         >
           <ShowcaseBreadcrumbComponent />
         </div>
-        <Divider
-          orientation="vertical"
-          style={{ margin: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.xs}`, opacity: '0.4' }}
-        />
+        <Divider orientation="vertical" />
         <div
           style={{
             display: 'flex',

@@ -715,8 +715,22 @@ export const appRoutes = {
       },
       '/layout': {
         meta: { title: 'Layout', icon: icons.ruler },
-        component: ({ outlet }) => outlet ?? <Navigate to="/layout/divider" />,
+        component: ({ outlet }) => outlet ?? <Navigate to="/layout/layout-showcase" />,
         children: {
+          '/layout-showcase': {
+            meta: { title: 'Layout Showcase' },
+
+            component: () => (
+              <LazyLoad
+                viewTransition
+                loader={<PageLoader />}
+                component={async () => {
+                  const { LayoutShowcasePage } = await import('./pages/layout/layout-showcase.js')
+                  return <LayoutShowcasePage />
+                }}
+              />
+            ),
+          },
           '/divider': {
             meta: { title: 'Divider' },
 

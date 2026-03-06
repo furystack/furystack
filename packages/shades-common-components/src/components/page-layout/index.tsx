@@ -46,6 +46,12 @@ export type PageLayoutProps = {
   topGap?: string
   /** Gap between the drawers and the content area (CSS value). Default: '0px' */
   sideGap?: string
+  /**
+   * When true, uses `position: absolute` instead of `position: fixed` so the
+   * layout fills its nearest positioned ancestor rather than the viewport.
+   * This enables nesting PageLayout instances (e.g. in a showcase grid).
+   */
+  contained?: boolean
 }
 
 const DEFAULT_APPBAR_HEIGHT = '48px'
@@ -102,8 +108,8 @@ export const PageLayout = Shade<PageLayoutProps>({
       margin: '0',
     },
 
-    // AppBar container
-    '& .page-layout-appbar': {
+    // AppBar container (> * > scopes to the wrapper div to prevent bleeding into nested PageLayouts)
+    '& > * > .page-layout-appbar': {
       position: 'fixed',
       top: '0',
       left: '0',
@@ -114,18 +120,18 @@ export const PageLayout = Shade<PageLayoutProps>({
     },
 
     // Auto-hide AppBar styles (controlled via host data attributes)
-    '&[data-appbar-auto-hide] .page-layout-appbar': {
+    '&[data-appbar-auto-hide] > * > .page-layout-appbar': {
       top: 'calc(-1 * var(--layout-appbar-height, 48px))',
     },
-    '&[data-appbar-auto-hide] .page-layout-appbar:hover': {
+    '&[data-appbar-auto-hide] > * > .page-layout-appbar:hover': {
       top: '0',
     },
-    '&[data-appbar-auto-hide][data-appbar-visible] .page-layout-appbar': {
+    '&[data-appbar-auto-hide][data-appbar-visible] > * > .page-layout-appbar': {
       top: '0',
     },
 
     // Drawer containers - use CSS transitions
-    '& .page-layout-drawer': {
+    '& > * > .page-layout-drawer': {
       position: 'fixed',
       top: 'var(--layout-appbar-height, 48px)',
       bottom: '0',
@@ -135,13 +141,13 @@ export const PageLayout = Shade<PageLayoutProps>({
       backgroundImage: cssVariableTheme.background.paperImage,
       transition: `transform ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
-    '& .page-layout-drawer-left': {
+    '& > * > .page-layout-drawer-left': {
       left: '0',
       width: 'var(--layout-drawer-left-configured-width, 240px)',
       borderRight: `1px solid ${cssVariableTheme.divider}`,
       transform: 'translateX(0)',
     },
-    '& .page-layout-drawer-right': {
+    '& > * > .page-layout-drawer-right': {
       right: '0',
       width: 'var(--layout-drawer-right-configured-width, 240px)',
       borderLeft: `1px solid ${cssVariableTheme.divider}`,
@@ -149,17 +155,17 @@ export const PageLayout = Shade<PageLayoutProps>({
     },
 
     // Drawer closed states (controlled via host data attributes)
-    '&[data-drawer-left-closed] .page-layout-drawer-left': {
+    '&[data-drawer-left-closed] > * > .page-layout-drawer-left': {
       transform: 'translateX(-100%)',
       pointerEvents: 'none',
     },
-    '&[data-drawer-right-closed] .page-layout-drawer-right': {
+    '&[data-drawer-right-closed] > * > .page-layout-drawer-right': {
       transform: 'translateX(100%)',
       pointerEvents: 'none',
     },
 
     // Temporary drawer backdrop
-    '& .page-layout-drawer-backdrop': {
+    '& > * > .page-layout-drawer-backdrop': {
       position: 'fixed',
       top: '0',
       left: '0',
@@ -171,13 +177,28 @@ export const PageLayout = Shade<PageLayoutProps>({
       pointerEvents: 'none',
       transition: `opacity ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
-    '&[data-backdrop-visible] .page-layout-drawer-backdrop': {
+    '&[data-backdrop-visible] > * > .page-layout-drawer-backdrop': {
       opacity: '1',
       pointerEvents: 'auto',
     },
 
+    // Contained mode - use absolute positioning instead of fixed so the layout
+    // fills its nearest positioned ancestor rather than the viewport
+    '&[data-contained]': {
+      position: 'absolute',
+    },
+    '&[data-contained] > * > .page-layout-appbar': {
+      position: 'absolute',
+    },
+    '&[data-contained] > * > .page-layout-drawer': {
+      position: 'absolute',
+    },
+    '&[data-contained] > * > .page-layout-drawer-backdrop': {
+      position: 'absolute',
+    },
+
     // Content area - uses CSS variables for positioning
-    '& .page-layout-content': {
+    '& > * > .page-layout-content': {
       position: 'absolute',
       top: '0',
       bottom: '0',
@@ -327,6 +348,7 @@ export const PageLayout = Shade<PageLayoutProps>({
     const rightContentMargin = layoutService.getContentMarginForPosition('right')
 
     useHostProps({
+      ...(props.contained ? { 'data-contained': '' } : {}),
       ...(!isLeftOpen ? { 'data-drawer-left-closed': '' } : {}),
       ...(!isRightOpen ? { 'data-drawer-right-closed': '' } : {}),
       ...(props.appBar?.variant === 'auto-hide' ? { 'data-appbar-auto-hide': '' } : {}),
