@@ -2,6 +2,14 @@
 
 # @furystack/eslint-plugin
 
+## 💥 Breaking Changes
+
+### Initial Major Release
+
+This is the first stable release of `@furystack/eslint-plugin`. As a new package, there are no migrations required from a previous version.
+
+**Peer dependency:** Requires ESLint >= 9.0.0 (flat config).
+
 ## ✨ Features
 
 ### New ESLint Plugin for FuryStack and Shades
