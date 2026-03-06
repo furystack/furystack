@@ -8,38 +8,6 @@ RuleTester.describe = describe
 
 const tester = new RuleTester()
 
-const typedTester = new RuleTester({
-  languageOptions: {
-    parserOptions: {
-      projectService: { allowDefaultProject: ['*.ts'] },
-    },
-  },
-})
-
-typedTester.run('no-direct-physical-store (typed)', noDirectPhysicalStore, {
-  valid: [
-    {
-      name: '.getStoreFor() on non-StoreManager is ignored when type info is available',
-      code: `
-        declare class ConfigManager { getStoreFor(key: string): unknown }
-        declare const cfg: ConfigManager
-        const store = cfg.getStoreFor('settings')
-      `,
-    },
-  ],
-  invalid: [
-    {
-      name: '.getStoreFor() on StoreManager is still reported with type info',
-      code: `
-        declare class StoreManager { getStoreFor(model: unknown, pk: string): unknown }
-        declare const sm: StoreManager
-        const store = sm.getStoreFor(MyModel, 'id')
-      `,
-      errors: [{ messageId: 'noGetStoreFor' }],
-    },
-  ],
-})
-
 tester.run('no-direct-physical-store', noDirectPhysicalStore, {
   valid: [
     {

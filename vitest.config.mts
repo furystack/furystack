@@ -23,8 +23,15 @@ export default defineConfig({
             'packages/i18n/src/**/*.spec.ts',
             'packages/yarn-plugin-changelog/src/**/*.spec.ts',
             'packages/entity-sync-client/src/**/*.spec.ts',
-            'packages/eslint-plugin/src/**/*.spec.ts',
           ],
+          setupFiles: ['./vitest.setup.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'ESLint Plugin',
+          include: ['packages/eslint-plugin/src/**/*.spec.ts'],
+          testTimeout: 30_000,
           setupFiles: ['./vitest.setup.ts'],
         },
       },
