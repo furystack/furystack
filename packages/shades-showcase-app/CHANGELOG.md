@@ -1,5 +1,23 @@
 # Changelog
 
+## [8.2.8] - 2026-03-06
+
+### ✨ Features
+
+- Added Layout Showcase page with interactive examples of different `PageLayout` configurations — AppBar variants, permanent/collapsible/temporary drawers, auto-hide behavior, and dual-drawer layouts
+
+### ♻️ Refactoring
+
+- Updated `PageLoader` to use `PageContainer` and `Paper` components for a more structured loading skeleton
+- Adjusted `ShowcaseAppBar` to inherit height from parent layout and simplified divider styling
+- Removed `topGap` from `ShowcaseLayout` for consistent spacing
+- Changed the default Layout category route from `/layout/divider` to `/layout/layout-showcase`
+
+### 🧪 Tests
+
+- Updated e2e navigation tests to include the new Layout Showcase page
+- Updated e2e snapshots to reflect layout and styling changes
+
 ## [8.2.7] - 2026-03-06
 
 ### 🐛 Bug Fixes

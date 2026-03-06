@@ -1,5 +1,32 @@
 # Changelog
 
+## [13.5.0] - 2026-03-06
+
+### ✨ Features
+
+### Contained mode for `PageLayout`
+
+Added a `contained` prop to `PageLayout` that uses `position: absolute` instead of `position: fixed`, allowing the layout to fill its nearest positioned ancestor rather than the viewport. This enables nesting multiple `PageLayout` instances on the same page (e.g. in a showcase grid or dashboard).
+
+**Usage:**
+
+```tsx
+<div style={{ position: 'relative', height: '400px' }}>
+  <PageLayout contained appBar={{ variant: 'permanent', component: <MyAppBar /> }}>
+    <div>Scoped content</div>
+  </PageLayout>
+</div>
+```
+
+### ♻️ Refactoring
+
+- Scoped `PageLayout` internal CSS selectors to direct children (`> * >`) to prevent styles from bleeding into nested `PageLayout` instances
+- `PageContainer` now uses theme spacing tokens (`cssVariableTheme.spacing.md`) for default `padding` and `gap` instead of hardcoded pixel values
+
+### 🧪 Tests
+
+- Added unit tests for `PageLayout` contained mode covering data attribute binding, absolute positioning, drawer toggle, and backdrop click behavior
+
 ## [13.4.1] - 2026-03-06
 
 ### 🐛 Bug Fixes

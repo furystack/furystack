@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.1] - 2026-03-06
+
+### 🔧 Chores
+
+- Version bump for nested layout feature
+
 ## [8.1.0] - 2026-03-06
 
 ### ✨ Features
