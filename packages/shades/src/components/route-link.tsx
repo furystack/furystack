@@ -19,6 +19,7 @@ export const RouteLink = Shade<RouteLinkProps>({
     useHostProps({
       onclick: (ev: MouseEvent) => {
         ev.preventDefault()
+        // eslint-disable-next-line furystack/prefer-location-service -- Deprecated framework component; must call pushState directly.
         history.pushState('', props.title || '', props.href)
         injector.getInstance(LocationService).updateState()
       },

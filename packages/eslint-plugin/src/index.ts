@@ -8,6 +8,8 @@ import { noDirectPhysicalStore } from './rules/no-direct-physical-store.js'
 import { noManualSubscribeInRender } from './rules/no-manual-subscribe-in-render.js'
 import { noModuleLevelJsx } from './rules/no-module-level-jsx.js'
 import { noRemovedShadeApis } from './rules/no-removed-shade-apis.js'
+import { preferLocationService } from './rules/prefer-location-service.js'
+import { preferNestedRouteLink } from './rules/prefer-nested-route-link.js'
 import { preferUseState } from './rules/prefer-use-state.js'
 import { preferUsingWrapper } from './rules/prefer-using-wrapper.js'
 import { requireDisposableForObservableOwner } from './rules/require-disposable-for-observable-owner.js'
@@ -25,6 +27,8 @@ const rules = {
   'no-manual-subscribe-in-render': noManualSubscribeInRender,
   'no-module-level-jsx': noModuleLevelJsx,
   'no-removed-shade-apis': noRemovedShadeApis,
+  'prefer-location-service': preferLocationService,
+  'prefer-nested-route-link': preferNestedRouteLink,
   'prefer-use-state': preferUseState,
   'prefer-using-wrapper': preferUsingWrapper,
   'require-disposable-for-observable-owner': requireDisposableForObservableOwner,

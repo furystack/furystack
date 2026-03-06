@@ -10,6 +10,8 @@ export const shades: TSESLint.FlatConfig.Config = {
     'furystack/require-use-observable-for-render': 'warn',
     'furystack/no-manual-subscribe-in-render': 'warn',
     'furystack/no-direct-get-value-in-render': 'warn',
+    'furystack/prefer-location-service': 'warn',
+    'furystack/prefer-nested-route-link': 'warn',
   },
 }
 
@@ -23,5 +25,7 @@ export const shadesStrict: TSESLint.FlatConfig.Config = {
     'furystack/require-use-observable-for-render': 'error',
     'furystack/no-manual-subscribe-in-render': 'error',
     'furystack/no-direct-get-value-in-render': 'error',
+    'furystack/prefer-location-service': 'error',
+    'furystack/prefer-nested-route-link': 'error',
   },
 }

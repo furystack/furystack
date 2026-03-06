@@ -44,6 +44,7 @@ const _NestedRouteLink = Shade<NestedRouteLinkProps>({
       href: resolvedUrl,
       onclick: (ev: MouseEvent) => {
         ev.preventDefault()
+        // eslint-disable-next-line furystack/prefer-location-service -- This IS the SPA link component; it must call pushState directly.
         history.pushState('', props.title || '', resolvedUrl)
         injector.getInstance(LocationService).updateState()
       },
