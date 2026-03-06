@@ -33,6 +33,8 @@ This project uses ESLint for code quality. **Always use the project's ESLint con
 
 **Configuration file:** `eslint.config.js`
 
+The project includes `@furystack/eslint-plugin` with FuryStack-specific rules in four configs: `recommended`, `recommendedStrict`, `shades`, and `shadesStrict`. These enforce patterns around DI consistency, observable disposal, Shades rendering, REST actions, and data access. Generate code that satisfies these rules from the start -- do not rely on the linter to catch violations after the fact.
+
 ```bash
 # ✅ Good - lint code
 yarn lint

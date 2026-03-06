@@ -42,6 +42,19 @@ Each package should have:
 }
 ```
 
+## Linting Rules (`@furystack/eslint-plugin`)
+
+The `@furystack/eslint-plugin` enforces many FuryStack-specific patterns automatically. Key rule categories:
+
+- **DI consistency** -- `@Injected()` must use `declare`, and the injected type must match the decorator argument (`injectable-consistent-inject`)
+- **Observable disposal** -- classes owning `ObservableValue` or `Cache` must implement `[Symbol.dispose]()` and dispose every field (`require-disposable-for-observable-owner`, `require-observable-disposal`)
+- **Disposable safety** -- prefer `using()` / `usingAsync()` over manual create-then-dispose (`prefer-using-wrapper`)
+- **Shades rendering** -- no module-level JSX, no removed APIs, no manual `.subscribe()` in render, no `.getValue()` without `useObservable`, prefer `useState` over manual `ObservableValue`, no `useState` for CSS-representable states, valid `shadowDomName`, prefer `LocationService` and `NestedRouteLink` for navigation
+- **REST actions** -- throw `RequestError` (not `Error`), wrap endpoints with `Validate()`
+- **Data access** -- use Repository/DataSet (`getDataSetFor`) instead of direct `StoreManager` access
+
+Generate code that satisfies these rules from the start. Verify with `yarn lint`.
+
 ## Dependency Injection Patterns
 
 ### Injectable Classes
@@ -291,31 +304,10 @@ export const getUserAction: GetUserAction = async ({ getUrlParams }) => {
 
 ### RequestError
 
-Provide proper error types:
+The `rest-action-use-request-error` lint rule enforces throwing `RequestError` (not plain `Error`) in REST action files. `RequestError` accepts a message, an HTTP status code, and optional details:
 
 ```typescript
-// ✅ Good - RequestError implementation
-export class RequestError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public details?: unknown,
-  ) {
-    super(message)
-    this.name = 'RequestError'
-  }
-}
-
-// Usage in actions
-export const createUserAction: RequestAction<CreateUserType> = async ({ getBody }) => {
-  const body = await getBody()
-
-  if (!body.email) {
-    throw new RequestError('Email is required', 400)
-  }
-
-  // Action logic
-}
+throw new RequestError('Email is required', 400)
 ```
 
 ## Breaking Changes
@@ -407,44 +399,7 @@ export class Injector {
 
 ### Removed APIs
 
-The following APIs have been removed. **Do not generate code using them:**
-
-- **`element`** is no longer available in `RenderOptions`. Use `useHostProps` for host element attributes/styles and `useRef` for child DOM access.
-- **`onAttach` / `onDetach`** lifecycle hooks are removed from `ShadeOptions`. Use `useDisposable` to manage resources that need cleanup on unmount.
-
-```typescript
-// ❌ REMOVED - element in render options
-render: ({ element }) => {
-  element.setAttribute('data-active', 'true') // No longer works
-}
-
-// ✅ Use useHostProps instead
-render: ({ useHostProps }) => {
-  useHostProps({ 'data-active': 'true' })
-}
-
-// ❌ REMOVED - onAttach / onDetach
-Shade({
-  onAttach: ({ element }) => {
-    /* ... */
-  },
-  onDetach: ({ element }) => {
-    /* ... */
-  },
-})
-
-// ✅ Use useDisposable instead
-render: ({ useDisposable }) => {
-  useDisposable('myResource', () => {
-    // Setup code runs once
-    return {
-      [Symbol.dispose]: () => {
-        /* Cleanup on unmount */
-      },
-    }
-  })
-}
-```
+The `no-removed-shade-apis` lint rule enforces this. In short: `element` is removed from `RenderOptions` (use `useHostProps` / `useRef`), and `onAttach` / `onDetach` are removed from `ShadeOptions` (use `useDisposable`).
 
 ### `useHostProps` -- Declarative Host Element Attributes
 
@@ -509,48 +464,13 @@ requestAnimationFrame(() => setIsVisible(true))
 return <div className={`backdrop${isVisible ? ' visible' : ''}`}>...</div>
 ```
 
-### Anti-pattern: `useDisposable` + `ObservableValue` for Local State
+### Local State: `useState` over Manual `ObservableValue`
 
-When you need local component state that triggers re-renders, use `useState` directly. Do not manually create an `ObservableValue` with `useDisposable` and subscribe with `useObservable` -- this is exactly what `useState` does internally.
+The `prefer-use-state` lint rule enforces using `useState` instead of manually combining `useDisposable` + `ObservableValue` + `useObservable` for local component state. Reserve `useDisposable` + `ObservableValue` for cases where the observable must be passed to a service or shared across component boundaries (not just parent-to-child). For parent-to-child state, prefer plain props.
 
-```typescript
-// ❌ Bad - manual ObservableValue + useObservable for local state
-const obs = useDisposable('count', () => new ObservableValue(0))
-const [count] = useObservable('count', obs)
+### Module-Level JSX Constants
 
-// ✅ Good - useState handles this internally
-const [count, setCount] = useState('count', 0)
-```
-
-Reserve `useDisposable` + `ObservableValue` for cases where the observable must be passed to a service or shared across component boundaries (not just parent-to-child). For parent-to-child state, prefer plain props.
-
-### Anti-pattern: Module-Level JSX Constants
-
-**NEVER store JSX elements in module-level constants.** JSX expressions create VNode objects. When stored at module level, the same VNode instance is reused across every mount/render cycle. Since Shades associates DOM nodes with VNodes, this causes duplicated or stale elements on subsequent mounts.
-
-```typescript
-// ❌ Bad - VNode created once, reused across mounts → duplication bug
-const defaultIcons: Record<string, JSX.Element> = {
-  success: (<Icon icon={checkCircle} size={64} />) as unknown as JSX.Element,
-  error: (<Icon icon={errorCircle} size={64} />) as unknown as JSX.Element,
-}
-
-// ❌ Bad - same issue with arrays of objects containing JSX
-const menuItems: MenuEntry[] = [
-  { key: 'home', label: 'Home', icon: <Icon icon={icons.home} size="small" /> },
-]
-
-// ✅ Good - factory function creates fresh VNodes per call
-const getDefaultIcon = (status: string): JSX.Element =>
-  (<Icon icon={iconDefs[status]} size={64} />) as unknown as JSX.Element
-
-// ✅ Good - factory returns fresh array with fresh JSX
-const getMenuItems = (): MenuEntry[] => [
-  { key: 'home', label: 'Home', icon: <Icon icon={icons.home} size="small" /> },
-]
-```
-
-Plain data (strings, numbers, objects without JSX) at module level is fine. Only JSX / VNode creation must happen inside render functions or factory functions called at render time.
+The `no-module-level-jsx` lint rule forbids storing JSX elements in module-level constants. JSX creates VNode objects; reusing the same instance across mounts causes duplication bugs because Shades associates DOM nodes with VNodes. Use factory functions instead. Plain data (strings, numbers, objects without JSX) at module level is fine.
 
 ### VNode Reconciliation
 
@@ -624,22 +544,9 @@ const Button = Shade({
 | Dynamic values from props | ✅      | ❌    |
 | Component defaults        | ⚠️      | ✅    |
 
-#### Anti-pattern: useState for CSS States
+#### CSS States
 
-**Do not** use `useState` to track CSS states like hover, focus, or active. Use `css` pseudo-selectors instead:
-
-```typescript
-// ❌ Bad - unnecessary state for CSS-representable behavior
-const [isHovered, setIsHovered] = useState('hover', false)
-const [isFocused, setIsFocused] = useState('focus', false)
-
-// ✅ Good - CSS handles these states natively
-css: {
-  '&:hover': { /* hover styles */ },
-  '&:focus': { /* focus styles */ },
-  '&:active': { /* active styles */ },
-}
-```
+The `no-css-state-hooks` lint rule forbids using `useState` for hover, focus, or active states. Use `css` pseudo-selectors (`&:hover`, `&:focus`, `&:active`) instead.
 
 #### Anti-pattern: `useHostProps({ style })` for Static or Attribute-Driven Styles
 
@@ -795,18 +702,7 @@ export class Logger {}
 
 ## Data Access: Repository over PhysicalStore
 
-**Always prefer the Repository/DataSet layer over direct PhysicalStore access** for application-level code.
-
-### Why
-
-Direct `PhysicalStore` writes bypass:
-
-- Authorization checks
-- Modification hooks (`modifyOnAdd`, `modifyOnUpdate`)
-- DataSet events (`onEntityAdded`, `onEntityUpdated`, `onEntityRemoved`)
-- Entity sync (which depends on DataSet events)
-
-### Pattern
+The `no-direct-physical-store` lint rule enforces using Repository/DataSet (`getDataSetFor`) instead of direct `StoreManager` access in application code. Direct `PhysicalStore` writes bypass authorization, modification hooks, DataSet events, and entity sync.
 
 ```typescript
 // ✅ Good — use DataSet via Repository
@@ -817,11 +713,6 @@ const systemInjector = useSystemIdentityContext({ injector, username: 'MyService
 const dataSet = getDataSetFor(systemInjector, MyModel, 'id')
 await dataSet.add(systemInjector, entity)
 await dataSet.find(systemInjector, { filter: { ... } })
-
-// ❌ Avoid — direct PhysicalStore access in application code
-import { StoreManager } from '@furystack/core'
-const store = injector.getInstance(StoreManager).getStoreFor(MyModel, 'id')
-await store.add(entity) // bypasses authorization, hooks, and events
 ```
 
 ### When to use PhysicalStore directly
