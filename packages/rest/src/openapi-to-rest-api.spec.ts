@@ -134,7 +134,7 @@ describe('OpenApiToRestApi', () => {
       } as const satisfies OpenApiDocument
 
       type Api = OpenApiToRestApi<typeof doc>
-      expectTypeOf<Api>().toMatchTypeOf<RestApi>()
+      expectTypeOf<Api>().toExtend<RestApi>()
       expectTypeOf<Api>().toHaveProperty('GET')
     })
 
@@ -283,7 +283,7 @@ describe('OpenApiToRestApi', () => {
       } as const satisfies OpenApiDocument
 
       type Api = OpenApiToRestApi<typeof doc>
-      expectTypeOf<Api['GET']['/users']['result']>().toMatchTypeOf<string[]>()
+      expectTypeOf<Api['GET']['/users']['result']>().toExtend<string[]>()
     })
 
     it('Should extract typed 201 response', () => {
@@ -428,7 +428,7 @@ describe('OpenApiToRestApi', () => {
       } as const satisfies OpenApiDocument
 
       type Api = OpenApiToRestApi<typeof doc>
-      expectTypeOf<Api['POST']['/users']['body']>().toMatchTypeOf<{
+      expectTypeOf<Api['POST']['/users']['body']>().toExtend<{
         name: string
         email: string
       }>()
@@ -545,7 +545,7 @@ describe('OpenApiToRestApi', () => {
       } as const satisfies OpenApiDocument
 
       type Api = OpenApiToRestApi<typeof doc>
-      expectTypeOf<Api>().toMatchTypeOf<RestApi>()
+      expectTypeOf<Api>().toExtend<RestApi>()
     })
 
     it('Should handle document with empty paths', () => {
@@ -556,7 +556,7 @@ describe('OpenApiToRestApi', () => {
       } as const satisfies OpenApiDocument
 
       type Api = OpenApiToRestApi<typeof doc>
-      expectTypeOf<Api>().toMatchTypeOf<RestApi>()
+      expectTypeOf<Api>().toExtend<RestApi>()
     })
 
     it('Should handle multiple paths', () => {
@@ -675,8 +675,8 @@ describe('OpenApiToRestApi', () => {
 
       type Api = OpenApiToRestApi<typeof doc>
       type Result = Api['GET']['/shape']['result']
-      expectTypeOf<{ radius?: number }>().toMatchTypeOf<Result>()
-      expectTypeOf<{ width?: number }>().toMatchTypeOf<Result>()
+      expectTypeOf<{ radius?: number }>().toExtend<Result>()
+      expectTypeOf<{ width?: number }>().toExtend<Result>()
     })
 
     it('Should handle allOf as intersection type', () => {

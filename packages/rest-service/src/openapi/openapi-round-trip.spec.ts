@@ -22,7 +22,7 @@ describe('OpenAPI round-trip: learn.openapis.org example (imported from JSON)', 
 
   describe('Type-level extraction from JSON import', () => {
     it('Should produce a valid RestApi type', () => {
-      expectTypeOf<ExampleApi>().toMatchTypeOf<RestApi>()
+      expectTypeOf<ExampleApi>().toExtend<RestApi>()
     })
 
     it('Should have GET method with both paths', () => {
@@ -142,7 +142,7 @@ describe('Round-trip: individual construct tests', () => {
     type Api = OpenApiToRestApi<typeof doc>
 
     it('Should extract typed response at the type level', () => {
-      expectTypeOf<Api['GET']['/users']['result']>().toMatchTypeOf<Array<{ id?: string; name?: string }>>()
+      expectTypeOf<Api['GET']['/users']['result']>().toExtend<Array<{ id?: string; name?: string }>>()
     })
 
     it('Should preserve response schema through round-trip', () => {
@@ -225,11 +225,11 @@ describe('Round-trip: individual construct tests', () => {
     type Api = OpenApiToRestApi<typeof doc>
 
     it('Should extract request body type', () => {
-      expectTypeOf<Api['POST']['/users']['body']>().toMatchTypeOf<{ name: string; email: string }>()
+      expectTypeOf<Api['POST']['/users']['body']>().toExtend<{ name: string; email: string }>()
     })
 
     it('Should extract response type from 201', () => {
-      expectTypeOf<Api['POST']['/users']['result']>().toMatchTypeOf<{ id?: string }>()
+      expectTypeOf<Api['POST']['/users']['result']>().toExtend<{ id?: string }>()
     })
   })
 
@@ -264,7 +264,7 @@ describe('Round-trip: individual construct tests', () => {
     })
 
     it('Should preserve result type', () => {
-      expectTypeOf<Api['GET']['/search']['result']>().toMatchTypeOf<string[]>()
+      expectTypeOf<Api['GET']['/search']['result']>().toExtend<string[]>()
     })
   })
 
@@ -579,7 +579,7 @@ describe('Round-trip: advanced API (imported from JSON)', () => {
     type Api = OpenApiToRestApi<typeof typedDoc>
 
     it('Should produce a valid RestApi type', () => {
-      expectTypeOf<Api>().toMatchTypeOf<RestApi>()
+      expectTypeOf<Api>().toExtend<RestApi>()
     })
 
     it('Should have GET and POST on /pets, GET and DELETE on /pets/:petId', () => {
