@@ -1,5 +1,42 @@
 # Changelog
 
+## [3.0.0] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated `@types/node` from `^25.3.1` to `^25.3.5`
+- Updated `@furystack/shades` dependency
+
+### 💥 Breaking Changes
+
+### `createI18nComponent` option `shadowDomName` renamed to `customElementName`
+
+The `createI18nComponent()` function now accepts `customElementName` instead of `shadowDomName` in its options object.
+
+**Examples:**
+
+```typescript
+// ❌ Before
+const I18n = createI18nComponent({
+  service,
+  shadowDomName: 'i18n-translated',
+})
+
+// ✅ After
+const I18n = createI18nComponent({
+  service,
+  customElementName: 'i18n-translated',
+})
+```
+
+### 📚 Documentation
+
+- Updated README examples to use `customElementName`
+
+### 🧪 Tests
+
+- Updated all test cases to use the new `customElementName` property
+
 ## [2.0.11] - 2026-03-06
 
 ### ⬆️ Dependencies

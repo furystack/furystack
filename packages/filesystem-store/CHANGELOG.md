@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.1.2] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated `@types/node` from `^25.3.1` to `^25.3.5`
+
 ## [7.1.1] - 2026-03-06
 
 ### 🧪 Tests

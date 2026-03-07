@@ -1,5 +1,18 @@
 # Changelog
 
+## [8.1.2] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated `eslint` from `^10.0.2` to `^10.0.3`
+- Updated `eslint-plugin-playwright` from `^2.7.1` to `^2.9.0`
+- Updated `lint-staged` from `^16.2.7` to `^16.3.2`
+- Updated `ts-json-schema-generator` from `^2.5.0` to `^2.9.0`
+
+### 📚 Documentation
+
+- Updated Cursor rules and coding guidelines to use `customElementName` instead of `shadowDomName` in examples
+
 ## [8.1.1] - 2026-03-06
 
 ### 🔧 Chores

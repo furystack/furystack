@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated internal FuryStack dependencies
+- Updated `@furystack/rest-service` dependency
+
 ## [1.0.6] - 2026-03-06
 
 ### ⬆️ Dependencies

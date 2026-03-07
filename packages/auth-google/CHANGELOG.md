@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.0.4] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated `@types/node` from `^25.3.1` to `^25.3.5`
+- Updated `@furystack/rest-service` dependency
+
 ## [10.0.3] - 2026-03-06
 
 ### ⬆️ Dependencies

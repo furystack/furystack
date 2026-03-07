@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.1.2] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated internal FuryStack dependencies
+- Updated `@furystack/rest` dependency to pick up the new OpenAPI bidirectional support and renamed types (`OpenApiDocument`, `WithSchemaAction` with `/openapi.json`)
+
 ## [8.1.1] - 2026-03-06
 
 ### ⬆️ Dependencies

@@ -1,5 +1,22 @@
 # Changelog
 
+## [9.0.0] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated internal FuryStack dependencies
+- Updated `@furystack/shades` dependency
+
+### 💥 Breaking Changes
+
+### `shadowDomName` renamed to `customElementName` in Shade component API
+
+The `NippleComponent` now uses `customElementName` instead of `shadowDomName`. This is a breaking change inherited from `@furystack/shades`.
+
+### 📚 Documentation
+
+- Updated README examples to use `customElementName`
+
 ## [8.0.11] - 2026-03-06
 
 ### 📦 Build

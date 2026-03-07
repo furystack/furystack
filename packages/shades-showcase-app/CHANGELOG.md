@@ -1,5 +1,30 @@
 # Changelog
 
+## [9.0.0] - 2026-03-07
+
+### ⬆️ Dependencies
+
+- Updated internal FuryStack dependencies
+- Updated `@furystack/shades` dependency
+
+### 💥 Breaking Changes
+
+### Migrated to new `customElementName` Shade API
+
+All showcase components updated from `shadowDomName` to `customElementName`, following the `@furystack/shades` rename.
+
+### Migrated to new `DataGrid` `onFindOptionsChange` callback pattern
+
+Showcase pages using `DataGrid` now pass `findOptions` as a plain object with an `onFindOptionsChange` callback instead of wrapping them in an `ObservableValue`.
+
+### Migrated `CircularProgress` and `LinearProgress` to plain `number` values
+
+Showcase pages using progress components now pass `value` as a plain `number` instead of an `ObservableValue<number>`.
+
+### ♻️ Refactoring
+
+- Updated all ~100+ showcase components and pages to use the new APIs
+
 ## [8.2.8] - 2026-03-06
 
 ### ✨ Features
