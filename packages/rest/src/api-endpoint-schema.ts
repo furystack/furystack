@@ -10,9 +10,15 @@ import type {
 import type { RestApi } from './rest-api.js'
 
 /**
- * The JSON schema type used for API endpoint definitions.
+ * The JSON Schema type used for API endpoint definitions.
+ *
+ * This is intentionally `unknown` because the exact schema shape depends on
+ * the generator used (e.g. `ts-json-schema-generator` produces Draft 7-style
+ * objects with `definitions`, while consumed OpenAPI documents use 3.1-style
+ * objects). Narrowing to `object | boolean` would break runtime usages where
+ * the schema is `null` or omitted.
  */
-export type Schema = unknown // TODO: Fix me
+export type Schema = unknown
 
 /**
  * Represents the definition of an API endpoint, including its path, schema, and schema name.

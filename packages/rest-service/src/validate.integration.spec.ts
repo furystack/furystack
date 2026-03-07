@@ -14,7 +14,7 @@ import { createGetEntityEndpoint } from './endpoint-generators/create-get-entity
 import { createPatchEndpoint } from './endpoint-generators/create-patch-endpoint.js'
 import { createPostEndpoint } from './endpoint-generators/create-post-endpoint.js'
 import { MockClass } from './endpoint-generators/utils.js'
-import { useRestService } from './helpers.js'
+import { useHttpAuthentication, useRestService } from './helpers.js'
 import { DefaultSession } from './models/default-session.js'
 import { JsonResult } from './request-action-implementation.js'
 import type { ValidationApi } from './validate.integration.schema.js'
@@ -226,6 +226,7 @@ describe('Validation integration tests', () => {
 
   describe('Validation metadata', () => {
     it('Should return 404 when not enabled', async () => {
+      expect.assertions(2)
       await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
         try {
           await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
@@ -235,6 +236,7 @@ describe('Validation integration tests', () => {
               accept: 'application/schema+json',
             },
           })
+          expect.fail('Expected response error but got success')
         } catch (error) {
           expect(error).toBeInstanceOf(ResponseError)
           expect((error as ResponseError).response.status).toBe(404)
@@ -484,6 +486,112 @@ describe('Validation integration tests', () => {
         expect(result.result.foo).toBe('foo')
         expect(result.result.bar).toBe(42)
         expect(result.result.baz).toBe(true)
+      })
+    })
+  })
+
+  describe('OpenAPI security schemes from authentication providers', () => {
+    const createApiWithAuth = async () => {
+      const injector = new Injector()
+      const port = getPort()
+
+      getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+      getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+      getStoreManager(injector).addStore(new InMemoryStore({ model: MockClass, primaryKey: 'id' }))
+      getRepository(injector).createDataSet(MockClass, 'id')
+      getRepository(injector).createDataSet(User, 'username')
+      getRepository(injector).createDataSet(DefaultSession, 'sessionId')
+
+      useHttpAuthentication(injector)
+
+      await useRestService<ValidationApi>({
+        injector,
+        enableGetSchema: true,
+        name,
+        description,
+        version,
+        api: {
+          GET: {
+            '/validate-query': Validate({ schema, schemaName: 'ValidateQuery' })(async ({ getQuery }) =>
+              JsonResult({ ...getQuery() }),
+            ),
+            '/validate-url/:id': Validate({ schema, schemaName: 'ValidateUrl' })(async ({ getUrlParams }) =>
+              JsonResult({ ...getUrlParams() }),
+            ),
+            '/validate-headers': Validate({ schema, schemaName: 'ValidateHeaders' })(async ({ headers }) =>
+              JsonResult({ ...headers }),
+            ),
+            '/mock': Validate({ schema, schemaName: 'GetMockCollectionEndpoint' })(
+              createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+            '/mock/:id': Validate({ schema, schemaName: 'GetMockEntityEndpoint' })(
+              createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+          POST: {
+            '/validate-body': Validate({ schema, schemaName: 'ValidateBody' })(async ({ getBody }) => {
+              const body = await getBody()
+              return JsonResult({ ...body })
+            }),
+            '/mock': Validate({ schema, schemaName: 'PostMockEndpoint' })(
+              createPostEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+          PATCH: {
+            '/mock/:id': Validate({ schema, schemaName: 'PatchMockEndpoint' })(
+              createPatchEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+          DELETE: {
+            '/mock/:id': Validate({ schema, schemaName: 'DeleteMockEndpoint' })(
+              createDeleteEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+        },
+        port,
+        root: '/api',
+      })
+      const client = createClient<ValidationApi>({ endpointUrl: `http://127.0.0.1:${port}/api` })
+
+      return {
+        [Symbol.asyncDispose]: injector[Symbol.asyncDispose].bind(injector),
+        injector,
+        client,
+      }
+    }
+
+    it('Should include detected security schemes in the OpenAPI document', async () => {
+      await usingAsync(await createApiWithAuth(), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/openapi.json',
+        })
+
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.components?.securitySchemes).toBeDefined()
+        expect(openApiDoc.components?.securitySchemes?.basicAuth).toEqual({ type: 'http', scheme: 'basic' })
+        expect(openApiDoc.components?.securitySchemes?.cookieAuth).toEqual({
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'session',
+        })
+      })
+    })
+
+    it('Should include detected security schemes in the deprecated /swagger.json endpoint', async () => {
+      await usingAsync(await createApiWithAuth(), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.components?.securitySchemes?.basicAuth).toEqual({ type: 'http', scheme: 'basic' })
+        expect(openApiDoc.components?.securitySchemes?.cookieAuth).toEqual({
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'session',
+        })
       })
     })
   })

@@ -5,7 +5,7 @@
 ## 🗑️ Deprecated
 
 - `SwaggerDocument` type - Use `OpenApiDocument` instead
-- `/swagger.json` endpoint in `WithSchemaAction` - Replaced by `/openapi.json`
+- `/swagger.json` endpoint in `WithSchemaAction` - Use `/openapi.json` instead. The `/swagger.json` endpoint remains available during the transition period and responds with `Deprecation` and `Link` headers pointing to `/openapi.json`.
 
 ## ✨ Features
 
@@ -52,7 +52,7 @@ const client = createClient<MyApi>({ endpointUrl: 'https://api.example.com' })
 
 ## ♻️ Refactoring
 
-- Renamed `swagger-document.ts` to `openapi-document.ts` with backward-compatible re-exports
+- Replaced `swagger-document.ts` with `openapi-document.ts` (the old file now re-exports from the new one for backward compatibility)
 - Changed `WithSchemaAction` to expose `/openapi.json` instead of `/swagger.json`
 
 ## 🧪 Tests
