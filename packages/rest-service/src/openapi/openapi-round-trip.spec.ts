@@ -1,9 +1,10 @@
 import type { OpenApiDocument, OpenApiToRestApi, ParameterObject, ResponseObject, RestApi } from '@furystack/rest'
-import { openApiToSchema } from '@furystack/rest'
+import { openApiToSchema, resolveOpenApiRefs } from '@furystack/rest'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { generateOpenApiDocument } from './generate-openapi-document.js'
 import exampleApiDoc from './openapi-round-trip.example-api.json' with { type: 'json' }
 import crudApiDoc from './openapi-round-trip.crud-api.json' with { type: 'json' }
+import advancedApiDoc from './openapi-round-trip.advanced-api.json' with { type: 'json' }
 
 const roundTrip = (doc: OpenApiDocument) => {
   const schema = openApiToSchema(doc)
@@ -12,6 +13,7 @@ const roundTrip = (doc: OpenApiDocument) => {
     title: schema.name,
     description: schema.description,
     version: schema.version,
+    metadata: schema.metadata,
   })
 }
 
@@ -336,6 +338,284 @@ describe('Round-trip: individual construct tests', () => {
       expect(regenerated.paths?.['/health']?.get).toBeDefined()
       const response = regenerated.paths?.['/health']?.get?.responses?.['200'] as ResponseObject
       expect(response).toBeDefined()
+    })
+  })
+})
+
+// ─── Advanced API round-trip ─────────────────────────────────────────────────
+
+describe('Round-trip: advanced API (imported from JSON)', () => {
+  const resolvedDoc = resolveOpenApiRefs(advancedApiDoc as OpenApiDocument)
+
+  const advancedRoundTrip = (doc: OpenApiDocument) => {
+    const resolved = resolveOpenApiRefs(doc)
+    const schema = openApiToSchema(resolved)
+    return generateOpenApiDocument({
+      api: schema.endpoints,
+      title: schema.name,
+      description: schema.description,
+      version: schema.version,
+      metadata: schema.metadata,
+    })
+  }
+
+  describe('$ref resolution', () => {
+    it('Should resolve $ref in response schemas', () => {
+      const getPetResp = resolvedDoc.paths?.['/pets/{petId}']?.get?.responses?.['200'] as Record<string, unknown>
+      const content = getPetResp.content as Record<string, { schema: Record<string, unknown> }>
+      const { schema } = content['application/json']
+      expect(schema.allOf).toBeDefined()
+    })
+
+    it('Should resolve $ref parameters from components', () => {
+      const params = resolvedDoc.paths?.['/pets']?.get?.parameters as Array<Record<string, unknown>>
+      const limitParam = params.find((p) => p.name === 'limit')
+      expect(limitParam).toBeDefined()
+      expect(limitParam?.in).toBe('query')
+    })
+
+    it('Should resolve $ref in request body schemas', () => {
+      const body = resolvedDoc.paths?.['/pets']?.post?.requestBody as Record<string, unknown>
+      const content = body.content as Record<string, { schema: Record<string, unknown> }>
+      const { schema } = content['application/json']
+      expect(schema.type).toBe('object')
+      expect(schema.properties).toBeDefined()
+    })
+
+    it('Should resolve nested $ref within allOf', () => {
+      const petSchema = resolvedDoc.components?.schemas?.Pet as Record<string, unknown>
+      const allOfItems = petSchema.allOf as Array<Record<string, unknown>>
+      const firstItem = allOfItems[0]
+      expect(firstItem.type).toBe('object')
+      expect(firstItem.properties).toBeDefined()
+    })
+  })
+
+  describe('Document-level metadata round-trip', () => {
+    it('Should preserve info fields', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.info.title).toBe('Advanced Pet Store API')
+      expect(regenerated.info.version).toBe('2.1.0')
+      expect(regenerated.info.description).toBe('A feature-rich API exercising all OpenAPI 3.1 constructs')
+      expect(regenerated.info.summary).toBe('Pet store with advanced features')
+      expect(regenerated.info.termsOfService).toBe('https://example.com/terms')
+    })
+
+    it('Should preserve contact info', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.info.contact).toEqual({
+        name: 'API Support',
+        url: 'https://example.com/support',
+        email: 'support@example.com',
+      })
+    })
+
+    it('Should preserve license info', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.info.license).toEqual({ name: 'MIT', identifier: 'MIT' })
+    })
+
+    it('Should preserve servers with variables', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.servers).toHaveLength(1)
+      expect(regenerated.servers?.[0].url).toBe('https://{environment}.example.com/api/{version}')
+      expect(regenerated.servers?.[0].variables?.environment?.default).toBe('production')
+    })
+
+    it('Should preserve tags', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.tags).toHaveLength(2)
+      expect(regenerated.tags?.find((t) => t.name === 'pets')).toBeDefined()
+      expect(regenerated.tags?.find((t) => t.name === 'store')?.externalDocs?.url).toBe(
+        'https://example.com/docs/store',
+      )
+    })
+
+    it('Should preserve externalDocs', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.externalDocs).toEqual({
+        description: 'Full documentation',
+        url: 'https://example.com/docs',
+      })
+    })
+
+    it('Should preserve security schemes', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.components?.securitySchemes?.bearerAuth).toEqual({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      })
+      expect(regenerated.components?.securitySchemes?.apiKey).toBeDefined()
+    })
+  })
+
+  describe('Operation metadata round-trip', () => {
+    it('Should preserve operation summary and description', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.paths?.['/pets']?.get?.summary).toBe('List all pets')
+      expect(regenerated.paths?.['/pets']?.get?.description).toBe(
+        'Returns a paginated list of pets with optional filtering',
+      )
+    })
+
+    it('Should preserve operation tags', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.paths?.['/pets']?.get?.tags).toEqual(['pets'])
+      expect(regenerated.paths?.['/store/inventory']?.get?.tags).toEqual(['store'])
+    })
+
+    it('Should preserve deprecated flag', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.paths?.['/pets/{petId}']?.delete?.deprecated).toBe(true)
+    })
+
+    it('Should preserve authentication: public override with empty security', () => {
+      const schema = openApiToSchema(resolvedDoc)
+      expect(schema.endpoints.GET?.['/pets']?.isAuthenticated).toBe(false)
+    })
+
+    it('Should preserve authentication: inherited from document-level security', () => {
+      const schema = openApiToSchema(resolvedDoc)
+      expect(schema.endpoints.GET?.['/pets/:petId']?.isAuthenticated).toBe(true)
+    })
+  })
+
+  describe('Structural round-trip', () => {
+    it('Should preserve all paths', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      const paths = Object.keys(regenerated.paths ?? {}).sort()
+      expect(paths).toEqual(['/pets', '/pets/{petId}', '/store/inventory', '/store/orders'])
+    })
+
+    it('Should preserve all HTTP methods per path', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      expect(regenerated.paths?.['/pets']?.get).toBeDefined()
+      expect(regenerated.paths?.['/pets']?.post).toBeDefined()
+      expect(regenerated.paths?.['/pets/{petId}']?.get).toBeDefined()
+      expect(regenerated.paths?.['/pets/{petId}']?.patch).toBeDefined()
+      expect(regenerated.paths?.['/pets/{petId}']?.delete).toBeDefined()
+      expect(regenerated.paths?.['/store/inventory']?.get).toBeDefined()
+      expect(regenerated.paths?.['/store/orders']?.post).toBeDefined()
+    })
+
+    it('Should preserve path parameters', () => {
+      const regenerated = advancedRoundTrip(advancedApiDoc as OpenApiDocument)
+      const params = regenerated.paths?.['/pets/{petId}']?.get?.parameters as ParameterObject[]
+      expect(params.some((p) => p.name === 'petId' && p.in === 'path')).toBe(true)
+    })
+  })
+
+  describe('Type-level extraction (as const inline subset)', () => {
+    const typedDoc = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            tags: ['pets'],
+            summary: 'List all pets',
+            description: 'Returns a list of pets',
+            security: [],
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { name: { type: 'string' } } },
+                  },
+                },
+              },
+            },
+          },
+          post: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/CreatePet' },
+                },
+              },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+        '/pets/{petId}': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Pet' },
+                  },
+                },
+              },
+            },
+          },
+          delete: {
+            deprecated: true,
+            description: 'Use archive instead',
+            responses: { '204': { description: 'Deleted' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Pet: {
+            allOf: [
+              { $ref: '#/components/schemas/CreatePet' },
+              { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+            ],
+          },
+          CreatePet: {
+            type: 'object',
+            properties: { name: { type: 'string' } },
+            required: ['name'],
+          },
+        },
+      },
+    } as const satisfies OpenApiDocument
+
+    type Api = OpenApiToRestApi<typeof typedDoc>
+
+    it('Should produce a valid RestApi type', () => {
+      expectTypeOf<Api>().toMatchTypeOf<RestApi>()
+    })
+
+    it('Should have GET and POST on /pets, GET and DELETE on /pets/:petId', () => {
+      expectTypeOf<Api['GET']>().toHaveProperty('/pets')
+      expectTypeOf<Api['POST']>().toHaveProperty('/pets')
+      expectTypeOf<Api['GET']>().toHaveProperty('/pets/:petId')
+      expectTypeOf<Api['DELETE']>().toHaveProperty('/pets/:petId')
+    })
+
+    it('Should resolve $ref in GET /pets/:petId response via allOf', () => {
+      type Result = Api['GET']['/pets/:petId']['result']
+      expectTypeOf<Result>().toHaveProperty('id')
+      expectTypeOf<Result>().toHaveProperty('name')
+    })
+
+    it('Should resolve $ref in POST /pets request body', () => {
+      type Body = Api['POST']['/pets']['body']
+      expectTypeOf<Body>().toHaveProperty('name')
+    })
+
+    it('Should extract path params from /pets/{petId}', () => {
+      type Url = Api['GET']['/pets/:petId']['url']
+      expectTypeOf<Url>().toHaveProperty('petId')
+    })
+
+    it('Should extract tags metadata', () => {
+      type ListPets = Api['GET']['/pets']
+      expectTypeOf<ListPets>().toHaveProperty('tags')
+      expectTypeOf<ListPets>().toHaveProperty('summary')
+      expectTypeOf<ListPets>().toHaveProperty('description')
+    })
+
+    it('Should extract deprecated flag', () => {
+      type DeletePet = Api['DELETE']['/pets/:petId']
+      expectTypeOf<DeletePet>().toHaveProperty('deprecated')
+      expectTypeOf<DeletePet>().toHaveProperty('description')
     })
   })
 })

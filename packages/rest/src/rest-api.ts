@@ -2,9 +2,28 @@ import type { ApiEndpointSchema } from './api-endpoint-schema.js'
 import type { Method } from './methods.js'
 import type { OpenApiDocument } from './openapi-document.js'
 
+/**
+ * Defines the shape of a REST API as a mapping of HTTP methods to path-endpoint pairs.
+ * Each endpoint describes its result type and optionally its URL parameters, query parameters,
+ * request body, headers, and metadata like tags/deprecated/summary/description.
+ *
+ * This type is the shared contract between `@furystack/rest-service` (server) and
+ * `@furystack/rest-client-fetch` (client). It can also be derived from an OpenAPI document
+ * using `OpenApiToRestApi<T>`.
+ */
 export type RestApi = {
   [TMethod in Method]?: {
-    [TUrl: string]: { result: unknown; url?: unknown; query?: unknown; body?: unknown; headers?: unknown }
+    [TUrl: string]: {
+      result: unknown
+      url?: unknown
+      query?: unknown
+      body?: unknown
+      headers?: unknown
+      tags?: string[]
+      deprecated?: boolean
+      summary?: string
+      description?: string
+    }
   }
 }
 

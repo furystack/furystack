@@ -1,6 +1,6 @@
-import type { ApiEndpointSchema } from './api-endpoint-schema.js'
+import type { ApiDocumentMetadata, ApiEndpointSchema } from './api-endpoint-schema.js'
 import type { Method } from './methods.js'
-import type { OpenApiDocument, Operation, ReferenceObject } from './openapi-document.js'
+import type { OpenApiDocument, Operation, ReferenceObject, SecuritySchemeObject } from './openapi-document.js'
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const
 
@@ -15,9 +15,6 @@ const isReferenceObject = (obj: unknown): obj is ReferenceObject =>
  */
 export const convertOpenApiPathToFuryStack = (path: string): string => path.replace(/\{([^}]+)\}/g, ':$1')
 
-/**
- * Extracts the JSON schema from the 200/201 response of an OpenAPI operation.
- */
 const extractResponseSchema = (operation: Operation): unknown => {
   for (const statusCode of ['200', '201', '2XX', 'default']) {
     const response = operation.responses?.[statusCode]
@@ -28,9 +25,6 @@ const extractResponseSchema = (operation: Operation): unknown => {
   return undefined
 }
 
-/**
- * Extracts a schema name from an operation (using operationId or generating one from the path).
- */
 const extractSchemaName = (operation: Operation, method: string, path: string): string => {
   if (operation.operationId) return operation.operationId
   const cleanPath = path
@@ -40,9 +34,6 @@ const extractSchemaName = (operation: Operation, method: string, path: string): 
   return `${method}_${cleanPath}`
 }
 
-/**
- * Determines if an operation requires authentication based on its security requirements.
- */
 const isOperationAuthenticated = (operation: Operation, docSecurity?: OpenApiDocument['security']): boolean => {
   if (operation.security !== undefined) {
     return operation.security.length > 0
@@ -53,21 +44,64 @@ const isOperationAuthenticated = (operation: Operation, docSecurity?: OpenApiDoc
   return false
 }
 
+const extractDocumentMetadata = (doc: OpenApiDocument): ApiDocumentMetadata | undefined => {
+  const metadata: ApiDocumentMetadata = {}
+  let hasMetadata = false
+
+  if (doc.info.summary) {
+    metadata.summary = doc.info.summary
+    hasMetadata = true
+  }
+  if (doc.info.termsOfService) {
+    metadata.termsOfService = doc.info.termsOfService
+    hasMetadata = true
+  }
+  if (doc.info.contact) {
+    metadata.contact = doc.info.contact
+    hasMetadata = true
+  }
+  if (doc.info.license) {
+    metadata.license = doc.info.license
+    hasMetadata = true
+  }
+  if (doc.servers?.length) {
+    metadata.servers = doc.servers
+    hasMetadata = true
+  }
+  if (doc.tags?.length) {
+    metadata.tags = doc.tags
+    hasMetadata = true
+  }
+  if (doc.externalDocs) {
+    metadata.externalDocs = doc.externalDocs
+    hasMetadata = true
+  }
+  const schemes = doc.components?.securitySchemes
+  if (schemes) {
+    const resolved: Record<string, SecuritySchemeObject> = {}
+    for (const [name, scheme] of Object.entries(schemes)) {
+      if (!isReferenceObject(scheme)) {
+        resolved[name] = scheme
+      }
+    }
+    if (Object.keys(resolved).length > 0) {
+      metadata.securitySchemes = resolved
+      hasMetadata = true
+    }
+  }
+
+  return hasMetadata ? metadata : undefined
+}
+
 /**
  * Converts an OpenAPI 3.x document to a FuryStack `ApiEndpointSchema`.
  *
  * This enables consuming external OpenAPI documents with FuryStack's runtime pipeline.
+ * Preserves operation-level metadata (tags, deprecated, summary, description) and
+ * document-level metadata (servers, tags, contact, license, securitySchemes).
  *
  * @param doc - The OpenAPI document to convert
  * @returns An ApiEndpointSchema that can be used with FuryStack's API tools
- *
- * @example
- * ```typescript
- * import { openApiToSchema } from '@furystack/rest'
- *
- * const schema = openApiToSchema(myOpenApiDoc)
- * // schema.endpoints.GET['/users'] = { path: '/users', schema: {...}, ... }
- * ```
  */
 export const openApiToSchema = (doc: OpenApiDocument): ApiEndpointSchema => {
   const endpoints: ApiEndpointSchema['endpoints'] = {}
@@ -94,6 +128,10 @@ export const openApiToSchema = (doc: OpenApiDocument): ApiEndpointSchema => {
           schema: responseSchema ?? {},
           schemaName,
           isAuthenticated: isOperationAuthenticated(operation, doc.security),
+          ...(operation.tags?.length ? { tags: operation.tags } : {}),
+          ...(operation.deprecated ? { deprecated: true } : {}),
+          ...(operation.summary ? { summary: operation.summary } : {}),
+          ...(operation.description ? { description: operation.description } : {}),
         }
       }
     }
@@ -103,6 +141,7 @@ export const openApiToSchema = (doc: OpenApiDocument): ApiEndpointSchema => {
     name: doc.info.title,
     description: doc.info.description ?? '',
     version: doc.info.version,
+    metadata: extractDocumentMetadata(doc),
     endpoints,
   }
 }

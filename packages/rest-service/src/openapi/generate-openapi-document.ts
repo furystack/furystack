@@ -1,4 +1,5 @@
 import type {
+  ApiDocumentMetadata,
   ApiEndpointDefinition,
   ApiEndpointSchema,
   Method,
@@ -43,21 +44,21 @@ const getSubSchema = (
 }
 
 /**
- * Converts a FuryStack API schema to an OpenAPI 3.1 compatible document
- *
- * @param options - Configuration for the document generation
- * @returns An OpenApiDocument in OpenAPI 3.1 format
+ * Converts a FuryStack API schema to an OpenAPI 3.1 compatible document.
+ * Preserves metadata from ApiEndpointDefinition and ApiDocumentMetadata when available.
  */
 export const generateOpenApiDocument = ({
   api,
   title = 'FuryStack API',
   description = 'API documentation generated from FuryStack API schema',
   version = '1.0.0',
+  metadata,
 }: {
   api: ApiEndpointSchema['endpoints']
   title?: string
   description?: string
   version?: string
+  metadata?: ApiDocumentMetadata
 }): OpenApiDocument => {
   const doc: OpenApiDocument = {
     openapi: '3.1.0',
@@ -65,14 +66,19 @@ export const generateOpenApiDocument = ({
       title,
       version,
       description,
+      ...(metadata?.summary ? { summary: metadata.summary } : {}),
+      ...(metadata?.termsOfService ? { termsOfService: metadata.termsOfService } : {}),
+      ...(metadata?.contact ? { contact: metadata.contact } : {}),
+      ...(metadata?.license ? { license: metadata.license } : {}),
     },
     jsonSchemaDialect: 'https://spec.openapis.org/oas/3.1/dialect/base',
-    servers: [{ url: '/' }],
-    tags: [],
+    servers: metadata?.servers ?? [{ url: '/' }],
+    tags: metadata?.tags ?? [],
+    ...(metadata?.externalDocs ? { externalDocs: metadata.externalDocs } : {}),
     paths: {},
     components: {
       schemas: {},
-      securitySchemes: {
+      securitySchemes: metadata?.securitySchemes ?? {
         cookieAuth: {
           type: 'apiKey',
           in: 'cookie',
@@ -89,7 +95,6 @@ export const generateOpenApiDocument = ({
         doc.paths![normalizedPath] = {}
       }
 
-      // Extract path parameters
       const pathParams = Array.from(path.matchAll(/:([^/]+)/g), (m) => m[1])
       const parameters: ParameterObject[] = pathParams.map((param) => ({
         name: param,
@@ -99,7 +104,6 @@ export const generateOpenApiDocument = ({
         schema: { type: 'string' },
       }))
 
-      // Extract query parameters from the schema definition
       const queryInfo = getSubSchema(definition.schema, definition.schemaName, 'query')
       if (queryInfo) {
         const querySchema = queryInfo.subSchema as { properties?: Record<string, unknown>; required?: string[] }
@@ -115,7 +119,6 @@ export const generateOpenApiDocument = ({
         }
       }
 
-      // Extract header parameters from the schema definition
       const headerInfo = getSubSchema(definition.schema, definition.schemaName, 'headers')
       if (headerInfo) {
         const headerSchema = headerInfo.subSchema as { properties?: Record<string, unknown>; required?: string[] }
@@ -133,11 +136,13 @@ export const generateOpenApiDocument = ({
 
       const method = methodKey.toLowerCase()
       const operation: Operation = {
-        summary: `${methodKey} ${path}`,
-        description: `Endpoint for ${path}`,
+        summary: definition.summary ?? `${methodKey} ${path}`,
+        description: definition.description ?? `Endpoint for ${path}`,
         operationId: `${method}${path.replace(/\//g, '_').replace(/:/g, '').replace(/-/g, '_')}`,
         security: definition.isAuthenticated ? [{ cookieAuth: [] }] : [],
         parameters,
+        ...(definition.tags?.length ? { tags: definition.tags } : {}),
+        ...(definition.deprecated ? { deprecated: true } : {}),
         responses: {
           '200': {
             description: 'Successful operation',
@@ -154,7 +159,6 @@ export const generateOpenApiDocument = ({
         },
       }
 
-      // Extract request body from the schema definition
       const bodyInfo = getSubSchema(definition.schema, definition.schemaName, 'body')
       if (bodyInfo) {
         const requestBody: RequestBodyObject = {
@@ -168,7 +172,6 @@ export const generateOpenApiDocument = ({
         operation.requestBody = requestBody
       }
 
-      // Add schema to components if not already there
       if (definition.schema && definition.schemaName) {
         doc.components!.schemas![definition.schemaName] = definition.schema
       }

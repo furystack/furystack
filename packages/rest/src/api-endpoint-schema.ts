@@ -1,4 +1,12 @@
 import type { Method } from './methods.js'
+import type {
+  ContactObject,
+  ExternalDocumentationObject,
+  LicenseObject,
+  SecuritySchemeObject,
+  ServerObject,
+  TagObject,
+} from './openapi-document.js'
 import type { RestApi } from './rest-api.js'
 
 /**
@@ -27,9 +35,41 @@ export type ApiEndpointDefinition = {
   schemaName: string
   /**
    * Indicates whether the endpoint requires authentication.
-   * To include the flag, wrap your endpoint with an Authenticat() call during the implementation.
+   * To include the flag, wrap your endpoint with an Authenticate() call during the implementation.
    */
   isAuthenticated: boolean
+  /**
+   * Tags for API documentation grouping.
+   */
+  tags?: string[]
+  /**
+   * Marks the endpoint as deprecated.
+   */
+  deprecated?: boolean
+  /**
+   * A short summary of the endpoint.
+   */
+  summary?: string
+  /**
+   * A longer description of the endpoint.
+   */
+  description?: string
+}
+
+/**
+ * Document-level metadata preserved from/to OpenAPI documents.
+ * Carries info fields (contact, license, servers, tags, etc.) through the
+ * `openApiToSchema()` -> `generateOpenApiDocument()` round-trip.
+ */
+export type ApiDocumentMetadata = {
+  summary?: string
+  termsOfService?: string
+  contact?: ContactObject
+  license?: LicenseObject
+  servers?: ServerObject[]
+  tags?: TagObject[]
+  externalDocs?: ExternalDocumentationObject
+  securitySchemes?: Record<string, SecuritySchemeObject>
 }
 
 /**
@@ -54,6 +94,7 @@ export type ApiEndpointSchema<TApi extends RestApi = RestApi> = {
   name: string
   description: string
   version: string
+  metadata?: ApiDocumentMetadata
   endpoints: {
     [TMethod in Method]?: TMethod extends keyof TApi
       ? TApi[TMethod] extends Record<string, unknown>

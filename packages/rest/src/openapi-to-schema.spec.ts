@@ -411,4 +411,206 @@ describe('openApiToSchema', () => {
       expect(Object.keys(schema.endpoints)).toEqual([])
     })
   })
+
+  describe('Document-level metadata extraction', () => {
+    it('Should extract all info metadata fields', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test',
+          version: '1.0.0',
+          summary: 'A test API',
+          termsOfService: 'https://example.com/terms',
+          contact: { name: 'Support', email: 'support@example.com' },
+          license: { name: 'MIT' },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata?.summary).toBe('A test API')
+      expect(schema.metadata?.termsOfService).toBe('https://example.com/terms')
+      expect(schema.metadata?.contact).toEqual({ name: 'Support', email: 'support@example.com' })
+      expect(schema.metadata?.license).toEqual({ name: 'MIT' })
+    })
+
+    it('Should extract servers with variables', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        servers: [
+          {
+            url: 'https://{env}.example.com',
+            variables: { env: { default: 'prod', enum: ['prod', 'staging'] } },
+          },
+        ],
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata?.servers).toHaveLength(1)
+      expect(schema.metadata?.servers?.[0].url).toBe('https://{env}.example.com')
+      expect(schema.metadata?.servers?.[0].variables?.env.default).toBe('prod')
+    })
+
+    it('Should extract tags', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        tags: [
+          { name: 'pets', description: 'Pet operations' },
+          { name: 'store', externalDocs: { url: 'https://example.com/docs' } },
+        ],
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata?.tags).toHaveLength(2)
+      expect(schema.metadata?.tags?.[0].name).toBe('pets')
+    })
+
+    it('Should extract externalDocs', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        externalDocs: { url: 'https://example.com/docs', description: 'Full docs' },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata?.externalDocs).toEqual({ url: 'https://example.com/docs', description: 'Full docs' })
+    })
+
+    it('Should extract security schemes', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        components: {
+          securitySchemes: {
+            bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+            apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata?.securitySchemes?.bearerAuth).toEqual({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      })
+      expect(schema.metadata?.securitySchemes?.apiKey).toBeDefined()
+    })
+
+    it('Should skip $ref security schemes', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        components: {
+          securitySchemes: {
+            external: { $ref: '#/components/securitySchemes/Other' } as unknown as OpenApiDocument extends never
+              ? never
+              : { $ref: string; type: 'apiKey'; in: 'header'; name: 'x' },
+            local: { type: 'apiKey', in: 'header', name: 'X-Key' },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata?.securitySchemes?.local).toBeDefined()
+      expect(schema.metadata?.securitySchemes?.external).toBeUndefined()
+    })
+
+    it('Should not set securitySchemes when all are $ref', () => {
+      const schemes = {
+        external: { $ref: '#/other' },
+      } as Record<string, unknown>
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        components: {
+          securitySchemes: schemes as OpenApiDocument['components'] extends { securitySchemes?: infer S } ? S : never,
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata?.securitySchemes).toBeUndefined()
+    })
+
+    it('Should return undefined metadata when no metadata present', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.metadata).toBeUndefined()
+    })
+  })
+
+  describe('Operation-level metadata extraction', () => {
+    it('Should extract tags from operations', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/pets': {
+            get: { tags: ['pets'], responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/pets'].tags).toEqual(['pets'])
+    })
+
+    it('Should extract deprecated flag from operations', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/old': {
+            get: { deprecated: true, responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/old'].deprecated).toBe(true)
+    })
+
+    it('Should extract summary and description from operations', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/pets': {
+            get: {
+              summary: 'List pets',
+              description: 'Returns all pets',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/pets'].summary).toBe('List pets')
+      expect(schema.endpoints.GET!['/pets'].description).toBe('Returns all pets')
+    })
+
+    it('Should not set metadata fields when absent', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: { responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/items'].tags).toBeUndefined()
+      expect(schema.endpoints.GET!['/items'].deprecated).toBeUndefined()
+      expect(schema.endpoints.GET!['/items'].summary).toBeUndefined()
+      expect(schema.endpoints.GET!['/items'].description).toBeUndefined()
+    })
+  })
 })

@@ -1,0 +1,363 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Advanced Pet Store API",
+    "version": "2.1.0",
+    "description": "A feature-rich API exercising all OpenAPI 3.1 constructs",
+    "summary": "Pet store with advanced features",
+    "termsOfService": "https://example.com/terms",
+    "contact": {
+      "name": "API Support",
+      "url": "https://example.com/support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "identifier": "MIT"
+    }
+  },
+  "externalDocs": {
+    "description": "Full documentation",
+    "url": "https://example.com/docs"
+  },
+  "servers": [
+    {
+      "url": "https://{environment}.example.com/api/{version}",
+      "description": "Main server",
+      "variables": {
+        "environment": {
+          "default": "production",
+          "enum": ["production", "staging", "development"],
+          "description": "Server environment"
+        },
+        "version": {
+          "default": "v2"
+        }
+      }
+    }
+  ],
+  "tags": [
+    { "name": "pets", "description": "Pet operations" },
+    {
+      "name": "store",
+      "description": "Store operations",
+      "externalDocs": { "url": "https://example.com/docs/store" }
+    }
+  ],
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/pets": {
+      "get": {
+        "operationId": "listPets",
+        "summary": "List all pets",
+        "description": "Returns a paginated list of pets with optional filtering",
+        "tags": ["pets"],
+        "security": [],
+        "parameters": [
+          { "$ref": "#/components/parameters/LimitParam" },
+          { "$ref": "#/components/parameters/OffsetParam" },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["available", "pending", "sold"] }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Pet" }
+                    },
+                    "total": { "type": "integer" }
+                  },
+                  "required": ["items", "total"]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      },
+      "post": {
+        "operationId": "createPet",
+        "summary": "Create a pet",
+        "tags": ["pets"],
+        "requestBody": {
+          "required": true,
+          "description": "Pet to create",
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePetRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pet created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/pets/{petId}": {
+      "get": {
+        "operationId": "getPet",
+        "summary": "Get a pet by ID",
+        "tags": ["pets"],
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "patch": {
+        "operationId": "updatePet",
+        "summary": "Update a pet",
+        "tags": ["pets"],
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "status": { "type": "string", "enum": ["available", "pending", "sold"] },
+                  "tag": { "type": ["string", "null"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pet updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Pet" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deletePet",
+        "summary": "Delete a pet",
+        "tags": ["pets"],
+        "deprecated": true,
+        "description": "Use archive endpoint instead",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Pet deleted"
+          }
+        }
+      }
+    },
+    "/store/inventory": {
+      "get": {
+        "operationId": "getInventory",
+        "summary": "Returns pet inventories",
+        "tags": ["store"],
+        "parameters": [
+          {
+            "name": "X-Request-Id",
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": { "type": "integer" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/store/orders": {
+      "post": {
+        "operationId": "placeOrder",
+        "summary": "Place an order",
+        "tags": ["store"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order placed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Order" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Pet": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CreatePetRequest" },
+          {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "createdAt": { "type": "string" },
+              "status": { "type": "string", "enum": ["available", "pending", "sold"] }
+            },
+            "required": ["id", "createdAt", "status"]
+          }
+        ]
+      },
+      "CreatePetRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "tag": { "type": ["string", "null"] },
+          "category": { "$ref": "#/components/schemas/Category" }
+        },
+        "required": ["name"]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
+        },
+        "required": ["id", "name"]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "petId": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "status": {
+            "oneOf": [{ "const": "placed" }, { "const": "approved" }, { "const": "delivered" }]
+          },
+          "shipDate": { "type": ["string", "null"] },
+          "complete": { "type": "boolean" }
+        },
+        "required": ["id", "petId", "quantity", "status", "complete"]
+      },
+      "OrderRequest": {
+        "type": "object",
+        "properties": {
+          "petId": { "type": "string" },
+          "quantity": { "type": "integer" }
+        },
+        "required": ["petId", "quantity"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "integer" },
+          "message": { "type": "string" }
+        },
+        "required": ["code", "message"]
+      }
+    },
+    "parameters": {
+      "LimitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "Maximum number of items to return",
+        "schema": { "type": "integer" }
+      },
+      "OffsetParam": {
+        "name": "offset",
+        "in": "query",
+        "description": "Number of items to skip",
+        "schema": { "type": "integer" }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  }
+}

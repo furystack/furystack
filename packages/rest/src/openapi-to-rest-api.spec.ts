@@ -576,4 +576,248 @@ describe('OpenApiToRestApi', () => {
       expectTypeOf<Api['POST']>().toHaveProperty('/c')
     })
   })
+
+  describe('$ref resolution', () => {
+    it('Should resolve $ref in response schema', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/User' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: { id: { type: 'string' }, name: { type: 'string' } },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      type Result = Api['GET']['/users']['result']
+      expectTypeOf<Result>().toHaveProperty('id')
+      expectTypeOf<Result>().toHaveProperty('name')
+    })
+
+    it('Should resolve $ref in request body schema', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/CreateUser' } },
+                },
+              },
+              responses: { '201': { description: 'Created' } },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            CreateUser: {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+              required: ['name'],
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      type Body = Api['POST']['/users']['body']
+      expectTypeOf<Body>().toHaveProperty('name')
+    })
+  })
+
+  describe('Schema composition', () => {
+    it('Should handle oneOf as union type', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/shape': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        oneOf: [
+                          { type: 'object', properties: { radius: { type: 'number' } } },
+                          { type: 'object', properties: { width: { type: 'number' } } },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      type Result = Api['GET']['/shape']['result']
+      expectTypeOf<{ radius?: number }>().toMatchTypeOf<Result>()
+      expectTypeOf<{ width?: number }>().toMatchTypeOf<Result>()
+    })
+
+    it('Should handle allOf as intersection type', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/item': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        allOf: [
+                          { type: 'object', properties: { id: { type: 'string' } } },
+                          { type: 'object', properties: { name: { type: 'string' } } },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      type Result = Api['GET']['/item']['result']
+      expectTypeOf<Result>().toHaveProperty('id')
+      expectTypeOf<Result>().toHaveProperty('name')
+    })
+
+    it('Should handle const values', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/status': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': { schema: { const: 'active' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      expectTypeOf<Api['GET']['/status']['result']>().toEqualTypeOf<'active'>()
+    })
+
+    it('Should handle nullable types (3.1 tuple style)', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/item': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: ['string', 'null'] },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      expectTypeOf<Api['GET']['/item']['result']>().toEqualTypeOf<string | null>()
+    })
+  })
+
+  describe('Metadata extraction', () => {
+    it('Should extract tags at type level', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              tags: ['store'],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      expectTypeOf<Api['GET']['/items']>().toHaveProperty('tags')
+    })
+
+    it('Should extract deprecated flag at type level', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/old': {
+            get: {
+              deprecated: true,
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      expectTypeOf<Api['GET']['/old']>().toHaveProperty('deprecated')
+    })
+
+    it('Should extract summary and description at type level', () => {
+      const doc = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              summary: 'List items',
+              description: 'Returns all items',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      } as const satisfies OpenApiDocument
+
+      type Api = OpenApiToRestApi<typeof doc>
+      expectTypeOf<Api['GET']['/items']>().toHaveProperty('summary')
+      expectTypeOf<Api['GET']['/items']>().toHaveProperty('description')
+    })
+  })
 })
