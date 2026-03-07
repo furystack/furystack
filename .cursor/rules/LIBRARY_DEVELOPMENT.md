@@ -49,7 +49,7 @@ The `@furystack/eslint-plugin` enforces many FuryStack-specific patterns automat
 - **DI consistency** -- `@Injected()` must use `declare`, and the injected type must match the decorator argument (`injectable-consistent-inject`)
 - **Observable disposal** -- classes owning `ObservableValue` or `Cache` must implement `[Symbol.dispose]()` and dispose every field (`require-disposable-for-observable-owner`, `require-observable-disposal`)
 - **Disposable safety** -- prefer `using()` / `usingAsync()` over manual create-then-dispose (`prefer-using-wrapper`)
-- **Shades rendering** -- no module-level JSX, no removed APIs, no manual `.subscribe()` in render, no `.getValue()` without `useObservable`, prefer `useState` over manual `ObservableValue`, no `useState` for CSS-representable states, valid `shadowDomName`, prefer `LocationService` and `NestedRouteLink` for navigation
+- **Shades rendering** -- no module-level JSX, no removed APIs, no manual `.subscribe()` in render, no `.getValue()` without `useObservable`, prefer `useState` over manual `ObservableValue`, no `useState` for CSS-representable states, valid `customElementName`, prefer `LocationService` and `NestedRouteLink` for navigation
 - **REST actions** -- throw `RequestError` (not `Error`), wrap endpoints with `Validate()`
 - **Data access** -- use Repository/DataSet (`getDataSetFor`) instead of direct `StoreManager` access
 
@@ -505,7 +505,7 @@ When creating Shades components, prefer the `css` property over `style` for comp
 ```typescript
 // ✅ Good - use css for component defaults and pseudo-selectors
 const Button = Shade({
-  shadowDomName: 'my-button',
+  customElementName: 'my-button',
   css: {
     padding: '12px 24px',
     backgroundColor: 'blue',
@@ -518,7 +518,7 @@ const Button = Shade({
 
 // ❌ Avoid - using useState for hover/active states
 const Button = Shade({
-  shadowDomName: 'my-button',
+  customElementName: 'my-button',
   render: ({ useState }) => {
     const [isHovered, setIsHovered] = useState('hover', false)
     return (
@@ -585,7 +585,7 @@ When using theme values in the `css` property, **always import and use `cssVaria
 import { cssVariableTheme } from '@furystack/shades-common-components'
 
 const MyComponent = Shade({
-  shadowDomName: 'my-component',
+  customElementName: 'my-component',
   css: {
     color: cssVariableTheme.text.primary, // Type-checked!
     backgroundColor: cssVariableTheme.background.paper,
@@ -600,7 +600,7 @@ const MyComponent = Shade({
 
 // ❌ Avoid - raw strings with no type safety
 const BadComponent = Shade({
-  shadowDomName: 'bad-component',
+  customElementName: 'bad-component',
   css: {
     color: 'var(--shades-theme-text-primary)', // No autocomplete, typos not caught
     backgroundColor: 'var(--shades-theme-background-paper)',

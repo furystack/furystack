@@ -1,5 +1,4 @@
 import { createComponent, Shade } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { Button } from '../../button.js'
 import { SegmentedControl } from '../../button-group.js'
 import { Icon } from '../../icons/icon.js'
@@ -19,17 +18,18 @@ const operatorLabels: Record<StringOperator, string> = {
 
 export const StringFilter = Shade<{
   field: string
-  findOptions: ObservableValue<FilterableFindOptions>
+  findOptions: FilterableFindOptions
+  onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
-  shadowDomName: 'data-grid-string-filter',
+  customElementName: 'data-grid-string-filter',
   css: {
     ...filterBaseCss,
     fontFamily: cssVariableTheme.typography.fontFamily,
     '& input': filterInputCss,
   },
-  render: ({ props, useObservable, useState }) => {
-    const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)
+  render: ({ props, useState }) => {
+    const { findOptions } = props
 
     const currentFilter = findOptions.filter?.[props.field] as Record<string, string> | undefined
     const currentOperator: StringOperator = currentFilter
@@ -44,14 +44,14 @@ export const StringFilter = Shade<{
       } else {
         filter[props.field] = { [operator]: value }
       }
-      setFindOptions({ ...findOptions, filter, skip: 0 })
+      props.onFindOptionsChange({ ...findOptions, filter, skip: 0 })
       props.onClose()
     }
 
     const clearFilter = () => {
       const filter = { ...findOptions.filter }
       delete filter[props.field]
-      setFindOptions({ ...findOptions, filter, skip: 0 })
+      props.onFindOptionsChange({ ...findOptions, filter, skip: 0 })
       props.onClose()
     }
 

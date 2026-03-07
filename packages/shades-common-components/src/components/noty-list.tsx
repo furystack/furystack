@@ -23,7 +23,7 @@ export const getDefaultNotyTimeouts = (type: NotyModel['type']) => {
 }
 
 export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>({
-  shadowDomName: 'shade-noty',
+  customElementName: 'shade-noty',
   css: {
     margin: cssVariableTheme.spacing.xs,
     overflow: 'hidden',
@@ -141,7 +141,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
 })
 
 export const NotyList = Shade({
-  shadowDomName: 'shade-noty-list',
+  customElementName: 'shade-noty-list',
   css: {
     position: 'fixed',
     fontFamily: cssVariableTheme.typography.fontFamily,

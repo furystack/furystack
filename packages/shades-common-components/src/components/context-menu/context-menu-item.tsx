@@ -11,7 +11,7 @@ export type ContextMenuItemProps<T> = {
 
 export const ContextMenuItemComponent: <T>(props: ContextMenuItemProps<T>, children: ChildrenList) => JSX.Element<any> =
   Shade<ContextMenuItemProps<any>>({
-    shadowDomName: 'shade-context-menu-item',
+    customElementName: 'shade-context-menu-item',
     css: {
       display: 'flex',
       fontFamily: cssVariableTheme.typography.fontFamily,

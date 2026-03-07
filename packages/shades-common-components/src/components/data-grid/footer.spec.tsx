@@ -1,8 +1,8 @@
 import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, usingAsync } from '@furystack/utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { usingAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CollectionService } from '../../services/collection-service.js'
 import { DataGridFooter, dataGridItemsPerPage } from './footer.js'
 
@@ -23,11 +23,8 @@ describe('DataGridFooter', () => {
     return service
   }
 
-  const createFindOptions = (
-    top: number = 10,
-    skip: number = 0,
-  ): ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>> => {
-    return new ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>({ top, skip })
+  const createFindOptions = (top: number = 10, skip: number = 0): FindOptions<TestItem, Array<keyof TestItem>> => {
+    return { top, skip }
   }
 
   it('should render with custom element', async () => {
@@ -35,11 +32,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -54,11 +54,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -75,11 +78,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -102,11 +108,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -122,11 +131,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 50)
       const findOptions = createFindOptions(Infinity, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -142,11 +154,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(25, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -162,16 +177,19 @@ describe('DataGridFooter', () => {
     })
   })
 
-  it('should update findOptions when page is changed via Pagination', async () => {
+  it('should call onFindOptionsChange when page is changed via Pagination', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -185,21 +203,23 @@ describe('DataGridFooter', () => {
 
       await flushUpdates()
 
-      const updatedOptions = findOptions.getValue()
-      expect(updatedOptions.skip).toBe(10)
+      expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ skip: 10 }))
     })
   })
 
-  it('should update findOptions when items per page is changed', async () => {
+  it('should call onFindOptionsChange when items per page is changed', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -218,8 +238,7 @@ describe('DataGridFooter', () => {
 
       await flushUpdates()
 
-      const updatedOptions = findOptions.getValue()
-      expect(updatedOptions.top).toBe(25)
+      expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ top: 25 }))
     })
   })
 
@@ -228,11 +247,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 20)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -251,9 +273,7 @@ describe('DataGridFooter', () => {
 
       await flushUpdates()
 
-      const updatedOptions = findOptions.getValue()
-      expect(updatedOptions.top).toBe(25)
-      expect(updatedOptions.skip).toBe(50)
+      expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ top: 25, skip: 50 }))
     })
   })
 
@@ -262,11 +282,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 30)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -285,11 +308,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(25, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -311,11 +337,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 30)
       const findOptions = createFindOptions(10, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()
@@ -349,11 +378,19 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} paginationOptions={[5, 15, 30]} />,
+        jsxElement: (
+          <DataGridFooter
+            service={service}
+            findOptions={findOptions}
+            onFindOptionsChange={onFindOptionsChange}
+            paginationOptions={[5, 15, 30]}
+          />
+        ),
       })
 
       await flushUpdates()
@@ -375,11 +412,19 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 50)
       const findOptions = createFindOptions(10, 0)
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} paginationOptions={[10]} />,
+        jsxElement: (
+          <DataGridFooter
+            service={service}
+            findOptions={findOptions}
+            onFindOptionsChange={onFindOptionsChange}
+            paginationOptions={[10]}
+          />
+        ),
       })
 
       await flushUpdates()
@@ -395,11 +440,14 @@ describe('DataGridFooter', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
+      const onFindOptionsChange = vi.fn()
 
       initializeShadeRoot({
         injector,
         rootElement,
-        jsxElement: <DataGridFooter service={service} findOptions={findOptions} />,
+        jsxElement: (
+          <DataGridFooter service={service} findOptions={findOptions} onFindOptionsChange={onFindOptionsChange} />
+        ),
       })
 
       await flushUpdates()

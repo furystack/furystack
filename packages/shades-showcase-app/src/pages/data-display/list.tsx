@@ -21,7 +21,7 @@ const listEntries: ListEntry[] = [
 ]
 
 const SelectionCountDisplay = Shade<{ count: number }>({
-  shadowDomName: 'shades-selection-count-display',
+  customElementName: 'shades-selection-count-display',
   render: ({ props }) => {
     return (
       <Typography variant="body1" style={{ marginTop: '8px', opacity: '0.7' }}>
@@ -32,7 +32,7 @@ const SelectionCountDisplay = Shade<{ count: number }>({
 })
 
 export const ListPage = Shade({
-  shadowDomName: 'shades-list-page',
+  customElementName: 'shades-list-page',
   render: ({ useDisposable, useState }) => {
     const listService = useDisposable('listService', () => new ListService<ListEntry>({ searchField: 'label' }))
     const multiSelectService = useDisposable(

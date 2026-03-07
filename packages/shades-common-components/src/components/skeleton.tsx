@@ -10,7 +10,7 @@ export type SkeletonProps = {
 }
 
 export const Skeleton = Shade<SkeletonProps>({
-  shadowDomName: 'shade-skeleton',
+  customElementName: 'shade-skeleton',
   render: ({ props, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
     const { delay = 1500 } = props

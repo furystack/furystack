@@ -24,7 +24,7 @@ export type AccordionProps = {
  * ```
  */
 export const Accordion = Shade<AccordionProps>({
-  shadowDomName: 'shade-accordion',
+  customElementName: 'shade-accordion',
   css: {
     display: 'flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

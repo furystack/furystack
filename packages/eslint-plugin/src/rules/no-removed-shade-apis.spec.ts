@@ -20,7 +20,7 @@ tester.run('no-removed-shade-apis', noRemovedShadeApis, {
       name: 'Shade with useHostProps is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: ({ useHostProps, props }) => {
             useHostProps({ 'data-active': 'true' })
             return null
@@ -32,7 +32,7 @@ tester.run('no-removed-shade-apis', noRemovedShadeApis, {
       name: 'Shade with useDisposable is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: ({ useDisposable }) => {
             useDisposable('cleanup', () => ({ [Symbol.dispose]() {} }))
             return null
@@ -55,7 +55,7 @@ tester.run('no-removed-shade-apis', noRemovedShadeApis, {
       name: 'onAttach in Shade options',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           onAttach: ({ element }) => { element.focus() },
           render: () => null,
         })
@@ -66,7 +66,7 @@ tester.run('no-removed-shade-apis', noRemovedShadeApis, {
       name: 'onDetach in Shade options',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           onDetach: ({ element }) => {},
           render: () => null,
         })
@@ -77,7 +77,7 @@ tester.run('no-removed-shade-apis', noRemovedShadeApis, {
       name: 'element destructured in render',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: ({ element, props }) => {
             element.setAttribute('data-active', 'true')
             return null
@@ -90,13 +90,29 @@ tester.run('no-removed-shade-apis', noRemovedShadeApis, {
       name: 'both onAttach and onDetach',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           onAttach: () => {},
           onDetach: () => {},
           render: () => null,
         })
       `,
       errors: [{ messageId: 'noOnAttach' }, { messageId: 'noOnDetach' }],
+    },
+    {
+      name: 'shadowDomName is renamed to customElementName',
+      code: `
+        Shade({
+          shadowDomName: 'my-comp',
+          render: () => null,
+        })
+      `,
+      errors: [{ messageId: 'noShadowDomName' }],
+      output: `
+        Shade({
+          customElementName: 'my-comp',
+          render: () => null,
+        })
+      `,
     },
   ],
 })

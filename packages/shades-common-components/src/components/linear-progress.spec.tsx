@@ -1,9 +1,17 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
 import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { LinearProgress } from './linear-progress.js'
+
+const ProgressWrapper = Shade<{ obs: ObservableValue<number> }>({
+  customElementName: 'test-linear-progress-wrapper',
+  render: ({ props, useObservable }) => {
+    const [value] = useObservable('value', props.obs)
+    return <LinearProgress variant="determinate" value={value} />
+  },
+})
 
 describe('LinearProgress', () => {
   let originalAnimate: typeof Element.prototype.animate
@@ -35,7 +43,7 @@ describe('LinearProgress', () => {
     vi.restoreAllMocks()
   })
 
-  it('should render with shadow DOM', async () => {
+  it('should render as custom element', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -90,12 +98,11 @@ describe('LinearProgress', () => {
     it('should set aria-valuenow for determinate variant', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(50)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <LinearProgress variant="determinate" value={value} />,
+          jsxElement: <LinearProgress variant="determinate" value={50} />,
         })
 
         await sleepAsync(50)
@@ -110,12 +117,11 @@ describe('LinearProgress', () => {
     it('should set bar width based on value', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(75)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <LinearProgress variant="determinate" value={value} />,
+          jsxElement: <LinearProgress variant="determinate" value={75} />,
         })
 
         await sleepAsync(50)
@@ -128,12 +134,11 @@ describe('LinearProgress', () => {
     it('should clamp value to 0-100 range', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(150)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <LinearProgress variant="determinate" value={value} />,
+          jsxElement: <LinearProgress variant="determinate" value={150} />,
         })
 
         await sleepAsync(50)
@@ -146,12 +151,11 @@ describe('LinearProgress', () => {
     it('should clamp negative values to 0', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(-20)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <LinearProgress variant="determinate" value={value} />,
+          jsxElement: <LinearProgress variant="determinate" value={-20} />,
         })
 
         await sleepAsync(50)
@@ -161,15 +165,15 @@ describe('LinearProgress', () => {
       })
     })
 
-    it('should update bar width when observable value changes', async () => {
+    it('should update bar width when value prop changes', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(20)
+        const obs = new ObservableValue(20)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <LinearProgress variant="determinate" value={value} />,
+          jsxElement: <ProgressWrapper obs={obs} />,
         })
 
         await sleepAsync(50)
@@ -177,22 +181,22 @@ describe('LinearProgress', () => {
         const bar = document.querySelector('shade-linear-progress .progress-bar') as HTMLElement
         expect(bar.style.width).toBe('20%')
 
-        value.setValue(80)
+        obs.setValue(80)
         await sleepAsync(50)
 
         expect(bar.style.width).toBe('80%')
       })
     })
 
-    it('should update aria-valuenow when observable value changes', async () => {
+    it('should update aria-valuenow when value prop changes', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(30)
+        const obs = new ObservableValue(30)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <LinearProgress variant="determinate" value={value} />,
+          jsxElement: <ProgressWrapper obs={obs} />,
         })
 
         await sleepAsync(50)
@@ -200,7 +204,7 @@ describe('LinearProgress', () => {
         const el = document.querySelector('shade-linear-progress') as HTMLElement
         expect(el.getAttribute('aria-valuenow')).toBe('30')
 
-        value.setValue(90)
+        obs.setValue(90)
         await sleepAsync(50)
 
         expect(el.getAttribute('aria-valuenow')).toBe('90')

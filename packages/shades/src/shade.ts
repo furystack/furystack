@@ -17,7 +17,7 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
    *
    * @example 'my-button', 'shade-dialog', 'app-header'
    */
-  shadowDomName: string
+  customElementName: string
 
   /**
    * Render hook, this method will be executed on each and every render.
@@ -68,8 +68,7 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
 export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
   o: ShadeOptions<TProps, TElementBase>,
 ) => {
-  // Register custom element
-  const customElementName = o.shadowDomName
+  const { customElementName } = o
 
   const existing = customElements.get(customElementName)
   if (!existing) {
@@ -438,7 +437,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
       o.elementBaseName ? { extends: o.elementBaseName } : undefined,
     )
   } else {
-    throw Error(`A custom shade with name '${o.shadowDomName}' has already been registered!`)
+    throw Error(`A custom shade with name '${o.customElementName}' has already been registered!`)
   }
 
   return (props: TProps & PartialElement<TElementBase>, children?: ChildrenList) => {

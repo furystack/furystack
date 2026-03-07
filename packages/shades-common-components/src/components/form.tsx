@@ -56,7 +56,7 @@ type FormProps<T> = {
 } & PartialElement<Omit<HTMLFormElement, 'onsubmit' | 'onchange' | 'onreset'>>
 
 export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Element = Shade({
-  shadowDomName: 'shade-form',
+  customElementName: 'shade-form',
   elementBase: HTMLFormElement,
   elementBaseName: 'form',
   css: { fontFamily: cssVariableTheme.typography.fontFamily },

@@ -21,7 +21,7 @@ export type CardProps = PartialElement<HTMLElement> & {
  * Compose with CardHeader, CardContent, CardMedia, and CardActions for structured layouts.
  */
 export const Card = Shade<CardProps>({
-  shadowDomName: 'shade-card',
+  customElementName: 'shade-card',
   css: {
     display: 'flex',
     fontFamily: cssVariableTheme.typography.fontFamily,
@@ -102,7 +102,7 @@ export type CardHeaderProps = PartialElement<HTMLElement> & {
  * Displays a title, optional subheader, avatar, and action area at the top of a Card.
  */
 export const CardHeader = Shade<CardHeaderProps>({
-  shadowDomName: 'shade-card-header',
+  customElementName: 'shade-card-header',
   css: {
     display: 'flex',
     alignItems: 'center',
@@ -174,7 +174,7 @@ export type CardContentProps = PartialElement<HTMLElement>
  * Provides padded content area within a Card.
  */
 export const CardContent = Shade<CardContentProps>({
-  shadowDomName: 'shade-card-content',
+  customElementName: 'shade-card-content',
   css: {
     display: 'block',
     padding: `0 ${cssVariableTheme.spacing.md} ${cssVariableTheme.spacing.md}`,
@@ -208,7 +208,7 @@ export type CardMediaProps = PartialElement<HTMLElement> & {
  * Displays an image or media element within a Card.
  */
 export const CardMedia = Shade<CardMediaProps>({
-  shadowDomName: 'shade-card-media',
+  customElementName: 'shade-card-media',
   css: {
     display: 'block',
     overflow: 'hidden',
@@ -242,7 +242,7 @@ export type CardActionsProps = PartialElement<HTMLElement> & {
  * Provides a row of actions (buttons, links) at the bottom of a Card.
  */
 export const CardActions = Shade<CardActionsProps>({
-  shadowDomName: 'shade-card-actions',
+  customElementName: 'shade-card-actions',
   css: {
     display: 'flex',
     alignItems: 'center',

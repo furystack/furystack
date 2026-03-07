@@ -5,7 +5,7 @@ import { Icon, icons, Typography } from '@furystack/shades-common-components'
  * 404 page displayed when no route matches the current URL.
  */
 export const NotFoundPage = Shade({
-  shadowDomName: 'showcase-not-found-page',
+  customElementName: 'showcase-not-found-page',
   render: () => (
     <div style={{ paddingTop: '50px', textAlign: 'center' }}>
       <Typography variant="h3">

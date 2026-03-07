@@ -19,7 +19,7 @@ const MailIcon = () => <Icon icon={icons.envelope} size="medium" />
 const NotificationIcon = () => <Icon icon={icons.bell} size="medium" />
 
 export const BadgePage = Shade({
-  shadowDomName: 'shades-badge-page',
+  customElementName: 'shades-badge-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('badge', { count: 5 })
 

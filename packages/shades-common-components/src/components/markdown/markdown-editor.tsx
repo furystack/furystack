@@ -32,7 +32,7 @@ type TabType = 'edit' | 'preview'
  * Supports three layouts: side-by-side, tabs (Edit/Preview), or above-below.
  */
 export const MarkdownEditor = Shade<MarkdownEditorProps>({
-  shadowDomName: 'shade-markdown-editor',
+  customElementName: 'shade-markdown-editor',
   css: {
     display: 'flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

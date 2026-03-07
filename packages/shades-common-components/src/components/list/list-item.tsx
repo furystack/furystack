@@ -14,7 +14,7 @@ export type ListItemProps<T> = {
 }
 
 export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
-  shadowDomName: 'shade-list-item',
+  customElementName: 'shade-list-item',
   css: {
     display: 'flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

@@ -105,7 +105,7 @@ const renderBlock = (
  * blockquotes, images, links, and horizontal rules.
  */
 export const MarkdownDisplay = Shade<MarkdownDisplayProps>({
-  shadowDomName: 'shade-markdown-display',
+  customElementName: 'shade-markdown-display',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

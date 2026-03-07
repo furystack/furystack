@@ -49,7 +49,7 @@ export type CheckboxProps = {
 }
 
 export const Checkbox = Shade<CheckboxProps>({
-  shadowDomName: 'shade-checkbox',
+  customElementName: 'shade-checkbox',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

@@ -57,7 +57,7 @@ const DEFAULT_DRAWER_WIDTH = '240px'
  * ```
  */
 export const Drawer = Shade<DrawerProps>({
-  shadowDomName: 'shade-drawer',
+  customElementName: 'shade-drawer',
   css: {
     display: 'block',
 

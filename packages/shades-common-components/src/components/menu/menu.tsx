@@ -97,7 +97,7 @@ const renderItems = (
 }
 
 export const Menu = Shade<MenuProps>({
-  shadowDomName: 'shade-menu',
+  customElementName: 'shade-menu',
   css: {
     display: 'flex',
     outline: 'none',

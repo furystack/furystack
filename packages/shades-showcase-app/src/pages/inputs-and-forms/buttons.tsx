@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Button, Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const ButtonsPage = Shade({
-  shadowDomName: 'buttons-page',
+  customElementName: 'buttons-page',
   render: ({ useSearchState }) => {
     const [isEnabledObject, setIsEnabledObject] = useSearchState('disabled', { isEnabled: false })
 

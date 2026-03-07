@@ -35,7 +35,7 @@ type AdvancedFormData = {
 }
 
 const FormStatusMonitor = Shade({
-  shadowDomName: 'shade-form-status-monitor',
+  customElementName: 'shade-form-status-monitor',
   render: ({ injector, useObservable }) => {
     const formService = injector.getInstance(FormService)
     const [rawFormData] = useObservable('rawFormData', formService.rawFormData)
@@ -54,7 +54,7 @@ const FormStatusMonitor = Shade({
 })
 
 const EmailInput = Shade({
-  shadowDomName: 'shade-email-input',
+  customElementName: 'shade-email-input',
   css: { display: 'contents' },
   render: () => {
     return <Input labelTitle="Email" name="email" variant="outlined" required type="email" />
@@ -62,7 +62,7 @@ const EmailInput = Shade({
 })
 
 const PasswordInputs = Shade({
-  shadowDomName: 'shade-password-inputs',
+  customElementName: 'shade-password-inputs',
   css: { display: 'contents' },
   render: ({ injector }) => {
     const formService = injector.getInstance(FormService)
@@ -91,7 +91,7 @@ const PasswordInputs = Shade({
 })
 
 const PasswordsForm = Shade({
-  shadowDomName: 'shade-passwords-form',
+  customElementName: 'shade-passwords-form',
   render: () => {
     return (
       <Paper elevation={3} style={{ padding: '32px' }}>
@@ -143,7 +143,7 @@ type FormAlertProps = {
 }
 
 const FormAlert = Shade<FormAlertProps>({
-  shadowDomName: 'shade-form-alert',
+  customElementName: 'shade-form-alert',
   render: ({ props }) => {
     if (props.currentAlert === 'success') {
       return (
@@ -176,7 +176,7 @@ const FormAlert = Shade<FormAlertProps>({
 })
 
 const AdvancedForm = Shade({
-  shadowDomName: 'shade-advanced-form',
+  customElementName: 'shade-advanced-form',
   render: ({ useState }) => {
     const [alertState, setAlertState] = useState<'success' | 'error' | null>('alertState', null)
 
@@ -337,7 +337,7 @@ const AdvancedForm = Shade({
 })
 
 export const FormPage = Shade({
-  shadowDomName: 'forms-page',
+  customElementName: 'forms-page',
   render: () => {
     return (
       <PageContainer centered>

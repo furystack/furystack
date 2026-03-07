@@ -40,7 +40,7 @@ const createSlides = () =>
   sampleSlides.map((s) => <SlideContent bg={s.bg} label={s.label} description={s.description} />)
 
 export const CarouselPage = Shade({
-  shadowDomName: 'shades-carousel-page',
+  customElementName: 'shades-carousel-page',
   render: () => {
     return (
       <PageContainer centered>

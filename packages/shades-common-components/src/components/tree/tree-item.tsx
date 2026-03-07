@@ -20,7 +20,7 @@ const INDENT_PX = 20
 const EXPAND_ICON_WIDTH = 20
 
 export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
-  shadowDomName: 'shade-tree-item',
+  customElementName: 'shade-tree-item',
   css: {
     display: 'flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

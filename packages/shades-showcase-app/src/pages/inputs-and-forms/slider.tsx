@@ -3,7 +3,7 @@ import type { SliderMark } from '@furystack/shades-common-components'
 import { Icon, icons, PageContainer, PageHeader, Paper, Slider, Typography } from '@furystack/shades-common-components'
 
 const BasicSliderDemo = Shade({
-  shadowDomName: 'slider-demo-basic',
+  customElementName: 'slider-demo-basic',
   render: ({ useState }) => {
     const [current, setCurrent] = useState('value', 40)
 
@@ -19,7 +19,7 @@ const BasicSliderDemo = Shade({
 })
 
 const DiscreteSliderDemo = Shade({
-  shadowDomName: 'slider-demo-discrete',
+  customElementName: 'slider-demo-discrete',
   render: ({ useState }) => {
     const [current, setCurrent] = useState('value', 30)
 
@@ -40,7 +40,7 @@ const DiscreteSliderDemo = Shade({
 })
 
 const RangeSliderDemo = Shade({
-  shadowDomName: 'slider-demo-range',
+  customElementName: 'slider-demo-range',
   render: ({ useState }) => {
     const [current, setCurrent] = useState<[number, number]>('value', [20, 80])
 
@@ -70,7 +70,7 @@ const temperatureMarks: SliderMark[] = [
 ]
 
 export const SliderPage = Shade({
-  shadowDomName: 'slider-page',
+  customElementName: 'slider-page',
   render: () => {
     return (
       <PageContainer centered>

@@ -10,7 +10,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const BreadcrumbPage = Shade({
-  shadowDomName: 'shades-breadcrumb-page',
+  customElementName: 'shades-breadcrumb-page',
   render: () => {
     return (
       <PageContainer centered>

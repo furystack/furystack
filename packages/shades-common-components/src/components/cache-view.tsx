@@ -58,7 +58,7 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
  * @example
  * ```tsx
  * const MyContent = Shade<{ data: CacheWithValue<User> }>({
- *   shadowDomName: 'my-content',
+ *   customElementName: 'my-content',
  *   render: ({ props }) => <div>{props.data.value.name}</div>,
  * })
  *
@@ -66,7 +66,7 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
  *
  * // With custom content props
  * const MyContentWithLabel = Shade<{ data: CacheWithValue<User>; label: string }>({
- *   shadowDomName: 'my-content-with-label',
+ *   customElementName: 'my-content-with-label',
  *   render: ({ props }) => <div>{props.label}: {props.data.value.name}</div>,
  * })
  *
@@ -85,7 +85,7 @@ type InternalCacheViewProps = {
 }
 
 export const CacheView = Shade<InternalCacheViewProps>({
-  shadowDomName: 'shade-cache-view',
+  customElementName: 'shade-cache-view',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
   },

@@ -1,15 +1,13 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 import type { Palette } from '../services/theme-provider-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 
 export type CircularProgressProps = {
   /**
-   * An observable progress value (0–100). Used when variant is 'determinate'.
-   * The component subscribes internally and updates the arc without re-rendering.
+   * A progress value (0–100). Used when variant is 'determinate'.
    */
-  value?: ObservableValue<number>
+  value?: number
   /**
    * The variant of the progress indicator.
    * - 'determinate': shows a fixed arc based on `value`
@@ -41,7 +39,7 @@ const DEFAULT_THICKNESS = 3.6
 const clampValue = (v: number) => Math.max(0, Math.min(100, v))
 
 export const CircularProgress = Shade<CircularProgressProps>({
-  shadowDomName: 'shade-circular-progress',
+  customElementName: 'shade-circular-progress',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,
@@ -65,20 +63,16 @@ export const CircularProgress = Shade<CircularProgressProps>({
       transition: `stroke-dashoffset ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
     },
   },
-  render: ({ props, injector, useObservable, useHostProps }) => {
+  render: ({ props, injector, useHostProps }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const variant = props.variant || 'indeterminate'
-    const value = clampValue(props.value?.getValue() ?? 0)
+    const value = clampValue(props.value ?? 0)
     const size = props.size ?? DEFAULT_SIZE
     const thickness = props.thickness ?? DEFAULT_THICKNESS
     const indeterminate = variant === 'indeterminate'
 
     const radius = (SVG_SIZE - thickness) / 2
     const circumference = 2 * Math.PI * radius
-
-    if (variant === 'determinate' && props.value) {
-      useObservable('ariaValue', props.value)
-    }
 
     const color = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({

@@ -14,7 +14,7 @@ import {
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
 export const TimelinePage = Shade({
-  shadowDomName: 'shades-timeline-page',
+  customElementName: 'shades-timeline-page',
   render: () => {
     return (
       <PageContainer centered>

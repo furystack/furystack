@@ -4,7 +4,7 @@ export const shades: TSESLint.FlatConfig.Config = {
   rules: {
     'furystack/no-module-level-jsx': 'error',
     'furystack/no-removed-shade-apis': 'error',
-    'furystack/valid-shadow-dom-name': 'error',
+    'furystack/valid-custom-element-name': 'error',
     'furystack/prefer-use-state': 'warn',
     'furystack/no-css-state-hooks': 'warn',
     'furystack/require-use-observable-for-render': 'warn',
@@ -19,7 +19,7 @@ export const shadesStrict: TSESLint.FlatConfig.Config = {
   rules: {
     'furystack/no-module-level-jsx': 'error',
     'furystack/no-removed-shade-apis': 'error',
-    'furystack/valid-shadow-dom-name': 'error',
+    'furystack/valid-custom-element-name': 'error',
     'furystack/prefer-use-state': 'error',
     'furystack/no-css-state-hooks': 'error',
     'furystack/require-use-observable-for-render': 'error',

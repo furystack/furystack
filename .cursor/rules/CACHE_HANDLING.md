@@ -29,7 +29,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { CacheView } from '@furystack/shades-common-components'
 
 const UserContent = Shade<{ data: CacheWithValue<User> }>({
-  shadowDomName: 'user-content',
+  customElementName: 'user-content',
   render: ({ props }) => <div>{props.data.value.name}</div>,
 })
 
@@ -58,7 +58,7 @@ const UserContent = Shade<{ data: CacheWithValue<User> }>({
 
 // With custom content props (type-checked)
 const UserContentWithLabel = Shade<{ data: CacheWithValue<User>; label: string }>({
-  shadowDomName: 'user-content-with-label',
+  customElementName: 'user-content-with-label',
   render: ({ props }) => <div>{props.label}: {props.data.value.name}</div>,
 })
 

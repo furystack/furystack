@@ -18,7 +18,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'NestedRouteLink is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <NestedRouteLink href="/dashboard">Dashboard</NestedRouteLink>
         })
       `,
@@ -27,7 +27,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'external link with https is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href="https://example.com">Example</a>
         })
       `,
@@ -36,7 +36,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'external link with http is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href="http://example.com">Example</a>
         })
       `,
@@ -45,7 +45,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'anchor with target="_blank" is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href="/external" target="_blank">Open</a>
         })
       `,
@@ -54,7 +54,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'dynamic href expression is ignored',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href={someVariable}>Link</a>
         })
       `,
@@ -63,7 +63,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'mailto link is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href="mailto:test@example.com">Email</a>
         })
       `,
@@ -72,7 +72,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'hash link is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href="#section">Section</a>
         })
       `,
@@ -89,7 +89,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'anchor without href is fine',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a>Anchor</a>
         })
       `,
@@ -100,7 +100,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'raw <a href="/..."> inside Shade render',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href="/dashboard">Dashboard</a>
         })
       `,
@@ -110,7 +110,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'raw <a href="/..."> inside block-body Shade render',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return <a href="/users/123">User</a>
           }
@@ -122,7 +122,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'raw <a href="/"> home link inside Shade render',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <a href="/">Home</a>
         })
       `,
@@ -132,7 +132,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       name: 'nested inside JSX tree inside Shade render',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return (
               <div>

@@ -13,7 +13,7 @@ import {
 const paletteColors: Array<keyof Palette> = ['primary', 'secondary', 'error', 'warning', 'success', 'info']
 
 export const PaginationPage = Shade({
-  shadowDomName: 'shades-pagination-page',
+  customElementName: 'shades-pagination-page',
   render: ({ useSearchState }) => {
     const [state, setState] = useSearchState('pagination', {
       basicPage: 1,

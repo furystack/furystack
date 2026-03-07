@@ -39,7 +39,7 @@ const getDefaultIcon = (severity: AlertSeverity): JSX.Element =>
   (<Icon icon={defaultIconDefs[severity]} size="small" />) as unknown as JSX.Element
 
 export const Alert = Shade<AlertProps>({
-  shadowDomName: 'shade-alert',
+  customElementName: 'shade-alert',
   css: {
     display: 'flex',
     alignItems: 'flex-start',

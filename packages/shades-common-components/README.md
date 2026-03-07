@@ -100,17 +100,17 @@ A data grid component for displaying tabular data.
 
 ```tsx
 import { DataGrid, CollectionService } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
 
 type User = { id: number; name: string; email: string }
 
 const collectionService = new CollectionService<User>({ /* options */ })
-const findOptions = new ObservableValue({ top: 10, skip: 0 })
+const findOptions = { top: 10, skip: 0 }
 
 <DataGrid<User, 'name' | 'email'>
   columns={['name', 'email']}
   collectionService={collectionService}
   findOptions={findOptions}
+  onFindOptionsChange={(newOptions) => { /* handle options change */ }}
   headerComponents={{
     name: () => <span>Name</span>,
     email: () => <span>Email</span>,
@@ -159,7 +159,7 @@ import { CacheView } from '@furystack/shades-common-components'
 import type { CacheWithValue } from '@furystack/cache'
 
 const UserContent = Shade<{ data: CacheWithValue<User> }>({
-  shadowDomName: 'user-content',
+  customElementName: 'user-content',
   render: ({ props }) => <div>{props.data.value.name}</div>,
 })
 

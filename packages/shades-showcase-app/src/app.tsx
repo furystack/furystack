@@ -10,7 +10,7 @@ import { appRoutes } from './routes.js'
  * in the main app layout with AppBar navigation.
  */
 export const App = Shade({
-  shadowDomName: 'shades-app',
+  customElementName: 'shades-app',
   render: () => {
     return (
       <>

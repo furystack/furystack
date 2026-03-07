@@ -23,7 +23,7 @@ const rarityColors: Record<string, string> = {
 }
 
 export const GridPage = Shade({
-  shadowDomName: 'shades-grid-page',
+  customElementName: 'shades-grid-page',
   css: {
     height: `100%`,
     boxSizing: 'border-box',
@@ -31,8 +31,9 @@ export const GridPage = Shade({
     position: 'relative',
   },
 
-  render: ({ injector }) => {
+  render: ({ injector, useObservable }) => {
     const gridPageService = injector.getInstance(GridPageService)
+    const [findOptions, setFindOptions] = useObservable('findOptions', gridPageService.findOptions)
 
     return (
       <PageContainer>
@@ -75,7 +76,8 @@ export const GridPage = Shade({
                 'discoveredAt',
                 'customAction',
               ]}
-              findOptions={gridPageService.findOptions}
+              findOptions={findOptions}
+              onFindOptionsChange={setFindOptions}
               styles={undefined}
               collectionService={gridPageService.collectionService}
               columnFilters={

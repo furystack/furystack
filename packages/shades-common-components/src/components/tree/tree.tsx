@@ -24,7 +24,7 @@ export type TreeProps<T> = {
 } & PartialElement<HTMLDivElement>
 
 export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
-  shadowDomName: 'shade-tree',
+  customElementName: 'shade-tree',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

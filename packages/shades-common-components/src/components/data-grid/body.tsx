@@ -24,7 +24,7 @@ export const DataGridBody: <T, Column extends string>(
   props: DataGridBodyProps<T, Column>,
   children: ChildrenList,
 ) => JSX.Element<any> = Shade({
-  shadowDomName: 'shade-data-grid-body',
+  customElementName: 'shade-data-grid-body',
   elementBase: HTMLTableSectionElement,
   elementBaseName: 'tbody',
   css: {

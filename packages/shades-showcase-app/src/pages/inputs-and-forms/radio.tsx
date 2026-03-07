@@ -11,7 +11,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const RadioPage = Shade({
-  shadowDomName: 'radio-page',
+  customElementName: 'radio-page',
   render: ({ useState }) => {
     const [colorValue, setColorValue] = useState('selectedColor', '')
     const [sizeValue, setSizeValue] = useState('selectedSize', '')

@@ -20,7 +20,7 @@ export interface MonacoEditorProps {
   style?: Partial<CSSStyleDeclaration>
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
-  shadowDomName: 'monaco-editor',
+  customElementName: 'monaco-editor',
   css: {
     display: 'block',
     height: '100%',

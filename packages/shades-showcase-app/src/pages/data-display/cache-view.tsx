@@ -20,7 +20,7 @@ import { sleepAsync } from '@furystack/utils'
 type DemoData = { message: string; timestamp: number }
 
 const DemoContent = Shade<{ data: CacheWithValue<DemoData> }>({
-  shadowDomName: 'demo-cache-content',
+  customElementName: 'demo-cache-content',
   render: ({ props }) => {
     const { value, status, updatedAt } = props.data
     return (
@@ -37,7 +37,7 @@ const DemoContent = Shade<{ data: CacheWithValue<DemoData> }>({
 })
 
 const DemoContentWithLabel = Shade<{ data: CacheWithValue<DemoData>; label: string }>({
-  shadowDomName: 'demo-cache-content-with-label',
+  customElementName: 'demo-cache-content-with-label',
   render: ({ props }) => {
     const { value, status, updatedAt } = props.data
     return (
@@ -67,7 +67,7 @@ const setDemoState = (state: CacheResult<DemoData>) => {
 }
 
 export const CacheViewPage = Shade({
-  shadowDomName: 'shades-cache-view-page',
+  customElementName: 'shades-cache-view-page',
   render: () => {
     return (
       <PageContainer centered>

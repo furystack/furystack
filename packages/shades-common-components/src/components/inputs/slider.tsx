@@ -180,7 +180,7 @@ const syncVisuals = (
 }
 
 export const Slider = Shade<SliderProps>({
-  shadowDomName: 'shade-slider',
+  customElementName: 'shade-slider',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

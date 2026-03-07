@@ -9,7 +9,7 @@ export type FabProps = PartialElement<HTMLButtonElement> & {
 }
 
 export const Fab = Shade<FabProps>({
-  shadowDomName: 'shade-fab',
+  customElementName: 'shade-fab',
   elementBase: HTMLButtonElement,
   elementBaseName: 'button',
   css: {

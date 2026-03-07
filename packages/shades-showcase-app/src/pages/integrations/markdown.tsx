@@ -60,7 +60,7 @@ Track progress by toggling checkboxes:
 `
 
 export const MarkdownPage = Shade({
-  shadowDomName: 'shades-markdown-page',
+  customElementName: 'shades-markdown-page',
   render: ({ useState }) => {
     const [currentContent, setCurrentContent] = useState('interactiveContent', checkboxSample)
 

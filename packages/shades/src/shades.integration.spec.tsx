@@ -18,7 +18,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
-      const ExampleComponent = Shade({ render: () => <div>Hello</div>, shadowDomName: 'shades-example' })
+      const ExampleComponent = Shade({ render: () => <div>Hello</div>, customElementName: 'shades-example' })
 
       initializeShadeRoot({
         injector,
@@ -34,7 +34,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
-      const ExampleComponent = Shade({ render: () => 'Hello', shadowDomName: 'shades-string-render-result' })
+      const ExampleComponent = Shade({ render: () => 'Hello', customElementName: 'shades-string-render-result' })
 
       initializeShadeRoot({
         injector,
@@ -52,7 +52,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
-      const ExampleComponent = Shade({ render: () => null, shadowDomName: 'shades-null-render-result' })
+      const ExampleComponent = Shade({ render: () => null, customElementName: 'shades-null-render-result' })
 
       initializeShadeRoot({
         injector,
@@ -77,7 +77,7 @@ describe('Shades integration tests', () => {
             <p>2</p>
           </>
         ),
-        shadowDomName: 'shades-fragment-render-result',
+        customElementName: 'shades-fragment-render-result',
       })
 
       initializeShadeRoot({
@@ -105,7 +105,7 @@ describe('Shades integration tests', () => {
             </>
           </p>
         ),
-        shadowDomName: 'shades-fragment-render-result-nested',
+        customElementName: 'shades-fragment-render-result-nested',
       })
 
       initializeShadeRoot({
@@ -125,7 +125,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const CustomComponent = Shade({
-        shadowDomName: 'shades-fragment-test-custom-component',
+        customElementName: 'shades-fragment-test-custom-component',
         render: () => <p>Hello</p>,
       })
 
@@ -136,7 +136,7 @@ describe('Shades integration tests', () => {
             <CustomComponent />
           </>
         ),
-        shadowDomName: 'shades-fragment-render-result-2',
+        customElementName: 'shades-fragment-render-result-2',
       })
 
       initializeShadeRoot({
@@ -157,12 +157,12 @@ describe('Shades integration tests', () => {
 
       const ExampleComponent = Shade({
         render: ({ children }) => <div>{children}</div>,
-        shadowDomName: 'shades-example-2',
+        customElementName: 'shades-example-2',
       })
 
       const ExampleSubs = Shade<{ no: number }>({
         render: ({ props }) => <div>{props.no}</div>,
-        shadowDomName: 'shades-example-sub',
+        customElementName: 'shades-example-sub',
       })
 
       initializeShadeRoot({
@@ -190,7 +190,7 @@ describe('Shades integration tests', () => {
       const setup = vi.fn()
 
       const ExampleComponent = Shade({
-        shadowDomName: 'example-component-1',
+        customElementName: 'example-component-1',
         render: ({ useDisposable }) => {
           useDisposable('test', () => {
             setup()
@@ -219,7 +219,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'example-component-3',
+        customElementName: 'example-component-3',
         render: ({ useState }) => {
           const [count, setCount] = useState('count', 0)
           return (
@@ -290,7 +290,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'example-component-3-stored-state',
+        customElementName: 'example-component-3-stored-state',
         render: ({ useStoredState }) => {
           const [count, setCount] = useStoredState('count', 0, store)
           return (
@@ -348,7 +348,7 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'example-component-3-search-state',
+        customElementName: 'example-component-3-search-state',
         render: ({ useSearchState }) => {
           const [count, setCount] = useSearchState('count', 0)
           return (
@@ -403,7 +403,7 @@ describe('Shades integration tests', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const Parent = Shade({
-        shadowDomName: 'shade-remount-parent',
+        customElementName: 'shade-remount-parent',
         render: ({ children, useState }) => {
           const [areChildrenVisible, setAreChildrenVisible] = useState('areChildrenVisible', true)
           return (
@@ -423,7 +423,7 @@ describe('Shades integration tests', () => {
       })
 
       const Child = Shade({
-        shadowDomName: 'example-remount-child',
+        customElementName: 'example-remount-child',
         render: ({ useState }) => {
           const [count, setCount] = useState('count', 0)
 
@@ -493,14 +493,14 @@ describe('Shades integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ChildComponent = Shade<{ isDisabled: boolean }>({
-        shadowDomName: 'shade-prop-child',
+        customElementName: 'shade-prop-child',
         render: ({ props }) => {
           return <input type="checkbox" disabled={props.isDisabled} data-testid="inner-input" />
         },
       })
 
       const ParentComponent = Shade({
-        shadowDomName: 'shade-prop-parent',
+        customElementName: 'shade-prop-parent',
         render: ({ useState }) => {
           const [isDisabled, setIsDisabled] = useState('isDisabled', false)
           return (

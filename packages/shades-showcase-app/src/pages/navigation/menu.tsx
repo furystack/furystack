@@ -54,7 +54,7 @@ const getInlineItems = (): MenuEntry[] => [
 ]
 
 const HorizontalMenuDemo = Shade({
-  shadowDomName: 'horizontal-menu-demo',
+  customElementName: 'horizontal-menu-demo',
   render: ({ useState }) => {
     const [selected, setSelected] = useState('selected', 'home')
 
@@ -75,7 +75,7 @@ const HorizontalMenuDemo = Shade({
 })
 
 const VerticalMenuDemo = Shade({
-  shadowDomName: 'vertical-menu-demo',
+  customElementName: 'vertical-menu-demo',
   render: ({ useState }) => {
     const [selected, setSelected] = useState('selected', 'dashboard')
 
@@ -98,7 +98,7 @@ const VerticalMenuDemo = Shade({
 })
 
 const InlineMenuDemo = Shade({
-  shadowDomName: 'inline-menu-demo',
+  customElementName: 'inline-menu-demo',
   render: ({ useState }) => {
     const [selected, setSelected] = useState('selected', 'inbox')
 
@@ -116,7 +116,7 @@ const InlineMenuDemo = Shade({
 })
 
 export const MenuPage = Shade({
-  shadowDomName: 'shades-menu-page',
+  customElementName: 'shades-menu-page',
   render: () => {
     return (
       <PageContainer centered>

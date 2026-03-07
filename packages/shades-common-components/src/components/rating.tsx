@@ -62,7 +62,7 @@ export type RatingProps = {
  * keyboard navigation, and theme integration.
  */
 export const Rating = Shade<RatingProps>({
-  shadowDomName: 'shade-rating',
+  customElementName: 'shade-rating',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

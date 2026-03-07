@@ -298,7 +298,7 @@ const shadesByTag = {} as Record<TypographyTag, (props: TypographyProps, childre
 
 for (const [tag, elementBase] of tagConfigs) {
   shadesByTag[tag] = Shade<TypographyProps>({
-    shadowDomName: `shade-typography-${tag}`,
+    customElementName: `shade-typography-${tag}`,
     elementBase,
     elementBaseName: tag,
     css: typographyCss,

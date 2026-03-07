@@ -1,7 +1,7 @@
 import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CollectionService } from '../../services/collection-service.js'
 import { DataGrid } from './data-grid.js'
@@ -34,25 +34,23 @@ describe('DataGrid', () => {
     fn: (ctx: {
       injector: Injector
       service: CollectionService<TestEntry>
-      findOptions: ObservableValue<FindOptions<TestEntry, Array<keyof TestEntry>>>
+      findOptions: FindOptions<TestEntry, Array<keyof TestEntry>>
+      onFindOptionsChange: (options: FindOptions<TestEntry, Array<keyof TestEntry>>) => void
     }) => Promise<void>,
     opts?: { createService?: () => CollectionService<TestEntry> },
   ) => {
     await usingAsync(new Injector(), async (injector) => {
       await usingAsync(opts?.createService?.() ?? createTestService(), async (service) => {
-        await usingAsync(
-          new ObservableValue<FindOptions<TestEntry, Array<keyof TestEntry>>>({}),
-          async (findOptions) => {
-            await fn({ injector, service, findOptions })
-          },
-        )
+        const findOptions: FindOptions<TestEntry, Array<keyof TestEntry>> = {}
+        const onFindOptionsChange = vi.fn<(options: FindOptions<TestEntry, Array<keyof TestEntry>>) => void>()
+        await fn({ injector, service, findOptions, onFindOptionsChange })
       })
     })
   }
 
   describe('rendering', () => {
     it('should render with columns', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -63,6 +61,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -81,7 +80,7 @@ describe('DataGrid', () => {
     })
 
     it('should render table structure', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -92,6 +91,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -113,7 +113,7 @@ describe('DataGrid', () => {
     })
 
     it('should render custom header components when provided', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -124,6 +124,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{
                 id: () => <span data-testid="custom-header-id">Custom ID Header</span>,
@@ -143,7 +144,7 @@ describe('DataGrid', () => {
     })
 
     it('should render default header components from headerComponents.default', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -154,6 +155,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{
                 default: (name) => <span data-testid={`default-header-${name}`}>Default: {name}</span>,
@@ -175,7 +177,7 @@ describe('DataGrid', () => {
     })
 
     it('should render DataGridHeader when no custom header is provided', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -186,6 +188,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -202,7 +205,7 @@ describe('DataGrid', () => {
     })
 
     it('should render filter buttons when columnFilters are provided', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -213,6 +216,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               columnFilters={{ name: { type: 'string' } }}
             />
@@ -228,7 +232,7 @@ describe('DataGrid', () => {
     })
 
     it('should not render filter buttons when columnFilters is not provided', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -239,6 +243,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
             />
           ),
@@ -253,7 +258,7 @@ describe('DataGrid', () => {
     })
 
     it('should render without headerComponents and rowComponents', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -264,6 +269,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
             />
           ),
@@ -282,7 +288,7 @@ describe('DataGrid', () => {
 
   describe('focus management', () => {
     it('should set focus on click', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         expect(service.hasFocus.getValue()).toBe(false)
@@ -295,6 +301,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -314,7 +321,7 @@ describe('DataGrid', () => {
     })
 
     it('should lose focus on click outside', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -327,6 +334,7 @@ describe('DataGrid', () => {
                 columns={['id', 'name']}
                 collectionService={service}
                 findOptions={findOptions}
+                onFindOptionsChange={onFindOptionsChange}
                 styles={{}}
                 headerComponents={{}}
                 rowComponents={{}}
@@ -353,7 +361,7 @@ describe('DataGrid', () => {
 
   describe('keyboard navigation', () => {
     it('should handle ArrowDown to move focus to next entry', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(true)
@@ -367,6 +375,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -384,7 +393,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle ArrowUp to move focus to previous entry', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(true)
@@ -398,6 +407,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -415,7 +425,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle Home to move focus to first entry', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(true)
@@ -429,6 +439,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -446,7 +457,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle End to move focus to last entry', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(true)
@@ -460,6 +471,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -477,7 +489,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle Tab to toggle focus', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(true)
@@ -490,6 +502,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -507,7 +520,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle Escape to clear selection and search', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const { entries } = service.data.getValue()
@@ -523,6 +536,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -541,7 +555,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle Space to toggle selection of focused entry', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const { entries } = service.data.getValue()
@@ -556,6 +570,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -576,7 +591,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle + to select all entries', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(true)
@@ -589,6 +604,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -606,7 +622,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle - to deselect all entries', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const { entries } = service.data.getValue()
@@ -621,6 +637,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -638,7 +655,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle * to invert selection', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const { entries } = service.data.getValue()
@@ -653,6 +670,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -673,7 +691,7 @@ describe('DataGrid', () => {
     })
 
     it('should not handle keyboard when not focused', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(false)
@@ -687,6 +705,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -704,7 +723,7 @@ describe('DataGrid', () => {
     })
 
     it('should handle Insert to toggle selection and move to next', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const { entries } = service.data.getValue()
@@ -719,6 +738,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}
@@ -739,7 +759,7 @@ describe('DataGrid', () => {
 
   describe('styles', () => {
     it('should apply wrapper styles when provided', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -750,6 +770,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{
                 wrapper: { backgroundColor: 'red' },
               }}
@@ -767,7 +788,7 @@ describe('DataGrid', () => {
     })
 
     it('should apply header styles when provided', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -778,6 +799,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{
                 header: { color: 'blue' },
               }}
@@ -799,7 +821,7 @@ describe('DataGrid', () => {
   describe('empty and loading states', () => {
     it('should show empty component when no data', async () => {
       await withTestGrid(
-        async ({ injector, service, findOptions }) => {
+        async ({ injector, service, findOptions, onFindOptionsChange }) => {
           const rootElement = document.getElementById('root') as HTMLDivElement
 
           initializeShadeRoot({
@@ -810,6 +832,7 @@ describe('DataGrid', () => {
                 columns={['id', 'name']}
                 collectionService={service}
                 findOptions={findOptions}
+                onFindOptionsChange={onFindOptionsChange}
                 styles={{}}
                 headerComponents={{}}
                 rowComponents={{}}
@@ -834,7 +857,7 @@ describe('DataGrid', () => {
     it('should pass row click to collectionService', async () => {
       const onRowClick = vi.fn()
       await withTestGrid(
-        async ({ injector, service, findOptions }) => {
+        async ({ injector, service, findOptions, onFindOptionsChange }) => {
           const rootElement = document.getElementById('root') as HTMLDivElement
 
           service.data.setValue({
@@ -850,6 +873,7 @@ describe('DataGrid', () => {
                 columns={['id', 'name']}
                 collectionService={service}
                 findOptions={findOptions}
+                onFindOptionsChange={onFindOptionsChange}
                 styles={{}}
                 headerComponents={{}}
                 rowComponents={{}}
@@ -872,7 +896,7 @@ describe('DataGrid', () => {
     it('should pass row double click to collectionService', async () => {
       const onRowDoubleClick = vi.fn()
       await withTestGrid(
-        async ({ injector, service, findOptions }) => {
+        async ({ injector, service, findOptions, onFindOptionsChange }) => {
           const rootElement = document.getElementById('root') as HTMLDivElement
 
           service.data.setValue({
@@ -888,6 +912,7 @@ describe('DataGrid', () => {
                 columns={['id', 'name']}
                 collectionService={service}
                 findOptions={findOptions}
+                onFindOptionsChange={onFindOptionsChange}
                 styles={{}}
                 headerComponents={{}}
                 rowComponents={{}}
@@ -911,7 +936,7 @@ describe('DataGrid', () => {
 
   describe('keyboard listener cleanup', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
-      await withTestGrid(async ({ injector, service, findOptions }) => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         service.hasFocus.setValue(true)
@@ -925,6 +950,7 @@ describe('DataGrid', () => {
               columns={['id', 'name']}
               collectionService={service}
               findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
               styles={{}}
               headerComponents={{}}
               rowComponents={{}}

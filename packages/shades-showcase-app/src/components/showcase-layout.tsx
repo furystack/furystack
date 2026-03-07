@@ -10,7 +10,7 @@ import { SidebarNavigation } from './sidebar-navigation.js'
  * and a collapsible left sidebar drawer.
  */
 export const ShowcaseLayout = Shade({
-  shadowDomName: 'showcase-layout',
+  customElementName: 'showcase-layout',
   render: ({ children }) => (
     <PageLayout
       appBar={{

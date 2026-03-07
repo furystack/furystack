@@ -21,7 +21,7 @@ export type TimelineItemProps = PartialElement<HTMLElement> & {
  * Renders a dot, a connector tail, and the item's content (children).
  */
 export const TimelineItem = Shade<TimelineItemProps>({
-  shadowDomName: 'shade-timeline-item',
+  customElementName: 'shade-timeline-item',
   css: {
     display: 'flex',
     position: 'relative',
@@ -157,7 +157,7 @@ export type TimelineProps = PartialElement<HTMLElement> & {
  * Supports left, right, and alternate layout modes with optional pending state.
  */
 export const Timeline = Shade<TimelineProps>({
-  shadowDomName: 'shade-timeline',
+  customElementName: 'shade-timeline',
   css: {
     display: 'flex',
     flexDirection: 'column',

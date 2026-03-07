@@ -355,7 +355,7 @@ const navButtonStyle = (): Partial<CSSStyleDeclaration> => ({
  * Image component with preview lightbox, zoom/rotate, fallback, and lazy loading support.
  */
 export const Image = Shade<ImageProps>({
-  shadowDomName: 'shade-image',
+  customElementName: 'shade-image',
   css: {
     display: 'inline-block',
     fontFamily: cssVariableTheme.typography.fontFamily,
@@ -506,7 +506,7 @@ export const Image = Shade<ImageProps>({
  * When one image is clicked, the lightbox shows navigation controls to browse all images in the group.
  */
 export const ImageGroup = Shade<ImageGroupProps>({
-  shadowDomName: 'shade-image-group',
+  customElementName: 'shade-image-group',
   css: {
     display: 'flex',
     flexWrap: 'wrap',

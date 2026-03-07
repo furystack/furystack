@@ -20,7 +20,7 @@ type ThemeBlockProps = {
 }
 
 const ThemeBlock = Shade<ThemeBlockProps>({
-  shadowDomName: 'theme-showcase-block',
+  customElementName: 'theme-showcase-block',
   render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
 
@@ -109,7 +109,7 @@ const ThemeBlock = Shade<ThemeBlockProps>({
 })
 
 export const ThemesPage = Shade({
-  shadowDomName: 'shades-themes-page',
+  customElementName: 'shades-themes-page',
   render: () => {
     return (
       <PageContainer centered>

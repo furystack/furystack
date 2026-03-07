@@ -37,7 +37,7 @@ export type IconProps = PartialElement<HTMLElement> & {
 }
 
 export const Icon = Shade<IconProps>({
-  shadowDomName: 'shade-icon',
+  customElementName: 'shade-icon',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

@@ -25,7 +25,7 @@ const defaultColors = {
 }
 
 export const Chip = Shade<ChipProps>({
-  shadowDomName: 'shade-chip',
+  customElementName: 'shade-chip',
   css: {
     display: 'inline-flex',
     alignItems: 'center',

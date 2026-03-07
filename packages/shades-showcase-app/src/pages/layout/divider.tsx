@@ -11,7 +11,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const DividerPage = Shade({
-  shadowDomName: 'shades-divider-page',
+  customElementName: 'shades-divider-page',
   render: () => {
     return (
       <PageContainer centered>

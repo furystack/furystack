@@ -8,7 +8,7 @@ const APP_TITLE = 'FuryStack Shades'
  * based on the current match chain from `RouteMatchService`.
  */
 export const DocumentTitleUpdater = Shade({
-  shadowDomName: 'document-title-updater',
+  customElementName: 'document-title-updater',
   render: ({ injector, useObservable, useState }) => {
     const routeMatchService = injector.getInstance(RouteMatchService)
 

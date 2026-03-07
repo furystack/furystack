@@ -17,7 +17,7 @@ import { requireObservableDisposal } from './rules/require-observable-disposal.j
 import { requireUseObservableForRender } from './rules/require-use-observable-for-render.js'
 import { restActionUseRequestError } from './rules/rest-action-use-request-error.js'
 import { restActionValidateWrapper } from './rules/rest-action-validate-wrapper.js'
-import { validShadowDomName } from './rules/valid-shadow-dom-name.js'
+import { validCustomElementName } from './rules/valid-custom-element-name.js'
 
 const rules = {
   'injectable-consistent-inject': injectableConsistentInject,
@@ -36,7 +36,7 @@ const rules = {
   'require-use-observable-for-render': requireUseObservableForRender,
   'rest-action-use-request-error': restActionUseRequestError,
   'rest-action-validate-wrapper': restActionValidateWrapper,
-  'valid-shadow-dom-name': validShadowDomName,
+  'valid-custom-element-name': validCustomElementName,
 } satisfies Record<string, TSESLint.RuleModule<string, unknown[]>>
 
 const plugin = {

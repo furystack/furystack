@@ -42,7 +42,7 @@ export interface RouterState {
  * @deprecated Use NestedRouter instead
  */
 export const Router = Shade<RouterProps>({
-  shadowDomName: 'shade-router',
+  customElementName: 'shade-router',
   render: (options) => {
     const { useState, useObservable, injector } = options
     const [versionRef] = useState('navVersion', { current: 0 })

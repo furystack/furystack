@@ -52,7 +52,7 @@ const hideAnimation = async (el: Element | null) => {
 }
 
 export const Dialog = Shade<DialogProps>({
-  shadowDomName: 'shade-dialog',
+  customElementName: 'shade-dialog',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
     '& .dialog-panel': {

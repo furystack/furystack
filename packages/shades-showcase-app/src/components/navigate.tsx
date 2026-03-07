@@ -10,7 +10,7 @@ type NavigateProps = {
  * does not pollute the browser's back/forward stack.
  */
 export const Navigate = Shade<NavigateProps>({
-  shadowDomName: 'showcase-navigate',
+  customElementName: 'showcase-navigate',
   render: ({ props, injector, useDisposable }) => {
     useDisposable('navigate', () => {
       const locationService = injector.getInstance(LocationService)

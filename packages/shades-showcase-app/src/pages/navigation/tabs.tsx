@@ -11,7 +11,7 @@ import {
 } from '@furystack/shades-common-components'
 
 const ControlledTabsDemo = Shade({
-  shadowDomName: 'controlled-tabs-demo',
+  customElementName: 'controlled-tabs-demo',
   render: ({ useState }) => {
     const [activeKey, setActiveKey] = useState('activeKey', 'ctrl-1')
 
@@ -47,7 +47,7 @@ const ControlledTabsDemo = Shade({
 })
 
 const CardTabsDemo = Shade({
-  shadowDomName: 'card-tabs-demo',
+  customElementName: 'card-tabs-demo',
   render: ({ useState }) => {
     const [activeKey, setActiveKey] = useState('activeKey', 'card-1')
 
@@ -79,7 +79,7 @@ const CardTabsDemo = Shade({
 })
 
 const VerticalTabsDemo = Shade({
-  shadowDomName: 'vertical-tabs-demo',
+  customElementName: 'vertical-tabs-demo',
   render: ({ useState }) => {
     const [activeKey, setActiveKey] = useState('activeKey', 'vert-1')
 
@@ -112,7 +112,7 @@ const VerticalTabsDemo = Shade({
 })
 
 const VerticalCardTabsDemo = Shade({
-  shadowDomName: 'vertical-card-tabs-demo',
+  customElementName: 'vertical-card-tabs-demo',
   render: ({ useState }) => {
     const [activeKey, setActiveKey] = useState('activeKey', 'vcard-1')
 
@@ -146,7 +146,7 @@ const VerticalCardTabsDemo = Shade({
 })
 
 const ViewTransitionTabsDemo = Shade({
-  shadowDomName: 'view-transition-tabs-demo',
+  customElementName: 'view-transition-tabs-demo',
   render: ({ useState }) => {
     const [activeKey, setActiveKey] = useState('activeKey', 'vt-1')
 
@@ -199,7 +199,7 @@ const ViewTransitionTabsDemo = Shade({
 })
 
 const ClosableTabsDemo = Shade({
-  shadowDomName: 'closable-tabs-demo',
+  customElementName: 'closable-tabs-demo',
   render: ({ useState }) => {
     let nextId = 4
     const [tabs, setTabs] = useState<Tab[]>('tabs', [
@@ -256,7 +256,7 @@ const ClosableTabsDemo = Shade({
 })
 
 export const TabsPage = Shade({
-  shadowDomName: 'tabs-page',
+  customElementName: 'tabs-page',
   render: () => {
     return (
       <PageContainer centered>

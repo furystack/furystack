@@ -19,7 +19,7 @@ You can check the [@furystack/boilerplate](https://github.com/furystack/boilerpl
 A shade (component) can be constructed from the following properties:
 
 - `render:(options: RenderOptions)=>JSX.Element` – A required method that will be executed on each render. Use `useDisposable` within render for one-time setup that needs cleanup.
-- `shadowDomName` – The custom element tag name. Must follow Custom Elements naming convention (lowercase, must contain a hyphen).
+- `customElementName` – The custom element tag name. Must follow Custom Elements naming convention (lowercase, must contain a hyphen).
 - `style` – Optional inline styles applied to each component instance. Use for per-instance overrides.
 - `css` – Optional CSS styles injected as a stylesheet during component registration. Supports pseudo-selectors and nested selectors.
 
@@ -37,7 +37,7 @@ The `style` property applies inline styles to each component instance. Use this 
 
 ```typescript
 const MyComponent = Shade({
-  shadowDomName: 'my-component',
+  customElementName: 'my-component',
   style: {
     display: 'flex',
     padding: '16px',
@@ -60,7 +60,7 @@ The `css` property injects CSS rules into a stylesheet once per component type. 
 
 ```typescript
 const Button = Shade({
-  shadowDomName: 'my-button',
+  customElementName: 'my-button',
   css: {
     padding: '12px 24px',
     backgroundColor: 'blue',

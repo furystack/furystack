@@ -19,7 +19,7 @@ describe('<MicroFrontend /> component', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const MfeComponent = Shade<{ value: string }>({
-        shadowDomName: 'mfe-test-example',
+        customElementName: 'mfe-test-example',
         render: ({ props }) => <div>Loaded: {props.value}</div>,
       })
 
@@ -51,7 +51,7 @@ describe('<MicroFrontend /> component', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const MfeComponent = Shade<{ value: string }>({
-        shadowDomName: 'mfe-test-example-w-loader',
+        customElementName: 'mfe-test-example-w-loader',
         render: ({ props }) => <div>Loaded: {props.value}</div>,
       })
 
@@ -117,7 +117,7 @@ describe('<MicroFrontend /> component', () => {
       const destroy = vi.fn()
 
       const Host = Shade({
-        shadowDomName: 'mfe-test-example-w-destroy-host',
+        customElementName: 'mfe-test-example-w-destroy-host',
         render: ({ useState }) => {
           const [hasMfe, setHasMfe] = useState('hasMfe', true)
           return (

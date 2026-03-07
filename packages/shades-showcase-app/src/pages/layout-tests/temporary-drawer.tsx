@@ -12,7 +12,7 @@ import {
 } from '@furystack/shades-common-components'
 
 const OpenLeftDrawerButton = Shade({
-  shadowDomName: 'open-left-drawer-button',
+  customElementName: 'open-left-drawer-button',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -24,7 +24,7 @@ const OpenLeftDrawerButton = Shade({
 })
 
 const OpenRightDrawerButton = Shade({
-  shadowDomName: 'open-right-drawer-button',
+  customElementName: 'open-right-drawer-button',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -40,7 +40,7 @@ const OpenRightDrawerButton = Shade({
  * Used for E2E visual regression testing
  */
 export const TemporaryDrawerTest = Shade({
-  shadowDomName: 'layout-test-temporary-drawer',
+  customElementName: 'layout-test-temporary-drawer',
   render: () => {
     return (
       <PageLayout

@@ -13,18 +13,18 @@ describe('Shade edge cases', () => {
     document.body.innerHTML = ''
   })
 
-  describe('duplicate shadowDomName error', () => {
-    it('should throw an error when registering a duplicate shadowDomName', () => {
+  describe('duplicate customElementName error', () => {
+    it('should throw an error when registering a duplicate customElementName', () => {
       // First registration should succeed
       Shade({
-        shadowDomName: 'shade-duplicate-test',
+        customElementName: 'shade-duplicate-test',
         render: () => <div>First</div>,
       })
 
       // Second registration with the same name should throw
       expect(() => {
         Shade({
-          shadowDomName: 'shade-duplicate-test',
+          customElementName: 'shade-duplicate-test',
           render: () => <div>Second</div>,
         })
       }).toThrow("A custom shade with name 'shade-duplicate-test' has already been registered!")
@@ -34,13 +34,13 @@ describe('Shade edge cases', () => {
       const uniqueName = `shade-duplicate-name-in-error-${Date.now()}`
 
       Shade({
-        shadowDomName: uniqueName,
+        customElementName: uniqueName,
         render: () => <div>First</div>,
       })
 
       try {
         Shade({
-          shadowDomName: uniqueName,
+          customElementName: uniqueName,
           render: () => <div>Second</div>,
         })
         // Should not reach here
@@ -61,7 +61,7 @@ describe('Shade edge cases', () => {
           let childCapturedInjector: Injector | undefined
 
           const ChildComponent = Shade<{ injector?: Injector }>({
-            shadowDomName: 'shade-injector-child-props-test',
+            customElementName: 'shade-injector-child-props-test',
             render: ({ injector }) => {
               childCapturedInjector = injector
               return <div>Child</div>
@@ -69,7 +69,7 @@ describe('Shade edge cases', () => {
           })
 
           const ParentComponent = Shade({
-            shadowDomName: 'shade-injector-parent-props-test',
+            customElementName: 'shade-injector-parent-props-test',
             render: ({ injector, children }) => {
               parentCapturedInjector = injector
               return <div>{children}</div>
@@ -105,7 +105,7 @@ describe('Shade edge cases', () => {
         const renderCounter = vi.fn()
 
         const ExampleComponent = Shade({
-          shadowDomName: 'shade-no-render-after-disconnect',
+          customElementName: 'shade-no-render-after-disconnect',
           render: () => {
             renderCounter()
             return <div>content</div>
@@ -140,7 +140,7 @@ describe('Shade edge cases', () => {
         const renderCounter = vi.fn()
 
         const ExampleComponent = Shade({
-          shadowDomName: 'shade-no-sync-render-after-disconnect',
+          customElementName: 'shade-no-sync-render-after-disconnect',
           render: () => {
             renderCounter()
             return <div>content</div>
@@ -174,7 +174,7 @@ describe('Shade edge cases', () => {
         const obs = new ObservableValue(0)
 
         const ExampleComponent = Shade({
-          shadowDomName: 'shade-no-render-during-disposal',
+          customElementName: 'shade-no-render-during-disposal',
           render: ({ useObservable, useDisposable }) => {
             useObservable('obs', obs)
             useDisposable('cleanup', () => ({
@@ -227,7 +227,7 @@ describe('Shade edge cases', () => {
         const stateKey = 'broadcast-test-key'
 
         const ExampleComponent = Shade({
-          shadowDomName: 'shade-broadcast-channel-test',
+          customElementName: 'shade-broadcast-channel-test',
           render: ({ useStoredState }) => {
             const [value] = useStoredState(stateKey, 'initial', store)
             return <div id="value">{value}</div>
@@ -271,7 +271,7 @@ describe('Shade edge cases', () => {
         const stateKey = 'broadcast-filter-test-key'
 
         const ExampleComponent = Shade({
-          shadowDomName: 'shade-broadcast-channel-filter-test',
+          customElementName: 'shade-broadcast-channel-filter-test',
           render: ({ useStoredState }) => {
             const [value] = useStoredState(stateKey, 'initial', store)
             return <div id="value">{value}</div>
@@ -316,7 +316,7 @@ describe('Shade edge cases', () => {
         const stateKey = 'broadcast-cleanup-test-key'
 
         const ExampleComponent = Shade({
-          shadowDomName: 'shade-broadcast-channel-cleanup-test',
+          customElementName: 'shade-broadcast-channel-cleanup-test',
           render: ({ useStoredState }) => {
             const [value] = useStoredState(stateKey, 'initial', store)
             return <div id="value">{value}</div>

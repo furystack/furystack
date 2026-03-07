@@ -12,7 +12,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const TooltipPage = Shade({
-  shadowDomName: 'shades-tooltip-page',
+  customElementName: 'shades-tooltip-page',
   render: () => {
     return (
       <PageContainer centered>

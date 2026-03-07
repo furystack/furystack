@@ -51,7 +51,7 @@ const getWithDisabledItems = (): MenuEntry[] => [
 ]
 
 const BasicDropdownDemo = Shade({
-  shadowDomName: 'basic-dropdown-demo',
+  customElementName: 'basic-dropdown-demo',
   render: ({ useState }) => {
     const [lastSelected, setLastSelected] = useState('lastSelected', '')
 
@@ -76,7 +76,7 @@ const BasicDropdownDemo = Shade({
 })
 
 export const DropdownPage = Shade({
-  shadowDomName: 'shades-dropdown-page',
+  customElementName: 'shades-dropdown-page',
   render: () => {
     return (
       <PageContainer centered>

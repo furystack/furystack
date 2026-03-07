@@ -1,6 +1,5 @@
 import type { FindOptions } from '@furystack/core'
 import { Shade, createComponent } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import { Pagination } from '../pagination.js'
@@ -9,10 +8,11 @@ export const dataGridItemsPerPage = [10, 20, 25, 50, 100, Infinity]
 
 export const DataGridFooter: <T>(props: {
   service: CollectionService<T>
-  findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
+  findOptions: FindOptions<T, Array<keyof T>>
+  onFindOptionsChange: (options: FindOptions<T, Array<keyof T>>) => void
   paginationOptions?: number[]
 }) => JSX.Element = Shade({
-  shadowDomName: 'shade-data-grid-footer',
+  customElementName: 'shade-data-grid-footer',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,
@@ -44,20 +44,15 @@ export const DataGridFooter: <T>(props: {
     },
   },
   render: ({ props, useObservable }) => {
-    const { service, findOptions, paginationOptions = dataGridItemsPerPage } = props
+    const { service, findOptions, onFindOptionsChange, paginationOptions = dataGridItemsPerPage } = props
     const [currentData] = useObservable('dataUpdater', service.data)
-    const [currentOptions, setCurrentOptions] = useObservable('optionsUpdater', findOptions, {
-      filter: (newValue, oldValue) => {
-        return newValue.top !== oldValue.top || newValue.skip !== oldValue.skip
-      },
-    })
 
-    const top = currentOptions.top || Infinity
-    const skip = currentOptions.skip || 0
+    const top = findOptions.top || Infinity
+    const skip = findOptions.skip || 0
     const currentPage = Math.ceil(skip) / (top || 1)
     const currentEntriesPerPage = top
 
-    const pageCount = Math.ceil(currentData.count / (currentOptions.top || Infinity))
+    const pageCount = Math.ceil(currentData.count / (findOptions.top || Infinity))
 
     return (
       <div className="pager">
@@ -67,7 +62,7 @@ export const DataGridFooter: <T>(props: {
             page={currentPage + 1}
             size="small"
             onPageChange={(newPage) => {
-              setCurrentOptions({ ...currentOptions, skip: (currentOptions.top || 0) * (newPage - 1) })
+              onFindOptionsChange({ ...findOptions, skip: (findOptions.top || 0) * (newPage - 1) })
             }}
           />
         )}
@@ -77,8 +72,8 @@ export const DataGridFooter: <T>(props: {
             <select
               onchange={(ev) => {
                 const value = parseInt((ev.currentTarget as HTMLInputElement).value, 10)
-                setCurrentOptions({
-                  ...currentOptions,
+                onFindOptionsChange({
+                  ...findOptions,
                   top: value,
                   skip: currentPage * value,
                 })

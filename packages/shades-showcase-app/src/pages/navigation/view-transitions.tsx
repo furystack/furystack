@@ -13,7 +13,7 @@ import {
 const isViewTransitionSupported = typeof document.startViewTransition === 'function'
 
 export const ViewTransitionsPage = Shade({
-  shadowDomName: 'view-transitions-page',
+  customElementName: 'view-transitions-page',
   render: () => {
     return (
       <PageContainer centered>

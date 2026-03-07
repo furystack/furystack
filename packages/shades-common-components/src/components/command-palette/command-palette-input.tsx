@@ -3,7 +3,7 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { CommandPaletteManager } from './command-palette-manager.js'
 
 export const CommandPaletteInput = Shade<{ manager: CommandPaletteManager }>({
-  shadowDomName: 'shades-command-palette-input',
+  customElementName: 'shades-command-palette-input',
   css: {
     width: '100%',
     fontFamily: cssVariableTheme.typography.fontFamily,

@@ -10,7 +10,7 @@ export interface LazyLoadProps {
 }
 
 export const LazyLoad = Shade<LazyLoadProps>({
-  shadowDomName: 'lazy-load',
+  customElementName: 'lazy-load',
   render: ({ props, useState, useDisposable }) => {
     const [error, setError] = useState<unknown>('error', undefined)
     const [component, setComponent] = useState<JSX.Element | undefined>('component', undefined)

@@ -41,7 +41,7 @@ const isSyncProps = (props: SuggestProps<unknown>): props is SuggestSyncProps =>
 export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
   SuggestProps<any>
 >({
-  shadowDomName: 'shade-suggest',
+  customElementName: 'shade-suggest',
   css: {
     ...searchableInputStyles,
     fontFamily: cssVariableTheme.typography.fontFamily,

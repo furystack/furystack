@@ -49,7 +49,7 @@ describe('createI18nComponent', () => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-initial',
+        customElementName: 'test-i18n-initial',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -69,7 +69,7 @@ describe('createI18nComponent', () => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-keys',
+        customElementName: 'test-i18n-keys',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -95,7 +95,7 @@ describe('createI18nComponent', () => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-language-change',
+        customElementName: 'test-i18n-language-change',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -123,7 +123,7 @@ describe('createI18nComponent', () => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-fallback',
+        customElementName: 'test-i18n-fallback',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -148,7 +148,7 @@ describe('createI18nComponent', () => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-rapid-changes',
+        customElementName: 'test-i18n-rapid-changes',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -188,7 +188,7 @@ describe('createI18nComponent', () => {
 
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-cleanup',
+        customElementName: 'test-i18n-cleanup',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -214,7 +214,7 @@ describe('createI18nComponent', () => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-span',
+        customElementName: 'test-i18n-span',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -236,7 +236,7 @@ describe('createI18nComponent', () => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
-        shadowDomName: 'test-i18n-multiple',
+        customElementName: 'test-i18n-multiple',
       })
 
       const rootElement = document.getElementById('root') as HTMLDivElement

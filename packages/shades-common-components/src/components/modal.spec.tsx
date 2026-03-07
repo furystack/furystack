@@ -58,7 +58,7 @@ describe('Modal', () => {
       let setVisible!: (v: boolean) => void
 
       const Wrapper = Shade({
-        shadowDomName: 'modal-visibility-test-show',
+        customElementName: 'modal-visibility-test-show',
         render: ({ useState }) => {
           const [visible, setter] = useState('visible', false)
           setVisible = setter
@@ -89,7 +89,7 @@ describe('Modal', () => {
       let setVisible!: (v: boolean) => void
 
       const Wrapper = Shade({
-        shadowDomName: 'modal-visibility-test-hide',
+        customElementName: 'modal-visibility-test-hide',
         render: ({ useState }) => {
           const [visible, setter] = useState('visible', true)
           setVisible = setter
@@ -203,7 +203,7 @@ describe('Modal', () => {
       const showAnimation = vi.fn()
 
       const Wrapper = Shade({
-        shadowDomName: 'modal-show-animation-test',
+        customElementName: 'modal-show-animation-test',
         render: ({ useState }) => {
           const [visible, setter] = useState('visible', false)
           setVisible = setter

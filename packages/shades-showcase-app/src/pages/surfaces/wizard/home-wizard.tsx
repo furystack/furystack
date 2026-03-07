@@ -13,7 +13,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const WizardStep = Shade<{ title: string } & WizardStepProps>({
-  shadowDomName: 'wizard-step',
+  customElementName: 'wizard-step',
 
   render: ({ props, children, useObservable, injector, useRef }) => {
     const h1Ref = useRef<HTMLElement>('h1')
@@ -102,7 +102,7 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
 })
 
 export const Step1 = Shade<WizardStepProps>({
-  shadowDomName: 'shades-wiz-step1',
+  customElementName: 'shades-wiz-step1',
   render: ({ props, useDisposable, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
 
@@ -142,7 +142,7 @@ export const Step1 = Shade<WizardStepProps>({
 })
 
 export const Step2 = Shade<WizardStepProps>({
-  shadowDomName: 'shades-wiz-step2',
+  customElementName: 'shades-wiz-step2',
   render: ({ props }) => {
     return (
       <WizardStep title="Step 2" {...props}>
@@ -177,7 +177,7 @@ export const Step2 = Shade<WizardStepProps>({
 })
 
 export const Step3 = Shade<WizardStepProps>({
-  shadowDomName: 'shades-wiz-step3',
+  customElementName: 'shades-wiz-step3',
   render: ({ props }) => {
     return (
       <WizardStep title="Step 3" {...props}>
@@ -188,7 +188,7 @@ export const Step3 = Shade<WizardStepProps>({
 })
 
 export const WelcomeWizard = Shade({
-  shadowDomName: 'shades-welcome-wizard',
+  customElementName: 'shades-welcome-wizard',
   render: ({ useState }) => {
     const [isOpened, setIsOpened] = useState('isOpened', false)
     return (
