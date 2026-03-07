@@ -13,7 +13,7 @@ const isReferenceObject = (obj: unknown): obj is ReferenceObject =>
  * @param path - The OpenAPI path (e.g. `/users/{id}`)
  * @returns The FuryStack path (e.g. `/users/:id`)
  */
-export const convertOpenApiPathToFuryStack = (path: string): string => path.replace(/\{([^}]+)\}/g, ':$1')
+export const convertOpenApiPathToFuryStack = (path: string): string => path.replace(/\{([^{}]+)\}/g, ':$1')
 
 const extractResponseSchema = (operation: Operation): unknown => {
   for (const statusCode of ['200', '201', '2XX', 'default']) {
@@ -28,7 +28,7 @@ const extractResponseSchema = (operation: Operation): unknown => {
 const extractSchemaName = (operation: Operation, method: string, path: string): string => {
   if (operation.operationId) return operation.operationId
   const cleanPath = path
-    .replace(/\{([^}]+)\}/g, '$1')
+    .replace(/\{([^{}]+)\}/g, '$1')
     .replace(/\//g, '_')
     .replace(/^_/, '')
   return `${method}_${cleanPath}`
