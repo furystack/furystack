@@ -179,6 +179,51 @@ describe('Validation integration tests', () => {
     })
   })
 
+  describe('swagger.json backward compatibility', () => {
+    it('Should serve the same OpenAPI document at /swagger.json when enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toBeDefined()
+
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.openapi).toBe('3.1.0')
+        expect(openApiDoc.info?.title).toBe(name)
+      })
+    })
+
+    it('Should include Deprecation header on /swagger.json', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        expect(result.response.headers.get('deprecation')).toBe('true')
+        expect(result.response.headers.get('link')).toContain('/openapi.json')
+      })
+    })
+
+    it('Should return a 404 for /swagger.json when not enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<any>>)({
+            method: 'GET',
+            action: '/swagger.json',
+          })
+          expect.fail('Expected response error but got success')
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(404)
+        }
+      })
+    })
+  })
+
   describe('Validation metadata', () => {
     it('Should return 404 when not enabled', async () => {
       await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {

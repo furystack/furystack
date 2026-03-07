@@ -371,6 +371,97 @@ describe('openApiToSchema', () => {
     })
   })
 
+  describe('Security scheme name extraction', () => {
+    it('Should extract operation-level security scheme names', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/private': {
+            get: { security: [{ bearerAuth: [] }], responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/private'].securitySchemes).toEqual(['bearerAuth'])
+    })
+
+    it('Should extract multiple security scheme names', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/private': {
+            get: {
+              security: [{ bearerAuth: [] }, { apiKey: [] }],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/private'].securitySchemes).toEqual(['bearerAuth', 'apiKey'])
+    })
+
+    it('Should inherit document-level security scheme names', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        security: [{ apiKey: [] }],
+        paths: {
+          '/items': { get: { responses: { '200': { description: 'OK' } } } },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/items'].securitySchemes).toEqual(['apiKey'])
+    })
+
+    it('Should not set securitySchemes when security is empty', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/public': { get: { security: [], responses: { '200': { description: 'OK' } } } },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/public'].securitySchemes).toBeUndefined()
+    })
+
+    it('Should not set securitySchemes when no security defined', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/public': { get: { responses: { '200': { description: 'OK' } } } },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/public'].securitySchemes).toBeUndefined()
+    })
+
+    it('Should prefer operation-level scheme names over document-level', () => {
+      const doc: OpenApiDocument = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        security: [{ apiKey: [] }],
+        paths: {
+          '/custom': {
+            get: { security: [{ bearerAuth: [] }], responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }
+
+      const schema = openApiToSchema(doc)
+      expect(schema.endpoints.GET!['/custom'].securitySchemes).toEqual(['bearerAuth'])
+    })
+  })
+
   describe('Edge cases', () => {
     it('Should handle documents with no paths', () => {
       const doc: OpenApiDocument = {

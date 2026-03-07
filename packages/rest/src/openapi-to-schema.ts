@@ -44,6 +44,16 @@ const isOperationAuthenticated = (operation: Operation, docSecurity?: OpenApiDoc
   return false
 }
 
+const extractSecuritySchemeNames = (
+  operation: Operation,
+  docSecurity?: OpenApiDocument['security'],
+): string[] | undefined => {
+  const security = operation.security !== undefined ? operation.security : docSecurity
+  if (!security || security.length === 0) return undefined
+  const names = security.flatMap((req) => Object.keys(req))
+  return names.length > 0 ? names : undefined
+}
+
 const extractDocumentMetadata = (doc: OpenApiDocument): ApiDocumentMetadata | undefined => {
   const metadata: ApiDocumentMetadata = {}
   let hasMetadata = false
@@ -100,6 +110,9 @@ const extractDocumentMetadata = (doc: OpenApiDocument): ApiDocumentMetadata | un
  * Preserves operation-level metadata (tags, deprecated, summary, description) and
  * document-level metadata (servers, tags, contact, license, securitySchemes).
  *
+ * **Important:** If the document contains `$ref` pointers, call `resolveOpenApiRefs(doc)`
+ * first to inline them. This function does not resolve `$ref` on its own.
+ *
  * @param doc - The OpenAPI document to convert
  * @returns An ApiEndpointSchema that can be used with FuryStack's API tools
  */
@@ -123,11 +136,14 @@ export const openApiToSchema = (doc: OpenApiDocument): ApiEndpointSchema => {
         const responseSchema = extractResponseSchema(operation)
         const schemaName = extractSchemaName(operation, method, openApiPath)
 
+        const securitySchemeNames = extractSecuritySchemeNames(operation, doc.security)
+
         methodEndpoints[furyStackPath] = {
           path: furyStackPath,
           schema: responseSchema ?? {},
           schemaName,
           isAuthenticated: isOperationAuthenticated(operation, doc.security),
+          ...(securitySchemeNames ? { securitySchemes: securitySchemeNames } : {}),
           ...(operation.tags?.length ? { tags: operation.tags } : {}),
           ...(operation.deprecated ? { deprecated: true } : {}),
           ...(operation.summary ? { summary: operation.summary } : {}),

@@ -132,6 +132,42 @@ export type MyApiWithSchema = WithSchemaAction<MyApi>
 // GET /openapi.json - Returns OpenAPI 3.1 documentation
 ```
 
+## Consuming OpenAPI Documents
+
+You can derive a type-safe `RestApi` from an existing OpenAPI 3.1 document, enabling FuryStack clients to talk to any OpenAPI-described service.
+
+### Type-level extraction
+
+```ts
+import type { OpenApiDocument, OpenApiToRestApi } from '@furystack/rest'
+import { createClient } from '@furystack/rest-client-fetch'
+
+const apiDoc = {
+  /* OpenAPI 3.1 JSON */
+} as const satisfies OpenApiDocument
+
+type PetStoreApi = OpenApiToRestApi<typeof apiDoc>
+
+const client = createClient<PetStoreApi>({ endpointUrl: 'https://petstore.example.com' })
+const { result } = await client({ method: 'GET', action: '/pets' })
+```
+
+Supports `$ref` resolution, `allOf`/`oneOf`/`anyOf` composition, nullable types, `const`, enums, and metadata extraction (`tags`, `deprecated`, `summary`, `description`).
+
+### Runtime conversion
+
+```ts
+import { resolveOpenApiRefs, openApiToSchema } from '@furystack/rest'
+
+// 1. Resolve $ref pointers (required if the document uses $ref)
+const resolved = resolveOpenApiRefs(myOpenApiDoc)
+
+// 2. Convert to FuryStack's ApiEndpointSchema
+const schema = openApiToSchema(resolved)
+```
+
+Security scheme names from the original document are preserved through the conversion, so they survive a round-trip back through `generateOpenApiDocument`.
+
 ## Utilities
 
 ### Query String Serialization

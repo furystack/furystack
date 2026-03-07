@@ -88,6 +88,8 @@ export const generateOpenApiDocument = ({
     },
   }
 
+  const defaultSchemeNames = metadata?.securitySchemes ? Object.keys(metadata.securitySchemes) : ['cookieAuth']
+
   for (const [methodKey, paths] of Object.entries(api) as Array<[Method, Record<string, ApiEndpointDefinition>]>) {
     for (const [path, definition] of Object.entries(paths)) {
       const normalizedPath = path.replace(/:([^/]+)/g, '{$1}')
@@ -134,12 +136,18 @@ export const generateOpenApiDocument = ({
         }
       }
 
+      const operationSecurity = definition.securitySchemes
+        ? definition.securitySchemes.map((name) => ({ [name]: [] }))
+        : definition.isAuthenticated
+          ? defaultSchemeNames.map((name) => ({ [name]: [] }))
+          : []
+
       const method = methodKey.toLowerCase()
       const operation: Operation = {
         summary: definition.summary ?? `${methodKey} ${path}`,
         description: definition.description ?? `Endpoint for ${path}`,
         operationId: `${method}${path.replace(/\//g, '_').replace(/:/g, '').replace(/-/g, '_')}`,
-        security: definition.isAuthenticated ? [{ cookieAuth: [] }] : [],
+        security: operationSecurity,
         parameters,
         ...(definition.tags?.length ? { tags: definition.tags } : {}),
         ...(definition.deprecated ? { deprecated: true } : {}),

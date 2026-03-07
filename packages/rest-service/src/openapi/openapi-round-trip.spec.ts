@@ -288,10 +288,10 @@ describe('Round-trip: individual construct tests', () => {
       expect(schema.endpoints.GET!['/private'].isAuthenticated).toBe(true)
     })
 
-    it('Should map authentication to security in regenerated doc', () => {
+    it('Should preserve security scheme names through round-trip', () => {
       const regenerated = roundTrip(doc)
       expect(regenerated.paths?.['/public']?.get?.security).toEqual([])
-      expect(regenerated.paths?.['/private']?.get?.security).toEqual([{ cookieAuth: [] }])
+      expect(regenerated.paths?.['/private']?.get?.security).toEqual([{ bearerAuth: [] }])
     })
   })
 

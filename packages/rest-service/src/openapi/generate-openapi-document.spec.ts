@@ -609,6 +609,83 @@ describe('generateOpenApiDocument', () => {
       const result = generateOpenApiDocument({ api })
       expect(result.paths?.['/public']?.get?.security).toEqual([])
     })
+
+    it('Should use stored securitySchemes names when available', () => {
+      const api: ApiEndpointSchema['endpoints'] = {
+        GET: {
+          '/private': {
+            path: '/private',
+            isAuthenticated: true,
+            schemaName: 'P',
+            schema: { type: 'object' },
+            securitySchemes: ['bearerAuth'],
+          },
+        },
+      }
+
+      const result = generateOpenApiDocument({ api })
+      expect(result.paths?.['/private']?.get?.security).toEqual([{ bearerAuth: [] }])
+    })
+
+    it('Should use multiple stored securitySchemes names', () => {
+      const api: ApiEndpointSchema['endpoints'] = {
+        GET: {
+          '/private': {
+            path: '/private',
+            isAuthenticated: true,
+            schemaName: 'P',
+            schema: { type: 'object' },
+            securitySchemes: ['bearerAuth', 'apiKey'],
+          },
+        },
+      }
+
+      const result = generateOpenApiDocument({ api })
+      expect(result.paths?.['/private']?.get?.security).toEqual([{ bearerAuth: [] }, { apiKey: [] }])
+    })
+
+    it('Should use metadata securitySchemes keys as default when isAuthenticated is true', () => {
+      const api: ApiEndpointSchema['endpoints'] = {
+        GET: {
+          '/private': { path: '/private', isAuthenticated: true, schemaName: 'P', schema: { type: 'object' } },
+        },
+      }
+
+      const result = generateOpenApiDocument({
+        api,
+        metadata: {
+          securitySchemes: {
+            bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+            apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
+          },
+        },
+      })
+      expect(result.paths?.['/private']?.get?.security).toEqual([{ bearerAuth: [] }, { apiKey: [] }])
+    })
+
+    it('Should prefer stored securitySchemes over metadata-derived defaults', () => {
+      const api: ApiEndpointSchema['endpoints'] = {
+        GET: {
+          '/private': {
+            path: '/private',
+            isAuthenticated: true,
+            schemaName: 'P',
+            schema: { type: 'object' },
+            securitySchemes: ['customScheme'],
+          },
+        },
+      }
+
+      const result = generateOpenApiDocument({
+        api,
+        metadata: {
+          securitySchemes: {
+            bearerAuth: { type: 'http', scheme: 'bearer' },
+          },
+        },
+      })
+      expect(result.paths?.['/private']?.get?.security).toEqual([{ customScheme: [] }])
+    })
   })
 
   describe('Operation metadata', () => {

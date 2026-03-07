@@ -54,6 +54,12 @@ export type ApiEndpointDefinition = {
    * A longer description of the endpoint.
    */
   description?: string
+  /**
+   * The OpenAPI security scheme names required for this endpoint.
+   * When present, used by `generateOpenApiDocument` to emit accurate per-operation `security`.
+   * When absent, falls back to the `isAuthenticated` boolean behavior.
+   */
+  securitySchemes?: string[]
 }
 
 /**

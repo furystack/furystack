@@ -35,5 +35,7 @@ export type WithSchemaAction<T extends RestApi> = T & {
   GET: {
     '/schema': { result: ApiEndpointSchema<T>; headers: { accept: 'application/schema+json' } }
     '/openapi.json': { result: OpenApiDocument }
+    /** @deprecated Use `/openapi.json` instead. This endpoint will be removed in a future major version. */
+    '/swagger.json': { result: OpenApiDocument }
   }
 }
