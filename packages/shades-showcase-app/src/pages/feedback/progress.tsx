@@ -9,7 +9,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const ProgressPage = Shade({
-  shadowDomName: 'progress-page',
+  customElementName: 'progress-page',
   render: ({ useState }) => {
     const [progressValue, setProgressValue] = useState('progressValue', 40)
 

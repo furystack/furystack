@@ -23,7 +23,7 @@ export interface CommandPaletteProps {
 }
 
 export const CommandPalette = Shade<CommandPaletteProps>({
-  shadowDomName: 'shade-command-palette',
+  customElementName: 'shade-command-palette',
   css: {
     ...searchableInputStyles,
     fontFamily: cssVariableTheme.typography.fontFamily,

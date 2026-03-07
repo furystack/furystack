@@ -3,7 +3,7 @@ import { Icon, icons, PageContainer, PageHeader, Paper, Typography } from '@fury
 import { WelcomeWizard } from '../wizard/home-wizard.js'
 
 export const WizardPage = Shade({
-  shadowDomName: 'shades-showcase-wizard',
+  customElementName: 'shades-showcase-wizard',
   render: () => {
     return (
       <PageContainer centered>

@@ -108,7 +108,7 @@ const getDefaultMessagesForValidityState = (state: ValidityState) => {
 }
 
 export const Input = Shade<TextInputProps>({
-  shadowDomName: 'shade-input',
+  customElementName: 'shade-input',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

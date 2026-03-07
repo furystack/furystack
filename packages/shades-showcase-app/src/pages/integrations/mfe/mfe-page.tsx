@@ -23,7 +23,7 @@ type MfeClientState = {
 }
 
 export const MFEPage = Shade({
-  shadowDomName: 'shades-mfe-page',
+  customElementName: 'shades-mfe-page',
   render: ({ useState }) => {
     const [mfeClients, setMfeClients] = useState<MfeClientState[]>('mfeClients', [])
 

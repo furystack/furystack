@@ -49,7 +49,7 @@ export type SwitchProps = {
 }
 
 export const Switch = Shade<SwitchProps>({
-  shadowDomName: 'shade-switch',
+  customElementName: 'shade-switch',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

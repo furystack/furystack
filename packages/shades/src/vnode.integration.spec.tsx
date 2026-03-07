@@ -19,7 +19,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-focus-test',
+          customElementName: 'morph-focus-test',
           render: ({ useState }) => {
             const [label, setLabel] = useState('label', 'initial')
             return (
@@ -64,7 +64,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-focus-textarea-test',
+          customElementName: 'morph-focus-textarea-test',
           render: ({ useState }) => {
             const [count, setCount] = useState('count', 0)
             return (
@@ -106,7 +106,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-form-value-test',
+          customElementName: 'morph-form-value-test',
           render: ({ useState }) => {
             const [title, setTitle] = useState('title', 'Title')
             return (
@@ -151,7 +151,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-checkbox-test',
+          customElementName: 'morph-checkbox-test',
           render: ({ useState }) => {
             const [count, setCount] = useState('count', 0)
             return (
@@ -195,7 +195,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-select-test',
+          customElementName: 'morph-select-test',
           render: ({ useState }) => {
             const [label, setLabel] = useState('label', 'Pick one')
             return (
@@ -245,7 +245,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-identity-test',
+          customElementName: 'morph-identity-test',
           render: ({ useState }) => {
             const [count, setCount] = useState('count', 0)
             return (
@@ -287,7 +287,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-tag-change-test',
+          customElementName: 'morph-tag-change-test',
           render: ({ useState }) => {
             const [useDiv, setUseDiv] = useState('useDiv', true)
             return useDiv ? (
@@ -333,7 +333,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-animation-test',
+          customElementName: 'morph-animation-test',
           render: ({ useState }) => {
             const [isActive, setIsActive] =
               // eslint-disable-next-line furystack/no-css-state-hooks -- test for re-render behavior, not CSS state
@@ -374,7 +374,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-style-transition-test',
+          customElementName: 'morph-style-transition-test',
           render: ({ useState }) => {
             const [isExpanded, setIsExpanded] = useState('isExpanded', false)
             return (
@@ -424,7 +424,7 @@ describe('VNode reconciliation integration tests', () => {
         const clicks: number[] = []
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-handler-test',
+          customElementName: 'morph-handler-test',
           render: ({ useState }) => {
             const [count, setCount] = useState('count', 0)
             return (
@@ -482,7 +482,7 @@ describe('VNode reconciliation integration tests', () => {
         const obs = new ObservableValue('hello')
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-observable-test',
+          customElementName: 'morph-observable-test',
           render: ({ useObservable }) => {
             const [value] = useObservable('obs', obs)
             return (
@@ -528,7 +528,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-fragment-test',
+          customElementName: 'morph-fragment-test',
           render: ({ useState }) => {
             const [count, setCount] = useState('count', 0)
             return (
@@ -569,7 +569,7 @@ describe('VNode reconciliation integration tests', () => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const ExampleComponent = Shade({
-          shadowDomName: 'morph-text-result-test',
+          customElementName: 'morph-text-result-test',
           render: ({ useState }) => {
             const [text] = useState('text', 'initial')
             return text
@@ -611,7 +611,7 @@ describe('VNode reconciliation integration tests', () => {
         const childRenderSpy = vi.fn()
 
         const ChildComponent = Shade<{ value: number }>({
-          shadowDomName: 'morph-child-component',
+          customElementName: 'morph-child-component',
           render: ({ props }) => {
             childRenderSpy()
             return <span id="child-value">{props.value}</span>
@@ -619,7 +619,7 @@ describe('VNode reconciliation integration tests', () => {
         })
 
         const ParentComponent = Shade({
-          shadowDomName: 'morph-parent-component',
+          customElementName: 'morph-parent-component',
           render: ({ useState }) => {
             const [count, setCount] = useState('count', 0)
             return (

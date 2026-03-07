@@ -74,7 +74,7 @@ const programmingLanguages = [
 ]
 
 export const SelectPage = Shade({
-  shadowDomName: 'select-page',
+  customElementName: 'select-page',
   render: () => {
     return (
       <PageContainer centered>

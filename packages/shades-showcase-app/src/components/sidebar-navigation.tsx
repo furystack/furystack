@@ -4,7 +4,7 @@ import { cssVariableTheme, Icon, icons } from '@furystack/shades-common-componen
 import { getCategoryNodes } from '../nav-tree.js'
 
 const SidebarPageLink = Shade<{ node: NavTreeNode; categoryPath: string }>({
-  shadowDomName: 'sidebar-page-link',
+  customElementName: 'sidebar-page-link',
   css: {
     display: 'block',
     '& a': {
@@ -51,7 +51,7 @@ const SidebarPageLink = Shade<{ node: NavTreeNode; categoryPath: string }>({
 })
 
 const SidebarCategory = Shade<{ node: NavTreeNode }>({
-  shadowDomName: 'sidebar-category',
+  customElementName: 'sidebar-category',
   css: {
     display: 'block',
     marginBottom: '2px',
@@ -140,7 +140,7 @@ const SidebarCategory = Shade<{ node: NavTreeNode }>({
  * categories and highlights the current page.
  */
 export const SidebarNavigation = Shade({
-  shadowDomName: 'sidebar-navigation',
+  customElementName: 'sidebar-navigation',
   css: {
     display: 'block',
     height: '100%',

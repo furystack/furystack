@@ -6,7 +6,7 @@ import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { CircularProgress } from './circular-progress.js'
 
 const CircularWrapper = Shade<{ obs: ObservableValue<number> }>({
-  shadowDomName: 'test-circular-progress-wrapper',
+  customElementName: 'test-circular-progress-wrapper',
   render: ({ props, useObservable }) => {
     const [value] = useObservable('value', props.obs)
     return <CircularProgress variant="determinate" value={value} />
@@ -43,7 +43,7 @@ describe('CircularProgress', () => {
     vi.restoreAllMocks()
   })
 
-  it('should render with shadow DOM', async () => {
+  it('should render as custom element', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 

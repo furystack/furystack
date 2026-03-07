@@ -6,7 +6,7 @@ import { user as userIcon } from './icons/icon-definitions.js'
 export type AvatarProps = { avatarUrl: string; fallback?: JSX.Element } & PartialElement<HTMLDivElement>
 
 export const Avatar = Shade<AvatarProps>({
-  shadowDomName: 'shade-avatar',
+  customElementName: 'shade-avatar',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
     width: '128px',

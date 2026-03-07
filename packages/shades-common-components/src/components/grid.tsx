@@ -28,7 +28,7 @@ export type RowCells<T, Columns extends string> = {
  */
 export const Grid: <T, Column extends string>(props: GridProps<T, Column>, children: ChildrenList) => JSX.Element<any> =
   Shade({
-    shadowDomName: 'shade-grid',
+    customElementName: 'shade-grid',
     css: {
       display: 'block',
       fontFamily: cssVariableTheme.typography.fontFamily,

@@ -11,7 +11,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const AccordionPage = Shade({
-  shadowDomName: 'shades-accordion-page',
+  customElementName: 'shades-accordion-page',
   render: () => {
     return (
       <PageContainer centered>
@@ -34,7 +34,7 @@ export const AccordionPage = Shade({
             </AccordionItem>
             <AccordionItem title="How does the Shades framework work?">
               <Typography variant="body1" style={{ margin: '0' }}>
-                Shades is a lightweight UI framework built on Web Components and Shadow DOM. Components are created
+                Shades is a lightweight UI framework built on Web Components (Custom Elements). Components are created
                 using the <code>Shade()</code> factory function with built-in CSS-in-JS, lifecycle hooks, and dependency
                 injection support.
               </Typography>
@@ -129,7 +129,7 @@ export const AccordionPage = Shade({
                 }}
               >
                 {`const greeting = Shade({
-  shadowDomName: 'my-greeting',
+  customElementName: 'my-greeting',
   render: () => <h1>Hello, World!</h1>,
 })`}
               </pre>

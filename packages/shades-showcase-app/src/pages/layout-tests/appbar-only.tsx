@@ -6,7 +6,7 @@ import { PageContainer, PageHeader, PageLayout, Paper, Typography } from '@furys
  * Used for E2E visual regression testing
  */
 export const AppBarOnlyTest = Shade({
-  shadowDomName: 'layout-test-appbar-only',
+  customElementName: 'layout-test-appbar-only',
   render: () => (
     <PageLayout
       appBar={{

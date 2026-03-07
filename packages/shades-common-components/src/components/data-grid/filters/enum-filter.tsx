@@ -17,7 +17,7 @@ export const EnumFilter = Shade<{
   onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
-  shadowDomName: 'data-grid-enum-filter',
+  customElementName: 'data-grid-enum-filter',
   css: {
     ...filterBaseCss,
     fontFamily: cssVariableTheme.typography.fontFamily,

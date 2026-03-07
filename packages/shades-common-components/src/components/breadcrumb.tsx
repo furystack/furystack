@@ -66,7 +66,7 @@ export type TypedBreadcrumbProps<TRoutes extends Record<string, NestedRoute<unkn
  * ```
  */
 export const Breadcrumb = Shade<BreadcrumbProps>({
-  shadowDomName: 'shade-breadcrumb',
+  customElementName: 'shade-breadcrumb',
   elementBase: HTMLElement,
   elementBaseName: 'nav',
   css: {

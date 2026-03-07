@@ -8,7 +8,7 @@ export type FilterDropdownProps = {
 }
 
 export const FilterDropdown: (props: FilterDropdownProps, children: ChildrenList) => JSX.Element = Shade({
-  shadowDomName: 'data-grid-filter-dropdown',
+  customElementName: 'data-grid-filter-dropdown',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
     display: 'block',

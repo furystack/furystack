@@ -9,7 +9,7 @@ import { DataGridHeader, OrderButton } from './header.js'
 type TestItem = { id: number; name: string; email: string }
 
 const OrderButtonWrapper = Shade<{ obs: ObservableValue<FilterableFindOptions>; field: string }>({
-  shadowDomName: 'test-order-button-wrapper',
+  customElementName: 'test-order-button-wrapper',
   render: ({ props, useObservable }) => {
     const [findOptions, setFindOptions] = useObservable('findOptions', props.obs)
     return <OrderButton field={props.field} findOptions={findOptions} onFindOptionsChange={setFindOptions} />
@@ -26,7 +26,7 @@ const HeaderWrapper = Shade<{
     | { type: 'date' }
     | { type: 'enum'; values: Array<{ label: string; value: string }> }
 }>({
-  shadowDomName: 'test-header-wrapper',
+  customElementName: 'test-header-wrapper',
   render: ({ props, useObservable }) => {
     const [findOptions, setFindOptions] = useObservable('findOptions', props.obs)
     return (

@@ -24,11 +24,11 @@ typedTester.run('no-direct-get-value-in-render (typed)', noDirectGetValueInRende
       name: '.getValue() on non-ObservableValue is ignored when type info is available',
       filename: 'test.tsx',
       code: `
-        declare function Shade(opts: { shadowDomName: string; render: () => any }): any
+        declare function Shade(opts: { customElementName: string; render: () => any }): any
         declare class FormField<T> { getValue(): T }
         declare const field: FormField<string>
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return <div>{field.getValue()}</div>
           }
@@ -41,11 +41,11 @@ typedTester.run('no-direct-get-value-in-render (typed)', noDirectGetValueInRende
       name: '.getValue() on ObservableValue is still reported with type info',
       filename: 'test.tsx',
       code: `
-        declare function Shade(opts: { shadowDomName: string; render: () => any }): any
+        declare function Shade(opts: { customElementName: string; render: () => any }): any
         declare class ObservableValue<T> { getValue(): T; setValue(v: T): void }
         declare const obs: ObservableValue<boolean>
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return <div>{obs.getValue() ? 'yes' : 'no'}</div>
           }
@@ -86,11 +86,11 @@ typedTester.run('no-manual-subscribe-in-render (typed)', noManualSubscribeInRend
       name: '.subscribe() on EventTarget is ignored when type info is available',
       filename: 'test.tsx',
       code: `
-        declare function Shade(opts: { shadowDomName: string; render: () => any }): any
+        declare function Shade(opts: { customElementName: string; render: () => any }): any
         declare class EventEmitter { subscribe(cb: () => void): void }
         declare const emitter: EventEmitter
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             emitter.subscribe(() => {})
             return <div />
@@ -104,11 +104,11 @@ typedTester.run('no-manual-subscribe-in-render (typed)', noManualSubscribeInRend
       name: '.subscribe() on ObservableValue is still reported with type info',
       filename: 'test.tsx',
       code: `
-        declare function Shade(opts: { shadowDomName: string; render: () => any }): any
+        declare function Shade(opts: { customElementName: string; render: () => any }): any
         declare class ObservableValue<T> { subscribe(cb: (v: T) => void): { dispose(): void }; getValue(): T }
         declare const obs: ObservableValue<string>
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             obs.subscribe(() => {})
             return <div />

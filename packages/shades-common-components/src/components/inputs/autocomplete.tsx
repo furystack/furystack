@@ -12,7 +12,7 @@ export const Autocomplete = Shade<{
   strict?: boolean
   onchange?: (value: string) => void
 }>({
-  shadowDomName: 'shade-autocomplete',
+  customElementName: 'shade-autocomplete',
   css: { fontFamily: cssVariableTheme.typography.fontFamily },
   render: ({ props, useState, useDisposable, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')

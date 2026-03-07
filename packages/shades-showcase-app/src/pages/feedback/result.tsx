@@ -14,7 +14,7 @@ import {
 const semanticStatuses: ResultStatus[] = ['success', 'error', 'warning', 'info']
 
 export const ResultPage = Shade({
-  shadowDomName: 'shades-result-page',
+  customElementName: 'shades-result-page',
   render: () => {
     return (
       <PageContainer centered>

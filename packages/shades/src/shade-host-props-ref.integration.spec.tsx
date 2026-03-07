@@ -18,7 +18,7 @@ describe('useHostProps integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade<{ variant: string }>({
-        shadowDomName: 'host-props-data-attr-test',
+        customElementName: 'host-props-data-attr-test',
         render: ({ props, useHostProps }) => {
           useHostProps({
             'data-variant': props.variant,
@@ -45,7 +45,7 @@ describe('useHostProps integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'host-props-aria-test',
+        customElementName: 'host-props-aria-test',
         render: ({ useHostProps }) => {
           useHostProps({
             role: 'progressbar',
@@ -77,7 +77,7 @@ describe('useHostProps integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'host-props-css-vars-test',
+        customElementName: 'host-props-css-vars-test',
         render: ({ useHostProps }) => {
           useHostProps({
             style: {
@@ -107,7 +107,7 @@ describe('useHostProps integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'host-props-inline-style-test',
+        customElementName: 'host-props-inline-style-test',
         render: ({ useHostProps }) => {
           useHostProps({
             style: {
@@ -137,7 +137,7 @@ describe('useHostProps integration tests', () => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const ExampleComponent = Shade({
-        shadowDomName: 'host-props-merge-test',
+        customElementName: 'host-props-merge-test',
         render: ({ useHostProps }) => {
           useHostProps({
             'data-first': 'one',
@@ -172,7 +172,7 @@ describe('useHostProps integration tests', () => {
       const showExtra = new ObservableValue(true)
 
       const ExampleComponent = Shade({
-        shadowDomName: 'host-props-remove-attr-test',
+        customElementName: 'host-props-remove-attr-test',
         render: ({ useHostProps, useObservable }) => {
           const [show] = useObservable('showExtra', showExtra)
           useHostProps({
@@ -208,7 +208,7 @@ describe('useHostProps integration tests', () => {
       const showColor = new ObservableValue(true)
 
       const ExampleComponent = Shade({
-        shadowDomName: 'host-props-remove-css-var-test',
+        customElementName: 'host-props-remove-css-var-test',
         render: ({ useHostProps, useObservable }) => {
           const [show] = useObservable('showColor', showColor)
           useHostProps({
@@ -246,7 +246,7 @@ describe('useHostProps integration tests', () => {
       let clicked = false
 
       const ExampleComponent = Shade({
-        shadowDomName: 'host-props-event-test',
+        customElementName: 'host-props-event-test',
         render: ({ useHostProps }) => {
           useHostProps({
             onclick: () => {
@@ -286,7 +286,7 @@ describe('useRef integration tests', () => {
       let capturedRef: { readonly current: HTMLDivElement | null } | undefined
 
       const ExampleComponent = Shade({
-        shadowDomName: 'use-ref-basic-test',
+        customElementName: 'use-ref-basic-test',
         render: ({ useRef }) => {
           const divRef = useRef<HTMLDivElement>('myDiv')
           capturedRef = divRef
@@ -320,7 +320,7 @@ describe('useRef integration tests', () => {
       const capturedRefs: Array<{ readonly current: Element | null }> = []
 
       const ExampleComponent = Shade({
-        shadowDomName: 'use-ref-stable-test',
+        customElementName: 'use-ref-stable-test',
         render: ({ useRef, useObservable }) => {
           const [count] = useObservable('counter', counter)
           const divRef = useRef('myDiv')
@@ -355,7 +355,7 @@ describe('useRef integration tests', () => {
       let capturedInputRef: { readonly current: HTMLInputElement | null } | undefined
 
       const ExampleComponent = Shade({
-        shadowDomName: 'use-ref-nested-test',
+        customElementName: 'use-ref-nested-test',
         render: ({ useRef }) => {
           const inputRef = useRef<HTMLInputElement>('input')
           capturedInputRef = inputRef
@@ -391,7 +391,7 @@ describe('useRef integration tests', () => {
       let capturedRef: { readonly current: HTMLSpanElement | null } | undefined
 
       const ExampleComponent = Shade({
-        shadowDomName: 'use-ref-unmount-test',
+        customElementName: 'use-ref-unmount-test',
         render: ({ useRef, useObservable }) => {
           const [show] = useObservable('showChild', showChild)
           const spanRef = useRef<HTMLSpanElement>('span')
@@ -423,7 +423,7 @@ describe('useRef integration tests', () => {
       const counter = new ObservableValue(0)
 
       const ExampleComponent = Shade({
-        shadowDomName: 'use-ref-onchange-test',
+        customElementName: 'use-ref-onchange-test',
         render: ({ useRef, useObservable }) => {
           const spanRef = useRef<HTMLSpanElement>('counterSpan')
           useObservable('counter', counter, {

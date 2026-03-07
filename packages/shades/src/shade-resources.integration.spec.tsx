@@ -35,7 +35,7 @@ describe('Shade Resources integration tests', () => {
             </div>
           )
         },
-        shadowDomName: 'shades-example-resource',
+        customElementName: 'shades-example-resource',
       })
 
       expect(obs1.getObservers().length).toBe(0)
@@ -99,7 +99,7 @@ describe('Shade Resources integration tests', () => {
           renderCounter()
           return <div id="val">{value}</div>
         },
-        shadowDomName: 'shades-example-custom-onchange',
+        customElementName: 'shades-example-custom-onchange',
       })
 
       initializeShadeRoot({
@@ -167,7 +167,7 @@ describe('Shade Resources integration tests', () => {
             </div>
           )
         },
-        shadowDomName: 'shades-example-manual-dom-update',
+        customElementName: 'shades-example-manual-dom-update',
       })
 
       initializeShadeRoot({
@@ -228,7 +228,7 @@ describe('Shade Resources integration tests', () => {
             </div>
           )
         },
-        shadowDomName: 'shades-example-batching',
+        customElementName: 'shades-example-batching',
       })
 
       initializeShadeRoot({
@@ -273,7 +273,7 @@ describe('Shade Resources integration tests', () => {
           renderCounter()
           return <div>content</div>
         },
-        shadowDomName: 'shades-example-update-batching',
+        customElementName: 'shades-example-update-batching',
       })
 
       initializeShadeRoot({

@@ -7,12 +7,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { CacheView } from './cache-view.js'
 
 const TestContent = Shade<{ data: CacheWithValue<string> }>({
-  shadowDomName: 'test-cache-content',
+  customElementName: 'test-cache-content',
   render: ({ props }) => <span className="content-value">{props.data.value}</span>,
 })
 
 const TestContentWithLabel = Shade<{ data: CacheWithValue<string>; label: string }>({
-  shadowDomName: 'test-cache-content-with-label',
+  customElementName: 'test-cache-content-with-label',
   render: ({ props }) => (
     <span className="content-value">
       {props.label}: {props.data.value}

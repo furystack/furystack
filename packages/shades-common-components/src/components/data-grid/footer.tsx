@@ -12,7 +12,7 @@ export const DataGridFooter: <T>(props: {
   onFindOptionsChange: (options: FindOptions<T, Array<keyof T>>) => void
   paginationOptions?: number[]
 }) => JSX.Element = Shade({
-  shadowDomName: 'shade-data-grid-footer',
+  customElementName: 'shade-data-grid-footer',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

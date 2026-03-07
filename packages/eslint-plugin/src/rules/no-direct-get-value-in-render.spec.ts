@@ -18,7 +18,7 @@ tester.run('no-direct-get-value-in-render', noDirectGetValueInRender, {
       name: '.getValue() outside render return (e.g. assigning to variable before return)',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             const val = someObservable.getValue()
             return <div>{val}</div>
@@ -38,7 +38,7 @@ tester.run('no-direct-get-value-in-render', noDirectGetValueInRender, {
       name: 'no .getValue() call at all',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: ({ useObservable }) => {
             const [user] = useObservable('user', userService.currentUser)
             return <div>{user.name}</div>
@@ -50,7 +50,7 @@ tester.run('no-direct-get-value-in-render', noDirectGetValueInRender, {
       name: '.getValue() inside event handler callback is fine (executes at event time)',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return <div onkeyup={() => manager.selectedIndex.setValue(Math.max(0, obs.getValue() - 1))}>test</div>
           }
@@ -61,7 +61,7 @@ tester.run('no-direct-get-value-in-render', noDirectGetValueInRender, {
       name: '.getValue() inside callback prop is fine (executes at call time)',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return <Input getValidationResult={() => { const v = obs.getValue(); return v }} />
           }
@@ -74,7 +74,7 @@ tester.run('no-direct-get-value-in-render', noDirectGetValueInRender, {
       name: '.getValue() directly in JSX return expression',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return <div>{someObservable.getValue()}</div>
           }
@@ -86,7 +86,7 @@ tester.run('no-direct-get-value-in-render', noDirectGetValueInRender, {
       name: '.getValue() in arrow function expression body (implicit return)',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => <div>{sessionService.currentUser.getValue()}</div>
         })
       `,
@@ -96,7 +96,7 @@ tester.run('no-direct-get-value-in-render', noDirectGetValueInRender, {
       name: 'nested .getValue() in return expression',
       code: `
         Shade({
-          shadowDomName: 'my-comp',
+          customElementName: 'my-comp',
           render: () => {
             return <div>{isLoading.getValue() ? 'loading' : 'done'}</div>
           }

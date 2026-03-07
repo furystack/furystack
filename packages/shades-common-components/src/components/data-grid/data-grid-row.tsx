@@ -21,7 +21,7 @@ export const DataGridRow: <T, Column extends string>(
   props: DataGridRowProps<T, Column>,
   children: ChildrenList,
 ) => JSX.Element<any> = Shade({
-  shadowDomName: 'shades-data-grid-row',
+  customElementName: 'shades-data-grid-row',
   css: {
     display: 'table-row',
     fontFamily: cssVariableTheme.typography.fontFamily,

@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Icon, icons, Input, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const StoredStatePage = Shade({
-  shadowDomName: 'shades-stored-state-page',
+  customElementName: 'shades-stored-state-page',
   render: ({ useStoredState, renderCount }) => {
     const [searchValue, setSearchValue] = useStoredState('storedStateValue', '', sessionStorage)
 

@@ -14,7 +14,7 @@ import {
  * Used for E2E visual regression testing
  */
 export const AppBarBothDrawersTest = Shade({
-  shadowDomName: 'layout-test-both-drawers',
+  customElementName: 'layout-test-both-drawers',
   render: () => (
     <PageLayout
       topGap="16px"

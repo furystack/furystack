@@ -13,7 +13,7 @@ export type Tab = {
 }
 
 const TabHeader = Shade<{ hash: string }>({
-  shadowDomName: 'shade-tab-header',
+  customElementName: 'shade-tab-header',
   css: {
     padding: `${cssVariableTheme.spacing.md} 40px`,
     cursor: 'pointer',
@@ -74,7 +74,7 @@ export const Tabs = Shade<{
   onAdd?: () => void
   viewTransition?: boolean | ViewTransitionConfig
 }>({
-  shadowDomName: 'shade-tabs',
+  customElementName: 'shade-tabs',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
     width: '100%',

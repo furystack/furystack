@@ -31,7 +31,7 @@ export type LinearProgressProps = {
 const clampValue = (v: number) => Math.max(0, Math.min(100, v))
 
 export const LinearProgress = Shade<LinearProgressProps>({
-  shadowDomName: 'shade-linear-progress',
+  customElementName: 'shade-linear-progress',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

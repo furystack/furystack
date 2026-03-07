@@ -11,7 +11,7 @@ const entries: SuggestEntry[] = [
 ]
 
 export const CommandPalettePage = Shade({
-  shadowDomName: 'shades-command-palette-page',
+  customElementName: 'shades-command-palette-page',
   render: () => {
     return (
       <PageContainer centered>

@@ -12,7 +12,7 @@ export type DividerProps = PartialElement<HTMLElement> & {
 }
 
 export const Divider = Shade<DividerProps>({
-  shadowDomName: 'shade-divider',
+  customElementName: 'shade-divider',
   css: {
     display: 'flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

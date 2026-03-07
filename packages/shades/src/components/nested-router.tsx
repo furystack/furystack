@@ -248,7 +248,7 @@ export const resolveViewTransition = (
  * innermost route, then renders inside-out so each parent wraps its child.
  */
 export const NestedRouter = Shade<NestedRouterProps>({
-  shadowDomName: 'shade-nested-router',
+  customElementName: 'shade-nested-router',
   render: (options) => {
     const { useState, useObservable, injector } = options
     const [versionRef] = useState('navVersion', { current: 0 })

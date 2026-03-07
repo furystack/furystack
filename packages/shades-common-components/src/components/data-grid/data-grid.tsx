@@ -125,7 +125,7 @@ export const DataGrid: <T, Column extends string>(
   props: DataGridProps<T, Column>,
   children: ChildrenList,
 ) => JSX.Element<any> = Shade({
-  shadowDomName: 'shade-data-grid',
+  customElementName: 'shade-data-grid',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

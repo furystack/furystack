@@ -12,7 +12,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const DialogPage = Shade({
-  shadowDomName: 'shades-dialog-page',
+  customElementName: 'shades-dialog-page',
   render: ({ useState }) => {
     const [isBasicOpen, setBasicOpen] = useState('basicDialog', false)
     const [isActionsOpen, setActionsOpen] = useState('actionsDialog', false)

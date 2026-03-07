@@ -11,7 +11,7 @@ export const BooleanFilter = Shade<{
   onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
-  shadowDomName: 'data-grid-boolean-filter',
+  customElementName: 'data-grid-boolean-filter',
   css: { fontFamily: cssVariableTheme.typography.fontFamily },
   render: ({ props }) => {
     const { findOptions } = props

@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Icon, icons, PageContainer, PageHeader, Paper, Switch, Typography } from '@furystack/shades-common-components'
 
 export const SwitchPage = Shade({
-  shadowDomName: 'switch-page',
+  customElementName: 'switch-page',
   render: ({ useState }) => {
     const [isControlledChecked, setIsControlledChecked] = useState('controlledValue', true)
 

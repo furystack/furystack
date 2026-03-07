@@ -11,7 +11,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const InputsPage = Shade({
-  shadowDomName: 'inputs-page',
+  customElementName: 'inputs-page',
   render: () => {
     return (
       <PageContainer centered>

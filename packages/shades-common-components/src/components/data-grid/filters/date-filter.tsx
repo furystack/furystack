@@ -15,7 +15,7 @@ export const DateFilter = Shade<{
   onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
-  shadowDomName: 'data-grid-date-filter',
+  customElementName: 'data-grid-date-filter',
   css: {
     ...filterBaseCss,
     fontFamily: cssVariableTheme.typography.fontFamily,

@@ -12,7 +12,7 @@ export type ContextMenuProps<T> = {
 export const ContextMenu: <T>(props: ContextMenuProps<T>, children: ChildrenList) => JSX.Element<any> = Shade<
   ContextMenuProps<any>
 >({
-  shadowDomName: 'shade-context-menu',
+  customElementName: 'shade-context-menu',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
     '& .context-menu-backdrop': {

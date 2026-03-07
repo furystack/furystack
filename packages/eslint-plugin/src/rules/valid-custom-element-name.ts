@@ -4,21 +4,22 @@ import { createRule } from '../create-rule.js'
 
 type Options = [{ requiredPrefix?: string }]
 
-/** Validates `shadowDomName` in `Shade()` conforms to the Custom Elements spec. Provides auto-fix for casing. */
-export const validShadowDomName = createRule<Options, string>({
-  name: 'valid-shadow-dom-name',
+/** Validates `customElementName` in `Shade()` conforms to the Custom Elements spec. Provides auto-fix for casing. */
+export const validCustomElementName = createRule<Options, string>({
+  name: 'valid-custom-element-name',
   meta: {
     type: 'problem',
     docs: {
       description:
-        'Validate the shadowDomName string in Shade() calls. Custom element names must be lowercase, contain a hyphen, and not start with a digit or hyphen.',
+        'Validate the customElementName string in Shade() calls. Custom element names must be lowercase, contain a hyphen, and not start with a digit or hyphen.',
     },
     fixable: 'code',
     messages: {
-      missingHyphen: 'shadowDomName "{{ name }}" must contain at least one hyphen (Custom Elements spec requirement).',
-      notLowercase: 'shadowDomName "{{ name }}" must be all lowercase.',
-      invalidStart: 'shadowDomName "{{ name }}" must not start with a digit or hyphen.',
-      missingPrefix: 'shadowDomName "{{ name }}" must start with the prefix "{{ prefix }}".',
+      missingHyphen:
+        'customElementName "{{ name }}" must contain at least one hyphen (Custom Elements spec requirement).',
+      notLowercase: 'customElementName "{{ name }}" must be all lowercase.',
+      invalidStart: 'customElementName "{{ name }}" must not start with a digit or hyphen.',
+      missingPrefix: 'customElementName "{{ name }}" must start with the prefix "{{ prefix }}".',
     },
     schema: [
       {
@@ -43,7 +44,7 @@ export const validShadowDomName = createRule<Options, string>({
 
         for (const prop of arg.properties) {
           if (prop.type !== AST_NODE_TYPES.Property) continue
-          if (prop.key.type !== AST_NODE_TYPES.Identifier || prop.key.name !== 'shadowDomName') continue
+          if (prop.key.type !== AST_NODE_TYPES.Identifier || prop.key.name !== 'customElementName') continue
 
           if (prop.value.type !== AST_NODE_TYPES.Literal || typeof prop.value.value !== 'string') continue
 

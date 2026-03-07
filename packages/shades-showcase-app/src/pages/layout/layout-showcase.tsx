@@ -60,7 +60,7 @@ const SampleContent = ({ text }: { text: string }) => (
 )
 
 const ToggleLeftDrawerButton = Shade({
-  shadowDomName: 'showcase-toggle-left',
+  customElementName: 'showcase-toggle-left',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -76,7 +76,7 @@ const ToggleLeftDrawerButton = Shade({
 })
 
 const OpenTempDrawerButton = Shade({
-  shadowDomName: 'showcase-open-temp-drawer',
+  customElementName: 'showcase-open-temp-drawer',
   render: ({ injector }) => {
     const layoutService = injector.getInstance(LayoutService)
     return (
@@ -92,7 +92,7 @@ const OpenTempDrawerButton = Shade({
 })
 
 const ShowAppBarTab = Shade({
-  shadowDomName: 'showcase-show-appbar-tab',
+  customElementName: 'showcase-show-appbar-tab',
   css: {
     position: 'absolute',
     top: '0',
@@ -270,7 +270,7 @@ type LayoutShowcaseBlockProps = {
 }
 
 const LayoutShowcaseBlock = Shade<LayoutShowcaseBlockProps>({
-  shadowDomName: 'layout-showcase-block',
+  customElementName: 'layout-showcase-block',
   render: ({ props }) => {
     return (
       <div
@@ -315,7 +315,7 @@ const LayoutShowcaseBlock = Shade<LayoutShowcaseBlockProps>({
 })
 
 export const LayoutShowcasePage = Shade({
-  shadowDomName: 'layout-showcase-page',
+  customElementName: 'layout-showcase-page',
   render: () => {
     return (
       <PageContainer centered>

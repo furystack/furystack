@@ -10,7 +10,7 @@ const CustomNestedRouteLink = styledShade(NestedRouteLink, {
 })
 
 export const HomePage = Shade({
-  shadowDomName: 'shades-showcase-home',
+  customElementName: 'shades-showcase-home',
   render: () => {
     return (
       <PageContainer centered>

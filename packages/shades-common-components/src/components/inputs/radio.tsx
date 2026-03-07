@@ -41,7 +41,7 @@ export type RadioProps = {
 }
 
 export const Radio = Shade<RadioProps>({
-  shadowDomName: 'shade-radio',
+  customElementName: 'shade-radio',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

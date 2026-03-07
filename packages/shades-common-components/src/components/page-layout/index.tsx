@@ -92,7 +92,7 @@ const DEFAULT_DRAWER_WIDTH = '240px'
  * ```
  */
 export const PageLayout = Shade<PageLayoutProps>({
-  shadowDomName: 'shade-page-layout',
+  customElementName: 'shade-page-layout',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

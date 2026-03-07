@@ -10,7 +10,7 @@ import {
 import { applyTheme, themeDropdownItems, themeEntries } from '../theme-registry.js'
 
 export const ThemeSwitch = Shade({
-  shadowDomName: 'theme-switch',
+  customElementName: 'theme-switch',
   render: ({ injector, useStoredState, useDisposable }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const notyService = injector.getInstance(NotyService)

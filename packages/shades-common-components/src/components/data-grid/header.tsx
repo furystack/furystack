@@ -25,7 +25,7 @@ export const OrderButton = Shade<{
   findOptions: FilterableFindOptions
   onFindOptionsChange: (options: FilterableFindOptions) => void
 }>({
-  shadowDomName: 'data-grid-order-button',
+  customElementName: 'data-grid-order-button',
   css: {
     display: 'inline-block',
   },
@@ -71,7 +71,7 @@ const FilterButton = Shade<{
   findOptions: FilterableFindOptions
   onclick: () => void
 }>({
-  shadowDomName: 'data-grid-filter-button',
+  customElementName: 'data-grid-filter-button',
   css: {
     display: 'inline-block',
   },
@@ -161,7 +161,7 @@ export const DataGridHeader: <T, Column extends string>(
   props: DataGridHeaderProps<T, Column>,
   children: ChildrenList,
 ) => JSX.Element<any> = Shade({
-  shadowDomName: 'data-grid-header',
+  customElementName: 'data-grid-header',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

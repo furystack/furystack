@@ -39,7 +39,7 @@ const DEFAULT_THICKNESS = 3.6
 const clampValue = (v: number) => Math.max(0, Math.min(100, v))
 
 export const CircularProgress = Shade<CircularProgressProps>({
-  shadowDomName: 'shade-circular-progress',
+  customElementName: 'shade-circular-progress',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,

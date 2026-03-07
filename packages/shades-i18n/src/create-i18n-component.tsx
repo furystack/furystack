@@ -3,10 +3,10 @@ import { createComponent, Shade } from '@furystack/shades'
 
 export const createI18nComponent = <TKeys extends string>(options: {
   service: I18NService<TKeys>
-  shadowDomName: string
+  customElementName: string
 }) => {
   return Shade<{ key: TKeys }>({
-    shadowDomName: options.shadowDomName,
+    customElementName: options.customElementName,
     elementBase: HTMLSpanElement,
     elementBaseName: 'span',
     render: ({ props, useDisposable, useState }) => {

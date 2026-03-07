@@ -3,7 +3,7 @@ import { Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades
 import { NippleComponent } from '@furystack/shades-nipple'
 
 export const NipplePage = Shade({
-  shadowDomName: 'nipple-page',
+  customElementName: 'nipple-page',
   render: ({ useRef }) => {
     const outputRef = useRef<HTMLElement>('output')
 

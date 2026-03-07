@@ -10,7 +10,7 @@ export type ModalProps = {
 }
 
 export const Modal = Shade<ModalProps>({
-  shadowDomName: 'shade-modal',
+  customElementName: 'shade-modal',
   css: {
     fontFamily: cssVariableTheme.typography.fontFamily,
     '& .shade-backdrop': {

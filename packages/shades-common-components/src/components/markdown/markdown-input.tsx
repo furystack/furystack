@@ -41,7 +41,7 @@ export type MarkdownInputProps = {
  * it is inlined as a `![pasted image](data:...)` Markdown image.
  */
 export const MarkdownInput = Shade<MarkdownInputProps>({
-  shadowDomName: 'shade-markdown-input',
+  customElementName: 'shade-markdown-input',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

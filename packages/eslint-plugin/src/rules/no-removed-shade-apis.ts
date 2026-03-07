@@ -2,14 +2,14 @@ import { AST_NODE_TYPES } from '@typescript-eslint/utils'
 import type { TSESTree } from '@typescript-eslint/utils'
 import { createRule } from '../create-rule.js'
 
-/** Prevents usage of removed Shade APIs (`onAttach`, `onDetach`, `element` in render). */
+/** Prevents usage of removed Shade APIs (`onAttach`, `onDetach`, `element` in render, `shadowDomName`). */
 export const noRemovedShadeApis = createRule({
   name: 'no-removed-shade-apis',
   meta: {
     type: 'problem',
     docs: {
       description:
-        'Prevent usage of removed Shade APIs: onAttach, onDetach (use useDisposable), and element in render (use useHostProps/useRef).',
+        'Prevent usage of removed Shade APIs: onAttach, onDetach (use useDisposable), element in render (use useHostProps/useRef), and shadowDomName (use customElementName).',
     },
     messages: {
       noOnAttach:
@@ -18,7 +18,9 @@ export const noRemovedShadeApis = createRule({
         '"onDetach" has been removed from Shade options. Use useDisposable() inside the render function for cleanup.',
       noElement:
         '"element" has been removed from render options. Use useHostProps() for host element attributes/styles and useRef() for child DOM access.',
+      noShadowDomName: '"shadowDomName" has been renamed to "customElementName".',
     },
+    fixable: 'code',
     schema: [],
   },
   defaultOptions: [],
@@ -39,6 +41,15 @@ export const noRemovedShadeApis = createRule({
           }
           if (prop.key.name === 'onDetach') {
             context.report({ node: prop.key, messageId: 'noOnDetach' })
+          }
+          if (prop.key.name === 'shadowDomName') {
+            context.report({
+              node: prop.key,
+              messageId: 'noShadowDomName',
+              fix(fixer) {
+                return fixer.replaceText(prop.key, 'customElementName')
+              },
+            })
           }
 
           if (prop.key.name === 'render' && prop.value.type !== AST_NODE_TYPES.Identifier) {

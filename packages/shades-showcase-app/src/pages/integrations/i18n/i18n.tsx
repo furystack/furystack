@@ -26,11 +26,11 @@ const service = new I18NService(en, de, hu, fr, es)
 
 const TranslatedComponent = createI18nComponent({
   service,
-  shadowDomName: 'i18n-page-translated-component',
+  customElementName: 'i18n-page-translated-component',
 })
 
 export const I18NPage = Shade({
-  shadowDomName: 'i18n-page',
+  customElementName: 'i18n-page',
   render: () => {
     return (
       <PageContainer centered>

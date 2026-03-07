@@ -6,7 +6,7 @@ import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { LinearProgress } from './linear-progress.js'
 
 const ProgressWrapper = Shade<{ obs: ObservableValue<number> }>({
-  shadowDomName: 'test-linear-progress-wrapper',
+  customElementName: 'test-linear-progress-wrapper',
   render: ({ props, useObservable }) => {
     const [value] = useObservable('value', props.obs)
     return <LinearProgress variant="determinate" value={value} />
@@ -43,7 +43,7 @@ describe('LinearProgress', () => {
     vi.restoreAllMocks()
   })
 
-  it('should render with shadow DOM', async () => {
+  it('should render as custom element', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 

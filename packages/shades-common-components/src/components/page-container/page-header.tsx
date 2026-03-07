@@ -56,7 +56,7 @@ export type PageHeaderProps = {
  * ```
  */
 export const PageHeader = Shade<PageHeaderProps>({
-  shadowDomName: 'shade-page-header',
+  customElementName: 'shade-page-header',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

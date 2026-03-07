@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Fab, PageContainer, PageHeader, Paper, Typography } from '@furystack/shades-common-components'
 
 export const FabPage = Shade({
-  shadowDomName: 'shades-fab-page',
+  customElementName: 'shades-fab-page',
   render: () => {
     return (
       <PageContainer centered>

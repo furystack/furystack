@@ -2,7 +2,7 @@ import { createComponent, Shade } from '@furystack/shades'
 import { PageContainer, Paper, Skeleton, Typography } from '@furystack/shades-common-components'
 
 export const PageLoader = Shade({
-  shadowDomName: 'shade-page-loader',
+  customElementName: 'shade-page-loader',
   render: () => {
     return (
       <PageContainer centered>

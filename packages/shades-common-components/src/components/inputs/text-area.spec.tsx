@@ -13,7 +13,7 @@ describe('TextArea', () => {
     document.body.innerHTML = ''
   })
 
-  it('should render with shadow DOM', async () => {
+  it('should render as custom element', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 

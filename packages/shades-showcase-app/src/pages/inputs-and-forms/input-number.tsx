@@ -10,7 +10,7 @@ import {
 } from '@furystack/shades-common-components'
 
 export const InputNumberPage = Shade({
-  shadowDomName: 'input-number-page',
+  customElementName: 'input-number-page',
   render: ({ useState }) => {
     const [currentValue, setCurrentValue] = useState<number | undefined>('controlledValue', 25)
 

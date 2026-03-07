@@ -85,7 +85,7 @@ import { Shade } from '@furystack/shades'
 import { useEntitySync } from '@furystack/entity-sync-client'
 
 const UserProfile = Shade<{ userId: string }>({
-  shadowDomName: 'user-profile',
+  customElementName: 'user-profile',
   render: (options) => {
     const userState = useEntitySync(options, User, options.props.userId)
 
@@ -104,7 +104,7 @@ import { Shade } from '@furystack/shades'
 import { useCollectionSync } from '@furystack/entity-sync-client'
 
 const ChatMessages = Shade<{ roomId: string }>({
-  shadowDomName: 'chat-messages',
+  customElementName: 'chat-messages',
   render: (options) => {
     const messagesState = useCollectionSync(options, ChatMessage, {
       filter: { roomId: { $eq: options.props.roomId } },

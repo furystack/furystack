@@ -12,7 +12,7 @@ const entries: SuggestEntry[] = [
 ]
 
 export const SuggestPage = Shade({
-  shadowDomName: 'shades-suggest-page',
+  customElementName: 'shades-suggest-page',
   render: () => {
     return (
       <PageContainer centered>

@@ -14,7 +14,7 @@ import {
 type MenuAction = { action: string }
 
 export const ContextMenuPage = Shade({
-  shadowDomName: 'shades-context-menu-page',
+  customElementName: 'shades-context-menu-page',
   render: ({ useDisposable }) => {
     const rightClickManager = useDisposable('rightClickManager', () => new ContextMenuManager<MenuAction>())
     const buttonManager = useDisposable('buttonManager', () => new ContextMenuManager<MenuAction>())

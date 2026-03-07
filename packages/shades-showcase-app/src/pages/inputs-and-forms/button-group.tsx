@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@furystack/shades-common-components'
 const ToggleExclusiveDemo = Shade({
-  shadowDomName: 'toggle-exclusive-demo',
+  customElementName: 'toggle-exclusive-demo',
   render: ({ useState }) => {
     const [alignment, setAlignment] = useState('alignment', 'center')
 
@@ -38,7 +38,7 @@ const ToggleExclusiveDemo = Shade({
 })
 
 const ToggleMultiDemo = Shade({
-  shadowDomName: 'toggle-multi-demo',
+  customElementName: 'toggle-multi-demo',
   render: ({ useState }) => {
     const [formats, setFormats] = useState<string[]>('formats', ['bold'])
 
@@ -59,7 +59,7 @@ const ToggleMultiDemo = Shade({
 })
 
 const ToggleVerticalDemo = Shade({
-  shadowDomName: 'toggle-vertical-demo',
+  customElementName: 'toggle-vertical-demo',
   render: ({ useState }) => {
     const [view, setView] = useState('view', 'list')
 
@@ -85,7 +85,7 @@ const ToggleVerticalDemo = Shade({
 })
 
 const SegmentedControlDemo = Shade({
-  shadowDomName: 'segmented-control-demo',
+  customElementName: 'segmented-control-demo',
   render: ({ useState }) => {
     const [period, setPeriod] = useState('period', 'weekly')
 
@@ -110,7 +110,7 @@ const SegmentedControlDemo = Shade({
 })
 
 export const ButtonGroupPage = Shade({
-  shadowDomName: 'button-group-page',
+  customElementName: 'button-group-page',
   render: () => {
     return (
       <PageContainer centered>

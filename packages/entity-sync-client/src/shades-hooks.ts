@@ -27,7 +27,7 @@ export type SyncHookContext = {
  * @example
  * ```typescript
  * const UserProfile = Shade<{ userId: string }>({
- *   shadowDomName: 'user-profile',
+ *   customElementName: 'user-profile',
  *   render: (options) => {
  *     const userState = useEntitySync(options, User, options.props.userId)
  *
@@ -65,7 +65,7 @@ export const useEntitySync = <T>(
  * @example
  * ```typescript
  * const ChatMessages = Shade<{ roomId: string }>({
- *   shadowDomName: 'chat-messages',
+ *   customElementName: 'chat-messages',
  *   render: (options) => {
  *     const messagesState = useCollectionSync(options, ChatMessage, {
  *       filter: { roomId: { $eq: options.props.roomId } },

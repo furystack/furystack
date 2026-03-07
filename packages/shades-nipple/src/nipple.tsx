@@ -12,7 +12,7 @@ export interface NippleComponentProps {
 }
 
 export const NippleComponent = Shade<NippleComponentProps>({
-  shadowDomName: 'shade-nipple',
+  customElementName: 'shade-nipple',
   render: ({ children, props, useDisposable, useRef }) => {
     const zoneRef = useRef<HTMLDivElement>('zone')
 

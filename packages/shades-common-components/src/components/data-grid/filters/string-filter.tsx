@@ -22,7 +22,7 @@ export const StringFilter = Shade<{
   onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
-  shadowDomName: 'data-grid-string-filter',
+  customElementName: 'data-grid-string-filter',
   css: {
     ...filterBaseCss,
     fontFamily: cssVariableTheme.typography.fontFamily,

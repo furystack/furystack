@@ -9,7 +9,7 @@ type MicroFrontendProps<TApi> = {
 }
 
 export const MicroFrontend: <TApi>(props: MicroFrontendProps<TApi>) => JSX.Element = Shade({
-  shadowDomName: 'shade-micro-frontend',
+  customElementName: 'shade-micro-frontend',
   render: ({ props, injector, useDisposable, useRef }) => {
     const containerRef = useRef<HTMLDivElement>('mfeContainer')
 

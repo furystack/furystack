@@ -14,7 +14,7 @@ import {
  * Used for E2E visual regression testing
  */
 export const AppBarRightDrawerTest = Shade({
-  shadowDomName: 'layout-test-appbar-right-drawer',
+  customElementName: 'layout-test-appbar-right-drawer',
   render: () => (
     <PageLayout
       appBar={{

@@ -25,7 +25,7 @@ interface LoaderProps {
 }
 
 export const Loader = Shade<LoaderProps>({
-  shadowDomName: 'shade-loader',
+  customElementName: 'shade-loader',
   css: {
     display: 'inline-block',
     fontFamily: cssVariableTheme.typography.fontFamily,

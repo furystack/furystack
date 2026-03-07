@@ -7,7 +7,7 @@ import type { appRoutes } from '../routes.tsx'
 const ShowcaseBreadcrumbItem = createBreadcrumb<typeof appRoutes>()
 
 export const ShowcaseBreadcrumbComponent = Shade({
-  shadowDomName: 'showcase-breadcrumb-component',
+  customElementName: 'showcase-breadcrumb-component',
   render: ({ injector, useObservable, useState }) => {
     const routeMatchService = injector.getInstance(RouteMatchService)
 

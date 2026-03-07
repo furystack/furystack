@@ -23,7 +23,7 @@ export type TooltipProps = {
 }
 
 export const Tooltip = Shade<TooltipProps>({
-  shadowDomName: 'shade-tooltip',
+  customElementName: 'shade-tooltip',
   css: {
     position: 'relative',
     fontFamily: cssVariableTheme.typography.fontFamily,

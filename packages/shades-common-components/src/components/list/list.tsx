@@ -34,7 +34,7 @@ export type ListProps<T> = {
 } & PartialElement<HTMLDivElement>
 
 export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
-  shadowDomName: 'shade-list',
+  customElementName: 'shade-list',
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,

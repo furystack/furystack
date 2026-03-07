@@ -23,7 +23,7 @@ export const NumberFilter = Shade<{
   onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
-  shadowDomName: 'data-grid-number-filter',
+  customElementName: 'data-grid-number-filter',
   css: {
     ...filterBaseCss,
     fontFamily: cssVariableTheme.typography.fontFamily,

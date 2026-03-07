@@ -23,7 +23,7 @@ const rarityColors: Record<string, string> = {
 }
 
 export const GridPage = Shade({
-  shadowDomName: 'shades-grid-page',
+  customElementName: 'shades-grid-page',
   css: {
     height: `100%`,
     boxSizing: 'border-box',

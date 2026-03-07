@@ -57,7 +57,7 @@ const renderDropdownItems = (items: MenuEntry[], onSelect: (key: string) => void
 }
 
 export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Element<any> = Shade<DropdownProps>({
-  shadowDomName: 'shade-dropdown',
+  customElementName: 'shade-dropdown',
   css: {
     display: 'inline-flex',
     fontFamily: cssVariableTheme.typography.fontFamily,
