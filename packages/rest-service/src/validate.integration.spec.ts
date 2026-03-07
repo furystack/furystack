@@ -3,7 +3,7 @@ import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { getRepository } from '@furystack/repository'
-import type { SwaggerDocument, WithSchemaAction } from '@furystack/rest'
+import type { OpenApiDocument, WithSchemaAction } from '@furystack/rest'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import type Ajv from 'ajv'
@@ -109,24 +109,23 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
 }
 
 describe('Validation integration tests', () => {
-  describe('swagger.json schema definition', () => {
-    it('Should include name, description and version in the generated swagger.json', async () => {
+  describe('openapi.json schema definition', () => {
+    it('Should include name, description and version in the generated openapi.json', async () => {
       await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
         const result = await (client as ReturnType<typeof createClient<any>>)({
           method: 'GET',
-          action: '/swagger.json',
+          action: '/openapi.json',
         })
 
         expect(result.response.status).toBe(200)
         expect(result.result).toBeDefined()
 
-        // Verify swagger document structure
-        const swaggerJson = result.result as SwaggerDocument
-        expect(swaggerJson.openapi).toBe('3.1.0')
-        expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info?.title).toBe(name)
-        expect(swaggerJson.info?.description).toBe(description)
-        expect(swaggerJson.info?.version).toBe(version)
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.openapi).toBe('3.1.0')
+        expect(openApiDoc.info).toBeDefined()
+        expect(openApiDoc.info?.title).toBe(name)
+        expect(openApiDoc.info?.description).toBe(description)
+        expect(openApiDoc.info?.version).toBe(version)
       })
     })
 
@@ -135,7 +134,7 @@ describe('Validation integration tests', () => {
         try {
           await (client as ReturnType<typeof createClient<any>>)({
             method: 'GET',
-            action: '/swagger.json',
+            action: '/openapi.json',
           })
           expect.fail('Expected response error but got success')
         } catch (error) {
@@ -145,38 +144,37 @@ describe('Validation integration tests', () => {
       })
     })
 
-    it('Should return a generated swagger.json when enabled', async () => {
+    it('Should return a generated openapi.json when enabled', async () => {
       await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
         const result = await (client as ReturnType<typeof createClient<any>>)({
           method: 'GET',
-          action: '/swagger.json',
+          action: '/openapi.json',
         })
 
         expect(result.response.status).toBe(200)
         expect(result.result).toBeDefined()
 
-        // Verify swagger document structure
-        const swaggerJson = result.result as SwaggerDocument
-        expect(swaggerJson.openapi).toBe('3.1.0')
-        expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info?.title).toBe(name)
-        expect(swaggerJson.info?.description).toBe(description)
-        expect(swaggerJson.info?.version).toBe(version)
-        expect(swaggerJson.paths).toBeDefined()
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.openapi).toBe('3.1.0')
+        expect(openApiDoc.info).toBeDefined()
+        expect(openApiDoc.info?.title).toBe(name)
+        expect(openApiDoc.info?.description).toBe(description)
+        expect(openApiDoc.info?.version).toBe(version)
+        expect(openApiDoc.paths).toBeDefined()
 
         // Verify our API endpoints are included
-        expect(swaggerJson.paths?.['/validate-query']).toBeDefined()
-        expect(swaggerJson.paths?.['/validate-url/{id}']).toBeDefined()
-        expect(swaggerJson.paths?.['/validate-headers']).toBeDefined()
-        expect(swaggerJson.paths?.['/validate-body']).toBeDefined()
+        expect(openApiDoc.paths?.['/validate-query']).toBeDefined()
+        expect(openApiDoc.paths?.['/validate-url/{id}']).toBeDefined()
+        expect(openApiDoc.paths?.['/validate-headers']).toBeDefined()
+        expect(openApiDoc.paths?.['/validate-body']).toBeDefined()
 
         // Verify components section
-        expect(swaggerJson.components).toBeDefined()
-        expect(swaggerJson.components?.schemas).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateQuery).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateUrl).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateHeaders).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateBody).toBeDefined()
+        expect(openApiDoc.components).toBeDefined()
+        expect(openApiDoc.components?.schemas).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateQuery).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateUrl).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateHeaders).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateBody).toBeDefined()
       })
     })
   })

@@ -129,7 +129,7 @@ export type MyApiWithSchema = WithSchemaAction<MyApi>
 
 // This adds:
 // GET /schema - Returns the API schema
-// GET /swagger.json - Returns Swagger/OpenAPI documentation
+// GET /openapi.json - Returns OpenAPI 3.1 documentation
 ```
 
 ## Utilities
