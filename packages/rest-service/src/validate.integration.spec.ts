@@ -3,7 +3,7 @@ import { getStoreManager, InMemoryStore, User } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { Injector } from '@furystack/inject'
 import { getRepository } from '@furystack/repository'
-import type { SwaggerDocument, WithSchemaAction } from '@furystack/rest'
+import type { OpenApiDocument, WithSchemaAction } from '@furystack/rest'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
 import type Ajv from 'ajv'
@@ -14,7 +14,7 @@ import { createGetEntityEndpoint } from './endpoint-generators/create-get-entity
 import { createPatchEndpoint } from './endpoint-generators/create-patch-endpoint.js'
 import { createPostEndpoint } from './endpoint-generators/create-post-endpoint.js'
 import { MockClass } from './endpoint-generators/utils.js'
-import { useRestService } from './helpers.js'
+import { useHttpAuthentication, useRestService } from './helpers.js'
 import { DefaultSession } from './models/default-session.js'
 import { JsonResult } from './request-action-implementation.js'
 import type { ValidationApi } from './validate.integration.schema.js'
@@ -109,8 +109,78 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
 }
 
 describe('Validation integration tests', () => {
-  describe('swagger.json schema definition', () => {
-    it('Should include name, description and version in the generated swagger.json', async () => {
+  describe('openapi.json schema definition', () => {
+    it('Should include name, description and version in the generated openapi.json', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/openapi.json',
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toBeDefined()
+
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.openapi).toBe('3.1.0')
+        expect(openApiDoc.info).toBeDefined()
+        expect(openApiDoc.info?.title).toBe(name)
+        expect(openApiDoc.info?.description).toBe(description)
+        expect(openApiDoc.info?.version).toBe(version)
+      })
+    })
+
+    it('Should return a 404 when not enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
+        try {
+          await (client as ReturnType<typeof createClient<any>>)({
+            method: 'GET',
+            action: '/openapi.json',
+          })
+          expect.fail('Expected response error but got success')
+        } catch (error) {
+          expect(error).toBeInstanceOf(ResponseError)
+          expect((error as ResponseError).response.status).toBe(404)
+        }
+      })
+    })
+
+    it('Should return a generated openapi.json when enabled', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/openapi.json',
+        })
+
+        expect(result.response.status).toBe(200)
+        expect(result.result).toBeDefined()
+
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.openapi).toBe('3.1.0')
+        expect(openApiDoc.info).toBeDefined()
+        expect(openApiDoc.info?.title).toBe(name)
+        expect(openApiDoc.info?.description).toBe(description)
+        expect(openApiDoc.info?.version).toBe(version)
+        expect(openApiDoc.paths).toBeDefined()
+
+        // Verify our API endpoints are included
+        expect(openApiDoc.paths?.['/validate-query']).toBeDefined()
+        expect(openApiDoc.paths?.['/validate-url/{id}']).toBeDefined()
+        expect(openApiDoc.paths?.['/validate-headers']).toBeDefined()
+        expect(openApiDoc.paths?.['/validate-body']).toBeDefined()
+
+        // Verify components section
+        expect(openApiDoc.components).toBeDefined()
+        expect(openApiDoc.components?.schemas).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateQuery).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateUrl).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateHeaders).toBeDefined()
+        expect(openApiDoc.components?.schemas?.ValidateBody).toBeDefined()
+      })
+    })
+  })
+
+  describe('swagger.json backward compatibility', () => {
+    it('Should serve the same OpenAPI document at /swagger.json when enabled', async () => {
       await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
         const result = await (client as ReturnType<typeof createClient<any>>)({
           method: 'GET',
@@ -120,17 +190,25 @@ describe('Validation integration tests', () => {
         expect(result.response.status).toBe(200)
         expect(result.result).toBeDefined()
 
-        // Verify swagger document structure
-        const swaggerJson = result.result as SwaggerDocument
-        expect(swaggerJson.openapi).toBe('3.1.0')
-        expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info?.title).toBe(name)
-        expect(swaggerJson.info?.description).toBe(description)
-        expect(swaggerJson.info?.version).toBe(version)
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.openapi).toBe('3.1.0')
+        expect(openApiDoc.info?.title).toBe(name)
       })
     })
 
-    it('Should return a 404 when not enabled', async () => {
+    it('Should include Deprecation header on /swagger.json', async () => {
+      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        expect(result.response.headers.get('deprecation')).toBe('true')
+        expect(result.response.headers.get('link')).toContain('/openapi.json')
+      })
+    })
+
+    it('Should return a 404 for /swagger.json when not enabled', async () => {
       await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
         try {
           await (client as ReturnType<typeof createClient<any>>)({
@@ -144,45 +222,11 @@ describe('Validation integration tests', () => {
         }
       })
     })
-
-    it('Should return a generated swagger.json when enabled', async () => {
-      await usingAsync(await createValidateApi({ enableGetSchema: true }), async ({ client }) => {
-        const result = await (client as ReturnType<typeof createClient<any>>)({
-          method: 'GET',
-          action: '/swagger.json',
-        })
-
-        expect(result.response.status).toBe(200)
-        expect(result.result).toBeDefined()
-
-        // Verify swagger document structure
-        const swaggerJson = result.result as SwaggerDocument
-        expect(swaggerJson.openapi).toBe('3.1.0')
-        expect(swaggerJson.info).toBeDefined()
-        expect(swaggerJson.info?.title).toBe(name)
-        expect(swaggerJson.info?.description).toBe(description)
-        expect(swaggerJson.info?.version).toBe(version)
-        expect(swaggerJson.paths).toBeDefined()
-
-        // Verify our API endpoints are included
-        expect(swaggerJson.paths?.['/validate-query']).toBeDefined()
-        expect(swaggerJson.paths?.['/validate-url/{id}']).toBeDefined()
-        expect(swaggerJson.paths?.['/validate-headers']).toBeDefined()
-        expect(swaggerJson.paths?.['/validate-body']).toBeDefined()
-
-        // Verify components section
-        expect(swaggerJson.components).toBeDefined()
-        expect(swaggerJson.components?.schemas).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateQuery).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateUrl).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateHeaders).toBeDefined()
-        expect(swaggerJson.components?.schemas?.ValidateBody).toBeDefined()
-      })
-    })
   })
 
   describe('Validation metadata', () => {
     it('Should return 404 when not enabled', async () => {
+      expect.assertions(2)
       await usingAsync(await createValidateApi({ enableGetSchema: false }), async ({ client }) => {
         try {
           await (client as ReturnType<typeof createClient<WithSchemaAction<ValidationApi>>>)({
@@ -192,6 +236,7 @@ describe('Validation integration tests', () => {
               accept: 'application/schema+json',
             },
           })
+          expect.fail('Expected response error but got success')
         } catch (error) {
           expect(error).toBeInstanceOf(ResponseError)
           expect((error as ResponseError).response.status).toBe(404)
@@ -441,6 +486,112 @@ describe('Validation integration tests', () => {
         expect(result.result.foo).toBe('foo')
         expect(result.result.bar).toBe(42)
         expect(result.result.baz).toBe(true)
+      })
+    })
+  })
+
+  describe('OpenAPI security schemes from authentication providers', () => {
+    const createApiWithAuth = async () => {
+      const injector = new Injector()
+      const port = getPort()
+
+      getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
+      getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+      getStoreManager(injector).addStore(new InMemoryStore({ model: MockClass, primaryKey: 'id' }))
+      getRepository(injector).createDataSet(MockClass, 'id')
+      getRepository(injector).createDataSet(User, 'username')
+      getRepository(injector).createDataSet(DefaultSession, 'sessionId')
+
+      useHttpAuthentication(injector)
+
+      await useRestService<ValidationApi>({
+        injector,
+        enableGetSchema: true,
+        name,
+        description,
+        version,
+        api: {
+          GET: {
+            '/validate-query': Validate({ schema, schemaName: 'ValidateQuery' })(async ({ getQuery }) =>
+              JsonResult({ ...getQuery() }),
+            ),
+            '/validate-url/:id': Validate({ schema, schemaName: 'ValidateUrl' })(async ({ getUrlParams }) =>
+              JsonResult({ ...getUrlParams() }),
+            ),
+            '/validate-headers': Validate({ schema, schemaName: 'ValidateHeaders' })(async ({ headers }) =>
+              JsonResult({ ...headers }),
+            ),
+            '/mock': Validate({ schema, schemaName: 'GetMockCollectionEndpoint' })(
+              createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+            '/mock/:id': Validate({ schema, schemaName: 'GetMockEntityEndpoint' })(
+              createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+          POST: {
+            '/validate-body': Validate({ schema, schemaName: 'ValidateBody' })(async ({ getBody }) => {
+              const body = await getBody()
+              return JsonResult({ ...body })
+            }),
+            '/mock': Validate({ schema, schemaName: 'PostMockEndpoint' })(
+              createPostEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+          PATCH: {
+            '/mock/:id': Validate({ schema, schemaName: 'PatchMockEndpoint' })(
+              createPatchEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+          DELETE: {
+            '/mock/:id': Validate({ schema, schemaName: 'DeleteMockEndpoint' })(
+              createDeleteEndpoint({ model: MockClass, primaryKey: 'id' }),
+            ),
+          },
+        },
+        port,
+        root: '/api',
+      })
+      const client = createClient<ValidationApi>({ endpointUrl: `http://127.0.0.1:${port}/api` })
+
+      return {
+        [Symbol.asyncDispose]: injector[Symbol.asyncDispose].bind(injector),
+        injector,
+        client,
+      }
+    }
+
+    it('Should include detected security schemes in the OpenAPI document', async () => {
+      await usingAsync(await createApiWithAuth(), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/openapi.json',
+        })
+
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.components?.securitySchemes).toBeDefined()
+        expect(openApiDoc.components?.securitySchemes?.basicAuth).toEqual({ type: 'http', scheme: 'basic' })
+        expect(openApiDoc.components?.securitySchemes?.cookieAuth).toEqual({
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'session',
+        })
+      })
+    })
+
+    it('Should include detected security schemes in the deprecated /swagger.json endpoint', async () => {
+      await usingAsync(await createApiWithAuth(), async ({ client }) => {
+        const result = await (client as ReturnType<typeof createClient<any>>)({
+          method: 'GET',
+          action: '/swagger.json',
+        })
+
+        const openApiDoc = result.result as OpenApiDocument
+        expect(openApiDoc.components?.securitySchemes?.basicAuth).toEqual({ type: 'http', scheme: 'basic' })
+        expect(openApiDoc.components?.securitySchemes?.cookieAuth).toEqual({
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'session',
+        })
       })
     })
   })

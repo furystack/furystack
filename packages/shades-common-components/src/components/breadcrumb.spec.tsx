@@ -314,17 +314,17 @@ describe('Breadcrumb', () => {
     describe('BreadcrumbItem', () => {
       it('Should require params when path has parameters', () => {
         type ItemWithParams = BreadcrumbItem<'/users/:id'>
-        expectTypeOf<ItemWithParams>().toMatchTypeOf<{ params: { id: string } }>()
+        expectTypeOf<ItemWithParams>().toExtend<{ params: { id: string } }>()
       })
 
       it('Should make params optional when path has no parameters', () => {
         type ItemWithoutParams = BreadcrumbItem<'/users'>
-        expectTypeOf<ItemWithoutParams>().toMatchTypeOf<{ params?: Record<string, string> }>()
+        expectTypeOf<ItemWithoutParams>().toExtend<{ params?: Record<string, string> }>()
       })
 
       it('Should extract multiple params from path', () => {
         type ItemWithMultipleParams = BreadcrumbItem<'/users/:userId/posts/:postId'>
-        expectTypeOf<ItemWithMultipleParams>().toMatchTypeOf<{ params: { userId: string; postId: string } }>()
+        expectTypeOf<ItemWithMultipleParams>().toExtend<{ params: { userId: string; postId: string } }>()
       })
     })
 

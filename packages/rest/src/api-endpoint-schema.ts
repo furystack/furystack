@@ -1,10 +1,24 @@
 import type { Method } from './methods.js'
+import type {
+  ContactObject,
+  ExternalDocumentationObject,
+  LicenseObject,
+  SecuritySchemeObject,
+  ServerObject,
+  TagObject,
+} from './openapi-document.js'
 import type { RestApi } from './rest-api.js'
 
 /**
- * The JSON schema type used for API endpoint definitions.
+ * The JSON Schema type used for API endpoint definitions.
+ *
+ * This is intentionally `unknown` because the exact schema shape depends on
+ * the generator used (e.g. `ts-json-schema-generator` produces Draft 7-style
+ * objects with `definitions`, while consumed OpenAPI documents use 3.1-style
+ * objects). Narrowing to `object | boolean` would break runtime usages where
+ * the schema is `null` or omitted.
  */
-export type Schema = unknown // TODO: Fix me
+export type Schema = unknown
 
 /**
  * Represents the definition of an API endpoint, including its path, schema, and schema name.
@@ -27,9 +41,47 @@ export type ApiEndpointDefinition = {
   schemaName: string
   /**
    * Indicates whether the endpoint requires authentication.
-   * To include the flag, wrap your endpoint with an Authenticat() call during the implementation.
+   * To include the flag, wrap your endpoint with an Authenticate() call during the implementation.
    */
   isAuthenticated: boolean
+  /**
+   * Tags for API documentation grouping.
+   */
+  tags?: string[]
+  /**
+   * Marks the endpoint as deprecated.
+   */
+  deprecated?: boolean
+  /**
+   * A short summary of the endpoint.
+   */
+  summary?: string
+  /**
+   * A longer description of the endpoint.
+   */
+  description?: string
+  /**
+   * The OpenAPI security scheme names required for this endpoint.
+   * When present, used by `generateOpenApiDocument` to emit accurate per-operation `security`.
+   * When absent, falls back to the `isAuthenticated` boolean behavior.
+   */
+  securitySchemes?: string[]
+}
+
+/**
+ * Document-level metadata preserved from/to OpenAPI documents.
+ * Carries info fields (contact, license, servers, tags, etc.) through the
+ * `openApiToSchema()` -> `generateOpenApiDocument()` round-trip.
+ */
+export type ApiDocumentMetadata = {
+  summary?: string
+  termsOfService?: string
+  contact?: ContactObject
+  license?: LicenseObject
+  servers?: ServerObject[]
+  tags?: TagObject[]
+  externalDocs?: ExternalDocumentationObject
+  securitySchemes?: Record<string, SecuritySchemeObject>
 }
 
 /**
@@ -54,6 +106,7 @@ export type ApiEndpointSchema<TApi extends RestApi = RestApi> = {
   name: string
   description: string
   version: string
+  metadata?: ApiDocumentMetadata
   endpoints: {
     [TMethod in Method]?: TMethod extends keyof TApi
       ? TApi[TMethod] extends Record<string, unknown>

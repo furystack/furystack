@@ -8,7 +8,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable", "ESNext"],
     "resolveJsonModule": true
   },
-  "include": ["src", "src/*.json"],
+  "include": ["src", "src/**/*.json"],
   "references": [
     { "path": "../core" },
     { "path": "../inject" },

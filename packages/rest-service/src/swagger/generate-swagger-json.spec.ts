@@ -1,6 +1,6 @@
 import type { ApiEndpointSchema, ParameterObject, ReferenceObject, ResponseObject } from '@furystack/rest'
 import { describe, expect, it } from 'vitest'
-import { generateSwaggerJsonFromApiSchema } from './generate-swagger-json.js'
+import { generateSwaggerJsonFromApiSchema } from '../openapi/generate-openapi-document.js'
 
 describe('generateSwaggerJsonFromApiSchema', () => {
   it('Should generate a basic Swagger document with correct OpenAPI structure', () => {
