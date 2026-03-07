@@ -1,6 +1,6 @@
 releases:
   "@furystack/entity-sync-client": major
-  "@furystack/eslint-plugin": minor
+  "@furystack/eslint-plugin": major
   "@furystack/shades": major
   "@furystack/shades-common-components": major
   "@furystack/shades-i18n": major

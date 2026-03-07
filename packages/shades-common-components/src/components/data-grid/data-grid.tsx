@@ -160,6 +160,9 @@ export const DataGrid: <T, Column extends string>(
   render: ({ props, useDisposable, useRef, useHostProps }) => {
     const wrapperRef = useRef<HTMLDivElement>('gridWrapper')
 
+    const headerFindOptions = props.findOptions as FilterableFindOptions
+    const handleHeaderChange = props.onFindOptionsChange as (options: FilterableFindOptions) => void
+
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
       window.addEventListener('keydown', listener)
@@ -194,13 +197,10 @@ export const DataGrid: <T, Column extends string>(
                 return (
                   <th style={props.styles?.header}>
                     {props.headerComponents?.[column]?.(column) || props.headerComponents?.default?.(column) || (
-                      <DataGridHeader<
-                        ReturnType<typeof props.collectionService.data.getValue>['entries'][number],
-                        typeof column
-                      >
+                      <DataGridHeader<typeof column>
                         field={column}
-                        findOptions={props.findOptions}
-                        onFindOptionsChange={props.onFindOptionsChange}
+                        findOptions={headerFindOptions}
+                        onFindOptionsChange={handleHeaderChange}
                         filterConfig={props.columnFilters?.[column]}
                       />
                     )}

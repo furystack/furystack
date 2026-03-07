@@ -1,4 +1,3 @@
-import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
 import { ToggleButton } from '../button-group.js'
@@ -13,10 +12,10 @@ import { FilterDropdown } from './filters/filter-dropdown.js'
 import { NumberFilter } from './filters/number-filter.js'
 import { StringFilter } from './filters/string-filter.js'
 
-export type DataGridHeaderProps<T, Column extends string> = {
+export type DataGridHeaderProps<Column extends string> = {
   field: Column
-  findOptions: FindOptions<T, Array<keyof T>>
-  onFindOptionsChange: (options: FindOptions<T, Array<keyof T>>) => void
+  findOptions: FilterableFindOptions
+  onFindOptionsChange: (options: FilterableFindOptions) => void
   filterConfig?: ColumnFilterConfig
 }
 
@@ -157,8 +156,8 @@ const renderFilterComponent = (
   }
 }
 
-export const DataGridHeader: <T, Column extends string>(
-  props: DataGridHeaderProps<T, Column>,
+export const DataGridHeader: <Column extends string>(
+  props: DataGridHeaderProps<Column>,
   children: ChildrenList,
 ) => JSX.Element<any> = Shade({
   customElementName: 'data-grid-header',
@@ -192,9 +191,6 @@ export const DataGridHeader: <T, Column extends string>(
 
     const closeFilter = () => setIsFilterOpen(false)
 
-    const filterableFindOptions = props.findOptions as FilterableFindOptions
-    const onFilterableChange = props.onFindOptionsChange as (options: FilterableFindOptions) => void
-
     return (
       <>
         <div className="header-content">
@@ -203,14 +199,14 @@ export const DataGridHeader: <T, Column extends string>(
             {props.filterConfig && (
               <FilterButton
                 onclick={() => setIsFilterOpen(!isFilterOpen)}
-                findOptions={filterableFindOptions}
+                findOptions={props.findOptions}
                 field={props.field}
               />
             )}
             <OrderButton
               field={props.field}
-              findOptions={filterableFindOptions}
-              onFindOptionsChange={onFilterableChange}
+              findOptions={props.findOptions}
+              onFindOptionsChange={props.onFindOptionsChange}
             />
           </div>
         </div>
@@ -219,8 +215,8 @@ export const DataGridHeader: <T, Column extends string>(
             {renderFilterComponent(
               props.filterConfig,
               props.field,
-              filterableFindOptions,
-              onFilterableChange,
+              props.findOptions,
+              props.onFindOptionsChange,
               closeFilter,
             )}
           </FilterDropdown>

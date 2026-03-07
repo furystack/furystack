@@ -1,12 +1,9 @@
-import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
 import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from './data-grid.js'
 import { DataGridHeader, OrderButton } from './header.js'
-
-type TestItem = { id: number; name: string; email: string }
 
 const OrderButtonWrapper = Shade<{ obs: ObservableValue<FilterableFindOptions>; field: string }>({
   customElementName: 'test-order-button-wrapper',
@@ -17,7 +14,7 @@ const OrderButtonWrapper = Shade<{ obs: ObservableValue<FilterableFindOptions>; 
 })
 
 const HeaderWrapper = Shade<{
-  obs: ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>
+  obs: ObservableValue<FilterableFindOptions>
   field: string
   filterConfig?:
     | { type: 'string' }
@@ -349,7 +346,7 @@ describe('DataGridHeader', () => {
     it('should transition from active to inactive when filter is externally cleared', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const obs = new ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>({
+        const obs = new ObservableValue<FilterableFindOptions>({
           filter: { name: { $regex: 'test' } },
         })
 
@@ -559,7 +556,7 @@ describe('DataGridHeader', () => {
     it('should support both sorting and filtering simultaneously', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const obs = new ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>({})
+        const obs = new ObservableValue<FilterableFindOptions>({})
 
         initializeShadeRoot({
           injector,
