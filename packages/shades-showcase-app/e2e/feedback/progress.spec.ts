@@ -26,9 +26,9 @@ test.describe('Progress', () => {
     // Verify determinate progress slider interaction
     const slider = content.locator('input[type="range"]').first()
     await expect(slider).toBeVisible()
-    await expect(content.locator('shade-value-label').first()).toHaveText('40%')
+    await expect(content.locator('[data-testid="progress-value-label"]').first()).toHaveText('40%')
 
     await slider.fill('80')
-    await expect(content.locator('shade-value-label').first()).toHaveText('80%')
+    await expect(content.locator('[data-testid="progress-value-label"]').first()).toHaveText('80%')
   })
 })

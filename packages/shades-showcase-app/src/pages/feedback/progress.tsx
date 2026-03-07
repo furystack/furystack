@@ -7,41 +7,18 @@ import {
   Paper,
   Typography,
 } from '@furystack/shades-common-components'
-import { ObservableValue } from '@furystack/utils'
-
-/**
- * A small component that displays an observable number as text, updating
- * itself without causing a parent re-render.
- */
-const ValueLabel = Shade<{ value: ObservableValue<number>; suffix?: string }>({
-  shadowDomName: 'shade-value-label',
-  css: {
-    display: 'inline',
-  },
-  render: ({ props, useObservable }) => {
-    const [v] = useObservable('value', props.value)
-
-    return (
-      <span>
-        {v}
-        {props.suffix ?? ''}
-      </span>
-    )
-  },
-})
 
 export const ProgressPage = Shade({
   shadowDomName: 'progress-page',
-  render: ({ useDisposable }) => {
-    // eslint-disable-next-line furystack/require-use-observable-for-render
-    const progressValue = useDisposable('progressValue', () => new ObservableValue(40))
+  render: ({ useState }) => {
+    const [progressValue, setProgressValue] = useState('progressValue', 40)
 
     return (
       <PageContainer centered>
         <PageHeader
           icon="⏳"
           title="Progress"
-          description="Progress indicators inform users about the status of ongoing processes. LinearProgress displays a horizontal bar while CircularProgress uses a circular spinner. Both support determinate and indeterminate variants with palette colors. Determinate variants accept an ObservableValue and animate smoothly without re-rendering."
+          description="Progress indicators inform users about the status of ongoing processes. LinearProgress displays a horizontal bar while CircularProgress uses a circular spinner. Both support determinate and indeterminate variants with palette colors."
         />
 
         <Paper elevation={3} style={{ padding: '32px' }}>
@@ -62,13 +39,12 @@ export const ProgressPage = Shade({
                 type="range"
                 min="0"
                 max="100"
-                // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Initial value for native range input; user interaction updates natively, child components subscribe independently
-                value={String(progressValue.getValue())}
-                oninput={(ev: Event) => progressValue.setValue(Number((ev.target as HTMLInputElement).value))}
+                value={String(progressValue)}
+                oninput={(ev: Event) => setProgressValue(Number((ev.target as HTMLInputElement).value))}
                 style={{ flex: '1' }}
               />
-              <span style={{ minWidth: '40px', textAlign: 'right' }}>
-                <ValueLabel value={progressValue} suffix="%" />
+              <span data-testid="progress-value-label" style={{ minWidth: '40px', textAlign: 'right' }}>
+                {progressValue}%
               </span>
             </div>
             <LinearProgress variant="determinate" value={progressValue} />
@@ -109,13 +85,12 @@ export const ProgressPage = Shade({
                 type="range"
                 min="0"
                 max="100"
-                // eslint-disable-next-line furystack/no-direct-get-value-in-render -- Initial value for native range input; user interaction updates natively, child components subscribe independently
-                value={String(progressValue.getValue())}
-                oninput={(ev: Event) => progressValue.setValue(Number((ev.target as HTMLInputElement).value))}
+                value={String(progressValue)}
+                oninput={(ev: Event) => setProgressValue(Number((ev.target as HTMLInputElement).value))}
                 style={{ flex: '1' }}
               />
-              <span style={{ minWidth: '40px', textAlign: 'right' }}>
-                <ValueLabel value={progressValue} suffix="%" />
+              <span data-testid="progress-value-label" style={{ minWidth: '40px', textAlign: 'right' }}>
+                {progressValue}%
               </span>
             </div>
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>

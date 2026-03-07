@@ -1,5 +1,4 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import type { Palette } from '../services/theme-provider-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
@@ -7,10 +6,9 @@ import { promisifyAnimation } from '../utils/promisify-animation.js'
 
 export type LinearProgressProps = {
   /**
-   * An observable progress value (0–100). Used when variant is 'determinate'.
-   * The component subscribes internally and updates the bar without re-rendering.
+   * A progress value (0–100). Used when variant is 'determinate'.
    */
-  value?: ObservableValue<number>
+  value?: number
   /**
    * The variant of the progress indicator.
    * - 'determinate': shows a fixed progress bar based on `value`
@@ -68,15 +66,11 @@ export const LinearProgress = Shade<LinearProgressProps>({
       transition: 'none',
     },
   },
-  render: ({ props, injector, useObservable, useHostProps, useRef }) => {
+  render: ({ props, injector, useHostProps, useRef }) => {
     const themeProvider = injector.getInstance(ThemeProviderService)
     const barRef = useRef<HTMLElement>('progressBar')
     const variant = props.variant || 'indeterminate'
-
-    if (variant === 'determinate' && props.value) {
-      useObservable('progressValue', props.value)
-    }
-    const value = clampValue(props.value?.getValue() ?? 0)
+    const value = clampValue(props.value ?? 0)
 
     const color = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({

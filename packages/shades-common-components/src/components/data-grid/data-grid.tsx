@@ -1,7 +1,6 @@
 import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
@@ -62,7 +61,12 @@ export interface DataGridProps<T, Column extends string> {
   /**
    * The query settings to use for the data source
    */
-  findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
+  findOptions: FindOptions<T, Array<keyof T>>
+
+  /**
+   * Callback invoked when find options change (e.g. pagination, sorting, filtering)
+   */
+  onFindOptionsChange: (options: FindOptions<T, Array<keyof T>>) => void
 
   /**
    * A list of custom header components to use
@@ -196,6 +200,7 @@ export const DataGrid: <T, Column extends string>(
                       >
                         field={column}
                         findOptions={props.findOptions}
+                        onFindOptionsChange={props.onFindOptionsChange}
                         filterConfig={props.columnFilters?.[column]}
                       />
                     )}
@@ -222,6 +227,7 @@ export const DataGrid: <T, Column extends string>(
         <DataGridFooter
           service={props.collectionService}
           findOptions={props.findOptions}
+          onFindOptionsChange={props.onFindOptionsChange}
           paginationOptions={props.paginationOptions}
         />
       </div>

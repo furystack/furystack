@@ -1,7 +1,6 @@
 import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { ToggleButton } from '../button-group.js'
 import { arrowDown, arrowUp, arrowUpDown, filter as filterIcon } from '../icons/icon-definitions.js'
 import { Icon } from '../icons/icon.js'
@@ -16,20 +15,22 @@ import { StringFilter } from './filters/string-filter.js'
 
 export type DataGridHeaderProps<T, Column extends string> = {
   field: Column
-  findOptions: ObservableValue<FindOptions<T, Array<keyof T>>>
+  findOptions: FindOptions<T, Array<keyof T>>
+  onFindOptionsChange: (options: FindOptions<T, Array<keyof T>>) => void
   filterConfig?: ColumnFilterConfig
 }
 
 export const OrderButton = Shade<{
   field: string
-  findOptions: ObservableValue<FilterableFindOptions>
+  findOptions: FilterableFindOptions
+  onFindOptionsChange: (options: FilterableFindOptions) => void
 }>({
   shadowDomName: 'data-grid-order-button',
   css: {
     display: 'inline-block',
   },
-  render: ({ props, useObservable }) => {
-    const [findOptions, onFindOptionsChange] = useObservable('findOptions', props.findOptions, {})
+  render: ({ props }) => {
+    const { findOptions } = props
 
     const currentOrder = Object.keys(findOptions.order || {})[0]
     const currentOrderDirection = Object.values(findOptions.order || {})[0]
@@ -48,7 +49,7 @@ export const OrderButton = Shade<{
             newDirection = currentOrderDirection === 'ASC' ? 'DESC' : 'ASC'
           }
           newOrder[props.field] = newDirection
-          onFindOptionsChange({
+          props.onFindOptionsChange({
             ...findOptions,
             order: newOrder,
           })
@@ -67,17 +68,15 @@ export const OrderButton = Shade<{
 
 const FilterButton = Shade<{
   field: string
-  findOptions: ObservableValue<FilterableFindOptions>
+  findOptions: FilterableFindOptions
   onclick: () => void
 }>({
   shadowDomName: 'data-grid-filter-button',
   css: {
     display: 'inline-block',
   },
-  render: ({ props, useObservable }) => {
-    const [findOptions] = useObservable('currentValue', props.findOptions)
-
-    const hasActiveFilter = !!findOptions.filter?.[props.field]
+  render: ({ props }) => {
+    const hasActiveFilter = !!props.findOptions.filter?.[props.field]
 
     return (
       <ToggleButton
@@ -100,20 +99,57 @@ const FilterButton = Shade<{
 const renderFilterComponent = (
   filterConfig: ColumnFilterConfig,
   field: string,
-  findOptions: ObservableValue<FilterableFindOptions>,
+  findOptions: FilterableFindOptions,
+  onFindOptionsChange: (options: FilterableFindOptions) => void,
   onClose: () => void,
 ): JSX.Element => {
   switch (filterConfig.type) {
     case 'number':
-      return <NumberFilter field={field} findOptions={findOptions} onClose={onClose} />
+      return (
+        <NumberFilter
+          field={field}
+          findOptions={findOptions}
+          onFindOptionsChange={onFindOptionsChange}
+          onClose={onClose}
+        />
+      )
     case 'boolean':
-      return <BooleanFilter field={field} findOptions={findOptions} onClose={onClose} />
+      return (
+        <BooleanFilter
+          field={field}
+          findOptions={findOptions}
+          onFindOptionsChange={onFindOptionsChange}
+          onClose={onClose}
+        />
+      )
     case 'enum':
-      return <EnumFilter field={field} values={filterConfig.values} findOptions={findOptions} onClose={onClose} />
+      return (
+        <EnumFilter
+          field={field}
+          values={filterConfig.values}
+          findOptions={findOptions}
+          onFindOptionsChange={onFindOptionsChange}
+          onClose={onClose}
+        />
+      )
     case 'date':
-      return <DateFilter field={field} findOptions={findOptions} onClose={onClose} />
+      return (
+        <DateFilter
+          field={field}
+          findOptions={findOptions}
+          onFindOptionsChange={onFindOptionsChange}
+          onClose={onClose}
+        />
+      )
     case 'string':
-      return <StringFilter field={field} findOptions={findOptions} onClose={onClose} />
+      return (
+        <StringFilter
+          field={field}
+          findOptions={findOptions}
+          onFindOptionsChange={onFindOptionsChange}
+          onClose={onClose}
+        />
+      )
     default: {
       const _exhaustive: never = filterConfig
       throw new Error(`Unknown filter type: ${(_exhaustive as ColumnFilterConfig).type}`)
@@ -156,6 +192,9 @@ export const DataGridHeader: <T, Column extends string>(
 
     const closeFilter = () => setIsFilterOpen(false)
 
+    const filterableFindOptions = props.findOptions as FilterableFindOptions
+    const onFilterableChange = props.onFindOptionsChange as (options: FilterableFindOptions) => void
+
     return (
       <>
         <div className="header-content">
@@ -164,13 +203,14 @@ export const DataGridHeader: <T, Column extends string>(
             {props.filterConfig && (
               <FilterButton
                 onclick={() => setIsFilterOpen(!isFilterOpen)}
-                findOptions={props.findOptions as ObservableValue<FilterableFindOptions>}
+                findOptions={filterableFindOptions}
                 field={props.field}
               />
             )}
             <OrderButton
               field={props.field}
-              findOptions={props.findOptions as ObservableValue<FilterableFindOptions>}
+              findOptions={filterableFindOptions}
+              onFindOptionsChange={onFilterableChange}
             />
           </div>
         </div>
@@ -179,7 +219,8 @@ export const DataGridHeader: <T, Column extends string>(
             {renderFilterComponent(
               props.filterConfig,
               props.field,
-              props.findOptions as ObservableValue<FilterableFindOptions>,
+              filterableFindOptions,
+              onFilterableChange,
               closeFilter,
             )}
           </FilterDropdown>

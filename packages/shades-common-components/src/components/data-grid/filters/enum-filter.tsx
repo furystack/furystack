@@ -1,5 +1,4 @@
 import { createComponent, Shade } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { SegmentedControl } from '../../button-group.js'
 import { Button } from '../../button.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
@@ -14,7 +13,8 @@ type EnumMode = 'include' | 'exclude'
 export const EnumFilter = Shade<{
   field: string
   values: Array<{ label: string; value: string }>
-  findOptions: ObservableValue<FilterableFindOptions>
+  findOptions: FilterableFindOptions
+  onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
   shadowDomName: 'data-grid-enum-filter',
@@ -36,8 +36,8 @@ export const EnumFilter = Shade<{
       marginBottom: '0',
     },
   },
-  render: ({ props, useObservable, useState }) => {
-    const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)
+  render: ({ props, useState }) => {
+    const { findOptions } = props
 
     const currentFilter = findOptions.filter?.[props.field] as { $in?: string[]; $nin?: string[] } | undefined
     const isExcludeMode = !!currentFilter?.$nin
@@ -54,14 +54,14 @@ export const EnumFilter = Shade<{
         const operator = mode === 'include' ? '$in' : '$nin'
         filter[props.field] = { [operator]: Array.from(selected) }
       }
-      setFindOptions({ ...findOptions, filter, skip: 0 })
+      props.onFindOptionsChange({ ...findOptions, filter, skip: 0 })
       props.onClose()
     }
 
     const clearFilter = () => {
       const filter = { ...findOptions.filter }
       delete filter[props.field]
-      setFindOptions({ ...findOptions, filter, skip: 0 })
+      props.onFindOptionsChange({ ...findOptions, filter, skip: 0 })
       props.onClose()
     }
 

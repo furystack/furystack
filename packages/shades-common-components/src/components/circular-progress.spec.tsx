@@ -1,9 +1,17 @@
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
 import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
 import { CircularProgress } from './circular-progress.js'
+
+const CircularWrapper = Shade<{ obs: ObservableValue<number> }>({
+  shadowDomName: 'test-circular-progress-wrapper',
+  render: ({ props, useObservable }) => {
+    const [value] = useObservable('value', props.obs)
+    return <CircularProgress variant="determinate" value={value} />
+  },
+})
 
 describe('CircularProgress', () => {
   let originalAnimate: typeof Element.prototype.animate
@@ -147,12 +155,11 @@ describe('CircularProgress', () => {
     it('should set aria-valuenow for determinate variant', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(50)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <CircularProgress variant="determinate" value={value} />,
+          jsxElement: <CircularProgress variant="determinate" value={50} />,
         })
 
         await sleepAsync(50)
@@ -167,12 +174,11 @@ describe('CircularProgress', () => {
     it('should clamp value to 0-100 range', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(150)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <CircularProgress variant="determinate" value={value} />,
+          jsxElement: <CircularProgress variant="determinate" value={150} />,
         })
 
         await sleepAsync(50)
@@ -182,15 +188,15 @@ describe('CircularProgress', () => {
       })
     })
 
-    it('should update stroke-dashoffset when observable value changes', async () => {
+    it('should update stroke-dashoffset when value prop changes', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(0)
+        const obs = new ObservableValue(0)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <CircularProgress variant="determinate" value={value} />,
+          jsxElement: <CircularWrapper obs={obs} />,
         })
 
         await sleepAsync(50)
@@ -198,7 +204,7 @@ describe('CircularProgress', () => {
         const circle = document.querySelector('shade-circular-progress .progress-circle') as SVGCircleElement
         const initialOffset = circle.style.strokeDashoffset
 
-        value.setValue(75)
+        obs.setValue(75)
         await sleepAsync(50)
 
         const updatedOffset = circle.style.strokeDashoffset
@@ -206,15 +212,15 @@ describe('CircularProgress', () => {
       })
     })
 
-    it('should update aria-valuenow when observable value changes', async () => {
+    it('should update aria-valuenow when value prop changes', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const value = new ObservableValue(20)
+        const obs = new ObservableValue(20)
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <CircularProgress variant="determinate" value={value} />,
+          jsxElement: <CircularWrapper obs={obs} />,
         })
 
         await sleepAsync(50)
@@ -222,7 +228,7 @@ describe('CircularProgress', () => {
         const el = document.querySelector('shade-circular-progress') as HTMLElement
         expect(el.getAttribute('aria-valuenow')).toBe('20')
 
-        value.setValue(85)
+        obs.setValue(85)
         await sleepAsync(50)
 
         expect(el.getAttribute('aria-valuenow')).toBe('85')

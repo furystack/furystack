@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from '../data-grid.js'
 import { DateFilter } from './date-filter.js'
@@ -14,24 +14,32 @@ describe('DateFilter', () => {
     document.body.innerHTML = ''
   })
 
-  const createFindOptions = (options: Partial<FilterableFindOptions> = {}): ObservableValue<FilterableFindOptions> => {
-    return new ObservableValue<FilterableFindOptions>(options)
+  const createFindOptions = (options: Partial<FilterableFindOptions> = {}): FilterableFindOptions => {
+    return options as FilterableFindOptions
   }
 
   const renderDateFilter = async (
-    findOptions: ObservableValue<FilterableFindOptions>,
+    findOptions: FilterableFindOptions,
     field = 'createdAt',
     onClose = vi.fn(),
+    onFindOptionsChange = vi.fn(),
   ) => {
     const injector = new Injector()
     const rootElement = document.getElementById('root')!
     initializeShadeRoot({
       injector,
       rootElement,
-      jsxElement: <DateFilter field={field} findOptions={findOptions} onClose={onClose} />,
+      jsxElement: (
+        <DateFilter
+          field={field}
+          findOptions={findOptions}
+          onFindOptionsChange={onFindOptionsChange}
+          onClose={onClose}
+        />
+      ),
     })
     await flushUpdates()
-    return { injector, onClose }
+    return { injector, onClose, onFindOptionsChange }
   }
 
   it('should render mode segmented control and date input', async () => {
@@ -47,7 +55,7 @@ describe('DateFilter', () => {
 
   it('should apply "before" filter on submit', async () => {
     const findOptions = createFindOptions()
-    const { injector, onClose } = await renderDateFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderDateFilter(findOptions)
     await usingAsync(injector, async () => {
       const input = document.querySelector('[data-testid="date-filter-value"]') as HTMLInputElement
       input.value = '2025-06-15T10:30'
@@ -57,7 +65,8 @@ describe('DateFilter', () => {
       form.dispatchEvent(new Event('submit', { bubbles: true }))
       await flushUpdates()
 
-      const filter = findOptions.getValue().filter?.createdAt as Record<string, Date>
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      const filter = updatedOptions.filter?.createdAt as Record<string, Date>
       expect(filter.$lt).toBeInstanceOf(Date)
       expect(filter.$lt.toISOString()).toBe(new Date('2025-06-15T10:30').toISOString())
       expect(onClose).toHaveBeenCalled()
@@ -66,7 +75,7 @@ describe('DateFilter', () => {
 
   it('should apply "after" filter when mode is changed', async () => {
     const findOptions = createFindOptions()
-    const { injector, onClose } = await renderDateFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderDateFilter(findOptions)
     await usingAsync(injector, async () => {
       const afterButton = document.querySelector(
         'shade-segmented-control button[data-value="after"]',
@@ -82,7 +91,8 @@ describe('DateFilter', () => {
       form.dispatchEvent(new Event('submit', { bubbles: true }))
       await flushUpdates()
 
-      const filter = findOptions.getValue().filter?.createdAt as Record<string, Date>
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      const filter = updatedOptions.filter?.createdAt as Record<string, Date>
       expect(filter.$gt).toBeInstanceOf(Date)
       expect(onClose).toHaveBeenCalled()
     })
@@ -90,7 +100,7 @@ describe('DateFilter', () => {
 
   it('should apply "between" filter with both dates', async () => {
     const findOptions = createFindOptions()
-    const { injector, onClose } = await renderDateFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderDateFilter(findOptions)
     await usingAsync(injector, async () => {
       const betweenButton = document.querySelector(
         'shade-segmented-control button[data-value="between"]',
@@ -110,7 +120,8 @@ describe('DateFilter', () => {
       form.dispatchEvent(new Event('submit', { bubbles: true }))
       await flushUpdates()
 
-      const filter = findOptions.getValue().filter?.createdAt as Record<string, Date>
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      const filter = updatedOptions.filter?.createdAt as Record<string, Date>
       expect(filter.$gte).toBeInstanceOf(Date)
       expect(filter.$lte).toBeInstanceOf(Date)
       expect(onClose).toHaveBeenCalled()
@@ -119,20 +130,21 @@ describe('DateFilter', () => {
 
   it('should clear filter when Clear button is clicked', async () => {
     const findOptions = createFindOptions({ filter: { createdAt: { $lt: new Date() } } })
-    const { injector, onClose } = await renderDateFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderDateFilter(findOptions)
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
       await flushUpdates()
 
-      expect(findOptions.getValue().filter?.createdAt).toBeUndefined()
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      expect(updatedOptions.filter?.createdAt).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('should remove filter when submitting empty date', async () => {
     const findOptions = createFindOptions({ filter: { createdAt: { $lt: new Date() } } })
-    const { injector, onClose } = await renderDateFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderDateFilter(findOptions)
     await usingAsync(injector, async () => {
       const input = document.querySelector('[data-testid="date-filter-value"]') as HTMLInputElement
       input.value = ''
@@ -142,7 +154,8 @@ describe('DateFilter', () => {
       form.dispatchEvent(new Event('submit', { bubbles: true }))
       await flushUpdates()
 
-      expect(findOptions.getValue().filter?.createdAt).toBeUndefined()
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      expect(updatedOptions.filter?.createdAt).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
     })
   })
@@ -151,21 +164,21 @@ describe('DateFilter', () => {
     const findOptions = createFindOptions({
       filter: { createdAt: { $lt: new Date() }, name: { $regex: 'keep' } },
     })
-    const { injector } = await renderDateFilter(findOptions)
+    const { injector, onFindOptionsChange } = await renderDateFilter(findOptions)
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
       await flushUpdates()
 
-      const updatedFilter = findOptions.getValue().filter
-      expect(updatedFilter?.createdAt).toBeUndefined()
-      expect(updatedFilter?.name).toEqual({ $regex: 'keep' })
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      expect(updatedOptions.filter?.createdAt).toBeUndefined()
+      expect(updatedOptions.filter?.name).toEqual({ $regex: 'keep' })
     })
   })
 
   it('should reset skip to 0 when applying filter', async () => {
     const findOptions = createFindOptions({ skip: 20 })
-    const { injector } = await renderDateFilter(findOptions)
+    const { injector, onFindOptionsChange } = await renderDateFilter(findOptions)
     await usingAsync(injector, async () => {
       const input = document.querySelector('[data-testid="date-filter-value"]') as HTMLInputElement
       input.value = '2025-06-15T10:30'
@@ -175,7 +188,7 @@ describe('DateFilter', () => {
       form.dispatchEvent(new Event('submit', { bubbles: true }))
       await flushUpdates()
 
-      expect(findOptions.getValue().skip).toBe(0)
+      expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ skip: 0 }))
     })
   })
 })

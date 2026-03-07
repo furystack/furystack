@@ -1,5 +1,4 @@
 import { createComponent, Shade } from '@furystack/shades'
-import type { ObservableValue } from '@furystack/utils'
 import { SegmentedControl } from '../../button-group.js'
 import { Button } from '../../button.js'
 import { close as closeIcon, search as searchIcon } from '../../icons/icon-definitions.js'
@@ -12,7 +11,8 @@ type DateMode = 'before' | 'after' | 'between'
 
 export const DateFilter = Shade<{
   field: string
-  findOptions: ObservableValue<FilterableFindOptions>
+  findOptions: FilterableFindOptions
+  onFindOptionsChange: (options: FilterableFindOptions) => void
   onClose: () => void
 }>({
   shadowDomName: 'data-grid-date-filter',
@@ -21,8 +21,8 @@ export const DateFilter = Shade<{
     fontFamily: cssVariableTheme.typography.fontFamily,
     '& input[type="datetime-local"]': filterInputCss,
   },
-  render: ({ props, useObservable, useState }) => {
-    const [findOptions, setFindOptions] = useObservable('findOptions', props.findOptions)
+  render: ({ props, useState }) => {
+    const { findOptions } = props
 
     const currentFilter = findOptions.filter?.[props.field] as
       | { $lt?: Date; $gt?: Date; $gte?: Date; $lte?: Date }
@@ -63,7 +63,7 @@ export const DateFilter = Shade<{
       const filter = { ...findOptions.filter }
       if (!dateValue) {
         delete filter[props.field]
-        setFindOptions({ ...findOptions, filter, skip: 0 })
+        props.onFindOptionsChange({ ...findOptions, filter, skip: 0 })
         props.onClose()
         return
       }
@@ -87,14 +87,14 @@ export const DateFilter = Shade<{
       }
 
       filter[props.field] = filterValue
-      setFindOptions({ ...findOptions, filter, skip: 0 })
+      props.onFindOptionsChange({ ...findOptions, filter, skip: 0 })
       props.onClose()
     }
 
     const clearFilter = () => {
       const filter = { ...findOptions.filter }
       delete filter[props.field]
-      setFindOptions({ ...findOptions, filter, skip: 0 })
+      props.onFindOptionsChange({ ...findOptions, filter, skip: 0 })
       props.onClose()
     }
 

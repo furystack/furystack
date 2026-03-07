@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
-import { ObservableValue, usingAsync } from '@furystack/utils'
+import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from '../data-grid.js'
 import { EnumFilter } from './enum-filter.js'
@@ -20,25 +20,34 @@ describe('EnumFilter', () => {
     document.body.innerHTML = ''
   })
 
-  const createFindOptions = (options: Partial<FilterableFindOptions> = {}): ObservableValue<FilterableFindOptions> => {
-    return new ObservableValue<FilterableFindOptions>(options)
+  const createFindOptions = (options: Partial<FilterableFindOptions> = {}): FilterableFindOptions => {
+    return options as FilterableFindOptions
   }
 
   const renderEnumFilter = async (
-    findOptions: ObservableValue<FilterableFindOptions>,
+    findOptions: FilterableFindOptions,
     field = 'role',
     values = enumValues,
     onClose = vi.fn(),
+    onFindOptionsChange = vi.fn(),
   ) => {
     const injector = new Injector()
     const rootElement = document.getElementById('root')!
     initializeShadeRoot({
       injector,
       rootElement,
-      jsxElement: <EnumFilter field={field} values={values} findOptions={findOptions} onClose={onClose} />,
+      jsxElement: (
+        <EnumFilter
+          field={field}
+          values={values}
+          findOptions={findOptions}
+          onFindOptionsChange={onFindOptionsChange}
+          onClose={onClose}
+        />
+      ),
     })
     await flushUpdates()
-    return { injector, onClose }
+    return { injector, onClose, onFindOptionsChange }
   }
 
   it('should render mode control and checkboxes for each value', async () => {
@@ -54,7 +63,7 @@ describe('EnumFilter', () => {
 
   it('should apply $in filter when values are selected and Apply is clicked', async () => {
     const findOptions = createFindOptions()
-    const { injector, onClose } = await renderEnumFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderEnumFilter(findOptions)
     await usingAsync(injector, async () => {
       const checkboxes = document.querySelectorAll('shade-checkbox input[type="checkbox"]')
       const adminCheckbox = checkboxes[0] as HTMLInputElement
@@ -65,14 +74,16 @@ describe('EnumFilter', () => {
       applyButton?.click()
       await flushUpdates()
 
-      expect(findOptions.getValue().filter).toEqual({ role: { $in: ['admin'] } })
+      expect(onFindOptionsChange).toHaveBeenCalledWith(
+        expect.objectContaining({ filter: { role: { $in: ['admin'] } } }),
+      )
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('should apply $nin filter when exclude mode is selected', async () => {
     const findOptions = createFindOptions()
-    const { injector, onClose } = await renderEnumFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderEnumFilter(findOptions)
     await usingAsync(injector, async () => {
       const excludeButton = document.querySelector(
         'shade-segmented-control button[data-value="exclude"]',
@@ -89,14 +100,16 @@ describe('EnumFilter', () => {
       applyButton?.click()
       await flushUpdates()
 
-      expect(findOptions.getValue().filter).toEqual({ role: { $nin: ['guest'] } })
+      expect(onFindOptionsChange).toHaveBeenCalledWith(
+        expect.objectContaining({ filter: { role: { $nin: ['guest'] } } }),
+      )
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('should remove filter when no values are selected', async () => {
     const findOptions = createFindOptions({ filter: { role: { $in: ['admin'] } } })
-    const { injector, onClose } = await renderEnumFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderEnumFilter(findOptions)
     await usingAsync(injector, async () => {
       const checkboxes = document.querySelectorAll('shade-checkbox input[type="checkbox"]')
       const adminCheckbox = checkboxes[0] as HTMLInputElement
@@ -107,41 +120,43 @@ describe('EnumFilter', () => {
       applyButton?.click()
       await flushUpdates()
 
-      expect(findOptions.getValue().filter?.role).toBeUndefined()
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      expect(updatedOptions.filter?.role).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('should clear filter when Clear button is clicked', async () => {
     const findOptions = createFindOptions({ filter: { role: { $in: ['admin', 'user'] } } })
-    const { injector, onClose } = await renderEnumFilter(findOptions)
+    const { injector, onClose, onFindOptionsChange } = await renderEnumFilter(findOptions)
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
       await flushUpdates()
 
-      expect(findOptions.getValue().filter?.role).toBeUndefined()
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      expect(updatedOptions.filter?.role).toBeUndefined()
       expect(onClose).toHaveBeenCalled()
     })
   })
 
   it('should preserve filters on other fields', async () => {
     const findOptions = createFindOptions({ filter: { role: { $in: ['admin'] }, name: { $regex: 'keep' } } })
-    const { injector } = await renderEnumFilter(findOptions)
+    const { injector, onFindOptionsChange } = await renderEnumFilter(findOptions)
     await usingAsync(injector, async () => {
       const clearButton = Array.from(document.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Clear')
       clearButton?.click()
       await flushUpdates()
 
-      const updatedFilter = findOptions.getValue().filter
-      expect(updatedFilter?.role).toBeUndefined()
-      expect(updatedFilter?.name).toEqual({ $regex: 'keep' })
+      const updatedOptions = onFindOptionsChange.mock.lastCall?.[0] as FilterableFindOptions
+      expect(updatedOptions.filter?.role).toBeUndefined()
+      expect(updatedOptions.filter?.name).toEqual({ $regex: 'keep' })
     })
   })
 
   it('should reset skip to 0 when applying filter', async () => {
     const findOptions = createFindOptions({ skip: 20 })
-    const { injector } = await renderEnumFilter(findOptions)
+    const { injector, onFindOptionsChange } = await renderEnumFilter(findOptions)
     await usingAsync(injector, async () => {
       const checkboxes = document.querySelectorAll('shade-checkbox input[type="checkbox"]')
       const checkbox = checkboxes[0] as HTMLInputElement
@@ -152,7 +167,7 @@ describe('EnumFilter', () => {
       applyButton?.click()
       await flushUpdates()
 
-      expect(findOptions.getValue().skip).toBe(0)
+      expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ skip: 0 }))
     })
   })
 

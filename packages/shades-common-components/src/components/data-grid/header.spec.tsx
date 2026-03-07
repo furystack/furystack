@@ -1,12 +1,44 @@
 import type { FindOptions } from '@furystack/core'
 import { Injector } from '@furystack/inject'
-import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
+import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
 import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FilterableFindOptions } from './data-grid.js'
 import { DataGridHeader, OrderButton } from './header.js'
 
 type TestItem = { id: number; name: string; email: string }
+
+const OrderButtonWrapper = Shade<{ obs: ObservableValue<FilterableFindOptions>; field: string }>({
+  shadowDomName: 'test-order-button-wrapper',
+  render: ({ props, useObservable }) => {
+    const [findOptions, setFindOptions] = useObservable('findOptions', props.obs)
+    return <OrderButton field={props.field} findOptions={findOptions} onFindOptionsChange={setFindOptions} />
+  },
+})
+
+const HeaderWrapper = Shade<{
+  obs: ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>
+  field: string
+  filterConfig?:
+    | { type: 'string' }
+    | { type: 'number' }
+    | { type: 'boolean' }
+    | { type: 'date' }
+    | { type: 'enum'; values: Array<{ label: string; value: string }> }
+}>({
+  shadowDomName: 'test-header-wrapper',
+  render: ({ props, useObservable }) => {
+    const [findOptions, setFindOptions] = useObservable('findOptions', props.obs)
+    return (
+      <DataGridHeader
+        field={props.field}
+        findOptions={findOptions}
+        onFindOptionsChange={setFindOptions}
+        filterConfig={props.filterConfig}
+      />
+    )
+  },
+})
 
 describe('DataGridHeader', () => {
   let originalAnimate: typeof Element.prototype.animate
@@ -41,28 +73,16 @@ describe('DataGridHeader', () => {
     Element.prototype.animate = originalAnimate
   })
 
-  const createFindOptions = (
-    options: Partial<FindOptions<TestItem, Array<keyof TestItem>>> = {},
-  ): ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>> => {
-    return new ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>(options)
-  }
-
-  const createFilterableFindOptions = (
-    options: Partial<FilterableFindOptions> = {},
-  ): ObservableValue<FilterableFindOptions> => {
-    return new ObservableValue<FilterableFindOptions>(options)
-  }
-
   describe('rendering', () => {
     it('should render with custom element', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={{}} onFindOptionsChange={onFindOptionsChange} />,
         })
 
         await flushUpdates()
@@ -75,12 +95,12 @@ describe('DataGridHeader', () => {
     it('should render field name', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={{}} onFindOptionsChange={onFindOptionsChange} />,
         })
 
         await flushUpdates()
@@ -94,12 +114,12 @@ describe('DataGridHeader', () => {
     it('should render order button', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={{}} onFindOptionsChange={onFindOptionsChange} />,
         })
 
         await flushUpdates()
@@ -112,12 +132,12 @@ describe('DataGridHeader', () => {
     it('should not render filter button when no filterConfig is provided', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} />,
+          jsxElement: <DataGridHeader field="name" findOptions={{}} onFindOptionsChange={onFindOptionsChange} />,
         })
 
         await flushUpdates()
@@ -130,12 +150,19 @@ describe('DataGridHeader', () => {
     it('should render filter button when filterConfig is provided', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'string' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -150,12 +177,12 @@ describe('DataGridHeader', () => {
     it('should show neutral icon when no order is set', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFilterableFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
+          jsxElement: <OrderButton field="name" findOptions={{}} onFindOptionsChange={onFindOptionsChange} />,
         })
 
         await flushUpdates()
@@ -165,15 +192,15 @@ describe('DataGridHeader', () => {
       })
     })
 
-    it('should toggle order to ASC when clicking on unsorted field', async () => {
+    it('should call onFindOptionsChange with ASC when clicking on unsorted field', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFilterableFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
+          jsxElement: <OrderButton field="name" findOptions={{}} onFindOptionsChange={onFindOptionsChange} />,
         })
 
         await flushUpdates()
@@ -183,20 +210,25 @@ describe('DataGridHeader', () => {
 
         await flushUpdates()
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.order).toEqual({ name: 'ASC' })
+        expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ order: { name: 'ASC' } }))
       })
     })
 
-    it('should toggle order from ASC to DESC when clicking', async () => {
+    it('should call onFindOptionsChange with DESC when clicking on ASC-sorted field', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFilterableFindOptions({ order: { name: 'ASC' } })
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
+          jsxElement: (
+            <OrderButton
+              field="name"
+              findOptions={{ order: { name: 'ASC' } }}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -206,20 +238,25 @@ describe('DataGridHeader', () => {
 
         await flushUpdates()
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.order).toEqual({ name: 'DESC' })
+        expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ order: { name: 'DESC' } }))
       })
     })
 
-    it('should toggle order from DESC to ASC when clicking', async () => {
+    it('should call onFindOptionsChange with ASC when clicking on DESC-sorted field', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFilterableFindOptions({ order: { name: 'DESC' } })
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
+          jsxElement: (
+            <OrderButton
+              field="name"
+              findOptions={{ order: { name: 'DESC' } }}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -229,20 +266,19 @@ describe('DataGridHeader', () => {
 
         await flushUpdates()
 
-        const updatedOptions = findOptions.getValue()
-        expect(updatedOptions.order).toEqual({ name: 'ASC' })
+        expect(onFindOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ order: { name: 'ASC' } }))
       })
     })
 
     it('should react to external findOptions changes', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFilterableFindOptions()
+        const obs = new ObservableValue<FilterableFindOptions>({})
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <OrderButton field="name" findOptions={findOptions} />,
+          jsxElement: <OrderButtonWrapper obs={obs} field="name" />,
         })
 
         await flushUpdates()
@@ -250,7 +286,7 @@ describe('DataGridHeader', () => {
         let button = document.querySelector('data-grid-order-button')
         expect(button?.querySelector('shade-icon')).not.toBeNull()
 
-        findOptions.setValue({ order: { name: 'ASC' } })
+        obs.setValue({ order: { name: 'ASC' } })
         await flushUpdates()
 
         button = document.querySelector('data-grid-order-button')
@@ -263,12 +299,19 @@ describe('DataGridHeader', () => {
     it('should show inactive state when no filter is set', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'string' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -281,12 +324,19 @@ describe('DataGridHeader', () => {
     it('should show active state when filter is set for field', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ filter: { name: { $regex: 'test' } } })
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={{ filter: { name: { $regex: 'test' } } }}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'string' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -299,21 +349,22 @@ describe('DataGridHeader', () => {
     it('should transition from active to inactive when filter is externally cleared', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions({ filter: { name: { $regex: 'test' } } })
+        const obs = new ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>({
+          filter: { name: { $regex: 'test' } },
+        })
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+          jsxElement: <HeaderWrapper obs={obs} field="name" filterConfig={{ type: 'string' }} />,
         })
 
-        // Parent renders, then child FilterButton renders
         await flushUpdates()
 
         const filterButton = document.querySelector('data-grid-filter-button button')
         expect(filterButton?.hasAttribute('data-selected')).toBe(true)
 
-        findOptions.setValue({ filter: {} })
+        obs.setValue({ filter: {} })
         await flushUpdates()
 
         const updatedButton = document.querySelector('data-grid-filter-button button')
@@ -324,12 +375,19 @@ describe('DataGridHeader', () => {
     it('should open filter dropdown when clicked', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'string' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -349,12 +407,19 @@ describe('DataGridHeader', () => {
     it('should render StringFilter for string filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'string' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -372,12 +437,19 @@ describe('DataGridHeader', () => {
     it('should render NumberFilter for number filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="id" findOptions={findOptions} filterConfig={{ type: 'number' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="id"
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'number' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -395,12 +467,19 @@ describe('DataGridHeader', () => {
     it('should render BooleanFilter for boolean filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'boolean' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'boolean' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -418,7 +497,7 @@ describe('DataGridHeader', () => {
     it('should render EnumFilter for enum filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
@@ -426,7 +505,8 @@ describe('DataGridHeader', () => {
           jsxElement: (
             <DataGridHeader
               field="name"
-              findOptions={findOptions}
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
               filterConfig={{ type: 'enum', values: [{ label: 'A', value: 'a' }] }}
             />
           ),
@@ -447,12 +527,19 @@ describe('DataGridHeader', () => {
     it('should render DateFilter for date filterConfig', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const onFindOptionsChange = vi.fn()
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'date' }} />,
+          jsxElement: (
+            <DataGridHeader
+              field="name"
+              findOptions={{}}
+              onFindOptionsChange={onFindOptionsChange}
+              filterConfig={{ type: 'date' }}
+            />
+          ),
         })
 
         await flushUpdates()
@@ -472,12 +559,12 @@ describe('DataGridHeader', () => {
     it('should support both sorting and filtering simultaneously', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const findOptions = createFindOptions()
+        const obs = new ObservableValue<FindOptions<TestItem, Array<keyof TestItem>>>({})
 
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <DataGridHeader field="name" findOptions={findOptions} filterConfig={{ type: 'string' }} />,
+          jsxElement: <HeaderWrapper obs={obs} field="name" filterConfig={{ type: 'string' }} />,
         })
 
         await flushUpdates()
@@ -487,7 +574,7 @@ describe('DataGridHeader', () => {
 
         await flushUpdates()
 
-        expect(findOptions.getValue().order).toEqual({ name: 'ASC' })
+        expect(obs.getValue().order).toEqual({ name: 'ASC' })
 
         const filterButton = document.querySelector('data-grid-filter-button')?.querySelector('button')
         filterButton?.click()
