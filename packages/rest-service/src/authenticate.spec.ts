@@ -40,10 +40,14 @@ describe('Authenticate', () => {
   it('Should return 401 with WWW-Authenticate: Basic header when basic-auth provider is registered', async () => {
     await usingAsync(new Injector(), async (i) => {
       const isAuthenticatedAction = vi.fn(async () => false)
+
+      i.setExplicitInstance(
+        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(new Error(':(')) },
+        IdentityContext,
+      )
+
       i.setExplicitInstance(
         {
-          isAuthenticated: isAuthenticatedAction,
-          getCurrentUser: async () => Promise.reject(new Error(':(')),
           authentication: {
             authenticationProviders: [{ name: 'basic-auth', authenticate: async () => null }],
           },
