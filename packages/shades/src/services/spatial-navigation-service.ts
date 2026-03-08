@@ -103,7 +103,7 @@ const getSectionCenter = (section: Element): { x: number; y: number } => {
   return getElementCenter(rect)
 }
 
-const shouldPassthroughArrowKeys = (element: Element): boolean => {
+const isTextInput = (element: Element): boolean => {
   if (INPUT_PASSTHROUGH_TAGS.has(element.tagName)) {
     return true
   }
@@ -115,6 +115,51 @@ const shouldPassthroughArrowKeys = (element: Element): boolean => {
 
   if ((element as HTMLElement).contentEditable === 'true') {
     return true
+  }
+
+  return false
+}
+
+/**
+ * Determines whether an arrow key should be passed through to a text input.
+ * Returns false (allowing spatial nav to take over) when the cursor is at a
+ * boundary where the arrow key would have no effect within the field:
+ * - ArrowUp / ArrowLeft at the start of the text
+ * - ArrowDown / ArrowRight at the end of the text
+ * This enables D-pad escape from inputs without breaking normal text editing.
+ */
+const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'])
+
+/**
+ * Determines whether an arrow key should be passed through to a text input.
+ * Returns false (allowing spatial nav to take over) when the cursor is at a
+ * boundary where the arrow key would have no effect within the field:
+ * - ArrowUp / ArrowLeft at the start of the text
+ * - ArrowDown / ArrowRight at the end of the text
+ * This enables D-pad escape from inputs without breaking normal text editing.
+ */
+const shouldPassthroughArrowKeys = (element: Element, key: string): boolean => {
+  if (!ARROW_KEYS.has(key)) return false
+  if (!isTextInput(element)) return false
+
+  const el = element as HTMLInputElement | HTMLTextAreaElement
+
+  if (typeof el.selectionStart !== 'number' || typeof el.selectionEnd !== 'number') {
+    return true
+  }
+
+  const hasSelection = el.selectionStart !== el.selectionEnd
+  if (hasSelection) return true
+
+  const cursor = el.selectionStart
+  const length = el.value?.length ?? 0
+
+  if (key === 'ArrowUp' || key === 'ArrowLeft') {
+    return cursor > 0
+  }
+
+  if (key === 'ArrowDown' || key === 'ArrowRight') {
+    return cursor < length
   }
 
   return false
@@ -218,10 +263,8 @@ export class SpatialNavigationService implements Disposable {
     if (ev.defaultPrevented) return
 
     const { activeElement } = document
-    if (activeElement && shouldPassthroughArrowKeys(activeElement)) {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(ev.key)) {
-        return
-      }
+    if (activeElement && shouldPassthroughArrowKeys(activeElement, ev.key)) {
+      return
     }
 
     switch (ev.key) {
@@ -242,6 +285,7 @@ export class SpatialNavigationService implements Disposable {
         this.moveFocus('right')
         break
       case 'Enter':
+        ev.preventDefault()
         this.activateFocused()
         break
       case 'Backspace':

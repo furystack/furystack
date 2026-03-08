@@ -268,15 +268,17 @@ describe('SpatialNavigationService', () => {
   })
 
   describe('input passthrough', () => {
-    it('Should not intercept arrow keys on text input', async () => {
+    it('Should not intercept arrow keys on text input when cursor is mid-text', async () => {
       await usingAsync(new Injector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
+        input.value = 'hello'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
         const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
         document.body.append(input, btn)
 
         input.focus()
+        input.setSelectionRange(2, 2)
         i.getInstance(SpatialNavigationService)
 
         pressKey('ArrowRight')
@@ -284,14 +286,54 @@ describe('SpatialNavigationService', () => {
       })
     })
 
-    it('Should not intercept arrow keys on textarea', async () => {
+    it('Should escape text input with ArrowRight when cursor is at end', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'text'
+        input.value = 'hello'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        input.scrollIntoView = vi.fn()
+        const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        input.setSelectionRange(5, 5)
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(btn)
+      })
+    })
+
+    it('Should escape text input with ArrowLeft when cursor is at start', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'text'
+        input.value = 'hello'
+        mockRect(input, { left: 100, top: 0, width: 200, height: 30 })
+        input.scrollIntoView = vi.fn()
+        const btn = createButton('btn', { left: 0, top: 0, width: 50, height: 50 })
+        document.body.append(btn, input)
+
+        input.focus()
+        input.setSelectionRange(0, 0)
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowLeft')
+        expect(document.activeElement).toBe(btn)
+      })
+    })
+
+    it('Should not intercept arrow keys on textarea when cursor is mid-text', async () => {
       await usingAsync(new Injector(), async (i) => {
         const textarea = document.createElement('textarea')
+        textarea.value = 'line1\nline2'
         mockRect(textarea, { left: 0, top: 0, width: 200, height: 100 })
         const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
         document.body.append(textarea, btn)
 
         textarea.focus()
+        textarea.setSelectionRange(3, 3)
         i.getInstance(SpatialNavigationService)
 
         pressKey('ArrowDown')
@@ -338,6 +380,23 @@ describe('SpatialNavigationService', () => {
         mockRect(input, { left: 0, top: 0, width: 50, height: 30 })
         input.scrollIntoView = vi.fn()
         const btn = createButton('btn', { left: 100, top: 0, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(btn)
+      })
+    })
+
+    it('Should escape empty text input on any arrow key', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'text'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        input.scrollIntoView = vi.fn()
+        const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
         document.body.append(input, btn)
 
         input.focus()
