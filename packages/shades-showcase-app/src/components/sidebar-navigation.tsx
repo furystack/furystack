@@ -194,7 +194,7 @@ export const SidebarNavigation = Shade({
   },
   render: () => {
     return (
-      <nav style={{ padding: '4px 0 8px' }}>
+      <nav style={{ padding: '4px 0 8px' }} data-nav-section="sidebar">
         <NestedRouteLink className="sidebar-header" href="/">
           <Icon icon={icons.flame} size={18} />
           <span>FuryStack Shades</span>

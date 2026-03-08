@@ -1,4 +1,4 @@
-import { createComponent, Shade, SpatialNavigationService, configureSpatialNavigation } from '@furystack/shades'
+import { createComponent, Shade, SpatialNavigationService } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
 import {
   Button,
@@ -14,9 +14,6 @@ import {
 export const SpatialNavigationPage = Shade({
   customElementName: 'shades-spatial-navigation-page',
   render: ({ injector, useObservable, useDisposable, useState }) => {
-    if (!injector.cachedSingletons.has(SpatialNavigationService)) {
-      configureSpatialNavigation(injector, { initiallyEnabled: true })
-    }
     const spatialNav = injector.getInstance(SpatialNavigationService)
 
     const [isEnabled] = useObservable('enabled', spatialNav.enabled)

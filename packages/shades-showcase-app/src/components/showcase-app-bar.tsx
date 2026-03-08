@@ -22,7 +22,7 @@ export const ShowcaseAppBar = Shade({
   },
   render: () => {
     return (
-      <AppBar style={{ height: 'inherit' }}>
+      <AppBar style={{ height: 'inherit' }} data-nav-section="app-bar">
         <div
           style={{
             display: 'flex',
