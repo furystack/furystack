@@ -300,6 +300,7 @@ export class SpatialNavigationService implements Disposable {
 
     for (const section of allSections) {
       if (section === currentSection) continue
+      if (currentSection.contains(section) || section.contains(currentSection)) continue
 
       const sectionRect = section.getBoundingClientRect()
       if (!isInDirection(currentSectionRect, sectionRect, direction)) continue
@@ -312,20 +313,32 @@ export class SpatialNavigationService implements Disposable {
       }
     }
 
-    if (!nearestSection) return
+    if (nearestSection) {
+      this.focusInSection(nearestSection, activeElement, currentSectionName, direction)
+      return
+    }
 
-    this.storeFocusMemory(currentSectionName, activeElement)
+    this.focusUnsectionedElement(activeElement, currentSection, currentSectionName, direction)
+  }
 
-    const targetSectionName = nearestSection.getAttribute('data-nav-section')
+  private focusInSection(
+    section: Element,
+    activeElement: Element,
+    previousSectionName: string | null,
+    direction: SpatialDirection,
+  ): void {
+    this.storeFocusMemory(previousSectionName, activeElement)
+
+    const targetSectionName = section.getAttribute('data-nav-section')
     const remembered = targetSectionName ? this.focusMemory.get(targetSectionName)?.deref() : null
-    if (remembered && nearestSection.contains(remembered)) {
+    if (remembered && section.contains(remembered)) {
       ;(remembered as HTMLElement).focus()
       remembered.scrollIntoView({ block: 'nearest', inline: 'nearest' })
       this.activeSection.setValue(targetSectionName)
       return
     }
 
-    const candidates = this.getFocusableCandidates(nearestSection, activeElement)
+    const candidates = this.getFocusableCandidates(section, activeElement)
     const currentRect = activeElement.getBoundingClientRect()
     const nearest = this.findNearestInDirection(currentRect, candidates, direction)
 
@@ -336,11 +349,36 @@ export class SpatialNavigationService implements Disposable {
       return
     }
 
-    const firstFocusable = nearestSection.querySelector(this.focusableSelector)
+    const firstFocusable = section.querySelector(this.focusableSelector)
     if (firstFocusable) {
       ;(firstFocusable as HTMLElement).focus()
       ;(firstFocusable as HTMLElement).scrollIntoView({ block: 'nearest', inline: 'nearest' })
       this.activeSection.setValue(targetSectionName)
+    }
+  }
+
+  private focusUnsectionedElement(
+    activeElement: Element,
+    currentSection: Element,
+    currentSectionName: string | null,
+    direction: SpatialDirection,
+  ): void {
+    const allFocusable = Array.from(document.querySelectorAll(this.focusableSelector)).filter((el) => {
+      if (el === activeElement) return false
+      if (currentSection.contains(el)) return false
+      const rect = el.getBoundingClientRect()
+      return rect.width > 0 && rect.height > 0
+    })
+
+    const currentRect = activeElement.getBoundingClientRect()
+    const nearest = this.findNearestInDirection(currentRect, allFocusable, direction)
+
+    if (nearest) {
+      this.storeFocusMemory(currentSectionName, activeElement)
+      nearest.focus()
+      nearest.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      const targetSection = this.findContainingSection(nearest)
+      this.activeSection.setValue(targetSection?.getAttribute('data-nav-section') ?? null)
     }
   }
 

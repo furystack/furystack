@@ -117,7 +117,18 @@ const SidebarCategory = Shade<{ node: NavTreeNode }>({
 
     return (
       <div>
-        <div className={`category-header${isCategoryActive ? ' active' : ''}`} onclick={handleHeaderClick}>
+        <div
+          className={`category-header${isCategoryActive ? ' active' : ''}`}
+          onclick={handleHeaderClick}
+          onkeydown={(ev: KeyboardEvent) => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+              ev.preventDefault()
+              handleHeaderClick()
+            }
+          }}
+          tabIndex={0}
+          role="button"
+        >
           {hasChildren && <span className={`expand-arrow${isExpanded ? ' expanded' : ''}`}>▶</span>}
           {props.node.meta?.icon && <Icon icon={props.node.meta.icon} size={16} />}
           <span>{props.node.meta?.title ?? props.node.pattern}</span>
