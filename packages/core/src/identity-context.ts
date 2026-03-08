@@ -6,20 +6,26 @@ import type { User } from './models/user.js'
  * This is a base implementation that should be extended or replaced with a concrete
  * implementation that connects to your authentication system.
  *
- * The IdentityContext is scoped to the request, meaning each request gets its own instance.
- * Override this class or set an explicit instance to provide actual authentication logic.
+ * The IdentityContext uses `explicit` lifetime, meaning it must be provided via
+ * `setExplicitInstance` or a setup helper (e.g. {@link useSystemIdentityContext})
+ * before it can be resolved with `getInstance`. Child injectors automatically
+ * inherit the instance from their parent, so you only need to set it once on the
+ * root (or request-scoped) injector.
  *
  * @example
  * ```ts
- * // Use the helper functions instead of accessing IdentityContext directly
+ * // Set up the context on your root or request injector
+ * injector.setExplicitInstance(myIdentityContextImpl, IdentityContext)
+ *
+ * // Then use the helper functions from any injector in the hierarchy
  * import { isAuthenticated, isAuthorized, getCurrentUser } from '@furystack/core'
  *
- * const authenticated = await isAuthenticated(injector)
- * const authorized = await isAuthorized(injector, 'admin')
- * const user = await getCurrentUser(injector)
+ * const authenticated = await isAuthenticated(childInjector)
+ * const authorized = await isAuthorized(childInjector, 'admin')
+ * const user = await getCurrentUser(childInjector)
  * ```
  */
-@Injectable({ lifetime: 'scoped' })
+@Injectable({ lifetime: 'explicit' })
 export class IdentityContext {
   /**
    * Checks if the current user is authenticated.

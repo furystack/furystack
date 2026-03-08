@@ -95,7 +95,7 @@ describe('useSystemIdentityContext', () => {
       await usingAsync(useSystemIdentityContext({ injector: parent }), async () => {
         // no-op
       })
-      expect(() => parent.getInstance(IdentityContext)).not.toThrow()
+      expect(() => parent.createChild()).not.toThrow()
     })
   })
 })
