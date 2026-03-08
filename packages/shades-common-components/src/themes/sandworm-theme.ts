@@ -36,6 +36,7 @@ export const sandwormTheme = {
     selectedBackground: 'rgba(212, 130, 10, 0.14)',
     activeBackground: 'rgba(212, 130, 10, 0.22)',
     focusRing: '0 0 0 3px rgba(212, 130, 10, 0.3)',
+    focusOutline: '2px solid #d4820a',
     disabledOpacity: '0.5',
     backdrop: 'rgba(12, 10, 6, 0.8)',
     subtleBorder: 'rgba(160, 128, 96, 0.25)',

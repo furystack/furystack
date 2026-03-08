@@ -101,6 +101,8 @@ export type ActionColors = {
   activeBackground: Color
   /** Box-shadow value for focus ring indicators */
   focusRing: string
+  /** CSS outline value for keyboard/spatial focus indicators (e.g. '2px solid #3f51b5') */
+  focusOutline: string
   /** Opacity value for disabled elements (e.g. '0.6') */
   disabledOpacity: string
   /** Overlay background color for backdrops (drawers, modals) */

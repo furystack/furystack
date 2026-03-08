@@ -36,6 +36,7 @@ export const chieftainTheme = {
     selectedBackground: 'rgba(184, 48, 48, 0.15)',
     activeBackground: 'rgba(184, 48, 48, 0.22)',
     focusRing: '0 0 0 3px rgba(184, 48, 48, 0.3)',
+    focusOutline: '2px solid #b83030',
     disabledOpacity: '0.5',
     backdrop: 'rgba(20, 14, 8, 0.8)',
     subtleBorder: 'rgba(160, 120, 80, 0.28)',

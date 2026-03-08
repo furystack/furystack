@@ -154,6 +154,7 @@ export const Switch = Shade<SwitchProps>({
 
     // Focus state
     '& input[type="checkbox"]:focus-visible + .switch-track': {
+      outline: 'none',
       boxShadow: cssVariableTheme.action.focusRing,
     },
 

@@ -119,6 +119,14 @@ export interface DataGridProps<T, Column extends string> {
    * @default dataGridItemsPerPage ([10, 20, 25, 50, 100, Infinity])
    */
   paginationOptions?: number[]
+
+  /**
+   * Section name for spatial navigation scoping.
+   * Sets `data-nav-section` on the grid wrapper so that SpatialNavigationService
+   * constrains arrow-key navigation within the grid.
+   * @default 'data-grid'
+   */
+  navSection?: string
 }
 
 export const DataGrid: <T, Column extends string>(
@@ -185,6 +193,7 @@ export const DataGrid: <T, Column extends string>(
       <div
         ref={wrapperRef}
         className="shade-grid-wrapper"
+        data-nav-section={props.navSection ?? 'data-grid'}
         onclick={() => {
           props.collectionService.hasFocus.setValue(true)
         }}

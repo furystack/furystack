@@ -34,6 +34,7 @@ export const shadowBrokerTheme = {
     selectedBackground: 'rgba(255, 109, 0, 0.14)',
     activeBackground: 'rgba(255, 109, 0, 0.22)',
     focusRing: '0 0 0 2px rgba(255, 109, 0, 0.5)',
+    focusOutline: '2px solid #ff6d00',
     disabledOpacity: '0.4',
     backdrop: 'rgba(4, 6, 14, 0.85)',
     subtleBorder: 'rgba(48, 128, 224, 0.2)',

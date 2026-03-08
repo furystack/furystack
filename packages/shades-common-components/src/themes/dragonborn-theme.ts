@@ -36,6 +36,7 @@ export const dragonbornTheme = {
     selectedBackground: 'rgba(200, 160, 80, 0.14)',
     activeBackground: 'rgba(200, 160, 80, 0.22)',
     focusRing: '0 0 0 3px rgba(200, 160, 80, 0.3)',
+    focusOutline: '2px solid #c8a050',
     disabledOpacity: '0.5',
     backdrop: 'rgba(10, 12, 14, 0.8)',
     subtleBorder: 'rgba(140, 154, 170, 0.22)',

@@ -35,6 +35,7 @@ describe('css-variable-theme', () => {
       expect(cssVariableTheme.action.selectedBackground).toBe('var(--shades-theme-action-selected-background)')
       expect(cssVariableTheme.action.activeBackground).toBe('var(--shades-theme-action-active-background)')
       expect(cssVariableTheme.action.focusRing).toBe('var(--shades-theme-action-focus-ring)')
+      expect(cssVariableTheme.action.focusOutline).toBe('var(--shades-theme-action-focus-outline)')
       expect(cssVariableTheme.action.disabledOpacity).toBe('var(--shades-theme-action-disabled-opacity)')
       expect(cssVariableTheme.action.backdrop).toBe('var(--shades-theme-action-backdrop)')
       expect(cssVariableTheme.action.subtleBorder).toBe('var(--shades-theme-action-subtle-border)')

@@ -13,6 +13,17 @@ export type DialogProps = {
   actions?: JSX.Element
   maxWidth?: string
   fullWidth?: boolean
+  /**
+   * When true, traps spatial navigation within the dialog's bounds.
+   * Forwarded to the underlying Modal component.
+   */
+  trapFocus?: boolean
+  /**
+   * Section name for spatial navigation scoping.
+   * Forwarded to the underlying Modal component.
+   * @default 'modal'
+   */
+  navSection?: string
 }
 
 const showAnimation = async (el: Element | null) => {
@@ -127,7 +138,7 @@ export const Dialog = Shade<DialogProps>({
     },
   },
   render: ({ props, children }) => {
-    const { isVisible, title, onClose, actions, maxWidth = '560px', fullWidth } = props
+    const { isVisible, title, onClose, actions, maxWidth = '560px', fullWidth, trapFocus, navSection } = props
 
     const handleClose = () => {
       onClose?.()
@@ -139,6 +150,8 @@ export const Dialog = Shade<DialogProps>({
         onClose={handleClose}
         showAnimation={showAnimation}
         hideAnimation={hideAnimation}
+        trapFocus={trapFocus}
+        navSection={navSection}
         backdropStyle={{
           display: 'flex',
           alignItems: 'center',

@@ -31,6 +31,7 @@ export const defaultLightTheme = {
     selectedBackground: 'rgba(128, 128, 128, 0.15)',
     activeBackground: 'rgba(128, 128, 128, 0.2)',
     focusRing: '0 0 0 3px rgba(128, 128, 128, 0.15)',
+    focusOutline: '2px solid #3f51b5',
     disabledOpacity: '0.6',
     backdrop: 'rgba(0, 0, 0, 0.5)',
     subtleBorder: 'rgba(128, 128, 128, 0.2)',

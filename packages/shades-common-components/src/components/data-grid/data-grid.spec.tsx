@@ -284,6 +284,55 @@ describe('DataGrid', () => {
         expect(headers?.length).toBe(2)
       })
     })
+
+    it('should render with default data-nav-section attribute', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('.shade-grid-wrapper')
+        expect(wrapper?.getAttribute('data-nav-section')).toBe('data-grid')
+      })
+    })
+
+    it('should render with custom navSection', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+              navSection="my-grid"
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('.shade-grid-wrapper')
+        expect(wrapper?.getAttribute('data-nav-section')).toBe('my-grid')
+      })
+    })
   })
 
   describe('focus management', () => {

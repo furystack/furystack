@@ -31,6 +31,7 @@ export const defaultDarkTheme = {
     selectedBackground: 'rgba(255, 255, 255, 0.15)',
     activeBackground: 'rgba(255, 255, 255, 0.2)',
     focusRing: '0 0 0 3px rgba(255, 255, 255, 0.15)',
+    focusOutline: '2px solid #7986cb',
     disabledOpacity: '0.6',
     backdrop: 'rgba(0, 0, 0, 0.65)',
     subtleBorder: 'rgba(255, 255, 255, 0.2)',

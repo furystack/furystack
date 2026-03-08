@@ -36,6 +36,7 @@ export const blackMesaTheme = {
     selectedBackground: 'rgba(255, 140, 0, 0.14)',
     activeBackground: 'rgba(255, 140, 0, 0.22)',
     focusRing: '0 0 0 2px rgba(255, 140, 0, 0.5)',
+    focusOutline: '2px solid #ff8c00',
     disabledOpacity: '0.4',
     backdrop: 'rgba(10, 10, 12, 0.88)',
     subtleBorder: 'rgba(255, 140, 0, 0.18)',

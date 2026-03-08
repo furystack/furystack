@@ -36,6 +36,7 @@ export const auditoreTheme = {
     selectedBackground: 'rgba(176, 16, 48, 0.1)',
     activeBackground: 'rgba(176, 16, 48, 0.16)',
     focusRing: '0 0 0 3px rgba(176, 16, 48, 0.2)',
+    focusOutline: '2px solid #b01030',
     disabledOpacity: '0.45',
     backdrop: 'rgba(42, 32, 40, 0.5)',
     subtleBorder: 'rgba(42, 32, 40, 0.15)',

@@ -36,6 +36,7 @@ export const architectTheme = {
     selectedBackground: 'rgba(0, 255, 65, 0.14)',
     activeBackground: 'rgba(0, 255, 65, 0.22)',
     focusRing: '0 0 0 2px rgba(0, 255, 65, 0.5)',
+    focusOutline: '2px solid #00ff41',
     disabledOpacity: '0.35',
     backdrop: 'rgba(0, 0, 0, 0.9)',
     subtleBorder: 'rgba(0, 255, 65, 0.15)',

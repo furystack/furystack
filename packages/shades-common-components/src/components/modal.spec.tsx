@@ -1,5 +1,5 @@
 import { Injector } from '@furystack/inject'
-import { initializeShadeRoot, createComponent, Shade, flushUpdates } from '@furystack/shades'
+import { initializeShadeRoot, createComponent, Shade, flushUpdates, SpatialNavigationService } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Modal } from './modal.js'
@@ -305,6 +305,96 @@ describe('Modal', () => {
         expect(backdrop).not.toBeNull()
         expect(backdrop.innerHTML).toContain('child-1')
         expect(backdrop.innerHTML).toContain('child-2')
+      })
+    })
+  })
+
+  describe('spatial navigation', () => {
+    it('should render with data-nav-section attribute when visible', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Modal isVisible={true}>
+              <div>Content</div>
+            </Modal>
+          ),
+        })
+
+        await flushUpdates()
+        const backdrop = document.querySelector('.shade-backdrop')
+        expect(backdrop?.getAttribute('data-nav-section')).toBeTruthy()
+      })
+    })
+
+    it('should render with custom navSection name', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Modal isVisible={true} navSection="my-modal">
+              <div>Content</div>
+            </Modal>
+          ),
+        })
+
+        await flushUpdates()
+        const backdrop = document.querySelector('.shade-backdrop')
+        expect(backdrop?.getAttribute('data-nav-section')).toBe('my-modal')
+      })
+    })
+
+    it('should lock activeSection when trapFocus is true and service is active', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const spatialNav = injector.getInstance(SpatialNavigationService)
+
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Modal isVisible={true} trapFocus={true} navSection="trapped-modal">
+              <div>Content</div>
+            </Modal>
+          ),
+        })
+
+        await flushUpdates()
+
+        expect(spatialNav.activeSection.getValue()).toBe('trapped-modal')
+
+        spatialNav.activeSection.setValue('other-section')
+        expect(spatialNav.activeSection.getValue()).toBe('trapped-modal')
+      })
+    })
+
+    it('should not lock activeSection when trapFocus is false', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const spatialNav = injector.getInstance(SpatialNavigationService)
+
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Modal isVisible={true} trapFocus={false}>
+              <div>Content</div>
+            </Modal>
+          ),
+        })
+
+        await flushUpdates()
+
+        spatialNav.activeSection.setValue('other-section')
+        expect(spatialNav.activeSection.getValue()).toBe('other-section')
       })
     })
   })

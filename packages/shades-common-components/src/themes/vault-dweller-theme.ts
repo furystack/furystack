@@ -36,6 +36,7 @@ export const vaultDwellerTheme = {
     selectedBackground: 'rgba(48, 255, 80, 0.14)',
     activeBackground: 'rgba(48, 255, 80, 0.22)',
     focusRing: '0 0 0 2px rgba(48, 255, 80, 0.5)',
+    focusOutline: '2px solid #30ff50',
     disabledOpacity: '0.4',
     backdrop: 'rgba(0, 0, 0, 0.85)',
     subtleBorder: 'rgba(48, 255, 80, 0.2)',

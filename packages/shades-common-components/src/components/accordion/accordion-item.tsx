@@ -66,6 +66,7 @@ export const AccordionItem = Shade<AccordionItemProps>({
     },
 
     '& .accordion-header:focus-visible': {
+      outline: 'none',
       boxShadow: cssVariableTheme.action.focusRing,
     },
 
