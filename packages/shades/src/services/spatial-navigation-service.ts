@@ -59,16 +59,40 @@ const getElementCenter = (rect: DOMRect) => ({
 const euclideanDistance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
   Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
 
+const PERPENDICULAR_WEIGHT = 3
+
+/**
+ * Weighted distance that penalizes perpendicular displacement.
+ * For horizontal navigation (left/right), vertical offset is weighted 3x.
+ * For vertical navigation (up/down), horizontal offset is weighted 3x.
+ * This ensures elements aligned on the movement axis are strongly preferred.
+ */
+const spatialDistance = (
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+  direction: SpatialDirection,
+): number => {
+  const dx = Math.abs(a.x - b.x)
+  const dy = Math.abs(a.y - b.y)
+  const isHorizontal = direction === 'left' || direction === 'right'
+  const primary = isHorizontal ? dx : dy
+  const perpendicular = isHorizontal ? dy : dx
+  return Math.sqrt(primary ** 2 + (perpendicular * PERPENDICULAR_WEIGHT) ** 2)
+}
+
 const isInDirection = (current: DOMRect, candidate: DOMRect, direction: SpatialDirection): boolean => {
+  const currentCenter = getElementCenter(current)
+  const candidateCenter = getElementCenter(candidate)
+
   switch (direction) {
     case 'right':
-      return candidate.left > current.left
+      return candidateCenter.x > currentCenter.x
     case 'left':
-      return candidate.right < current.right
+      return candidateCenter.x < currentCenter.x
     case 'down':
-      return candidate.top > current.top
+      return candidateCenter.y > currentCenter.y
     case 'up':
-      return candidate.bottom < current.bottom
+      return candidateCenter.y < currentCenter.y
     default:
       return false
   }
@@ -279,7 +303,7 @@ export class SpatialNavigationService implements Disposable {
       if (!isInDirection(currentRect, candidateRect, direction)) continue
 
       const candidateCenter = getElementCenter(candidateRect)
-      const distance = euclideanDistance(currentCenter, candidateCenter)
+      const distance = spatialDistance(currentCenter, candidateCenter, direction)
       if (distance < nearestDistance) {
         nearestDistance = distance
         nearest = candidate as HTMLElement
