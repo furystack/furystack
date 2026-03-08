@@ -336,6 +336,66 @@ describe('List', () => {
         service[Symbol.dispose]()
       })
     })
+
+    it('should set hasFocus on focusin and initialize focusedItem', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
+          ),
+        })
+
+        await flushUpdates()
+        await new Promise((r) => setTimeout(r, 0))
+
+        expect(service.hasFocus.getValue()).toBe(false)
+        expect(service.focusedItem.getValue()).toBeUndefined()
+
+        const wrapper = document.querySelector('.shade-list-wrapper') as HTMLElement
+        wrapper?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+
+        expect(service.hasFocus.getValue()).toBe(true)
+        expect(service.focusedItem.getValue()).toBe(testItems[0])
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should clear hasFocus on focusout when focus moves outside', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+        const outsideEl = document.createElement('button')
+        outsideEl.textContent = 'Outside'
+        document.body.appendChild(outsideEl)
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
+          ),
+        })
+
+        await flushUpdates()
+        await new Promise((r) => setTimeout(r, 0))
+
+        service.hasFocus.setValue(true)
+
+        const wrapper = document.querySelector('.shade-list-wrapper') as HTMLElement
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: outsideEl }))
+
+        expect(service.hasFocus.getValue()).toBe(false)
+
+        outsideEl.remove()
+        service[Symbol.dispose]()
+      })
+    })
   })
 
   describe('selection', () => {

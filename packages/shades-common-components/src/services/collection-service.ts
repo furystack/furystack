@@ -107,16 +107,28 @@ export class CollectionService<T>
           }
 
           break
-        case 'ArrowUp':
-          ev.preventDefault()
-          this.focusedEntry.setValue(entries[Math.max(0, entries.findIndex((e) => e === focusedEntry) - 1)])
+        case 'ArrowUp': {
+          const upIndex = entries.findIndex((e) => e === focusedEntry)
+          if (upIndex < 0) {
+            ev.preventDefault()
+            this.focusedEntry.setValue(entries[entries.length - 1])
+          } else if (upIndex > 0) {
+            ev.preventDefault()
+            this.focusedEntry.setValue(entries[upIndex - 1])
+          }
           break
-        case 'ArrowDown':
-          ev.preventDefault()
-          this.focusedEntry.setValue(
-            entries[Math.min(entries.length - 1, entries.findIndex((e) => e === focusedEntry) + 1)],
-          )
+        }
+        case 'ArrowDown': {
+          const downIndex = entries.findIndex((e) => e === focusedEntry)
+          if (downIndex < 0) {
+            ev.preventDefault()
+            this.focusedEntry.setValue(entries[0])
+          } else if (downIndex < entries.length - 1) {
+            ev.preventDefault()
+            this.focusedEntry.setValue(entries[downIndex + 1])
+          }
           break
+        }
         case 'Home': {
           this.focusedEntry.setValue(entries[0])
           break

@@ -185,6 +185,42 @@ export const DataGrid: <T, Column extends string>(
         }),
     )
 
+    useDisposable('focus-coordination', () => {
+      const handleFocusIn = () => {
+        props.collectionService.hasFocus.setValue(true)
+        if (!props.collectionService.focusedEntry.getValue()) {
+          const { entries } = props.collectionService.data.getValue()
+          if (entries.length > 0) {
+            props.collectionService.focusedEntry.setValue(entries[0])
+          }
+        }
+      }
+      const handleFocusOut = (ev: FocusEvent) => {
+        const wrapper = wrapperRef.current
+        if (wrapper && ev.relatedTarget && !wrapper.contains(ev.relatedTarget as Node)) {
+          props.collectionService.hasFocus.setValue(false)
+        }
+      }
+
+      queueMicrotask(() => {
+        const wrapper = wrapperRef.current
+        if (wrapper) {
+          wrapper.addEventListener('focusin', handleFocusIn)
+          wrapper.addEventListener('focusout', handleFocusOut)
+        }
+      })
+
+      return {
+        [Symbol.dispose]: () => {
+          const wrapper = wrapperRef.current
+          if (wrapper) {
+            wrapper.removeEventListener('focusin', handleFocusIn)
+            wrapper.removeEventListener('focusout', handleFocusOut)
+          }
+        },
+      }
+    })
+
     if (props.styles?.wrapper) {
       useHostProps({ style: props.styles.wrapper as Record<string, string> })
     }
