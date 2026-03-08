@@ -138,7 +138,7 @@ export const Dialog = Shade<DialogProps>({
     },
   },
   render: ({ props, children }) => {
-    const { isVisible, title, onClose, actions, maxWidth = '560px', fullWidth, trapFocus, navSection } = props
+    const { isVisible, title, onClose, actions, maxWidth = '560px', fullWidth, trapFocus = true, navSection } = props
 
     const handleClose = () => {
       onClose?.()

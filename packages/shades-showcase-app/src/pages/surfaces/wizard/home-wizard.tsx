@@ -199,6 +199,8 @@ export const WelcomeWizard = Shade({
         <Modal
           isVisible={isOpened}
           onClose={() => setIsOpened(false)}
+          trapFocus={true}
+          navSection="wizard"
           backdropStyle={{
             backdropFilter: 'blur(10px)',
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
