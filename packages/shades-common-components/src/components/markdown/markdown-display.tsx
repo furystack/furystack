@@ -60,7 +60,7 @@ const renderBlock = (
       return <Typography variant="body1">{renderInline(node.children)}</Typography>
     case 'codeBlock':
       return (
-        <pre className="md-code-block" data-language={node.language || undefined}>
+        <pre className="md-code-block" data-language={node.language || undefined} tabIndex={0}>
           <code>{node.content}</code>
         </pre>
       )
@@ -136,6 +136,11 @@ export const MarkdownDisplay = Shade<MarkdownDisplayProps>({
       whiteSpace: 'pre',
     },
 
+    '& .md-code-block:focus-visible': {
+      outline: cssVariableTheme.action.focusOutline,
+      outlineOffset: '-2px',
+    },
+
     '& .md-blockquote': {
       borderLeft: `4px solid ${cssVariableTheme.palette.primary.main}`,
       margin: `${cssVariableTheme.spacing.sm} 0`,
@@ -149,6 +154,12 @@ export const MarkdownDisplay = Shade<MarkdownDisplayProps>({
     },
     '& .md-link:hover': {
       textDecoration: 'underline',
+    },
+    '& .md-link:focus-visible': {
+      textDecoration: 'underline',
+      outline: cssVariableTheme.action.focusOutline,
+      outlineOffset: '2px',
+      borderRadius: cssVariableTheme.shape.borderRadius.xs,
     },
 
     '& .md-image': {
