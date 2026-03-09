@@ -19,6 +19,19 @@ export const ShowcaseAppBar = Shade({
     display: 'flex',
     alignItems: 'center',
     height: 'inherit',
+    '& > * a[is="nested-route-link"]': {
+      display: 'flex',
+      alignItems: 'center',
+      height: 'inherit',
+      textDecoration: 'none',
+      color: 'inherit',
+      fontFamily: cssVariableTheme.typography.fontFamily,
+      padding: `0 ${cssVariableTheme.spacing.sm}`,
+      transition: `color ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}, transform ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
+      cursor: 'pointer',
+      wordBreak: 'nowrap',
+      whiteSpace: 'nowrap',
+    },
   },
   render: () => {
     return (
@@ -39,7 +52,7 @@ export const ShowcaseAppBar = Shade({
           style={{
             display: 'flex',
             flex: '1',
-            height: '32px',
+            height: 'inherit',
             gap: '4px',
             overflow: 'hidden',
             overflowX: 'auto',
