@@ -9,7 +9,7 @@ export type ModalProps = {
   hideAnimation?: (el: Element | null) => Promise<unknown>
   /**
    * When true, traps spatial navigation within the modal's bounds.
-   * Requires SpatialNavigationService to be active in the injector.
+   * If SpatialNavigationService is not yet instantiated, it will be created with defaults.
    */
   trapFocus?: boolean
   /**
@@ -43,10 +43,7 @@ export const Modal = Shade<ModalProps>({
       () => {
         if (!isVisible || !trapFocus) return { [Symbol.dispose]: () => {} }
 
-        const spatialNav = injector.cachedSingletons.get(SpatialNavigationService) as
-          | SpatialNavigationService
-          | undefined
-        if (!spatialNav) return { [Symbol.dispose]: () => {} }
+        const spatialNav = injector.getInstance(SpatialNavigationService)
 
         const previousSection = spatialNav.activeSection.getValue()
         spatialNav.pushFocusTrap(sectionName)
