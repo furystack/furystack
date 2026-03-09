@@ -438,13 +438,6 @@ export const Image = Shade<ImageProps>({
       style: styleOverrides,
     } = props
 
-    useHostProps({
-      'data-preview': preview ? '' : undefined,
-      'data-src': src,
-      'data-alt': alt,
-      ...(styleOverrides ? { style: styleOverrides as Record<string, string> } : {}),
-    })
-
     const [hasError, setHasError] = useState('hasError', false)
 
     const handleClick = () => {
@@ -465,6 +458,22 @@ export const Image = Shade<ImageProps>({
 
       createLightbox(src, alt)
     }
+
+    useHostProps({
+      'data-preview': preview ? '' : undefined,
+      'data-src': src,
+      'data-alt': alt,
+      tabIndex: preview ? 0 : undefined,
+      onkeydown: preview
+        ? (ev: KeyboardEvent) => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+              ev.preventDefault()
+              handleClick()
+            }
+          }
+        : undefined,
+      ...(styleOverrides ? { style: styleOverrides as Record<string, string> } : {}),
+    })
 
     return (
       <div ref={imageHostRef} style={{ display: 'contents' }}>

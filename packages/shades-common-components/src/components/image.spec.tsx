@@ -345,6 +345,88 @@ describe('Image component', () => {
     })
   })
 
+  it('should be focusable when preview is enabled', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" preview />,
+      })
+
+      await flushUpdates()
+
+      const imageComponent = document.querySelector('shade-image') as HTMLElement
+      expect(imageComponent.getAttribute('tabindex')).toBe('0')
+    })
+  })
+
+  it('should not be focusable when preview is disabled', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" />,
+      })
+
+      await flushUpdates()
+
+      const imageComponent = document.querySelector('shade-image') as HTMLElement
+      expect(imageComponent.hasAttribute('tabindex')).toBe(false)
+    })
+  })
+
+  it('should open lightbox when pressing Enter on a preview-enabled image', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" alt="My photo" preview />,
+      })
+
+      await flushUpdates()
+
+      const imageComponent = document.querySelector('shade-image') as HTMLElement
+      imageComponent.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+
+      await flushUpdates()
+
+      const lightbox = document.querySelector('.lightbox-backdrop')
+      expect(lightbox).not.toBeNull()
+
+      lightbox?.remove()
+    })
+  })
+
+  it('should open lightbox when pressing Space on a preview-enabled image', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: <Image src="https://example.com/photo.jpg" alt="My photo" preview />,
+      })
+
+      await flushUpdates()
+
+      const imageComponent = document.querySelector('shade-image') as HTMLElement
+      imageComponent.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
+
+      await flushUpdates()
+
+      const lightbox = document.querySelector('.lightbox-backdrop')
+      expect(lightbox).not.toBeNull()
+
+      lightbox?.remove()
+    })
+  })
+
   it('should store src and alt as data attributes', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
