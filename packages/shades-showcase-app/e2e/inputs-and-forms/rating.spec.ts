@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Rating', () => {
-  test('rendering: stars, sections, disabled, and read-only states', async ({ page }) => {
+  test('rendering and interaction: stars, disabled, read-only, and keyboard navigation', async ({ page }) => {
     await page.goto('/inputs-and-forms/rating')
 
     const content = page.locator('rating-page')
@@ -26,18 +26,11 @@ test.describe('Rating', () => {
     const readonlyRating = content.locator('shade-rating[data-readonly]').first()
     await expect(readonlyRating).toBeVisible()
     await expect(readonlyRating).toHaveAttribute('role', 'img')
-  })
 
-  test('interaction: click to rate, half-star precision, and keyboard navigation', async ({ page }) => {
-    await page.goto('/inputs-and-forms/rating')
-
-    const content = page.locator('rating-page')
-    await content.waitFor({ state: 'visible' })
-
+    // Keyboard navigation from default value (3)
     const interactiveRating = content.locator('shade-rating').last()
     await interactiveRating.scrollIntoViewIfNeeded()
 
-    // Keyboard navigation from default value (3)
     await interactiveRating.focus()
     await page.keyboard.press('ArrowRight')
     await expect(content.getByText('Value: 3.5')).toBeVisible()

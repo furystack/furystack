@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Tabs', () => {
-  test('hash-based, controlled, card, and vertical tabs', async ({ page }) => {
+  test('hash-based, controlled, card, vertical, hash navigation, and closable tabs', async ({ page }) => {
     await page.goto('/navigation/tabs')
     await page.locator('tabs-page').waitFor({ state: 'visible' })
 
@@ -34,12 +34,10 @@ test.describe('Tabs', () => {
     await expect(content.getByText('General settings panel')).toBeVisible()
 
     await expect(content).toHaveScreenshot('tabs-page.png')
-  })
 
-  test('hash navigation and closable tabs with add button', async ({ page }) => {
     // Direct hash navigation
     await page.goto('/navigation/tabs#tab-2')
-    await expect(page.locator('tabs-page').getByText('An example tab value for tab 2')).toBeVisible()
+    await expect(content.getByText('An example tab value for tab 2')).toBeVisible()
 
     // Closable tabs
     const demo = page.locator('closable-tabs-demo')

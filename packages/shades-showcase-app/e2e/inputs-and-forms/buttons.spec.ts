@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Buttons', () => {
-  test('rendering: variants, sizes, danger, loading, and icons', async ({ page }) => {
+  test('rendering and interaction: variants, sizes, danger, loading, icons, and toggle disabled', async ({ page }) => {
     await page.goto('/inputs-and-forms/buttons')
 
     const content = page.locator('buttons-page')
@@ -47,14 +47,8 @@ test.describe('Buttons', () => {
     const bothIconsBtn = content.getByRole('button', { name: 'Both Icons' })
     await expect(bothIconsBtn.locator('.shade-btn-start-icon')).toBeVisible()
     await expect(bothIconsBtn.locator('.shade-btn-end-icon')).toBeVisible()
-  })
 
-  test('interaction: toggle disabled state', async ({ page }) => {
-    await page.goto('/inputs-and-forms/buttons')
-
-    const content = page.locator('buttons-page')
-    await content.waitFor({ state: 'visible' })
-
+    // Toggle disabled state
     const firstButton = content.getByRole('button', { name: 'Button Text' }).first()
     await expect(firstButton).toBeDisabled()
 

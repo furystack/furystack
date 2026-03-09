@@ -408,7 +408,7 @@ test.describe('Form', () => {
 })
 
 test.describe('Advanced Form', () => {
-  test('should complete event registration successfully (happy path)', async ({ page }, testInfo) => {
+  test('should complete event registration and reset the form', async ({ page }, testInfo) => {
     testInfo.setTimeout(60000)
     await page.goto('/inputs-and-forms/form')
 
@@ -467,30 +467,18 @@ test.describe('Advanced Form', () => {
     // Verify the success alert appears (allow extra time for form processing)
     const successAlert = content.getByText('Registration Successful')
     await expect(successAlert).toBeVisible({ timeout: 10000 })
-  })
 
-  test('should reset the form', async ({ page }) => {
-    await page.goto('/inputs-and-forms/form')
-
-    const content = page.locator('forms-page')
-    await content.waitFor({ state: 'visible' })
-
-    // Scope to the advanced form
-    const advancedForm = page.locator('form').nth(1)
+    // Reset the form: fill a field and verify reset clears it
     await advancedForm.scrollIntoViewIfNeeded()
+    const resetNameInput = advancedForm.getByRole('textbox', { name: 'Full Name' })
+    await resetNameInput.click()
+    await resetNameInput.pressSequentially('John Smith', { delay: 20 })
+    await expect(resetNameInput).toHaveValue('John Smith')
 
-    // Fill in some fields - use pressSequentially for firefox compatibility
-    const fullNameInput = advancedForm.getByRole('textbox', { name: 'Full Name' })
-    await fullNameInput.click()
-    await fullNameInput.pressSequentially('John Smith', { delay: 20 })
-    await expect(fullNameInput).toHaveValue('John Smith')
-
-    // Click Reset
     const resetButton = advancedForm.getByRole('button', { name: 'Reset' })
     await resetButton.scrollIntoViewIfNeeded()
     await resetButton.click()
 
-    // Verify fields are cleared
-    await expect(fullNameInput).toHaveValue('')
+    await expect(resetNameInput).toHaveValue('')
   })
 })

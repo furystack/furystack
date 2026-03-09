@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Image', () => {
-  test('rendering and single image lightbox: open, controls, and close', async ({ page }) => {
+  test('single image lightbox and image group gallery navigation', async ({ page }) => {
     await page.goto('/data-display/image')
 
     await expect(page.getByRole('heading', { name: 'Image', level: 4 })).toBeVisible()
@@ -29,11 +29,8 @@ test.describe('Image', () => {
     // Close lightbox with Escape
     await page.keyboard.press('Escape')
     await expect(lightbox).not.toBeVisible()
-  })
 
-  test('image group: gallery navigation with buttons and keyboard', async ({ page }) => {
-    await page.goto('/data-display/image')
-
+    // Image group gallery navigation
     const group = page.locator('shade-image-group')
     await expect(group).toBeVisible()
 
@@ -43,7 +40,6 @@ test.describe('Image', () => {
 
     // Open lightbox from group
     await groupImages.first().locator('img').click()
-    const lightbox = page.locator('.lightbox-backdrop')
     await expect(lightbox).toBeVisible()
 
     await expect(page.locator('.lightbox-prev')).toBeVisible()

@@ -1,136 +1,92 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Markdown', () => {
-  test('should render the Markdown showcase page', async ({ page }) => {
+  test('rendering and interaction: page, headings, checkboxes, editor layouts, and textarea', async ({ page }) => {
     await page.goto('/integrations/markdown')
 
     const content = page.locator('shades-markdown-page')
     await content.waitFor({ state: 'visible' })
 
+    // Page header
     const pageHeader = page.locator('shade-page-header')
     await expect(pageHeader).toBeVisible()
     await expect(pageHeader).toContainText('Markdown')
-  })
 
-  test('should render MarkdownDisplay with headings and lists', async ({ page }) => {
-    await page.goto('/integrations/markdown')
-
-    const content = page.locator('shades-markdown-page')
-    await content.waitFor({ state: 'visible' })
-
-    // Verify headings are rendered
+    // Headings rendered
     const heading = content.locator('shade-markdown-display [is^="shade-typography"][data-variant="h1"]').first()
     await expect(heading).toBeVisible()
     await expect(heading).toContainText('Markdown Components')
 
-    // Verify code blocks
+    // Code blocks
     const codeBlock = content.locator('shade-markdown-display .md-code-block').first()
     await expect(codeBlock).toBeVisible()
 
-    // Verify links
+    // Links
     const link = content.locator('shade-markdown-display .md-link').first()
     await expect(link).toBeVisible()
 
-    // Verify blockquote
+    // Blockquote
     const blockquote = content.locator('shade-markdown-display .md-blockquote').first()
     await expect(blockquote).toBeVisible()
-  })
 
-  test('should allow toggling interactive checkboxes', async ({ page }) => {
-    await page.goto('/integrations/markdown')
-
-    const content = page.locator('shades-markdown-page')
-    await content.waitFor({ state: 'visible' })
-
-    // Find the interactive checkboxes section (second display with readOnly=false)
+    // Interactive checkboxes
     const interactiveSection = content.locator('shade-markdown-display').nth(1)
     await expect(interactiveSection).toBeVisible()
-
-    // Find an unchecked checkbox and click it
     const uncheckedCheckbox = interactiveSection.locator('shade-checkbox input[type="checkbox"]:not(:checked)').first()
     await expect(uncheckedCheckbox).toBeVisible()
     await uncheckedCheckbox.click()
-  })
 
-  test('should render MarkdownEditor with layout switching', async ({ page }) => {
-    await page.goto('/integrations/markdown')
+    // Textarea
+    const textarea = content.locator('shade-markdown-input textarea').first()
+    await expect(textarea).toBeVisible()
 
-    const content = page.locator('shades-markdown-page')
-    await content.waitFor({ state: 'visible' })
-
+    // Editor section: side-by-side by default
     const editorSection = content.locator('.markdown-editor-section')
     await expect(editorSection).toBeVisible()
 
-    // Verify the editor renders (side-by-side by default)
     const editor = editorSection.locator('shade-markdown-editor')
     await expect(editor).toBeVisible()
 
-    // Verify both input and display panes exist
-    const input = editor.locator('shade-markdown-input')
-    await expect(input).toBeVisible()
+    const editorInput = editor.locator('shade-markdown-input')
+    await expect(editorInput).toBeVisible()
 
-    const display = editor.locator('shade-markdown-display')
-    await expect(display).toBeVisible()
+    const editorDisplay = editor.locator('shade-markdown-display')
+    await expect(editorDisplay).toBeVisible()
 
     // Switch to tabs layout
     const tabsButton = editorSection.getByRole('button', { name: 'Tabs' })
     await tabsButton.click()
-
-    // Verify tabs are rendered
     const tabs = editor.locator('shade-tabs')
     await expect(tabs).toBeVisible()
 
     // Switch to above-below layout
     const aboveBelowButton = editorSection.getByRole('button', { name: 'Above / Below' })
     await aboveBelowButton.click()
-
-    // Verify split layout is shown again with above-below direction
     const split = editor.locator('.md-editor-split[data-layout="above-below"]')
     await expect(split).toBeVisible()
-  })
-
-  test('should render MarkdownInput with textarea', async ({ page }) => {
-    await page.goto('/integrations/markdown')
-
-    const content = page.locator('shades-markdown-page')
-    await content.waitFor({ state: 'visible' })
-
-    const textarea = content.locator('shade-markdown-input textarea').first()
-    await expect(textarea).toBeVisible()
   })
 
   test.describe('keyboard navigation', () => {
     test.skip(({ isMobile }) => isMobile, 'Desktop-only tests (requires keyboard interaction)')
 
-    test('should navigate to and focus links via Tab key', async ({ page }) => {
+    test('focus, arrow-key navigation, and keyboard interaction across all elements', async ({ page }) => {
       await page.goto('/integrations/markdown')
 
       const content = page.locator('shades-markdown-page')
       await content.waitFor({ state: 'visible' })
 
+      // Focus links
       const firstLink = content.locator('shade-markdown-display .md-link').first()
       await firstLink.focus()
       await expect(firstLink).toBeFocused()
-    })
 
-    test('should focus code blocks via keyboard', async ({ page }) => {
-      await page.goto('/integrations/markdown')
-
-      const content = page.locator('shades-markdown-page')
-      await content.waitFor({ state: 'visible' })
-
+      // Focus code blocks
       const codeBlock = content.locator('shade-markdown-display .md-code-block').first()
       await expect(codeBlock).toHaveAttribute('tabindex', '0')
       await codeBlock.focus()
       await expect(codeBlock).toBeFocused()
-    })
 
-    test('should toggle checkbox via keyboard', async ({ page }) => {
-      await page.goto('/integrations/markdown')
-
-      const content = page.locator('shades-markdown-page')
-      await content.waitFor({ state: 'visible' })
-
+      // Toggle checkbox via keyboard
       const interactiveSection = content.locator('shade-markdown-display').nth(1)
       await expect(interactiveSection).toBeVisible()
 
@@ -142,15 +98,8 @@ test.describe('Markdown', () => {
 
       await page.keyboard.press('Space')
       await expect(targetCheckbox).toBeChecked()
-    })
 
-    test('should navigate between checkboxes with arrow keys', async ({ page }) => {
-      await page.goto('/integrations/markdown')
-
-      const content = page.locator('shades-markdown-page')
-      await content.waitFor({ state: 'visible' })
-
-      const interactiveSection = content.locator('shade-markdown-display').nth(1)
+      // Navigate between checkboxes with arrow keys
       const checkboxes = interactiveSection.locator('shade-checkbox input[type="checkbox"]')
       const count = await checkboxes.count()
       expect(count).toBeGreaterThanOrEqual(2)
@@ -163,14 +112,8 @@ test.describe('Markdown', () => {
 
       await page.keyboard.press('ArrowUp')
       await expect(checkboxes.first()).toBeFocused()
-    })
 
-    test('should switch editor layout buttons via arrow keys', async ({ page }) => {
-      await page.goto('/integrations/markdown')
-
-      const content = page.locator('shades-markdown-page')
-      await content.waitFor({ state: 'visible' })
-
+      // Switch editor layout buttons via arrow keys
       const editorSection = content.locator('.markdown-editor-section')
       const sideBySideButton = editorSection.getByRole('button', { name: 'Side by Side' })
       const tabsButton = editorSection.getByRole('button', { name: 'Tabs' })
@@ -186,19 +129,8 @@ test.describe('Markdown', () => {
       const editor = editorSection.locator('shade-markdown-editor')
       const tabs = editor.locator('shade-tabs')
       await expect(tabs).toBeVisible()
-    })
 
-    test('should navigate editor tab buttons with arrow keys', async ({ page }) => {
-      await page.goto('/integrations/markdown')
-
-      const content = page.locator('shades-markdown-page')
-      await content.waitFor({ state: 'visible' })
-
-      const editorSection = content.locator('.markdown-editor-section')
-      const tabsButton = editorSection.getByRole('button', { name: 'Tabs' })
-      await tabsButton.click()
-
-      const editor = editorSection.locator('shade-markdown-editor')
+      // Navigate editor tab buttons with arrow keys
       const editTab = editor.locator('.shade-tab-btn').first()
       const previewTab = editor.locator('.shade-tab-btn').nth(1)
 
@@ -212,14 +144,8 @@ test.describe('Markdown', () => {
 
       const display = editor.locator('shade-markdown-display')
       await expect(display).toBeVisible()
-    })
 
-    test('should allow text editing in MarkdownInput textarea with arrow keys', async ({ page }) => {
-      await page.goto('/integrations/markdown')
-
-      const content = page.locator('shades-markdown-page')
-      await content.waitFor({ state: 'visible' })
-
+      // Text editing in textarea with arrow keys
       const textarea = content.locator('shade-markdown-input textarea').first()
       await textarea.focus()
       await expect(textarea).toBeFocused()
