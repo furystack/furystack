@@ -80,87 +80,33 @@ describe('ListService', () => {
       })
     })
 
-    it('should handle ArrowDown to move focus to next item', () => {
+    it('should not handle ArrowDown (delegated to spatial navigation)', () => {
       const { service, items } = createTestService()
       using(service, () => {
         service.hasFocus.setValue(true)
         service.focusedItem.setValue(items[0])
 
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
-
-        expect(service.focusedItem.getValue()).toBe(items[1])
-      })
-    })
-
-    it('should not move past last item on ArrowDown and should not preventDefault at boundary', () => {
-      const { service, items } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-        service.focusedItem.setValue(items[2])
-
         const ev = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true })
         const preventSpy = vi.spyOn(ev, 'preventDefault')
         service.handleKeyDown(ev)
 
-        expect(service.focusedItem.getValue()).toBe(items[2])
+        expect(service.focusedItem.getValue()).toBe(items[0])
         expect(preventSpy).not.toHaveBeenCalled()
       })
     })
 
-    it('should focus first item on ArrowDown when focusedItem is undefined', () => {
-      const { service, items } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-        service.focusedItem.setValue(undefined)
-
-        const ev = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true })
-        const preventSpy = vi.spyOn(ev, 'preventDefault')
-        service.handleKeyDown(ev)
-
-        expect(preventSpy).toHaveBeenCalled()
-        expect(service.focusedItem.getValue()).toBe(items[0])
-      })
-    })
-
-    it('should handle ArrowUp to move focus to previous item', () => {
+    it('should not handle ArrowUp (delegated to spatial navigation)', () => {
       const { service, items } = createTestService()
       using(service, () => {
         service.hasFocus.setValue(true)
         service.focusedItem.setValue(items[1])
 
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
-
-        expect(service.focusedItem.getValue()).toBe(items[0])
-      })
-    })
-
-    it('should not move past first item on ArrowUp and should not preventDefault at boundary', () => {
-      const { service, items } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-        service.focusedItem.setValue(items[0])
-
         const ev = new KeyboardEvent('keydown', { key: 'ArrowUp', cancelable: true })
         const preventSpy = vi.spyOn(ev, 'preventDefault')
         service.handleKeyDown(ev)
 
-        expect(service.focusedItem.getValue()).toBe(items[0])
+        expect(service.focusedItem.getValue()).toBe(items[1])
         expect(preventSpy).not.toHaveBeenCalled()
-      })
-    })
-
-    it('should focus last item on ArrowUp when focusedItem is undefined', () => {
-      const { service, items } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-        service.focusedItem.setValue(undefined)
-
-        const ev = new KeyboardEvent('keydown', { key: 'ArrowUp', cancelable: true })
-        const preventSpy = vi.spyOn(ev, 'preventDefault')
-        service.handleKeyDown(ev)
-
-        expect(preventSpy).toHaveBeenCalled()
-        expect(service.focusedItem.getValue()).toBe(items[2])
       })
     })
 
@@ -265,17 +211,6 @@ describe('ListService', () => {
 
         expect(service.selection.getValue()).not.toContain(items[0])
         expect(service.focusedItem.getValue()).toBe(items[1])
-      })
-    })
-
-    it('should handle Tab to toggle focus', () => {
-      const { service } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'Tab' }))
-
-        expect(service.hasFocus.getValue()).toBe(false)
       })
     })
 

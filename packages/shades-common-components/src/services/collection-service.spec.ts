@@ -206,8 +206,8 @@ describe('CollectionService', () => {
       })
     })
 
-    describe('ArrowUp key', () => {
-      it('Should move focus to previous entry', () => {
+    describe('Arrow keys (delegated to spatial navigation)', () => {
+      it('Should not handle ArrowUp', () => {
         const testEntries = createTestEntries()
         using(new CollectionService<TestEntry>({}), (service) => {
           service.data.setValue({ count: 3, entries: testEntries })
@@ -217,44 +217,12 @@ describe('CollectionService', () => {
           const ev = createKeyboardEvent('ArrowUp')
           service.handleKeyDown(ev)
 
-          expect(ev.preventDefault).toHaveBeenCalled()
-          expect(service.focusedEntry.getValue()).toBe(testEntries[1])
-        })
-      })
-
-      it('Should not go below index 0 and should not preventDefault at boundary', () => {
-        const testEntries = createTestEntries()
-        using(new CollectionService<TestEntry>({}), (service) => {
-          service.data.setValue({ count: 3, entries: testEntries })
-          service.hasFocus.setValue(true)
-          service.focusedEntry.setValue(testEntries[0])
-
-          const ev = createKeyboardEvent('ArrowUp')
-          service.handleKeyDown(ev)
-
-          expect(service.focusedEntry.getValue()).toBe(testEntries[0])
           expect(ev.preventDefault).not.toHaveBeenCalled()
-        })
-      })
-
-      it('Should focus last entry when focusedEntry is undefined', () => {
-        const testEntries = createTestEntries()
-        using(new CollectionService<TestEntry>({}), (service) => {
-          service.data.setValue({ count: 3, entries: testEntries })
-          service.hasFocus.setValue(true)
-          service.focusedEntry.setValue(undefined)
-
-          const ev = createKeyboardEvent('ArrowUp')
-          service.handleKeyDown(ev)
-
-          expect(ev.preventDefault).toHaveBeenCalled()
           expect(service.focusedEntry.getValue()).toBe(testEntries[2])
         })
       })
-    })
 
-    describe('ArrowDown key', () => {
-      it('Should move focus to next entry', () => {
+      it('Should not handle ArrowDown', () => {
         const testEntries = createTestEntries()
         using(new CollectionService<TestEntry>({}), (service) => {
           service.data.setValue({ count: 3, entries: testEntries })
@@ -264,82 +232,42 @@ describe('CollectionService', () => {
           const ev = createKeyboardEvent('ArrowDown')
           service.handleKeyDown(ev)
 
-          expect(ev.preventDefault).toHaveBeenCalled()
-          expect(service.focusedEntry.getValue()).toBe(testEntries[1])
-        })
-      })
-
-      it('Should not exceed the last entry and should not preventDefault at boundary', () => {
-        const testEntries = createTestEntries()
-        using(new CollectionService<TestEntry>({}), (service) => {
-          service.data.setValue({ count: 3, entries: testEntries })
-          service.hasFocus.setValue(true)
-          service.focusedEntry.setValue(testEntries[2])
-
-          const ev = createKeyboardEvent('ArrowDown')
-          service.handleKeyDown(ev)
-
-          expect(service.focusedEntry.getValue()).toBe(testEntries[2])
           expect(ev.preventDefault).not.toHaveBeenCalled()
-        })
-      })
-
-      it('Should focus first entry when focusedEntry is undefined', () => {
-        const testEntries = createTestEntries()
-        using(new CollectionService<TestEntry>({}), (service) => {
-          service.data.setValue({ count: 3, entries: testEntries })
-          service.hasFocus.setValue(true)
-          service.focusedEntry.setValue(undefined)
-
-          const ev = createKeyboardEvent('ArrowDown')
-          service.handleKeyDown(ev)
-
-          expect(ev.preventDefault).toHaveBeenCalled()
           expect(service.focusedEntry.getValue()).toBe(testEntries[0])
         })
       })
     })
 
     describe('Home key', () => {
-      it('Should focus the first entry', () => {
+      it('Should focus the first entry and preventDefault', () => {
         const testEntries = createTestEntries()
         using(new CollectionService<TestEntry>({}), (service) => {
           service.data.setValue({ count: 3, entries: testEntries })
           service.hasFocus.setValue(true)
           service.focusedEntry.setValue(testEntries[2])
 
-          service.handleKeyDown(createKeyboardEvent('Home'))
+          const ev = createKeyboardEvent('Home')
+          service.handleKeyDown(ev)
 
+          expect(ev.preventDefault).toHaveBeenCalled()
           expect(service.focusedEntry.getValue()).toBe(testEntries[0])
         })
       })
     })
 
     describe('End key', () => {
-      it('Should focus the last entry', () => {
+      it('Should focus the last entry and preventDefault', () => {
         const testEntries = createTestEntries()
         using(new CollectionService<TestEntry>({}), (service) => {
           service.data.setValue({ count: 3, entries: testEntries })
           service.hasFocus.setValue(true)
           service.focusedEntry.setValue(testEntries[0])
 
-          service.handleKeyDown(createKeyboardEvent('End'))
+          const ev = createKeyboardEvent('End')
+          service.handleKeyDown(ev)
 
+          expect(ev.preventDefault).toHaveBeenCalled()
           expect(service.focusedEntry.getValue()).toBe(testEntries[2])
-        })
-      })
-    })
-
-    describe('Tab key', () => {
-      it('Should toggle hasFocus', () => {
-        const testEntries = createTestEntries()
-        using(new CollectionService<TestEntry>({}), (service) => {
-          service.data.setValue({ count: 3, entries: testEntries })
-          service.hasFocus.setValue(true)
-
-          service.handleKeyDown(createKeyboardEvent('Tab'))
-
-          expect(service.hasFocus.getValue()).toBe(false)
         })
       })
     })

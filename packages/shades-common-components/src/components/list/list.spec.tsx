@@ -337,7 +337,7 @@ describe('List', () => {
       })
     })
 
-    it('should set hasFocus on focusin and initialize focusedItem', async () => {
+    it('should not initialize focusedItem on wrapper focusin (items handle focus individually)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
@@ -355,12 +355,6 @@ describe('List', () => {
 
         expect(service.hasFocus.getValue()).toBe(false)
         expect(service.focusedItem.getValue()).toBeUndefined()
-
-        const wrapper = document.querySelector('.shade-list-wrapper') as HTMLElement
-        wrapper?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
-
-        expect(service.hasFocus.getValue()).toBe(true)
-        expect(service.focusedItem.getValue()).toBe(testItems[0])
 
         service[Symbol.dispose]()
       })
@@ -486,7 +480,7 @@ describe('List', () => {
   })
 
   describe('keyboard navigation', () => {
-    it('should handle ArrowDown to move focus to next item', async () => {
+    it('should not handle ArrowDown (delegated to spatial navigation)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
@@ -506,13 +500,13 @@ describe('List', () => {
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
-        expect(service.focusedItem.getValue()).toEqual(testItems[1])
+        expect(service.focusedItem.getValue()).toEqual(testItems[0])
 
         service[Symbol.dispose]()
       })
     })
 
-    it('should handle ArrowUp to move focus to previous item', async () => {
+    it('should not handle ArrowUp (delegated to spatial navigation)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
@@ -532,7 +526,7 @@ describe('List', () => {
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }))
 
-        expect(service.focusedItem.getValue()).toEqual(testItems[0])
+        expect(service.focusedItem.getValue()).toEqual(testItems[1])
 
         service[Symbol.dispose]()
       })
@@ -721,31 +715,6 @@ describe('List', () => {
 
         expect(service.selection.getValue()).toEqual([])
         expect(service.searchTerm.getValue()).toBe('')
-
-        service[Symbol.dispose]()
-      })
-    })
-
-    it('should handle Tab to toggle focus', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-        const service = createTestService()
-
-        service.hasFocus.setValue(true)
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
-          ),
-        })
-
-        await flushUpdates()
-
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
-
-        expect(service.hasFocus.getValue()).toBe(false)
 
         service[Symbol.dispose]()
       })

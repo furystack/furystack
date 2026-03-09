@@ -694,6 +694,55 @@ describe('SpatialNavigationService', () => {
     })
   })
 
+  describe('data-spatial-nav-target', () => {
+    it('Should treat elements with data-spatial-nav-target as focusable candidates', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const origin = createButton('origin', { left: 0, top: 0, width: 50, height: 50 })
+        const target = document.createElement('div')
+        target.setAttribute('data-spatial-nav-target', '')
+        target.tabIndex = -1
+        target.id = 'nav-target'
+        mockRect(target, { left: 100, top: 0, width: 50, height: 50 })
+        target.scrollIntoView = vi.fn()
+
+        document.body.append(origin, target)
+
+        origin.focus()
+        const s = i.getInstance(SpatialNavigationService)
+        s.moveFocus('right')
+        expect(document.activeElement).toBe(target)
+      })
+    })
+  })
+
+  describe('overflow-aware visibility', () => {
+    it('Should skip candidates whose center is outside their overflow container', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const container = document.createElement('div')
+        Object.defineProperty(container, 'computedStyleMap', { value: () => new Map() })
+        vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
+          if (el === container) {
+            return { overflow: 'hidden', overflowX: 'hidden', overflowY: 'visible' } as CSSStyleDeclaration
+          }
+          return { overflow: 'visible', overflowX: 'visible', overflowY: 'visible' } as CSSStyleDeclaration
+        })
+        mockRect(container, { left: 0, top: 0, width: 200, height: 50 })
+
+        const visible = createButton('visible', { left: 10, top: 10, width: 50, height: 30 })
+        const hidden = createButton('hidden', { left: 300, top: 10, width: 50, height: 30 })
+        container.append(visible, hidden)
+
+        const origin = createButton('origin', { left: 0, top: 100, width: 50, height: 50 })
+        document.body.append(container, origin)
+
+        origin.focus()
+        const s = i.getInstance(SpatialNavigationService)
+        s.moveFocus('up')
+        expect(document.activeElement).toBe(visible)
+      })
+    })
+  })
+
   describe('configureSpatialNavigation', () => {
     it('Should configure the service with custom options', async () => {
       await usingAsync(new Injector(), async (i) => {

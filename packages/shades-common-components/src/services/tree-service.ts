@@ -135,13 +135,9 @@ export class TreeService<T> extends ListService<T> {
       switch (ev.key) {
         case 'ArrowRight': {
           const children = this.treeOptions.getChildren(focusedItem)
-          if (children.length > 0) {
+          if (children.length > 0 && !this.isExpanded(focusedItem)) {
             ev.preventDefault()
-            if (this.isExpanded(focusedItem)) {
-              this.focusedItem.setValue(children[0])
-            } else {
-              this.expand(focusedItem)
-            }
+            this.expand(focusedItem)
           }
           return
         }

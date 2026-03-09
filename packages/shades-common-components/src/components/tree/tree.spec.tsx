@@ -502,7 +502,7 @@ describe('Tree', () => {
   })
 
   describe('keyboard navigation', () => {
-    it('should handle ArrowDown to move focus to next item', async () => {
+    it('should not handle ArrowDown (delegated to spatial navigation)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
@@ -529,7 +529,7 @@ describe('Tree', () => {
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
-        expect(service.focusedItem.getValue()).toEqual(treeData[1])
+        expect(service.focusedItem.getValue()).toEqual(treeData[0])
 
         service[Symbol.dispose]()
       })

@@ -85,6 +85,12 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
       role: 'tree',
       'aria-multiselectable': 'true',
       onclick: () => props.treeService.hasFocus.setValue(true),
+      onfocusout: (ev: FocusEvent) => {
+        const hostEl = ev.currentTarget as HTMLElement
+        if (ev.relatedTarget && !hostEl.contains(ev.relatedTarget as Node)) {
+          props.treeService.hasFocus.setValue(false)
+        }
+      },
     })
 
     const [flattenedNodes] = useObservable('flattenedNodes', props.treeService.flattenedNodes)

@@ -24,6 +24,7 @@ export type SpatialNavigationOptions = {
 
 const DEFAULT_FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
+  '[data-spatial-nav-target]',
   'a[href]',
   'button:not([disabled])',
   'input:not([disabled])',
@@ -317,11 +318,34 @@ export class SpatialNavigationService implements Disposable {
     return element.closest('[data-nav-section]')
   }
 
+  private isVisibleInScrollContainers(el: Element, rect: DOMRect): boolean {
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    const hasOverflow = (val: string) => val !== '' && val !== 'visible'
+    let ancestor = el.parentElement
+    while (ancestor) {
+      const style = getComputedStyle(ancestor)
+      if (hasOverflow(style.overflow) || hasOverflow(style.overflowX) || hasOverflow(style.overflowY)) {
+        const containerRect = ancestor.getBoundingClientRect()
+        if (
+          centerX < containerRect.left ||
+          centerX > containerRect.right ||
+          centerY < containerRect.top ||
+          centerY > containerRect.bottom
+        ) {
+          return false
+        }
+      }
+      ancestor = ancestor.parentElement
+    }
+    return true
+  }
+
   private getFocusableCandidates(root: Element | Document, exclude: Element): Element[] {
     return Array.from(root.querySelectorAll(this.focusableSelector)).filter((el) => {
       if (el === exclude) return false
       const rect = el.getBoundingClientRect()
-      return rect.width > 0 && rect.height > 0
+      return rect.width > 0 && rect.height > 0 && this.isVisibleInScrollContainers(el, rect)
     })
   }
 
@@ -356,7 +380,7 @@ export class SpatialNavigationService implements Disposable {
       if (el === activeElement) return false
       if (currentSection.contains(el)) return false
       const rect = el.getBoundingClientRect()
-      return rect.width > 0 && rect.height > 0
+      return rect.width > 0 && rect.height > 0 && this.isVisibleInScrollContainers(el, rect)
     })
 
     const currentRect = activeElement.getBoundingClientRect()
@@ -371,7 +395,11 @@ export class SpatialNavigationService implements Disposable {
       const remembered = targetSectionName ? this.focusMemory.get(targetSectionName)?.deref() : null
       if (remembered && remembered !== activeElement && targetSection?.contains(remembered)) {
         const rememberedRect = remembered.getBoundingClientRect()
-        if (rememberedRect.width > 0 && rememberedRect.height > 0) {
+        if (
+          rememberedRect.width > 0 &&
+          rememberedRect.height > 0 &&
+          this.isVisibleInScrollContainers(remembered, rememberedRect)
+        ) {
           ;(remembered as HTMLElement).focus()
           remembered.scrollIntoView({ block: 'nearest', inline: 'nearest' })
           this.activeSection.setValue(targetSectionName)

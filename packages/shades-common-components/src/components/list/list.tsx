@@ -88,15 +88,6 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
     )
 
     useDisposable('focus-coordination', () => {
-      const handleFocusIn = () => {
-        props.listService.hasFocus.setValue(true)
-        if (!props.listService.focusedItem.getValue()) {
-          const items = props.listService.items.getValue()
-          if (items.length > 0) {
-            props.listService.focusedItem.setValue(items[0])
-          }
-        }
-      }
       const handleFocusOut = (ev: FocusEvent) => {
         const wrapper = wrapperRef.current
         if (wrapper && ev.relatedTarget && !wrapper.contains(ev.relatedTarget as Node)) {
@@ -107,7 +98,6 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
       queueMicrotask(() => {
         const wrapper = wrapperRef.current
         if (wrapper) {
-          wrapper.addEventListener('focusin', handleFocusIn)
           wrapper.addEventListener('focusout', handleFocusOut)
         }
       })
@@ -116,7 +106,6 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
         [Symbol.dispose]: () => {
           const wrapper = wrapperRef.current
           if (wrapper) {
-            wrapper.removeEventListener('focusin', handleFocusIn)
             wrapper.removeEventListener('focusout', handleFocusOut)
           }
         },

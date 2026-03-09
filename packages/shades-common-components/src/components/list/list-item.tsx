@@ -46,8 +46,18 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
     const isSelected = selection.includes(item)
 
     useHostProps({
+      tabIndex: isFocused ? 0 : -1,
+      'data-spatial-nav-target': '',
       role: 'option',
       'aria-selected': isSelected.toString(),
+      onfocus: () => {
+        if (listService.focusedItem.getValue() !== item) {
+          listService.focusedItem.setValue(item)
+        }
+        if (!listService.hasFocus.getValue()) {
+          listService.hasFocus.setValue(true)
+        }
+      },
       onclick: (ev: MouseEvent) => {
         listService.handleItemClick(item, ev)
       },
@@ -65,11 +75,16 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
       queueMicrotask(() => {
         const el = wrapperRef.current
         if (!el) return
+        const hostEl = el.closest('shade-list-item') as HTMLElement
+        if (!hostEl) return
+
+        if (document.activeElement !== hostEl) {
+          hostEl.focus({ preventScroll: true })
+        }
+
         const scrollContainer = el.closest('shade-list') as HTMLElement
         if (scrollContainer) {
           const containerRect = scrollContainer.getBoundingClientRect()
-          const hostEl = el.closest('shade-list-item') as HTMLElement
-          if (!hostEl) return
           const itemRect = hostEl.getBoundingClientRect()
           const itemTopInContainer = itemRect.top - containerRect.top
           const itemBottomInContainer = itemRect.bottom - containerRect.top

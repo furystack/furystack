@@ -407,9 +407,11 @@ describe('DataGrid', () => {
       })
     })
 
-    it('should set hasFocus on focusin and initialize focusedEntry', async () => {
+    it('should clear hasFocus on focusout when focus leaves the grid', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
+        const outsideBtn = document.createElement('button')
+        document.body.appendChild(outsideBtn)
 
         initializeShadeRoot({
           injector,
@@ -425,17 +427,15 @@ describe('DataGrid', () => {
         })
 
         await flushUpdates()
-        // Wait for queueMicrotask to attach listeners
         await new Promise((r) => setTimeout(r, 0))
 
-        expect(service.hasFocus.getValue()).toBe(false)
-        expect(service.focusedEntry.getValue()).toBeUndefined()
+        service.hasFocus.setValue(true)
 
         const wrapper = document.querySelector('.shade-grid-wrapper') as HTMLElement
-        wrapper?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: outsideBtn }))
 
-        expect(service.hasFocus.getValue()).toBe(true)
-        expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
+        expect(service.hasFocus.getValue()).toBe(false)
+        outsideBtn.remove()
       })
     })
 
@@ -475,7 +475,7 @@ describe('DataGrid', () => {
   })
 
   describe('keyboard navigation', () => {
-    it('should handle ArrowDown to move focus to next entry', async () => {
+    it('should not handle ArrowDown (delegated to spatial navigation)', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -503,11 +503,11 @@ describe('DataGrid', () => {
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         window.dispatchEvent(keydownEvent)
 
-        expect(service.focusedEntry.getValue()).toEqual({ id: 2, name: 'Second' })
+        expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
       })
     })
 
-    it('should handle ArrowUp to move focus to previous entry', async () => {
+    it('should not handle ArrowUp (delegated to spatial navigation)', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -535,7 +535,7 @@ describe('DataGrid', () => {
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
         window.dispatchEvent(keydownEvent)
 
-        expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
+        expect(service.focusedEntry.getValue()).toEqual({ id: 2, name: 'Second' })
       })
     })
 
@@ -600,37 +600,6 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.focusedEntry.getValue()).toEqual({ id: 3, name: 'Third' })
-      })
-    })
-
-    it('should handle Tab to toggle focus', async () => {
-      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        service.hasFocus.setValue(true)
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <DataGrid<TestEntry, 'id' | 'name'>
-              columns={['id', 'name']}
-              collectionService={service}
-              findOptions={findOptions}
-              onFindOptionsChange={onFindOptionsChange}
-              styles={{}}
-              headerComponents={{}}
-              rowComponents={{}}
-            />
-          ),
-        })
-
-        await flushUpdates()
-
-        const keydownEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
-        window.dispatchEvent(keydownEvent)
-
-        expect(service.hasFocus.getValue()).toBe(false)
       })
     })
 

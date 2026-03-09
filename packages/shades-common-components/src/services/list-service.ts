@@ -89,28 +89,6 @@ export class ListService<T> implements Disposable {
             this.focusedItem.setValue(items[items.findIndex((e) => e === this.focusedItem.getValue()) + 1])
           }
           break
-        case 'ArrowUp': {
-          const upIndex = items.findIndex((e) => e === focusedItem)
-          if (upIndex < 0) {
-            ev.preventDefault()
-            this.focusedItem.setValue(items[items.length - 1])
-          } else if (upIndex > 0) {
-            ev.preventDefault()
-            this.focusedItem.setValue(items[upIndex - 1])
-          }
-          break
-        }
-        case 'ArrowDown': {
-          const downIndex = items.findIndex((e) => e === focusedItem)
-          if (downIndex < 0) {
-            ev.preventDefault()
-            this.focusedItem.setValue(items[0])
-          } else if (downIndex < items.length - 1) {
-            ev.preventDefault()
-            this.focusedItem.setValue(items[downIndex + 1])
-          }
-          break
-        }
         case 'Home': {
           ev.preventDefault()
           this.focusedItem.setValue(items[0])
@@ -119,10 +97,6 @@ export class ListService<T> implements Disposable {
         case 'End': {
           ev.preventDefault()
           this.focusedItem.setValue(items[items.length - 1])
-          break
-        }
-        case 'Tab': {
-          this.hasFocus.setValue(!hasFocus)
           break
         }
         case 'Escape': {
