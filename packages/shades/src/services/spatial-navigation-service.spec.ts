@@ -407,11 +407,45 @@ describe('SpatialNavigationService', () => {
       })
     })
 
-    it('Should still handle Enter on text input', async () => {
+    it('Should not intercept Enter on text input', async () => {
       await usingAsync(new Injector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        const clickHandler = vi.fn()
+        input.addEventListener('click', clickHandler)
+        document.body.append(input)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('Enter')
+        expect(clickHandler).not.toHaveBeenCalled()
+      })
+    })
+
+    it('Should not intercept Enter on textarea', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const textarea = document.createElement('textarea')
+        textarea.value = 'hello'
+        mockRect(textarea, { left: 0, top: 0, width: 200, height: 100 })
+        const clickHandler = vi.fn()
+        textarea.addEventListener('click', clickHandler)
+        document.body.append(textarea)
+
+        textarea.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('Enter')
+        expect(clickHandler).not.toHaveBeenCalled()
+      })
+    })
+
+    it('Should activate Enter on button-type input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'button'
+        mockRect(input, { left: 0, top: 0, width: 50, height: 30 })
         const clickHandler = vi.fn()
         input.addEventListener('click', clickHandler)
         document.body.append(input)

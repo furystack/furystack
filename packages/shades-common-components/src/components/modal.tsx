@@ -34,10 +34,11 @@ export const Modal = Shade<ModalProps>({
       left: '0',
     },
   },
-  render: ({ props, children, injector, useRef, useDisposable }) => {
+  render: ({ props, children, injector, useRef, useDisposable, useState }) => {
     const { isVisible, trapFocus, navSection } = props
     const backdropRef = useRef<HTMLDivElement>('backdrop')
-    const sectionName = navSection ?? `modal-${modalSectionCounter++}`
+    const [generatedSectionId] = useState('generatedSectionId', modalSectionCounter++)
+    const sectionName = navSection ?? `modal-${generatedSectionId}`
 
     if (isVisible && trapFocus) {
       useDisposable('spatial-nav-trap', () => {

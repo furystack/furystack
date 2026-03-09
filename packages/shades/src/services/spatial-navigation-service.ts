@@ -113,14 +113,6 @@ const isTextInput = (element: Element): boolean => {
   return false
 }
 
-/**
- * Determines whether an arrow key should be passed through to a text input.
- * Returns false (allowing spatial nav to take over) when the cursor is at a
- * boundary where the arrow key would have no effect within the field:
- * - ArrowUp / ArrowLeft at the start of the text
- * - ArrowDown / ArrowRight at the end of the text
- * This enables D-pad escape from inputs without breaking normal text editing.
- */
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'])
 
 /**
@@ -247,7 +239,7 @@ export class SpatialNavigationService implements Disposable {
   public activateFocused(): void {
     const { activeElement } = document
     if (activeElement && activeElement !== document.body) {
-      activeElement.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+      ;(activeElement as HTMLElement).click()
     }
   }
 
@@ -278,6 +270,7 @@ export class SpatialNavigationService implements Disposable {
         this.moveFocus('right')
         break
       case 'Enter':
+        if (activeElement && isTextInput(activeElement)) break
         ev.preventDefault()
         this.activateFocused()
         break
