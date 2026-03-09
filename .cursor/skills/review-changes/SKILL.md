@@ -147,6 +147,22 @@ Check for:
 - README updates for new features
 - Breaking change documentation
 
+**ESLint Rule Opportunities:**
+
+Look for patterns in the diff that suggest a new custom ESLint rule should be added to `@furystack/eslint-plugin`. Signals to watch for:
+
+- **Repeated anti-pattern fixes** — the same kind of correction applied across multiple files (e.g., replacing `X` with `Y` in 5+ places). If a human has to remember to avoid it, a lint rule can enforce it.
+- **New conventions introduced** — if the branch establishes a new "always do X instead of Y" pattern, it may be worth codifying as a rule.
+- **Manual enforcement via comments** — code comments like "don't do X", "always use Y here", or "TODO: lint rule for this" are direct signals.
+- **Domain-specific patterns** — especially around DI (`@Injectable`, `@Injected`), Observables (`ObservableValue`, subscriptions, disposal), Shades rendering (render hooks, JSX patterns), REST actions (`RequestError`, validation), and data access (`Repository`, `DataSet`).
+
+When evaluating a potential rule:
+
+1. **Check existing rules first** — read `packages/eslint-plugin/src/rules/` to verify the pattern isn't already covered. The plugin currently has rules for: DI consistency, observable disposal, Shades render hooks, REST action validation, custom element naming, removed APIs, and more.
+2. **Determine the config** — would it belong in `recommended` (general FuryStack patterns) or `shades` (Shades UI framework patterns)?
+3. **Assess feasibility** — can the pattern be reliably detected via AST analysis? Patterns that depend on runtime behavior or external context are poor candidates.
+4. **Consider false positives** — a good rule has a low false-positive rate. If the pattern has many legitimate exceptions, it may not be worth a rule.
+
 ## Subagent Output Rules
 
 **IMPORTANT:** Only include subagent results in the final output if they found errors or issues.
@@ -178,7 +194,15 @@ For each issue, be specific: package, file, line, problem, suggested fix.
 
 **4. Breaking Changes:** List any breaking changes and suggest migration guide if needed.
 
-**5. Changelog:** Generate a short, consistent changelog as a copyable markdown code block.
+**5. ESLint Rule Suggestions:** If any patterns were identified that could become custom ESLint rules, list them here. For each suggestion include:
+
+- **Pattern:** What the rule would enforce (with a brief before/after code example if helpful)
+- **Config:** `recommended` or `shades`
+- **Rationale:** Why this is worth automating (frequency of occurrence, risk of mistakes, etc.)
+
+Omit this section entirely if no rule opportunities were found.
+
+**6. Changelog:** Generate a short, consistent changelog as a copyable markdown code block.
 
 Format:
 
@@ -195,7 +219,7 @@ Example:
 - Update dependency injection patterns
 ```
 
-**6. Pull Request Description:** Generate as a copyable markdown code block with:
+**7. Pull Request Description:** Generate as a copyable markdown code block with:
 
 - Relevant emoji per header
 - Brief description of what the PR does
