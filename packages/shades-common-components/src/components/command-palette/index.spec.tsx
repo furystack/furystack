@@ -607,6 +607,65 @@ describe('CommandPalette', () => {
     })
   })
 
+  describe('spatial navigation attributes', () => {
+    it('should have data-spatial-nav-target on the host element', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
+        })
+
+        await flushUpdates()
+
+        const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
+        expect(commandPalette.hasAttribute('data-spatial-nav-target')).toBe(true)
+      })
+    })
+
+    it('should have tabIndex of -1 on the host element', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
+        })
+
+        await flushUpdates()
+
+        const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
+        expect(commandPalette.tabIndex).toBe(-1)
+      })
+    })
+
+    it('should delegate focus to the inner input when the host is focused', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
+        })
+
+        await flushUpdates()
+
+        const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
+        const input = commandPalette.querySelector('input') as HTMLInputElement
+
+        commandPalette.dispatchEvent(new FocusEvent('focus', { bubbles: false }))
+
+        await flushUpdates()
+
+        expect(document.activeElement).toBe(input)
+      })
+    })
+  })
+
   describe('click away', () => {
     it('should close when clicking outside the component', async () => {
       await usingAsync(new Injector(), async (injector) => {

@@ -904,6 +904,89 @@ describe('Suggest', () => {
     })
   })
 
+  describe('spatial navigation attributes', () => {
+    it('should have data-spatial-nav-target on the host element', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onSelectSuggestion = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Suggest<TestEntry>
+              defaultPrefix="🔍"
+              getEntries={getTestEntries}
+              getSuggestionEntry={getSuggestionEntry}
+              onSelectSuggestion={onSelectSuggestion}
+            />
+          ),
+        })
+
+        await advanceTimers(50)
+
+        const suggest = document.querySelector('shade-suggest') as HTMLElement
+        expect(suggest.hasAttribute('data-spatial-nav-target')).toBe(true)
+      })
+    })
+
+    it('should have tabIndex of -1 on the host element', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onSelectSuggestion = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Suggest<TestEntry>
+              defaultPrefix="🔍"
+              getEntries={getTestEntries}
+              getSuggestionEntry={getSuggestionEntry}
+              onSelectSuggestion={onSelectSuggestion}
+            />
+          ),
+        })
+
+        await advanceTimers(50)
+
+        const suggest = document.querySelector('shade-suggest') as HTMLElement
+        expect(suggest.tabIndex).toBe(-1)
+      })
+    })
+
+    it('should delegate focus to the inner input when the host is focused', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onSelectSuggestion = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Suggest<TestEntry>
+              defaultPrefix="🔍"
+              getEntries={getTestEntries}
+              getSuggestionEntry={getSuggestionEntry}
+              onSelectSuggestion={onSelectSuggestion}
+            />
+          ),
+        })
+
+        await advanceTimers(50)
+
+        const suggest = document.querySelector('shade-suggest') as HTMLElement
+        const input = suggest.querySelector('input') as HTMLInputElement
+
+        suggest.dispatchEvent(new FocusEvent('focus', { bubbles: false }))
+
+        await advanceTimers(10)
+
+        expect(document.activeElement).toBe(input)
+      })
+    })
+  })
+
   describe('synchronous suggestions mode', () => {
     it('should render with string[] suggestions', async () => {
       await usingAsync(new Injector(), async (injector) => {
