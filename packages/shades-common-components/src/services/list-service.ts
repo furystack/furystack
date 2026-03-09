@@ -44,8 +44,15 @@ export class ListService<T> implements Disposable {
   /**
    * Stores the focused item captured on pointerdown, before the focus event
    * can update focusedItem. Used as the anchor for SHIFT+click range selection.
+   * Call {@link setFocusAnchor} from `onpointerdown` to snapshot the anchor
+   * before focus shifts.
    */
-  public focusAnchor: T | undefined = undefined
+  private focusAnchor: T | undefined = undefined
+
+  /** Snapshot the current focused item as the anchor for SHIFT+click range selection. */
+  public setFocusAnchor(): void {
+    this.focusAnchor = this.focusedItem.getValue()
+  }
 
   public selection = new ObservableValue<T[]>([])
 

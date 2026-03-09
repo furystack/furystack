@@ -252,7 +252,7 @@ describe('List', () => {
       })
     })
 
-    it('should lose focus on click outside', async () => {
+    it('should lose focus on focusout to an outside element', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
@@ -262,7 +262,7 @@ describe('List', () => {
           rootElement,
           jsxElement: (
             <>
-              <div data-testid="outside">Outside</div>
+              <button data-testid="outside">Outside</button>
               <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
             </>
           ),
@@ -277,7 +277,7 @@ describe('List', () => {
         expect(service.hasFocus.getValue()).toBe(true)
 
         const outside = document.querySelector('[data-testid="outside"]') as HTMLElement
-        outside?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: outside }))
 
         expect(service.hasFocus.getValue()).toBe(false)
 

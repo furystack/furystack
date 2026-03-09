@@ -34,6 +34,13 @@ const DEFAULT_FOCUSABLE_SELECTOR = [
 
 const INPUT_PASSTHROUGH_TAGS = new Set(['TEXTAREA', 'SELECT'])
 
+/**
+ * Input types treated as "text-like" for Enter suppression and Escape blur.
+ * `number` is included here even though it also appears in
+ * INPUT_VERTICAL_ONLY_PASSTHROUGH_TYPES — the overlap is intentional:
+ * isTextInput gates Enter suppression and Escape-blur behavior, while
+ * the vertical-only set gates which arrow keys pass through.
+ */
 const INPUT_PASSTHROUGH_TYPES = new Set([
   'text',
   'password',
@@ -113,6 +120,11 @@ const isInDirection = (current: DOMRect, candidate: DOMRect, direction: SpatialD
   }
 }
 
+/**
+ * Walks up the DOM checking the `contentEditable` property rather than
+ * using `.closest('[contenteditable="true"]')` — the attribute selector
+ * is unreliable in jsdom when contentEditable is set via the IDL property.
+ */
 const isInsideContentEditable = (element: Element): boolean => {
   let current: Element | null = element
   while (current) {
@@ -144,7 +156,7 @@ const isInsidePassthrough = (element: Element): boolean => {
 }
 
 const escapeCssString = (value: string): string =>
-  typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/["\\]/g, '\\$&')
+  typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/[^\w-]/g, (ch) => `\\${ch}`)
 
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'])
 

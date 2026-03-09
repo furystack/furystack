@@ -19,11 +19,13 @@
 
 ## 💥 Breaking Changes
 
-- Removed `ArrowUp`/`ArrowDown` handlers from `CollectionService` and `ListService` — arrow-key navigation is now delegated to `SpatialNavigationService`
+- Removed `ArrowUp`/`ArrowDown` handlers from `ListService` — arrow-key navigation is now fully delegated to `SpatialNavigationService`
+- Changed `ArrowUp`/`ArrowDown` handlers in `CollectionService` — they no longer unconditionally `preventDefault()`, only intercepting when there is a valid adjacent entry to move to, allowing `SpatialNavigationService` to handle boundary navigation
 - Removed `Tab` handler from `CollectionService` and `ListService` — focus management now uses native `focusin`/`focusout`
 - `TreeService` `ArrowRight` on an expanded node no longer focuses the first child — delegated to spatial navigation
 - `ActionColors` type now requires a `focusOutline` property — all custom themes must include this value
 - `CommandPalette` and `Suggest` keyboard handling changed from `onkeyup` to `onkeydown` — arrow key navigation within the suggestion list now only activates when suggestions are open
+- Scroll-to-focused-item behavior changed from `smooth` to `instant` in `List`, `DataGrid`, and `Tree` — keyboard navigation no longer animates scrolling
 
 ### 🔄 Migration Guide
 

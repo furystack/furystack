@@ -79,7 +79,7 @@ export const DataGridRow: <T, Column extends string>(
       'data-spatial-nav-target': '',
       'aria-selected': isSelected.toString(),
       onpointerdown: () => {
-        service.focusAnchor = service.focusedEntry.getValue()
+        service.setFocusAnchor()
       },
       onfocus: () => {
         if (service.focusedEntry.getValue() !== entry) {

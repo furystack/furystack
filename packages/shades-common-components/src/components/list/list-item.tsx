@@ -51,7 +51,7 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
       role: 'option',
       'aria-selected': isSelected.toString(),
       onpointerdown: () => {
-        listService.focusAnchor = listService.focusedItem.getValue()
+        listService.setFocusAnchor()
       },
       onfocus: () => {
         if (listService.focusedItem.getValue() !== item) {

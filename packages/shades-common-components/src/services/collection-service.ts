@@ -65,8 +65,15 @@ export class CollectionService<T>
   /**
    * Stores the focused entry captured on pointerdown, before the focus event
    * can update focusedEntry. Used as the anchor for SHIFT+click range selection.
+   * Call {@link setFocusAnchor} from `onpointerdown` to snapshot the anchor
+   * before focus shifts.
    */
-  public focusAnchor: T | undefined = undefined
+  private focusAnchor: T | undefined = undefined
+
+  /** Snapshot the current focused entry as the anchor for SHIFT+click range selection. */
+  public setFocusAnchor(): void {
+    this.focusAnchor = this.focusedEntry.getValue()
+  }
 
   public selection = new ObservableValue<T[]>([])
 
