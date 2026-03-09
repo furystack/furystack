@@ -47,9 +47,6 @@ const INPUT_PASSTHROUGH_TYPES = new Set([
   'month',
   'time',
   'week',
-  'color',
-  'range',
-  'file',
 ])
 
 const getElementCenter = (rect: DOMRect) => ({
@@ -112,6 +109,9 @@ const isTextInput = (element: Element): boolean => {
 
   return false
 }
+
+const escapeCssString = (value: string): string =>
+  typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/["\\]/g, '\\$&')
 
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'])
 
@@ -323,7 +323,7 @@ export class SpatialNavigationService implements Disposable {
   private focusFirstElement(): void {
     const trap = this.activeTrap
     if (trap) {
-      const trapSection = document.querySelector(`[data-nav-section="${trap}"]`)
+      const trapSection = document.querySelector(`[data-nav-section="${escapeCssString(trap)}"]`)
       if (trapSection) {
         const firstFocusable = trapSection.querySelector(this.focusableSelector)
         if (firstFocusable) {

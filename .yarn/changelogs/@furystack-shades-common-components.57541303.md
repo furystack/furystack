@@ -4,7 +4,7 @@
 
 ## ✨ Features
 
-- Added `navSection` prop to `DataGrid` — sets a `data-nav-section` attribute on the grid wrapper so `SpatialNavigationService` constrains arrow-key navigation within the grid (defaults to `'data-grid'`)
+- Added `navSection` prop to `DataGrid` — sets a `data-nav-section` attribute on the grid wrapper so `SpatialNavigationService` constrains arrow-key navigation within the grid (auto-generated per instance when not provided, e.g. `data-grid-0`)
 - Added `trapFocus` and `navSection` props to `Modal` — when `trapFocus` is true, spatial navigation is locked within the modal's bounds until it closes
 - Added `trapFocus` (defaults to `true`) and `navSection` props to `Dialog` — forwarded to the underlying `Modal` component
 - Added `focusOutline` to the `ActionColors` theme type and `cssVariableTheme` — provides a dedicated CSS variable (`--shades-theme-action-focus-outline`) for keyboard/spatial focus indicators

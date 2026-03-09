@@ -390,6 +390,57 @@ describe('SpatialNavigationService', () => {
       })
     })
 
+    it('Should intercept arrow keys on range input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'range'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        input.scrollIntoView = vi.fn()
+        const btn = createButton('btn', { left: 0, top: 100, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowDown')
+        expect(document.activeElement).toBe(btn)
+      })
+    })
+
+    it('Should intercept arrow keys on color input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'color'
+        mockRect(input, { left: 0, top: 0, width: 50, height: 50 })
+        input.scrollIntoView = vi.fn()
+        const btn = createButton('btn', { left: 100, top: 0, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(btn)
+      })
+    })
+
+    it('Should intercept arrow keys on file input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'file'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        input.scrollIntoView = vi.fn()
+        const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(btn)
+      })
+    })
+
     it('Should escape empty text input on any arrow key', async () => {
       await usingAsync(new Injector(), async (i) => {
         const input = document.createElement('input')

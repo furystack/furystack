@@ -1,6 +1,8 @@
 import { Shade, createComponent, SpatialNavigationService } from '@furystack/shades'
 import { cssVariableTheme } from '../services/css-variable-theme.js'
 
+let nextModalId = 0
+
 export type ModalProps = {
   backdropStyle?: Partial<CSSStyleDeclaration>
   isVisible: boolean
@@ -35,7 +37,7 @@ export const Modal = Shade<ModalProps>({
   render: ({ props, children, injector, useRef, useDisposable, useState }) => {
     const { isVisible, trapFocus, navSection } = props
     const backdropRef = useRef<HTMLDivElement>('backdrop')
-    const [generatedSectionId] = useState('generatedSectionId', Math.random().toString(36).slice(2, 8))
+    const [generatedSectionId] = useState('generatedSectionId', String(nextModalId++))
     const sectionName = navSection ?? `modal-${generatedSectionId}`
 
     useDisposable(

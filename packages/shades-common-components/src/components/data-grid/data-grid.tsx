@@ -3,6 +3,8 @@ import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+
+let nextDataGridId = 0
 import type { GridProps } from '../grid.js'
 import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
@@ -166,7 +168,7 @@ export const DataGrid: <T, Column extends string>(
   },
   render: ({ props, useDisposable, useRef, useHostProps, useState }) => {
     const wrapperRef = useRef<HTMLDivElement>('gridWrapper')
-    const [navSectionId] = useState('navSectionId', Math.random().toString(36).slice(2, 8))
+    const [navSectionId] = useState('navSectionId', String(nextDataGridId++))
 
     const headerFindOptions = props.findOptions as FilterableFindOptions
     const handleHeaderChange = props.onFindOptionsChange as (options: FilterableFindOptions) => void
