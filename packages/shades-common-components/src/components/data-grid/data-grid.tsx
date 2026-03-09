@@ -1,7 +1,6 @@
 import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { ClickAwayService } from '../../services/click-away-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { GridProps } from '../grid.js'
@@ -177,14 +176,6 @@ export const DataGrid: <T, Column extends string>(
       return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
     })
 
-    useDisposable(
-      'clickAway',
-      () =>
-        new ClickAwayService(wrapperRef, () => {
-          props.collectionService.hasFocus.setValue(false)
-        }),
-    )
-
     useDisposable('focus-coordination', () => {
       const handleFocusOut = (ev: FocusEvent) => {
         const wrapper = wrapperRef.current
@@ -219,9 +210,6 @@ export const DataGrid: <T, Column extends string>(
         ref={wrapperRef}
         className="shade-grid-wrapper"
         data-nav-section={props.navSection ?? 'data-grid'}
-        onclick={() => {
-          props.collectionService.hasFocus.setValue(true)
-        }}
         ariaMultiSelectable="true"
       >
         <table>

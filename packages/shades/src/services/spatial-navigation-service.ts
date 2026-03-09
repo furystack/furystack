@@ -344,6 +344,7 @@ export class SpatialNavigationService implements Disposable {
   private getFocusableCandidates(root: Element | Document, exclude: Element): Element[] {
     return Array.from(root.querySelectorAll(this.focusableSelector)).filter((el) => {
       if (el === exclude) return false
+      if (!el.hasAttribute('data-spatial-nav-target') && el.closest('[data-spatial-nav-target]')) return false
       const rect = el.getBoundingClientRect()
       return rect.width > 0 && rect.height > 0 && this.isVisibleInScrollContainers(el, rect)
     })
@@ -379,6 +380,7 @@ export class SpatialNavigationService implements Disposable {
     const allFocusable = Array.from(document.querySelectorAll(this.focusableSelector)).filter((el) => {
       if (el === activeElement) return false
       if (currentSection.contains(el)) return false
+      if (!el.hasAttribute('data-spatial-nav-target') && el.closest('[data-spatial-nav-target]')) return false
       const rect = el.getBoundingClientRect()
       return rect.width > 0 && rect.height > 0 && this.isVisibleInScrollContainers(el, rect)
     })
