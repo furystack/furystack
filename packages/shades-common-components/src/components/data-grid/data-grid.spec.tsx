@@ -978,6 +978,89 @@ describe('DataGrid', () => {
     })
   })
 
+  describe('row spatial navigation attributes', () => {
+    it('should set data-spatial-nav-target on rows', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const rows = document.querySelectorAll('shades-data-grid-row')
+        for (const row of rows) {
+          expect(row.hasAttribute('data-spatial-nav-target')).toBe(true)
+        }
+      })
+    })
+
+    it('should set tabIndex 0 on focused row and -1 on others', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        service.focusedEntry.setValue(service.data.getValue().entries[1])
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const rows = document.querySelectorAll('shades-data-grid-row')
+        expect(rows[0]?.tabIndex).toBe(-1)
+        expect(rows[1]?.tabIndex).toBe(0)
+        expect(rows[2]?.tabIndex).toBe(-1)
+      })
+    })
+
+    it('should sync focusedEntry on row onfocus', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const rows = document.querySelectorAll('shades-data-grid-row')
+        rows[2]?.dispatchEvent(new FocusEvent('focus'))
+
+        expect(service.focusedEntry.getValue()).toEqual({ id: 3, name: 'Third' })
+        expect(service.hasFocus.getValue()).toBe(true)
+      })
+    })
+  })
+
   describe('keyboard listener cleanup', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {

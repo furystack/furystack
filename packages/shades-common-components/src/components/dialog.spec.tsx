@@ -1,9 +1,19 @@
-import { createComponent } from '@furystack/shades'
-import { describe, expect, it, vi } from 'vitest'
+import { Injector } from '@furystack/inject'
+import { createComponent, flushUpdates, initializeShadeRoot, SpatialNavigationService } from '@furystack/shades'
+import { usingAsync } from '@furystack/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DialogProps } from './dialog.js'
 import { ConfirmDialog, Dialog } from './dialog.js'
 
 describe('Dialog', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
   it('should be defined', () => {
     expect(Dialog).toBeDefined()
     expect(typeof Dialog).toBe('function')
@@ -54,6 +64,71 @@ describe('Dialog', () => {
   it('should accept isVisible boolean', () => {
     const el = (<Dialog isVisible={false} />) as unknown as { props: DialogProps }
     expect(el.props.isVisible).toBe(false)
+  })
+
+  it('should forward trapFocus to the underlying Modal', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const spatialNav = injector.getInstance(SpatialNavigationService)
+      const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Dialog isVisible={true} trapFocus={true} navSection="dialog-trap">
+            <div>Content</div>
+          </Dialog>
+        ),
+      })
+
+      await flushUpdates()
+
+      expect(pushSpy).toHaveBeenCalledWith('dialog-trap')
+    })
+  })
+
+  it('should forward navSection to the underlying Modal', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Dialog isVisible={true} navSection="my-dialog">
+            <div>Content</div>
+          </Dialog>
+        ),
+      })
+
+      await flushUpdates()
+
+      const backdrop = document.querySelector('.shade-backdrop')
+      expect(backdrop?.getAttribute('data-nav-section')).toBe('my-dialog')
+    })
+  })
+
+  it('should not push focus trap when trapFocus is false', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const spatialNav = injector.getInstance(SpatialNavigationService)
+      const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <Dialog isVisible={true} trapFocus={false}>
+            <div>Content</div>
+          </Dialog>
+        ),
+      })
+
+      await flushUpdates()
+
+      expect(pushSpy).not.toHaveBeenCalled()
+    })
   })
 })
 

@@ -12,7 +12,7 @@
 - Added `focusOutline` values to all built-in themes
 - Added focus coordination to `DataGrid`, `List`, and `Tree` — `focusin`/`focusout` DOM events now sync `hasFocus` and `focusedEntry`/`focusedItem` state, replacing previous click-based focus management
 
-## ⚠️ Breaking Changes
+## 💥 Breaking Changes
 
 - Removed `ArrowUp`/`ArrowDown` handlers from `CollectionService` and `ListService` — arrow-key navigation is now delegated to `SpatialNavigationService`
 - Removed `Tab` handler from `CollectionService` and `ListService` — focus management now uses native `focusin`/`focusout`

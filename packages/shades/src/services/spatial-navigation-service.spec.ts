@@ -859,6 +859,35 @@ describe('SpatialNavigationService', () => {
       })
     })
 
+    it('Should focus within trapped section when activeElement is document.body', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const section1 = document.createElement('div')
+        section1.setAttribute('data-nav-section', 'sidebar')
+        mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
+        const sidebarBtn = createButton('sidebar-btn', { left: 10, top: 10, width: 50, height: 50 })
+        section1.append(sidebarBtn)
+
+        const section2 = document.createElement('div')
+        section2.setAttribute('data-nav-section', 'modal')
+        mockRect(section2, { left: 300, top: 50, width: 400, height: 300 })
+        const modalBtn = createButton('modal-btn', { left: 310, top: 60, width: 50, height: 50 })
+        section2.append(modalBtn)
+
+        document.body.append(section1, section2)
+
+        // Focus is on body (simulates element removed from DOM during wizard step transition)
+        ;(document.activeElement as HTMLElement)?.blur()
+        expect(document.activeElement).toBe(document.body)
+
+        const s = i.getInstance(SpatialNavigationService)
+        s.pushFocusTrap('modal')
+
+        s.moveFocus('down')
+        expect(document.activeElement).toBe(modalBtn)
+        expect(s.activeSection.getValue()).toBe('modal')
+      })
+    })
+
     it('Should clear trap stack on disposal', async () => {
       await usingAsync(new Injector(), async (i) => {
         const s = i.getInstance(SpatialNavigationService)

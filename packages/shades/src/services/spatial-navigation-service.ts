@@ -321,6 +321,19 @@ export class SpatialNavigationService implements Disposable {
   }
 
   private focusFirstElement(): void {
+    const trap = this.activeTrap
+    if (trap) {
+      const trapSection = document.querySelector(`[data-nav-section="${trap}"]`)
+      if (trapSection) {
+        const firstFocusable = trapSection.querySelector(this.focusableSelector)
+        if (firstFocusable) {
+          ;(firstFocusable as HTMLElement).focus()
+          this.activeSection.setValue(trap)
+          return
+        }
+      }
+    }
+
     const sections = document.querySelectorAll('[data-nav-section]')
     if (sections.length > 0) {
       const firstFocusable = sections[0].querySelector(this.focusableSelector)

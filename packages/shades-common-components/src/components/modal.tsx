@@ -38,8 +38,11 @@ export const Modal = Shade<ModalProps>({
     const [generatedSectionId] = useState('generatedSectionId', Math.random().toString(36).slice(2, 8))
     const sectionName = navSection ?? `modal-${generatedSectionId}`
 
-    if (isVisible && trapFocus) {
-      useDisposable('spatial-nav-trap', () => {
+    useDisposable(
+      'spatial-nav-trap',
+      () => {
+        if (!isVisible || !trapFocus) return { [Symbol.dispose]: () => {} }
+
         const spatialNav = injector.cachedSingletons.get(SpatialNavigationService) as
           | SpatialNavigationService
           | undefined
@@ -57,8 +60,9 @@ export const Modal = Shade<ModalProps>({
             }
           },
         }
-      })
-    }
+      },
+      [isVisible, trapFocus],
+    )
 
     if (isVisible) {
       queueMicrotask(() => {

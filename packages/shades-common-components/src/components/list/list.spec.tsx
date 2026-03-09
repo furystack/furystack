@@ -1012,6 +1012,83 @@ describe('List', () => {
     })
   })
 
+  describe('item spatial navigation attributes', () => {
+    it('should set data-spatial-nav-target on list items', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
+          ),
+        })
+
+        await flushUpdates()
+
+        const items = document.querySelectorAll('shade-list-item')
+        for (const item of items) {
+          expect(item.hasAttribute('data-spatial-nav-target')).toBe(true)
+        }
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should set tabIndex 0 on focused item and -1 on others', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        service.focusedItem.setValue(testItems[1])
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
+          ),
+        })
+
+        await flushUpdates()
+
+        const items = document.querySelectorAll('shade-list-item')
+        expect(items[0]?.tabIndex).toBe(-1)
+        expect(items[1]?.tabIndex).toBe(0)
+        expect(items[2]?.tabIndex).toBe(-1)
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should sync focusedItem on item onfocus', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
+          ),
+        })
+
+        await flushUpdates()
+
+        const items = document.querySelectorAll('shade-list-item')
+        items[2]?.dispatchEvent(new FocusEvent('focus'))
+
+        expect(service.focusedItem.getValue()).toEqual(testItems[2])
+        expect(service.hasFocus.getValue()).toBe(true)
+
+        service[Symbol.dispose]()
+      })
+    })
+  })
+
   describe('keyboard listener cleanup', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
       await usingAsync(new Injector(), async (injector) => {

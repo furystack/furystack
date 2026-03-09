@@ -398,5 +398,37 @@ describe('Modal', () => {
         expect(spatialNav.activeSection.getValue()).toBe('other-section')
       })
     })
+
+    it('should pop focus trap when visibility changes from true to false', async () => {
+      let setVisible!: (v: boolean) => void
+
+      const Wrapper = Shade({
+        customElementName: 'modal-trap-visibility-test',
+        render: ({ useState }) => {
+          const [visible, setter] = useState('visible', true)
+          setVisible = setter
+          return (
+            <Modal isVisible={visible} trapFocus={true} navSection="trap-test">
+              <div>Content</div>
+            </Modal>
+          )
+        },
+      })
+
+      await usingAsync(new Injector(), async (injector) => {
+        const spatialNav = injector.getInstance(SpatialNavigationService)
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
+        await flushUpdates()
+
+        expect(spatialNav.activeSection.getValue()).toBe('trap-test')
+
+        setVisible(false)
+        await flushUpdates()
+
+        expect(spatialNav.activeSection.getValue()).not.toBe('trap-test')
+      })
+    })
   })
 })
