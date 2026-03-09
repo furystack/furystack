@@ -1011,6 +1011,43 @@ describe('SpatialNavigationService', () => {
       })
     })
 
+    it('Should not call history.back() on Backspace when focused on a text input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        configureSpatialNavigation(i, { backspaceGoesBack: true })
+
+        const input = document.createElement('input')
+        input.type = 'text'
+        input.value = 'hello'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        document.body.append(input)
+        input.focus()
+
+        const backSpy = vi.spyOn(history, 'back').mockImplementation(() => {})
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('Backspace')
+        expect(backSpy).not.toHaveBeenCalled()
+      })
+    })
+
+    it('Should not call history.back() on Backspace when focused on a textarea', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        configureSpatialNavigation(i, { backspaceGoesBack: true })
+
+        const textarea = document.createElement('textarea')
+        textarea.value = 'some text'
+        mockRect(textarea, { left: 0, top: 0, width: 200, height: 100 })
+        document.body.append(textarea)
+        textarea.focus()
+
+        const backSpy = vi.spyOn(history, 'back').mockImplementation(() => {})
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('Backspace')
+        expect(backSpy).not.toHaveBeenCalled()
+      })
+    })
+
     it('Should move to parent section on Escape when configured', async () => {
       await usingAsync(new Injector(), async (i) => {
         configureSpatialNavigation(i, { escapeGoesToParentSection: true })

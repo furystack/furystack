@@ -112,7 +112,7 @@ export const Rating = Shade<RatingProps>({
       transform: 'scale(1.15)',
     },
 
-    '&:focus': {
+    '&:focus-visible': {
       outline: 'none',
       boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
     },

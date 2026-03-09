@@ -395,7 +395,7 @@ export class SpatialNavigationService implements Disposable {
         this.activateFocused()
         break
       case 'Backspace':
-        if (this.backspaceGoesBack) {
+        if (this.backspaceGoesBack && !(activeElement && isTextInput(activeElement))) {
           ev.preventDefault()
           history.back()
         }

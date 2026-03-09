@@ -29,7 +29,6 @@ export const ShowcaseAppBar = Shade({
       padding: `0 ${cssVariableTheme.spacing.sm}`,
       transition: `color ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}, transform ${cssVariableTheme.transitions.duration.normal} ${cssVariableTheme.transitions.easing.easeInOut}`,
       cursor: 'pointer',
-      wordBreak: 'nowrap',
       whiteSpace: 'nowrap',
     },
   },
