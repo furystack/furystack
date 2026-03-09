@@ -516,9 +516,8 @@ describe('Tree', () => {
           rootElement,
           jsxElement: (
             <Tree<TestNode>
-              items={treeData}
+              rootItems={treeData}
               treeService={service}
-              getChildren={getChildren}
               renderItem={(node) => <span>{node.name}</span>}
             />
           ),
@@ -550,9 +549,8 @@ describe('Tree', () => {
           rootElement,
           jsxElement: (
             <Tree<TestNode>
-              items={treeData}
+              rootItems={treeData}
               treeService={service}
-              getChildren={getChildren}
               renderItem={(node) => <span>{node.name}</span>}
             />
           ),
@@ -582,9 +580,8 @@ describe('Tree', () => {
           rootElement,
           jsxElement: (
             <Tree<TestNode>
-              items={treeData}
+              rootItems={treeData}
               treeService={service}
-              getChildren={getChildren}
               renderItem={(node) => <span>{node.name}</span>}
             />
           ),
