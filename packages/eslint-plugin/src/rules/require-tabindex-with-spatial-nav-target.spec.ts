@@ -148,31 +148,6 @@ tester.run('require-tabindex-with-spatial-nav-target', requireTabindexWithSpatia
       `,
     },
     {
-      name: 'JSX custom element with data-spatial-nav-target and lowercase tabindex',
-      code: `
-        Shade({
-          customElementName: 'my-component',
-          render: () => <my-widget data-spatial-nav-target="" tabindex={0} />,
-        })
-      `,
-    },
-    {
-      name: 'useHostProps with lowercase tabindex in a separate spread',
-      code: `
-        Shade({
-          customElementName: 'my-component',
-          render: ({ useHostProps }) => {
-            const isInteractive = true
-            useHostProps({
-              ...(isInteractive ? { 'data-spatial-nav-target': '' } : {}),
-              ...(isInteractive ? { tabindex: '0' } : {}),
-            })
-            return <div />
-          },
-        })
-      `,
-    },
-    {
       name: 'useHostProps outside Shade render does not trigger',
       code: `
         function setup() {
@@ -239,6 +214,33 @@ tester.run('require-tabindex-with-spatial-nav-target', requireTabindexWithSpatia
         Shade({
           customElementName: 'my-component',
           render: () => <div data-spatial-nav-target="" />,
+        })
+      `,
+      errors: [{ messageId: 'missingTabIndex' }],
+    },
+    {
+      name: 'JSX custom element with lowercase tabindex is not accepted',
+      code: `
+        Shade({
+          customElementName: 'my-component',
+          render: () => <my-widget data-spatial-nav-target="" tabindex={0} />,
+        })
+      `,
+      errors: [{ messageId: 'missingTabIndex' }],
+    },
+    {
+      name: 'useHostProps with lowercase tabindex in spread is not accepted',
+      code: `
+        Shade({
+          customElementName: 'my-component',
+          render: ({ useHostProps }) => {
+            const isInteractive = true
+            useHostProps({
+              ...(isInteractive ? { 'data-spatial-nav-target': '' } : {}),
+              ...(isInteractive ? { tabindex: '0' } : {}),
+            })
+            return <div />
+          },
         })
       `,
       errors: [{ messageId: 'missingTabIndex' }],

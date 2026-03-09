@@ -1,4 +1,5 @@
 releases:
+  "@furystack/eslint-plugin": minor
   "@furystack/shades": minor
   "@furystack/shades-common-components": major
   "@furystack/shades-i18n": patch

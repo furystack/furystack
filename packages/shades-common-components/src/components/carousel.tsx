@@ -200,7 +200,7 @@ export const Carousel = Shade<CarouselProps>({
       'data-vertical': vertical ? '' : undefined,
       role: 'region',
       'aria-roledescription': 'carousel',
-      tabindex: '0',
+      tabIndex: 0,
       ...(style ? { style: style as Record<string, string> } : {}),
     })
 

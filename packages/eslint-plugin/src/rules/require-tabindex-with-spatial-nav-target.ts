@@ -76,7 +76,7 @@ export const requireTabindexWithSpatialNavTarget = createRule({
 
         const obj = node.arguments[0]
         if (!hasPropertyInObject(obj, SPATIAL_NAV_ATTR)) return
-        if (hasPropertyInObject(obj, 'tabIndex') || hasPropertyInObject(obj, 'tabindex')) return
+        if (hasPropertyInObject(obj, 'tabIndex')) return
 
         context.report({ node, messageId: 'missingTabIndex' })
       },
@@ -94,9 +94,7 @@ export const requireTabindexWithSpatialNavTarget = createRule({
         }
 
         const hasTabIndex = node.attributes.some(
-          (attr) =>
-            attr.type === AST_NODE_TYPES.JSXAttribute &&
-            (attr.name.name === 'tabIndex' || attr.name.name === 'tabindex'),
+          (attr) => attr.type === AST_NODE_TYPES.JSXAttribute && attr.name.name === 'tabIndex',
         )
         if (hasTabIndex) return
 

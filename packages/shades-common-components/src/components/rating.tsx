@@ -164,7 +164,7 @@ export const Rating = Shade<RatingProps>({
       ...(isInteractive
         ? {
             role: 'slider',
-            tabindex: '0',
+            tabIndex: 0,
             'aria-valuenow': String(value),
             'aria-valuemin': '0',
             'aria-valuemax': String(max),
