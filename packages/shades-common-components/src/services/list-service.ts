@@ -41,6 +41,12 @@ export class ListService<T> implements Disposable {
 
   public focusedItem = new ObservableValue<T | undefined>(undefined)
 
+  /**
+   * Stores the focused item captured on pointerdown, before the focus event
+   * can update focusedItem. Used as the anchor for SHIFT+click range selection.
+   */
+  public focusAnchor: T | undefined = undefined
+
   public selection = new ObservableValue<T[]>([])
 
   public searchTerm = new ObservableValue('')
@@ -122,7 +128,8 @@ export class ListService<T> implements Disposable {
 
   public handleItemClick(item: T, ev: MouseEvent) {
     const currentSelectionValue = this.selection.getValue()
-    const lastFocused = this.focusedItem.getValue()
+    const lastFocused = this.focusAnchor ?? this.focusedItem.getValue()
+    this.focusAnchor = undefined
     if (ev.ctrlKey) {
       if (currentSelectionValue.includes(item)) {
         this.selection.setValue(currentSelectionValue.filter((s) => s !== item))

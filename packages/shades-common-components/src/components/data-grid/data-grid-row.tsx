@@ -78,6 +78,9 @@ export const DataGridRow: <T, Column extends string>(
       tabIndex: isFocused ? 0 : -1,
       'data-spatial-nav-target': '',
       'aria-selected': isSelected.toString(),
+      onpointerdown: () => {
+        service.focusAnchor = service.focusedEntry.getValue()
+      },
       onfocus: () => {
         if (service.focusedEntry.getValue() !== entry) {
           service.focusedEntry.setValue(entry)
@@ -121,13 +124,13 @@ export const DataGridRow: <T, Column extends string>(
           const scrollAdjustment = rowTopInContainer - headerHeight
           scrollContainer.scrollTo({
             top: scrollContainer.scrollTop + scrollAdjustment,
-            behavior: 'smooth',
+            behavior: 'instant',
           })
         } else if (rowBottomInContainer > scrollContainer.clientHeight - footerHeight) {
           const scrollAdjustment = rowBottomInContainer - (scrollContainer.clientHeight - footerHeight)
           scrollContainer.scrollTo({
             top: scrollContainer.scrollTop + scrollAdjustment,
-            behavior: 'smooth',
+            behavior: 'instant',
           })
         }
       })

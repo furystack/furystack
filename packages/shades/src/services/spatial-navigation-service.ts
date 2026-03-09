@@ -249,7 +249,14 @@ export class SpatialNavigationService implements Disposable {
     const candidates = this.getFocusableCandidates(searchRoot, activeElement)
 
     const currentRect = activeElement.getBoundingClientRect()
-    const target = this.findNearestInDirection(currentRect, candidates, direction)
+    let target = this.findNearestInDirection(currentRect, candidates, direction)
+
+    if (!target) {
+      const relaxedCandidates = this.getFocusableCandidates(searchRoot, activeElement, {
+        skipScrollVisibility: true,
+      })
+      target = this.findNearestInDirection(currentRect, relaxedCandidates, direction)
+    }
 
     if (target) {
       this.storeFocusMemory(currentSectionName, activeElement)
@@ -377,12 +384,18 @@ export class SpatialNavigationService implements Disposable {
     return true
   }
 
-  private getFocusableCandidates(root: Element | Document, exclude: Element): Element[] {
+  private getFocusableCandidates(
+    root: Element | Document,
+    exclude: Element,
+    options?: { skipScrollVisibility?: boolean },
+  ): Element[] {
     return Array.from(root.querySelectorAll(this.focusableSelector)).filter((el) => {
       if (el === exclude) return false
       if (!el.hasAttribute('data-spatial-nav-target') && el.closest('[data-spatial-nav-target]')) return false
       const rect = el.getBoundingClientRect()
-      return rect.width > 0 && rect.height > 0 && this.isVisibleInScrollContainers(el, rect)
+      if (rect.width <= 0 || rect.height <= 0) return false
+      if (options?.skipScrollVisibility) return true
+      return this.isVisibleInScrollContainers(el, rect)
     })
   }
 

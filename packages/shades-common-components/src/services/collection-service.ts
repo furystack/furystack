@@ -62,6 +62,12 @@ export class CollectionService<T>
 
   public focusedEntry = new ObservableValue<T | undefined>(undefined)
 
+  /**
+   * Stores the focused entry captured on pointerdown, before the focus event
+   * can update focusedEntry. Used as the anchor for SHIFT+click range selection.
+   */
+  public focusAnchor: T | undefined = undefined
+
   public selection = new ObservableValue<T[]>([])
 
   public searchTerm = new ObservableValue('')
@@ -140,7 +146,8 @@ export class CollectionService<T>
   public handleRowClick(entry: T, ev: MouseEvent) {
     this.emit('onRowClick', entry)
     const currentSelectionValue = this.selection.getValue()
-    const lastFocused = this.focusedEntry.getValue()
+    const lastFocused = this.focusAnchor ?? this.focusedEntry.getValue()
+    this.focusAnchor = undefined
     if (ev.ctrlKey) {
       if (currentSelectionValue.includes(entry)) {
         this.selection.setValue(currentSelectionValue.filter((s) => s !== entry))

@@ -50,6 +50,9 @@ export const ListItem: <T>(props: ListItemProps<T>, children: ChildrenList) => J
       'data-spatial-nav-target': '',
       role: 'option',
       'aria-selected': isSelected.toString(),
+      onpointerdown: () => {
+        listService.focusAnchor = listService.focusedItem.getValue()
+      },
       onfocus: () => {
         if (listService.focusedItem.getValue() !== item) {
           listService.focusedItem.setValue(item)
