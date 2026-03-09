@@ -882,7 +882,7 @@ describe('Rating', () => {
       })
     })
 
-    it('should set data-spatial-nav-target when readOnly', async () => {
+    it('should not set data-spatial-nav-target when readOnly', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -895,7 +895,24 @@ describe('Rating', () => {
         await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
-        expect(wrapper.hasAttribute('data-spatial-nav-target')).toBe(true)
+        expect(wrapper.hasAttribute('data-spatial-nav-target')).toBe(false)
+      })
+    })
+
+    it('should not set data-spatial-nav-target when disabled', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} disabled />,
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('shade-rating') as HTMLElement
+        expect(wrapper.hasAttribute('data-spatial-nav-target')).toBe(false)
       })
     })
 

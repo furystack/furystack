@@ -112,10 +112,9 @@ export const Rating = Shade<RatingProps>({
       transform: 'scale(1.15)',
     },
 
-    '&:focus-visible': {
+    '&:focus': {
       outline: 'none',
-      boxShadow: cssVariableTheme.action.focusRing,
-      borderRadius: cssVariableTheme.shape.borderRadius.xs,
+      boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
     },
 
     '&[data-size="small"] .rating-star': {
@@ -158,8 +157,8 @@ export const Rating = Shade<RatingProps>({
 
     useHostProps({
       'data-size': props.size || 'medium',
-      'data-spatial-nav-target': '',
       style: { '--rating-color': color },
+      ...(isInteractive ? { 'data-spatial-nav-target': '' } : {}),
       ...(props.disabled ? { 'data-disabled': '', 'aria-disabled': 'true' } : {}),
       ...(props.readOnly ? { 'data-readonly': '', 'aria-readonly': 'true' } : {}),
       ...(isInteractive
