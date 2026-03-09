@@ -777,6 +777,101 @@ describe('SpatialNavigationService', () => {
     })
   })
 
+  describe('focus trap', () => {
+    it('Should block cross-section navigation when a trap is active', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const section1 = document.createElement('div')
+        section1.setAttribute('data-nav-section', 'modal')
+        mockRect(section1, { left: 0, top: 0, width: 400, height: 400 })
+        const btn1 = createButton('modal-btn', { left: 10, top: 10, width: 50, height: 50 })
+        section1.append(btn1)
+
+        const section2 = document.createElement('div')
+        section2.setAttribute('data-nav-section', 'background')
+        mockRect(section2, { left: 500, top: 0, width: 200, height: 400 })
+        const btn2 = createButton('bg-btn', { left: 510, top: 10, width: 50, height: 50 })
+        section2.append(btn2)
+
+        document.body.append(section1, section2)
+
+        btn1.focus()
+
+        const s = i.getInstance(SpatialNavigationService)
+        s.pushFocusTrap('modal')
+
+        s.moveFocus('right')
+        expect(document.activeElement).toBe(btn1)
+      })
+    })
+
+    it('Should set activeSection when pushing a trap', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(SpatialNavigationService)
+        s.pushFocusTrap('dialog')
+        expect(s.activeSection.getValue()).toBe('dialog')
+      })
+    })
+
+    it('Should restore previous section on pop', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(SpatialNavigationService)
+        s.activeSection.setValue('main')
+        s.pushFocusTrap('dialog')
+        expect(s.activeSection.getValue()).toBe('dialog')
+
+        s.popFocusTrap('dialog', 'main')
+        expect(s.activeSection.getValue()).toBe('main')
+      })
+    })
+
+    it('Should support nested traps — topmost wins', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(SpatialNavigationService)
+        s.pushFocusTrap('outer-dialog')
+        s.pushFocusTrap('inner-dialog')
+        expect(s.activeSection.getValue()).toBe('inner-dialog')
+
+        s.popFocusTrap('inner-dialog')
+        expect(s.activeSection.getValue()).toBe('outer-dialog')
+
+        s.popFocusTrap('outer-dialog', 'main')
+        expect(s.activeSection.getValue()).toBe('main')
+      })
+    })
+
+    it('Should allow within-section navigation when trap is active', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const section = document.createElement('div')
+        section.setAttribute('data-nav-section', 'modal')
+        mockRect(section, { left: 0, top: 0, width: 400, height: 400 })
+        const btn1 = createButton('btn1', { left: 10, top: 10, width: 50, height: 50 })
+        const btn2 = createButton('btn2', { left: 10, top: 100, width: 50, height: 50 })
+        section.append(btn1, btn2)
+        document.body.append(section)
+
+        btn1.focus()
+
+        const s = i.getInstance(SpatialNavigationService)
+        s.pushFocusTrap('modal')
+
+        s.moveFocus('down')
+        expect(document.activeElement).toBe(btn2)
+      })
+    })
+
+    it('Should clear trap stack on disposal', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(SpatialNavigationService)
+        s.pushFocusTrap('dialog')
+      })
+      // After disposal, creating a new instance should have no traps
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(SpatialNavigationService)
+        expect(s.activeSection.getValue()).toBeNull()
+      })
+    })
+  })
+
   describe('configureSpatialNavigation', () => {
     it('Should configure the service with custom options', async () => {
       await usingAsync(new Injector(), async (i) => {

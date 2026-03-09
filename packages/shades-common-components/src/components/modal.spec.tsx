@@ -350,9 +350,10 @@ describe('Modal', () => {
       })
     })
 
-    it('should lock activeSection when trapFocus is true and service is active', async () => {
+    it('should push focus trap when trapFocus is true and service is active', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const spatialNav = injector.getInstance(SpatialNavigationService)
+        const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -368,16 +369,15 @@ describe('Modal', () => {
 
         await flushUpdates()
 
-        expect(spatialNav.activeSection.getValue()).toBe('trapped-modal')
-
-        spatialNav.activeSection.setValue('other-section')
+        expect(pushSpy).toHaveBeenCalledWith('trapped-modal')
         expect(spatialNav.activeSection.getValue()).toBe('trapped-modal')
       })
     })
 
-    it('should not lock activeSection when trapFocus is false', async () => {
+    it('should not push focus trap when trapFocus is false', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const spatialNav = injector.getInstance(SpatialNavigationService)
+        const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -393,6 +393,7 @@ describe('Modal', () => {
 
         await flushUpdates()
 
+        expect(pushSpy).not.toHaveBeenCalled()
         spatialNav.activeSection.setValue('other-section')
         expect(spatialNav.activeSection.getValue()).toBe('other-section')
       })

@@ -90,7 +90,7 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
     useDisposable('focus-coordination', () => {
       const handleFocusOut = (ev: FocusEvent) => {
         const wrapper = wrapperRef.current
-        if (wrapper && ev.relatedTarget && !wrapper.contains(ev.relatedTarget as Node)) {
+        if (wrapper && (!ev.relatedTarget || !wrapper.contains(ev.relatedTarget as Node))) {
           props.listService.hasFocus.setValue(false)
         }
       }

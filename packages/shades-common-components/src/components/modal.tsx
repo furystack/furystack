@@ -19,8 +19,6 @@ export type ModalProps = {
   navSection?: string
 }
 
-let modalSectionCounter = 0
-
 export const Modal = Shade<ModalProps>({
   customElementName: 'shade-modal',
   css: {
@@ -37,7 +35,7 @@ export const Modal = Shade<ModalProps>({
   render: ({ props, children, injector, useRef, useDisposable, useState }) => {
     const { isVisible, trapFocus, navSection } = props
     const backdropRef = useRef<HTMLDivElement>('backdrop')
-    const [generatedSectionId] = useState('generatedSectionId', modalSectionCounter++)
+    const [generatedSectionId] = useState('generatedSectionId', Math.random().toString(36).slice(2, 8))
     const sectionName = navSection ?? `modal-${generatedSectionId}`
 
     if (isVisible && trapFocus) {
@@ -48,19 +46,12 @@ export const Modal = Shade<ModalProps>({
         if (!spatialNav) return { [Symbol.dispose]: () => {} }
 
         const previousSection = spatialNav.activeSection.getValue()
-        spatialNav.activeSection.setValue(sectionName)
-
-        const observer = spatialNav.activeSection.subscribe((value) => {
-          if (value !== sectionName) {
-            spatialNav.activeSection.setValue(sectionName)
-          }
-        })
+        spatialNav.pushFocusTrap(sectionName)
 
         return {
           [Symbol.dispose]: () => {
-            observer[Symbol.dispose]()
             try {
-              spatialNav.activeSection.setValue(previousSection)
+              spatialNav.popFocusTrap(sectionName, previousSection)
             } catch {
               // Service may already be disposed during injector teardown
             }

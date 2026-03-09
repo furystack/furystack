@@ -87,7 +87,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
       onclick: () => props.treeService.hasFocus.setValue(true),
       onfocusout: (ev: FocusEvent) => {
         const hostEl = ev.currentTarget as HTMLElement
-        if (ev.relatedTarget && !hostEl.contains(ev.relatedTarget as Node)) {
+        if (!ev.relatedTarget || !hostEl.contains(ev.relatedTarget as Node)) {
           props.treeService.hasFocus.setValue(false)
         }
       },

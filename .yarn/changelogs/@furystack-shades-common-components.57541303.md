@@ -1,4 +1,4 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/shades-common-components
 
@@ -18,6 +18,25 @@
 - Removed `Tab` handler from `CollectionService` and `ListService` — focus management now uses native `focusin`/`focusout`
 - `TreeService` `ArrowRight` on an expanded node no longer focuses the first child — delegated to spatial navigation
 - `ActionColors` type now requires a `focusOutline` property — all custom themes must include this value
+
+### 🔄 Migration Guide
+
+Custom themes must add `focusOutline` to the `action` object:
+
+```typescript
+// Before
+action: {
+  hoverBackground: '...',
+  focusRing: '0 0 0 3px ...',
+}
+
+// After
+action: {
+  hoverBackground: '...',
+  focusRing: '0 0 0 3px ...',
+  focusOutline: '2px solid #3f51b5', // your theme's accent color
+}
+```
 
 ## 🐛 Bug Fixes
 

@@ -390,6 +390,33 @@ describe('List', () => {
         service[Symbol.dispose]()
       })
     })
+
+    it('should clear hasFocus on focusout when relatedTarget is null', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const service = createTestService()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <List<TestItem> items={testItems} listService={service} renderItem={(item) => <span>{item.name}</span>} />
+          ),
+        })
+
+        await flushUpdates()
+        await new Promise((r) => setTimeout(r, 0))
+
+        service.hasFocus.setValue(true)
+
+        const wrapper = document.querySelector('.shade-list-wrapper') as HTMLElement
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))
+
+        expect(service.hasFocus.getValue()).toBe(false)
+
+        service[Symbol.dispose]()
+      })
+    })
   })
 
   describe('selection', () => {

@@ -123,7 +123,7 @@ export interface DataGridProps<T, Column extends string> {
    * Section name for spatial navigation scoping.
    * Sets `data-nav-section` on the grid wrapper so that SpatialNavigationService
    * constrains arrow-key navigation within the grid.
-   * @default 'data-grid'
+   * Auto-generated per instance when not provided.
    */
   navSection?: string
 }
@@ -164,8 +164,9 @@ export const DataGrid: <T, Column extends string>(
       borderRight: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     },
   },
-  render: ({ props, useDisposable, useRef, useHostProps }) => {
+  render: ({ props, useDisposable, useRef, useHostProps, useState }) => {
     const wrapperRef = useRef<HTMLDivElement>('gridWrapper')
+    const [navSectionId] = useState('navSectionId', Math.random().toString(36).slice(2, 8))
 
     const headerFindOptions = props.findOptions as FilterableFindOptions
     const handleHeaderChange = props.onFindOptionsChange as (options: FilterableFindOptions) => void
@@ -179,7 +180,7 @@ export const DataGrid: <T, Column extends string>(
     useDisposable('focus-coordination', () => {
       const handleFocusOut = (ev: FocusEvent) => {
         const wrapper = wrapperRef.current
-        if (wrapper && ev.relatedTarget && !wrapper.contains(ev.relatedTarget as Node)) {
+        if (wrapper && (!ev.relatedTarget || !wrapper.contains(ev.relatedTarget as Node))) {
           props.collectionService.hasFocus.setValue(false)
         }
       }
@@ -209,7 +210,7 @@ export const DataGrid: <T, Column extends string>(
       <div
         ref={wrapperRef}
         className="shade-grid-wrapper"
-        data-nav-section={props.navSection ?? 'data-grid'}
+        data-nav-section={props.navSection ?? `data-grid-${navSectionId}`}
         ariaMultiSelectable="true"
       >
         <table>

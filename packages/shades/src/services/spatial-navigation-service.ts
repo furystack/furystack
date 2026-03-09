@@ -178,7 +178,9 @@ export class SpatialNavigationService implements Disposable {
   public readonly activeSection = new ObservableValue<string | null>(null)
 
   /** Remembered last-focused element per section for focus restoration */
-  public readonly focusMemory = new Map<string, WeakRef<Element>>()
+  private readonly focusMemory = new Map<string, WeakRef<Element>>()
+
+  private readonly focusTrapStack: string[] = []
 
   private readonly focusableSelector: string
   private readonly crossSectionNavigation: boolean
@@ -200,6 +202,34 @@ export class SpatialNavigationService implements Disposable {
     this.enabled[Symbol.dispose]()
     this.activeSection[Symbol.dispose]()
     this.focusMemory.clear()
+    this.focusTrapStack.length = 0
+  }
+
+  /**
+   * Push a focus trap onto the stack. While the trap is active, cross-section
+   * navigation is blocked and `activeSection` is locked to `sectionName`.
+   * Supports nesting — only the topmost trap is enforced.
+   */
+  public pushFocusTrap(sectionName: string): void {
+    this.focusTrapStack.push(sectionName)
+    this.activeSection.setValue(sectionName)
+  }
+
+  /**
+   * Remove a focus trap from the stack. If other traps remain, the topmost
+   * one becomes active. Otherwise `activeSection` reverts to `previousSection`.
+   */
+  public popFocusTrap(sectionName: string, previousSection?: string | null): void {
+    const idx = this.focusTrapStack.lastIndexOf(sectionName)
+    if (idx !== -1) {
+      this.focusTrapStack.splice(idx, 1)
+    }
+    const top = this.focusTrapStack[this.focusTrapStack.length - 1]
+    this.activeSection.setValue(top ?? previousSection ?? null)
+  }
+
+  private get activeTrap(): string | null {
+    return this.focusTrapStack[this.focusTrapStack.length - 1] ?? null
   }
 
   /** Programmatically move focus in a direction */
@@ -230,7 +260,7 @@ export class SpatialNavigationService implements Disposable {
       return
     }
 
-    if (this.crossSectionNavigation && currentSection) {
+    if (this.crossSectionNavigation && currentSection && !this.activeTrap) {
       this.navigateCrossSection(activeElement, currentSection, direction)
     }
   }

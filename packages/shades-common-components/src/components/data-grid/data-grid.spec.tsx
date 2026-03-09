@@ -285,7 +285,7 @@ describe('DataGrid', () => {
       })
     })
 
-    it('should render with default data-nav-section attribute', async () => {
+    it('should render with auto-generated data-nav-section attribute', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -305,7 +305,9 @@ describe('DataGrid', () => {
         await flushUpdates()
 
         const wrapper = document.querySelector('.shade-grid-wrapper')
-        expect(wrapper?.getAttribute('data-nav-section')).toBe('data-grid')
+        const navSection = wrapper?.getAttribute('data-nav-section')
+        expect(navSection).toBeTruthy()
+        expect(navSection).toMatch(/^data-grid-/)
       })
     })
 
@@ -399,6 +401,35 @@ describe('DataGrid', () => {
         expect(service.hasFocus.getValue()).toBe(false)
 
         outsideEl.remove()
+      })
+    })
+
+    it('should clear hasFocus on focusout when relatedTarget is null', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+        await new Promise((r) => setTimeout(r, 0))
+
+        service.hasFocus.setValue(true)
+
+        const wrapper = document.querySelector('.shade-grid-wrapper') as HTMLElement
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))
+
+        expect(service.hasFocus.getValue()).toBe(false)
       })
     })
   })
