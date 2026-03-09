@@ -175,8 +175,8 @@ export const DataGrid: <T, Column extends string>(
 
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
-      window.addEventListener('keydown', listener)
-      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
+      window.addEventListener('keydown', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener, true) }
     })
 
     useDisposable('focus-coordination', () => {

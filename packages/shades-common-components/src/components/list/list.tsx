@@ -60,8 +60,8 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
           }
         }
       }
-      window.addEventListener('keydown', listener)
-      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
+      window.addEventListener('keydown', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener, true) }
     })
 
     const { pagination } = props
