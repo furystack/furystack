@@ -140,6 +140,70 @@ describe('Chip', () => {
     expect(chip.hasAttribute('data-clickable')).toBe(true)
   })
 
+  it('should be focusable when clickable', async () => {
+    const el = (
+      <div>
+        <Chip clickable>Clickable</Chip>
+      </div>
+    )
+    const chip = el.firstElementChild as JSX.Element
+    chip.updateComponent()
+    await flushUpdates()
+    expect(chip.getAttribute('tabindex')).toBe('0')
+  })
+
+  it('should be focusable when onclick handler is provided', async () => {
+    const el = (
+      <div>
+        <Chip onclick={() => {}}>Click Handler</Chip>
+      </div>
+    )
+    const chip = el.firstElementChild as JSX.Element
+    chip.updateComponent()
+    await flushUpdates()
+    expect(chip.getAttribute('tabindex')).toBe('0')
+  })
+
+  it('should not be focusable when clickable but disabled', async () => {
+    const el = (
+      <div>
+        <Chip clickable disabled>
+          Disabled Clickable
+        </Chip>
+      </div>
+    )
+    const chip = el.firstElementChild as JSX.Element
+    chip.updateComponent()
+    await flushUpdates()
+    expect(chip.hasAttribute('tabindex')).toBe(false)
+  })
+
+  it('should not be focusable when not clickable', async () => {
+    const el = (
+      <div>
+        <Chip>Not Clickable</Chip>
+      </div>
+    )
+    const chip = el.firstElementChild as JSX.Element
+    chip.updateComponent()
+    await flushUpdates()
+    expect(chip.hasAttribute('tabindex')).toBe(false)
+  })
+
+  it('should have a focusable delete button', async () => {
+    const onDelete = vi.fn()
+    const el = (
+      <div>
+        <Chip onDelete={onDelete}>Deletable</Chip>
+      </div>
+    )
+    const chip = el.firstElementChild as JSX.Element
+    chip.updateComponent()
+    await flushUpdates()
+    const deleteBtn = chip.querySelector('.chip-delete') as HTMLElement
+    expect(deleteBtn.getAttribute('tabindex')).toBe('0')
+  })
+
   it('should set CSS custom properties for palette color', async () => {
     const el = (
       <div>
