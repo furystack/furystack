@@ -111,7 +111,8 @@ test.describe('Navigation', () => {
       const categoryLink = getAppBarLink(page, categoryName)
 
       await homeLink.click()
-      await expect(homePageTitle).toBeVisible()
+      await page.waitForURL('http://localhost:8080/')
+      await expect(homePageTitle).toBeVisible({ timeout: 10000 })
       await expectSelected(homeLink)
       await expectNotSelected(categoryLink)
 

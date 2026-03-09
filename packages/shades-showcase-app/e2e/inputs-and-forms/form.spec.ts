@@ -468,9 +468,10 @@ test.describe('Advanced Form', () => {
     const successAlert = content.getByText('Registration Successful')
     await expect(successAlert).toBeVisible({ timeout: 10000 })
 
-    // Reset the form: fill a field and verify reset clears it
+    // Reset the form: clear field, fill a new value, and verify reset clears it
     await advancedForm.scrollIntoViewIfNeeded()
     const resetNameInput = advancedForm.getByRole('textbox', { name: 'Full Name' })
+    await resetNameInput.fill('')
     await resetNameInput.click()
     await resetNameInput.pressSequentially('John Smith', { delay: 20 })
     await expect(resetNameInput).toHaveValue('John Smith')

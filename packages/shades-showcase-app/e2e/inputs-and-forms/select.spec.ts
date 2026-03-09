@@ -90,6 +90,7 @@ test.describe('Select', () => {
       const selectedOptions = colorsListbox.locator('.dropdown-item[data-selected]')
       await expect(selectedOptions).toHaveCount(1)
       await expect(selectedOptions.first().locator('.check-icon shade-icon')).toBeVisible()
+      await content.locator('.dropdown-backdrop').click()
     }
 
     // --- Searchable select ---
