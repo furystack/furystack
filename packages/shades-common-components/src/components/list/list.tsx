@@ -2,6 +2,8 @@ import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+
+let nextListId = 0
 import type { ListService } from '../../services/list-service.js'
 import { Pagination } from '../pagination.js'
 import { ListItem } from './list-item.js'
@@ -31,6 +33,13 @@ export type ListProps<T> = {
   onSelectionChange?: (selected: T[]) => void
   /** Optional pagination configuration. When provided, items are sliced and a Pagination control is rendered. */
   pagination?: ListPaginationProps
+  /**
+   * Section name for spatial navigation scoping.
+   * Sets `data-nav-section` on the list wrapper so that SpatialNavigationService
+   * constrains arrow-key navigation within the list.
+   * Auto-generated per instance when not provided.
+   */
+  navSection?: string
 } & PartialElement<HTMLDivElement>
 
 export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
@@ -46,8 +55,9 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
       padding: '8px 0',
     },
   },
-  render: ({ props, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, useDisposable, useHostProps, useRef, useState }) => {
     const wrapperRef = useRef<HTMLDivElement>('listWrapper')
+    const [navSectionId] = useState('navSectionId', String(nextListId++))
 
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
@@ -132,6 +142,7 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
           role="listbox"
           ariaMultiSelectable="true"
           className="shade-list-wrapper"
+          data-nav-section={props.navSection ?? `list-${navSectionId}`}
           onclick={() => props.listService.hasFocus.setValue(true)}
         >
           {visibleItems.map((item) => (

@@ -588,7 +588,7 @@ describe('Rating', () => {
       })
     })
 
-    it('should increase value with ArrowUp', async () => {
+    it('should not change value with ArrowUp (reserved for spatial navigation)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
@@ -606,11 +606,11 @@ describe('Rating', () => {
 
         await flushUpdates()
 
-        expect(onchange).toHaveBeenCalledWith(3)
+        expect(onchange).not.toHaveBeenCalled()
       })
     })
 
-    it('should decrease value with ArrowDown', async () => {
+    it('should not change value with ArrowDown (reserved for spatial navigation)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
@@ -628,7 +628,7 @@ describe('Rating', () => {
 
         await flushUpdates()
 
-        expect(onchange).toHaveBeenCalledWith(2)
+        expect(onchange).not.toHaveBeenCalled()
       })
     })
 
@@ -860,6 +860,184 @@ describe('Rating', () => {
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
         expect(wrapper.hasAttribute('aria-readonly')).toBe(false)
+      })
+    })
+  })
+
+  describe('spatial navigation integration', () => {
+    it('should set data-spatial-nav-target on the host element', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} />,
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('shade-rating') as HTMLElement
+        expect(wrapper.hasAttribute('data-spatial-nav-target')).toBe(true)
+      })
+    })
+
+    it('should set data-spatial-nav-target when readOnly', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} readOnly />,
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('shade-rating') as HTMLElement
+        expect(wrapper.hasAttribute('data-spatial-nav-target')).toBe(true)
+      })
+    })
+
+    it('should set aria-orientation to horizontal', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} />,
+        })
+
+        await flushUpdates()
+
+        const wrapper = document.querySelector('shade-rating') as HTMLElement
+        expect(wrapper.getAttribute('aria-orientation')).toBe('horizontal')
+      })
+    })
+
+    it('should not preventDefault on ArrowRight when at max value', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={5} max={5} onValueChange={onchange} />,
+        })
+
+        await flushUpdates()
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+        ratingEl.dispatchEvent(event)
+
+        await flushUpdates()
+
+        expect(onchange).not.toHaveBeenCalled()
+        expect(event.defaultPrevented).toBe(false)
+      })
+    })
+
+    it('should not preventDefault on ArrowLeft when at min value', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={0} onValueChange={onchange} />,
+        })
+
+        await flushUpdates()
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true })
+        ratingEl.dispatchEvent(event)
+
+        await flushUpdates()
+
+        expect(onchange).not.toHaveBeenCalled()
+        expect(event.defaultPrevented).toBe(false)
+      })
+    })
+
+    it('should preventDefault on ArrowRight when value can increase', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} max={5} onValueChange={onchange} />,
+        })
+
+        await flushUpdates()
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+        ratingEl.dispatchEvent(event)
+
+        await flushUpdates()
+
+        expect(onchange).toHaveBeenCalledWith(4)
+        expect(event.defaultPrevented).toBe(true)
+      })
+    })
+
+    it('should preventDefault on ArrowLeft when value can decrease', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} onValueChange={onchange} />,
+        })
+
+        await flushUpdates()
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+        const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true })
+        ratingEl.dispatchEvent(event)
+
+        await flushUpdates()
+
+        expect(onchange).toHaveBeenCalledWith(2)
+        expect(event.defaultPrevented).toBe(true)
+      })
+    })
+
+    it('should not preventDefault on ArrowUp or ArrowDown', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onchange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <Rating value={3} onValueChange={onchange} />,
+        })
+
+        await flushUpdates()
+
+        const ratingEl = document.querySelector('shade-rating') as HTMLElement
+
+        const upEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true })
+        ratingEl.dispatchEvent(upEvent)
+
+        const downEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+        ratingEl.dispatchEvent(downEvent)
+
+        await flushUpdates()
+
+        expect(onchange).not.toHaveBeenCalled()
+        expect(upEvent.defaultPrevented).toBe(false)
+        expect(downEvent.defaultPrevented).toBe(false)
       })
     })
   })

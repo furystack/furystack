@@ -120,12 +120,12 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
           if (itemTopInContainer < 0) {
             scrollContainer.scrollTo({
               top: scrollContainer.scrollTop + itemTopInContainer,
-              behavior: 'smooth',
+              behavior: 'instant',
             })
           } else if (itemBottomInContainer > scrollContainer.clientHeight) {
             scrollContainer.scrollTo({
               top: scrollContainer.scrollTop + (itemBottomInContainer - scrollContainer.clientHeight),
-              behavior: 'smooth',
+              behavior: 'instant',
             })
           }
         }

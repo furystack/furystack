@@ -62,13 +62,25 @@ export const CommandPalette = Shade<CommandPaletteProps>({
     useHostProps({
       ...(isLoading ? { 'data-loading': '' } : {}),
       ...(isOpenedAtRender ? { 'data-opened': '' } : {}),
+      tabIndex: -1,
+      'data-spatial-nav-target': '',
+      onfocus: (ev: FocusEvent) => {
+        const host = ev.currentTarget as HTMLElement
+        const input = host.querySelector('input')
+        if (input) {
+          input.focus()
+        }
+      },
     })
 
     return (
       <div
         ref={wrapperRef}
         className="command-palette-wrapper"
-        onkeyup={(ev) => {
+        onkeydown={(ev) => {
+          const hasSuggestions = manager.isOpened.getValue() && manager.currentSuggestions.getValue().length > 0
+          if (!hasSuggestions) return
+
           if (ev.key === 'Enter') {
             ev.preventDefault()
             manager.selectSuggestion(injector)
@@ -84,11 +96,11 @@ export const CommandPalette = Shade<CommandPaletteProps>({
               Math.min(manager.selectedIndex.getValue() + 1, manager.currentSuggestions.getValue().length - 1),
             )
           }
-
+        }}
+        oninput={(ev) => {
           if (!manager.isOpened.getValue()) {
             manager.isOpened.setValue(true)
           }
-
           void manager.getSuggestion({ injector, term: (ev.target as HTMLInputElement).value })
         }}
       >

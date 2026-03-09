@@ -113,16 +113,6 @@ export class CollectionService<T>
           }
 
           break
-        case 'ArrowUp':
-          ev.preventDefault()
-          this.focusedEntry.setValue(entries[Math.max(0, entries.findIndex((e) => e === focusedEntry) - 1)])
-          break
-        case 'ArrowDown':
-          ev.preventDefault()
-          this.focusedEntry.setValue(
-            entries[Math.min(entries.length - 1, entries.findIndex((e) => e === focusedEntry) + 1)],
-          )
-          break
         case 'Home': {
           ev.preventDefault()
           this.focusedEntry.setValue(entries[0])

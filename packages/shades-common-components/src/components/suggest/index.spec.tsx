@@ -200,13 +200,11 @@ describe('Suggest', () => {
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'test'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
-        const arrowDownEvent = new KeyboardEvent('keyup', { key: 'ArrowDown', bubbles: true })
+        const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         Object.defineProperty(arrowDownEvent, 'target', { value: input })
         wrapper?.dispatchEvent(arrowDownEvent)
 
@@ -243,18 +241,16 @@ describe('Suggest', () => {
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'test'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
-        const arrowDownEvent = new KeyboardEvent('keyup', { key: 'ArrowDown', bubbles: true })
+        const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         Object.defineProperty(arrowDownEvent, 'target', { value: input })
         wrapper?.dispatchEvent(arrowDownEvent)
         wrapper?.dispatchEvent(arrowDownEvent)
 
-        const arrowUpEvent = new KeyboardEvent('keyup', { key: 'ArrowUp', bubbles: true })
+        const arrowUpEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
         Object.defineProperty(arrowUpEvent, 'target', { value: input })
         wrapper?.dispatchEvent(arrowUpEvent)
 
@@ -290,13 +286,11 @@ describe('Suggest', () => {
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'First'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
-        const enterEvent = new KeyboardEvent('keyup', { key: 'Enter', bubbles: true })
+        const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
         Object.defineProperty(enterEvent, 'target', { value: input })
         wrapper?.dispatchEvent(enterEvent)
 
@@ -332,13 +326,11 @@ describe('Suggest', () => {
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'First'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
-        const enterEvent = new KeyboardEvent('keyup', { key: 'Enter', bubbles: true, cancelable: true })
+        const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
         Object.defineProperty(enterEvent, 'target', { value: input })
 
         const preventDefaultSpy = vi.spyOn(enterEvent, 'preventDefault')
@@ -348,7 +340,7 @@ describe('Suggest', () => {
       })
     })
 
-    it('should prevent default on ArrowUp key', async () => {
+    it('should prevent default on ArrowUp key when suggestions are open', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
@@ -372,8 +364,11 @@ describe('Suggest', () => {
         const wrapper = suggest?.querySelector('.suggest-wrapper') as HTMLElement
 
         const input = suggest?.querySelector('input') as HTMLInputElement
+        input.value = 'First'
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+        await advanceTimers(300)
 
-        const arrowUpEvent = new KeyboardEvent('keyup', { key: 'ArrowUp', bubbles: true, cancelable: true })
+        const arrowUpEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true })
         Object.defineProperty(arrowUpEvent, 'target', { value: input })
 
         const preventDefaultSpy = vi.spyOn(arrowUpEvent, 'preventDefault')
@@ -383,7 +378,7 @@ describe('Suggest', () => {
       })
     })
 
-    it('should prevent default on ArrowDown key', async () => {
+    it('should prevent default on ArrowDown key when suggestions are open', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
@@ -407,14 +402,50 @@ describe('Suggest', () => {
         const wrapper = suggest?.querySelector('.suggest-wrapper') as HTMLElement
 
         const input = suggest?.querySelector('input') as HTMLInputElement
+        input.value = 'First'
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+        await advanceTimers(300)
 
-        const arrowDownEvent = new KeyboardEvent('keyup', { key: 'ArrowDown', bubbles: true, cancelable: true })
+        const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
         Object.defineProperty(arrowDownEvent, 'target', { value: input })
 
         const preventDefaultSpy = vi.spyOn(arrowDownEvent, 'preventDefault')
         wrapper?.dispatchEvent(arrowDownEvent)
 
         expect(preventDefaultSpy).toHaveBeenCalled()
+      })
+    })
+
+    it('should not prevent default on arrow keys when dropdown is closed', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onSelectSuggestion = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Suggest<TestEntry>
+              defaultPrefix="🔍"
+              getEntries={getTestEntries}
+              getSuggestionEntry={getSuggestionEntry}
+              onSelectSuggestion={onSelectSuggestion}
+            />
+          ),
+        })
+
+        await advanceTimers(50)
+
+        const suggest = document.querySelector('shade-suggest') as HTMLElement
+        const wrapper = suggest?.querySelector('.suggest-wrapper') as HTMLElement
+        const input = suggest?.querySelector('input') as HTMLInputElement
+
+        const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+        Object.defineProperty(arrowDownEvent, 'target', { value: input })
+        const preventDefaultSpy = vi.spyOn(arrowDownEvent, 'preventDefault')
+        wrapper?.dispatchEvent(arrowDownEvent)
+
+        expect(preventDefaultSpy).not.toHaveBeenCalled()
       })
     })
 
@@ -442,9 +473,12 @@ describe('Suggest', () => {
         const wrapper = suggest?.querySelector('.suggest-wrapper') as HTMLElement
 
         const input = suggest?.querySelector('input') as HTMLInputElement
+        input.value = 'test'
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+        await advanceTimers(300)
 
         for (let i = 0; i < 5; i++) {
-          const arrowUpEvent = new KeyboardEvent('keyup', { key: 'ArrowUp', bubbles: true })
+          const arrowUpEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
           Object.defineProperty(arrowUpEvent, 'target', { value: input })
           wrapper?.dispatchEvent(arrowUpEvent)
         }
@@ -616,14 +650,11 @@ describe('Suggest', () => {
         await advanceTimers(50)
 
         const suggest = document.querySelector('shade-suggest') as HTMLElement
-        const wrapper = suggest?.querySelector('.suggest-wrapper') as HTMLElement
 
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'First'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
@@ -658,14 +689,11 @@ describe('Suggest', () => {
         await advanceTimers(50)
 
         const suggest = document.querySelector('shade-suggest') as HTMLElement
-        const wrapper = suggest?.querySelector('.suggest-wrapper') as HTMLElement
 
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'test'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
@@ -698,14 +726,11 @@ describe('Suggest', () => {
         await advanceTimers(50)
 
         const suggest = document.querySelector('shade-suggest') as HTMLElement
-        const wrapper = suggest?.querySelector('.suggest-wrapper') as HTMLElement
 
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'test'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
@@ -742,13 +767,11 @@ describe('Suggest', () => {
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'First'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
-        const enterEvent = new KeyboardEvent('keyup', { key: 'Enter', bubbles: true })
+        const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
         Object.defineProperty(enterEvent, 'target', { value: input })
         wrapper?.dispatchEvent(enterEvent)
 
@@ -784,15 +807,13 @@ describe('Suggest', () => {
         const input = suggest?.querySelector('input') as HTMLInputElement
         input.value = 'First'
 
-        const keyupEvent = new KeyboardEvent('keyup', { key: 'a', bubbles: true })
-        Object.defineProperty(keyupEvent, 'target', { value: input })
-        wrapper?.dispatchEvent(keyupEvent)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 
         expect(suggest?.hasAttribute('data-opened')).toBe(true)
 
-        const enterEvent = new KeyboardEvent('keyup', { key: 'Enter', bubbles: true })
+        const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
         Object.defineProperty(enterEvent, 'target', { value: input })
         wrapper?.dispatchEvent(enterEvent)
 
@@ -956,7 +977,7 @@ describe('Suggest', () => {
         const input = suggest?.querySelector('input') as HTMLInputElement
 
         input.value = 'ap'
-        input.dispatchEvent(new KeyboardEvent('keyup', { key: 'p', bubbles: true }))
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await advanceTimers(300)
 

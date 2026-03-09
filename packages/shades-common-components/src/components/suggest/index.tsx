@@ -82,6 +82,15 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
 
     useHostProps({
       'data-opened': isOpened ? '' : undefined,
+      tabIndex: -1,
+      'data-spatial-nav-target': '',
+      onfocus: (ev: FocusEvent) => {
+        const host = ev.currentTarget as HTMLElement
+        const input = host.querySelector('input')
+        if (input) {
+          input.focus()
+        }
+      },
     })
     useDisposable('isLoadingSubscription', () =>
       manager.isLoading.subscribe((isLoading) => {
@@ -107,7 +116,10 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
       <div
         ref={wrapperRef}
         className="suggest-wrapper"
-        onkeyup={(ev) => {
+        onkeydown={(ev) => {
+          const hasSuggestions = manager.isOpened.getValue() && manager.currentSuggestions.getValue().length > 0
+          if (!hasSuggestions) return
+
           if (ev.key === 'Enter') {
             ev.preventDefault()
             manager.selectSuggestion()
@@ -123,7 +135,8 @@ export const Suggest: <T>(props: SuggestProps<T>, children: ChildrenList) => JSX
               Math.min(manager.selectedIndex.getValue() + 1, manager.currentSuggestions.getValue().length - 1),
             )
           }
-
+        }}
+        oninput={(ev) => {
           void manager.getSuggestion({ injector, term: (ev.target as HTMLInputElement).value })
         }}
       >

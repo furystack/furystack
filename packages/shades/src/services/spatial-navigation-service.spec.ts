@@ -373,6 +373,54 @@ describe('SpatialNavigationService', () => {
       })
     })
 
+    it('Should not intercept arrow keys on children of contenteditable', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const div = document.createElement('div')
+        div.contentEditable = 'true'
+        div.tabIndex = 0
+        mockRect(div, { left: 0, top: 0, width: 200, height: 100 })
+
+        const span = document.createElement('span')
+        span.tabIndex = 0
+        span.scrollIntoView = vi.fn()
+        mockRect(span, { left: 10, top: 10, width: 50, height: 20 })
+        div.append(span)
+
+        const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
+        document.body.append(div, btn)
+
+        span.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(span)
+      })
+    })
+
+    it('Should not intercept Enter on children of contenteditable', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const div = document.createElement('div')
+        div.contentEditable = 'true'
+        div.tabIndex = 0
+        mockRect(div, { left: 0, top: 0, width: 200, height: 100 })
+
+        const span = document.createElement('span')
+        span.tabIndex = 0
+        mockRect(span, { left: 10, top: 10, width: 50, height: 20 })
+        div.append(span)
+
+        const clickHandler = vi.fn()
+        span.addEventListener('click', clickHandler)
+        document.body.append(div)
+
+        span.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('Enter')
+        expect(clickHandler).not.toHaveBeenCalled()
+      })
+    })
+
     it('Should intercept arrow keys on button-type input', async () => {
       await usingAsync(new Injector(), async (i) => {
         const input = document.createElement('input')
@@ -506,6 +554,67 @@ describe('SpatialNavigationService', () => {
 
         pressKey('Enter')
         expect(clickHandler).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('data-spatial-nav-passthrough', () => {
+    it('Should not intercept arrow keys inside a passthrough container', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const container = document.createElement('div')
+        container.setAttribute('data-spatial-nav-passthrough', '')
+        const inner = document.createElement('input')
+        inner.type = 'button'
+        mockRect(inner, { left: 0, top: 0, width: 50, height: 30 })
+        container.append(inner)
+
+        const btn = createButton('btn', { left: 100, top: 0, width: 50, height: 50 })
+        document.body.append(container, btn)
+
+        inner.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(inner)
+      })
+    })
+
+    it('Should not intercept Enter inside a passthrough container', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const container = document.createElement('div')
+        container.setAttribute('data-spatial-nav-passthrough', '')
+        const inner = createButton('inner', { left: 0, top: 0, width: 50, height: 50 })
+        const clickHandler = vi.fn()
+        inner.addEventListener('click', clickHandler)
+        container.append(inner)
+        document.body.append(container)
+
+        inner.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('Enter')
+        expect(clickHandler).not.toHaveBeenCalled()
+      })
+    })
+
+    it('Should still intercept keys outside a passthrough container', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const container = document.createElement('div')
+        container.setAttribute('data-spatial-nav-passthrough', '')
+        const inner = document.createElement('input')
+        inner.type = 'button'
+        mockRect(inner, { left: 200, top: 0, width: 50, height: 30 })
+        container.append(inner)
+
+        const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
+        const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
+        document.body.append(left, right, container)
+
+        left.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(right)
       })
     })
   })

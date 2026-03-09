@@ -93,6 +93,15 @@ const isInDirection = (current: DOMRect, candidate: DOMRect, direction: SpatialD
   }
 }
 
+const isInsideContentEditable = (element: Element): boolean => {
+  let current: Element | null = element
+  while (current) {
+    if ((current as HTMLElement).contentEditable === 'true') return true
+    current = current.parentElement
+  }
+  return false
+}
+
 const isTextInput = (element: Element): boolean => {
   if (INPUT_PASSTHROUGH_TAGS.has(element.tagName)) {
     return true
@@ -103,11 +112,15 @@ const isTextInput = (element: Element): boolean => {
     return INPUT_PASSTHROUGH_TYPES.has(type)
   }
 
-  if ((element as HTMLElement).contentEditable === 'true') {
+  if (isInsideContentEditable(element)) {
     return true
   }
 
   return false
+}
+
+const isInsidePassthrough = (element: Element): boolean => {
+  return !!element.closest('[data-spatial-nav-passthrough]')
 }
 
 const escapeCssString = (value: string): string =>
@@ -285,6 +298,7 @@ export class SpatialNavigationService implements Disposable {
     if (ev.defaultPrevented) return
 
     const { activeElement } = document
+    if (activeElement && isInsidePassthrough(activeElement)) return
     if (activeElement && shouldPassthroughArrowKeys(activeElement, ev.key)) {
       return
     }

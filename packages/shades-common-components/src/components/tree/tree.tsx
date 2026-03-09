@@ -3,6 +3,8 @@ import { createComponent, Shade } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { TreeService } from '../../services/tree-service.js'
+
+let nextTreeId = 0
 import { TreeItem } from './tree-item.js'
 
 export type TreeItemState = {
@@ -21,6 +23,13 @@ export type TreeProps<T> = {
   variant?: 'contained' | 'outlined'
   onItemActivate?: (item: T) => void
   onSelectionChange?: (selected: T[]) => void
+  /**
+   * Section name for spatial navigation scoping.
+   * Sets `data-nav-section` on the tree host so that SpatialNavigationService
+   * constrains arrow-key navigation within the tree.
+   * Auto-generated per instance when not provided.
+   */
+  navSection?: string
 } & PartialElement<HTMLDivElement>
 
 export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
@@ -31,7 +40,9 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
     width: '100%',
     overflow: 'auto',
   },
-  render: ({ props, useDisposable, useObservable, useHostProps }) => {
+  render: ({ props, useDisposable, useObservable, useHostProps, useState }) => {
+    const [navSectionId] = useState('navSectionId', String(nextTreeId++))
+
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
         props.treeService.handleKeyDown(ev)
@@ -43,8 +54,8 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
           }
         }
       }
-      window.addEventListener('keydown', listener)
-      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
+      window.addEventListener('keydown', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener, true) }
     })
 
     if (props.treeService.rootItems.getValue() !== props.rootItems) {
@@ -82,6 +93,7 @@ export const Tree: <T>(props: TreeProps<T>, children: ChildrenList) => JSX.Eleme
     useHostProps({
       'data-variant': props.variant || undefined,
       'data-tree-instance-id': treeInstanceId.value,
+      'data-nav-section': props.navSection ?? `tree-${navSectionId}`,
       role: 'tree',
       'aria-multiselectable': 'true',
       onclick: () => props.treeService.hasFocus.setValue(true),

@@ -70,6 +70,6 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
       }
     })
 
-    return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+    return <div ref={containerRef} data-spatial-nav-passthrough="" style={{ width: '100%', height: '100%' }} />
   },
 })
