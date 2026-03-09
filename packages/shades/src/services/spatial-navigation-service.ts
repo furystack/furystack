@@ -49,6 +49,26 @@ const INPUT_PASSTHROUGH_TYPES = new Set([
   'week',
 ])
 
+/**
+ * Input types that always pass through all arrow keys because they use
+ * arrows for built-in value manipulation (radio group cycling).
+ */
+const INPUT_FULL_ARROW_PASSTHROUGH_TYPES = new Set(['radio'])
+
+/**
+ * Input types where only Up/Down arrows should pass through when
+ * selectionStart is unavailable (e.g. number inputs use Up/Down
+ * for increment/decrement but Left/Right have no useful behavior).
+ */
+const INPUT_VERTICAL_ONLY_PASSTHROUGH_TYPES = new Set(['number'])
+
+/**
+ * Input types where only Left/Right arrows should pass through
+ * (e.g. horizontal range sliders use Left/Right to adjust value
+ * but Up/Down can be used for spatial navigation).
+ */
+const INPUT_HORIZONTAL_ONLY_PASSTHROUGH_TYPES = new Set(['range'])
+
 const getElementCenter = (rect: DOMRect) => ({
   x: rect.left + rect.width / 2,
   y: rect.top + rect.height / 2,
@@ -129,20 +149,53 @@ const escapeCssString = (value: string): string =>
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'])
 
 /**
- * Determines whether an arrow key should be passed through to a text input.
- * Returns false (allowing spatial nav to take over) when the cursor is at a
- * boundary where the arrow key would have no effect within the field:
- * - ArrowUp / ArrowLeft at the start of the text
- * - ArrowDown / ArrowRight at the end of the text
- * This enables D-pad escape from inputs without breaking normal text editing.
+ * Returns true when the focused element is an input-like control that
+ * passes through arrow keys internally, meaning the user cannot escape
+ * it via arrow keys alone (e.g. range, radio, date, time, textarea).
+ * In these cases Escape should blur the element to resume spatial navigation.
+ */
+const shouldEscapeBlurElement = (element: Element): boolean => {
+  if (isTextInput(element)) return true
+  if (element.tagName === 'INPUT') {
+    const type = (element as HTMLInputElement).type?.toLowerCase() || 'text'
+    if (INPUT_FULL_ARROW_PASSTHROUGH_TYPES.has(type)) return true
+    if (INPUT_HORIZONTAL_ONLY_PASSTHROUGH_TYPES.has(type)) return true
+  }
+  return false
+}
+
+/**
+ * Determines whether an arrow key should be passed through to an input element.
+ * Returns false (allowing spatial nav to take over) when the key press would
+ * have no useful effect within the field:
+ * - For text-like inputs: at cursor boundaries (start/end of text)
+ * - For radio inputs: always pass through (built-in arrow key behavior)
+ * - For range inputs: pass through Left/Right (slider adjustment), intercept Up/Down
+ * - For number inputs: pass through Up/Down (increment/decrement), intercept Left/Right
+ * - For date/time inputs: always pass through (internal segment navigation)
  */
 const shouldPassthroughArrowKeys = (element: Element, key: string): boolean => {
   if (!ARROW_KEYS.has(key)) return false
+
+  if (element.tagName === 'INPUT') {
+    const type = (element as HTMLInputElement).type?.toLowerCase() || 'text'
+    if (INPUT_FULL_ARROW_PASSTHROUGH_TYPES.has(type)) return true
+    if (INPUT_HORIZONTAL_ONLY_PASSTHROUGH_TYPES.has(type)) {
+      return key === 'ArrowLeft' || key === 'ArrowRight'
+    }
+  }
+
   if (!isTextInput(element)) return false
 
   const el = element as HTMLInputElement | HTMLTextAreaElement
 
   if (typeof el.selectionStart !== 'number' || typeof el.selectionEnd !== 'number') {
+    if (element.tagName === 'INPUT') {
+      const type = (element as HTMLInputElement).type?.toLowerCase() || 'text'
+      if (INPUT_VERTICAL_ONLY_PASSTHROUGH_TYPES.has(type)) {
+        return key === 'ArrowUp' || key === 'ArrowDown'
+      }
+    }
     return true
   }
 
@@ -332,6 +385,11 @@ export class SpatialNavigationService implements Disposable {
         }
         break
       case 'Escape':
+        if (activeElement && activeElement !== document.body && shouldEscapeBlurElement(activeElement)) {
+          ev.preventDefault()
+          ;(activeElement as HTMLElement).blur()
+          break
+        }
         if (this.escapeGoesToParentSection) {
           this.moveToParentSection()
         }

@@ -438,7 +438,26 @@ describe('SpatialNavigationService', () => {
       })
     })
 
-    it('Should intercept arrow keys on range input', async () => {
+    it('Should not intercept Left/Right on range input (slider adjustment)', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'range'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        const btn = createButton('btn', { left: 0, top: 100, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowLeft')
+        expect(document.activeElement).toBe(input)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(input)
+      })
+    })
+
+    it('Should intercept Up/Down on range input for spatial navigation', async () => {
       await usingAsync(new Injector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'range'
@@ -486,6 +505,103 @@ describe('SpatialNavigationService', () => {
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(btn)
+      })
+    })
+
+    it('Should not intercept arrow keys on radio input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const radio = document.createElement('input')
+        radio.type = 'radio'
+        radio.name = 'group'
+        mockRect(radio, { left: 0, top: 0, width: 20, height: 20 })
+        const btn = createButton('btn', { left: 100, top: 0, width: 50, height: 50 })
+        document.body.append(radio, btn)
+
+        radio.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowDown')
+        expect(document.activeElement).toBe(radio)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(radio)
+      })
+    })
+
+    it('Should not intercept Up/Down on number input (increment/decrement)', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'number'
+        input.value = '5'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        const btn = createButton('btn', { left: 0, top: 100, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowUp')
+        expect(document.activeElement).toBe(input)
+
+        pressKey('ArrowDown')
+        expect(document.activeElement).toBe(input)
+      })
+    })
+
+    it('Should intercept Left/Right on number input for spatial navigation', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'number'
+        input.value = '5'
+        mockRect(input, { left: 100, top: 0, width: 200, height: 30 })
+        input.scrollIntoView = vi.fn()
+        const btnLeft = createButton('btn-left', { left: 0, top: 0, width: 50, height: 30 })
+        const btnRight = createButton('btn-right', { left: 400, top: 0, width: 50, height: 30 })
+        document.body.append(btnLeft, input, btnRight)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(btnRight)
+      })
+    })
+
+    it('Should not intercept arrow keys on date input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'date'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowRight')
+        expect(document.activeElement).toBe(input)
+
+        pressKey('ArrowUp')
+        expect(document.activeElement).toBe(input)
+      })
+    })
+
+    it('Should not intercept arrow keys on time input', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'time'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        const btn = createButton('btn', { left: 300, top: 0, width: 50, height: 50 })
+        document.body.append(input, btn)
+
+        input.focus()
+        i.getInstance(SpatialNavigationService)
+
+        pressKey('ArrowDown')
+        expect(document.activeElement).toBe(input)
+
+        pressKey('ArrowLeft')
+        expect(document.activeElement).toBe(input)
       })
     })
 
@@ -884,6 +1000,135 @@ describe('SpatialNavigationService', () => {
 
         pressKey('Escape')
         expect(document.activeElement).toBe(outerBtn)
+      })
+    })
+
+    it('Should blur a range input on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'range'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        document.body.append(input)
+
+        input.focus()
+        expect(document.activeElement).toBe(input)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(document.body)
+      })
+    })
+
+    it('Should blur a radio input on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const radio = document.createElement('input')
+        radio.type = 'radio'
+        radio.name = 'group'
+        mockRect(radio, { left: 0, top: 0, width: 20, height: 20 })
+        document.body.append(radio)
+
+        radio.focus()
+        expect(document.activeElement).toBe(radio)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(document.body)
+      })
+    })
+
+    it('Should blur a date input on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'date'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        document.body.append(input)
+
+        input.focus()
+        expect(document.activeElement).toBe(input)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(document.body)
+      })
+    })
+
+    it('Should blur a time input on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'time'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        document.body.append(input)
+
+        input.focus()
+        expect(document.activeElement).toBe(input)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(document.body)
+      })
+    })
+
+    it('Should blur a number input on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'number'
+        input.value = '5'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        document.body.append(input)
+
+        input.focus()
+        expect(document.activeElement).toBe(input)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(document.body)
+      })
+    })
+
+    it('Should blur a text input on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const input = document.createElement('input')
+        input.type = 'text'
+        input.value = 'hello'
+        mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
+        document.body.append(input)
+
+        input.focus()
+        expect(document.activeElement).toBe(input)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(document.body)
+      })
+    })
+
+    it('Should blur a textarea on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const textarea = document.createElement('textarea')
+        textarea.value = 'hello'
+        mockRect(textarea, { left: 0, top: 0, width: 200, height: 100 })
+        document.body.append(textarea)
+
+        textarea.focus()
+        expect(document.activeElement).toBe(textarea)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(document.body)
+      })
+    })
+
+    it('Should not blur a button on Escape', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const btn = createButton('btn', { left: 0, top: 0, width: 50, height: 50 })
+        document.body.append(btn)
+
+        btn.focus()
+        expect(document.activeElement).toBe(btn)
+
+        i.getInstance(SpatialNavigationService)
+        pressKey('Escape')
+        expect(document.activeElement).toBe(btn)
       })
     })
   })
