@@ -94,9 +94,9 @@ const getAppBarLink = (page: Page, linkText: string) => {
   return appBar.locator('shade-app-bar-link', { has: page.locator(`text="${linkText}"`) })
 }
 
-const expectSelected = async (link: Locator) => await expect(link).toHaveCSS('opacity', '1')
+const expectSelected = async (link: Locator) => await expect(link).toHaveAttribute('data-active', '')
 
-const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveCSS('opacity', '1')
+const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveAttribute('data-active')
 
 test.describe('Navigation', () => {
   test.skip(({ isMobile }) => isMobile, 'AppBar navigation tests are desktop-only')
