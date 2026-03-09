@@ -13,6 +13,9 @@
 - Added `injectFocusVisibleStyles()` helper that injects global `:focus-visible` / `:focus:not(:focus-visible)` styles using the theme's `focusOutline` variable
 - Added `focusOutline` values to all built-in themes
 - Added focus coordination to `DataGrid`, `List`, and `Tree` — `focusin`/`focusout` DOM events now sync `hasFocus` and `focusedEntry`/`focusedItem` state, replacing previous click-based focus management
+- Added `data-nav-section="content"` to `PageLayout` main content area for spatial navigation scoping
+- Added `:focus-visible` styles to `MarkdownDisplay` code blocks and links using the theme's `focusOutline` variable
+- Made `MarkdownDisplay` code blocks focusable (`tabIndex={0}`) for keyboard navigation
 
 ## 💥 Breaking Changes
 
@@ -20,6 +23,7 @@
 - Removed `Tab` handler from `CollectionService` and `ListService` — focus management now uses native `focusin`/`focusout`
 - `TreeService` `ArrowRight` on an expanded node no longer focuses the first child — delegated to spatial navigation
 - `ActionColors` type now requires a `focusOutline` property — all custom themes must include this value
+- `CommandPalette` and `Suggest` keyboard handling changed from `onkeyup` to `onkeydown` — arrow key navigation within the suggestion list now only activates when suggestions are open
 
 ### 🔄 Migration Guide
 

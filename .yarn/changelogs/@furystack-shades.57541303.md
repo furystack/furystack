@@ -36,6 +36,14 @@ const spatialNav = injector.getInstance(SpatialNavigationService)
 spatialNav.enabled.setValue(false)
 ```
 
+### `useDisposable` deps parameter
+
+Added optional `deps` parameter to `useDisposable` — when provided, the resource is re-created (and the old one disposed) whenever the serialized deps value changes.
+
+```typescript
+useDisposable('my-resource', () => createResource(value), [value])
+```
+
 ## 🧪 Tests
 
 - Added tests for `SpatialNavigationService` covering directional movement, section boundaries, cross-section navigation, input passthrough, focus memory, and disposal

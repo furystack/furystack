@@ -516,7 +516,12 @@ export class SpatialNavigationService implements Disposable {
       const targetSectionName = targetSection?.getAttribute('data-nav-section') ?? null
 
       const remembered = targetSectionName ? this.focusMemory.get(targetSectionName)?.deref() : null
-      if (remembered && remembered !== activeElement && targetSection?.contains(remembered)) {
+      if (
+        remembered &&
+        remembered !== activeElement &&
+        targetSection?.contains(remembered) &&
+        remembered.matches(this.focusableSelector)
+      ) {
         const rememberedRect = remembered.getBoundingClientRect()
         if (
           rememberedRect.width > 0 &&

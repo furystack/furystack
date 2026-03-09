@@ -898,6 +898,38 @@ describe('SpatialNavigationService', () => {
         expect(document.activeElement).toBe(btn2b)
       })
     })
+
+    it('Should fall back to nearest element when remembered element becomes disabled', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const section1 = document.createElement('div')
+        section1.setAttribute('data-nav-section', 'left')
+        mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
+        const btn1 = createButton('left-btn', { left: 10, top: 10, width: 50, height: 50 })
+        section1.append(btn1)
+
+        const section2 = document.createElement('div')
+        section2.setAttribute('data-nav-section', 'right')
+        mockRect(section2, { left: 250, top: 0, width: 200, height: 400 })
+        const btn2a = createButton('right-btn-a', { left: 260, top: 10, width: 50, height: 50 })
+        btn2a.scrollIntoView = vi.fn()
+        const btn2b = createButton('right-btn-b', { left: 260, top: 100, width: 50, height: 50 })
+        btn2b.scrollIntoView = vi.fn()
+        section2.append(btn2a, btn2b)
+
+        document.body.append(section1, section2)
+
+        btn2a.focus()
+        const s = i.getInstance(SpatialNavigationService)
+        s.moveFocus('left')
+
+        // Disable btn2a after navigating away
+        btn2a.disabled = true
+
+        // Navigate back - should skip disabled btn2a and focus btn2b
+        s.moveFocus('right')
+        expect(document.activeElement).toBe(btn2b)
+      })
+    })
   })
 
   describe('enabled toggle', () => {

@@ -3,9 +3,9 @@ import { createComponent, Shade } from '@furystack/shades'
 import { ObservableValue } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { TreeService } from '../../services/tree-service.js'
+import { TreeItem } from './tree-item.js'
 
 let nextTreeId = 0
-import { TreeItem } from './tree-item.js'
 
 export type TreeItemState = {
   isFocused: boolean

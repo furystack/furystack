@@ -2,9 +2,9 @@ import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import { ClickAwayService } from '../../services/click-away-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import type { ListService } from '../../services/list-service.js'
 
 let nextListId = 0
-import type { ListService } from '../../services/list-service.js'
 import { Pagination } from '../pagination.js'
 import { ListItem } from './list-item.js'
 

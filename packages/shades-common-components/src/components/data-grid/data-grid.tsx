@@ -3,9 +3,9 @@ import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
+import type { GridProps } from '../grid.js'
 
 let nextDataGridId = 0
-import type { GridProps } from '../grid.js'
 import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
 import { DataGridHeader } from './header.js'
