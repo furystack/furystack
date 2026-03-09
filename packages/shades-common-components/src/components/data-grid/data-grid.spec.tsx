@@ -1026,7 +1026,7 @@ describe('DataGrid', () => {
 
         await flushUpdates()
 
-        const rows = document.querySelectorAll('shades-data-grid-row')
+        const rows = document.querySelectorAll<HTMLTableRowElement>('shades-data-grid-row')
         expect(rows[0]?.tabIndex).toBe(-1)
         expect(rows[1]?.tabIndex).toBe(0)
         expect(rows[2]?.tabIndex).toBe(-1)

@@ -1054,7 +1054,7 @@ describe('List', () => {
 
         await flushUpdates()
 
-        const items = document.querySelectorAll('shade-list-item')
+        const items = document.querySelectorAll<HTMLDivElement>('shade-list-item')
         expect(items[0]?.tabIndex).toBe(-1)
         expect(items[1]?.tabIndex).toBe(0)
         expect(items[2]?.tabIndex).toBe(-1)

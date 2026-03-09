@@ -558,7 +558,7 @@ describe('Tree', () => {
 
         await flushUpdates()
 
-        const items = document.querySelectorAll('shade-tree-item')
+        const items = document.querySelectorAll<HTMLDivElement>('shade-tree-item')
         expect(items[0]?.tabIndex).toBe(-1)
         expect(items[1]?.tabIndex).toBe(0)
 
