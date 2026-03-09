@@ -134,14 +134,14 @@ test.describe('Markdown', () => {
       const interactiveSection = content.locator('shade-markdown-display').nth(1)
       await expect(interactiveSection).toBeVisible()
 
-      const uncheckedCheckbox = interactiveSection
-        .locator('shade-checkbox input[type="checkbox"]:not(:checked)')
-        .first()
-      await uncheckedCheckbox.focus()
-      await expect(uncheckedCheckbox).toBeFocused()
+      const allCheckboxes = interactiveSection.locator('shade-checkbox input[type="checkbox"]')
+      const targetCheckbox = allCheckboxes.nth(3)
+      await expect(targetCheckbox).not.toBeChecked()
+      await targetCheckbox.focus()
+      await expect(targetCheckbox).toBeFocused()
 
       await page.keyboard.press('Space')
-      await expect(uncheckedCheckbox).toBeChecked()
+      await expect(targetCheckbox).toBeChecked()
     })
 
     test('should navigate between checkboxes with arrow keys', async ({ page }) => {

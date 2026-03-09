@@ -187,6 +187,10 @@ const shouldPassthroughArrowKeys = (element: Element, key: string): boolean => {
 
   if (!isTextInput(element)) return false
 
+  // Textareas are multi-line editing areas; arrow keys always serve
+  // editing purposes. Users exit via Tab or Escape.
+  if (element.tagName === 'TEXTAREA') return true
+
   const el = element as HTMLInputElement | HTMLTextAreaElement
 
   if (typeof el.selectionStart !== 'number' || typeof el.selectionEnd !== 'number') {

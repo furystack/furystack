@@ -206,8 +206,8 @@ describe('CollectionService', () => {
       })
     })
 
-    describe('Arrow keys (delegated to spatial navigation)', () => {
-      it('Should not handle ArrowUp', () => {
+    describe('Arrow keys', () => {
+      it('Should move focus to the previous entry on ArrowUp', () => {
         const testEntries = createTestEntries()
         using(new CollectionService<TestEntry>({}), (service) => {
           service.data.setValue({ count: 3, entries: testEntries })
@@ -217,12 +217,27 @@ describe('CollectionService', () => {
           const ev = createKeyboardEvent('ArrowUp')
           service.handleKeyDown(ev)
 
-          expect(ev.preventDefault).not.toHaveBeenCalled()
-          expect(service.focusedEntry.getValue()).toBe(testEntries[2])
+          expect(ev.preventDefault).toHaveBeenCalled()
+          expect(service.focusedEntry.getValue()).toBe(testEntries[1])
         })
       })
 
-      it('Should not handle ArrowDown', () => {
+      it('Should not preventDefault ArrowUp at the first entry', () => {
+        const testEntries = createTestEntries()
+        using(new CollectionService<TestEntry>({}), (service) => {
+          service.data.setValue({ count: 3, entries: testEntries })
+          service.hasFocus.setValue(true)
+          service.focusedEntry.setValue(testEntries[0])
+
+          const ev = createKeyboardEvent('ArrowUp')
+          service.handleKeyDown(ev)
+
+          expect(ev.preventDefault).not.toHaveBeenCalled()
+          expect(service.focusedEntry.getValue()).toBe(testEntries[0])
+        })
+      })
+
+      it('Should move focus to the next entry on ArrowDown', () => {
         const testEntries = createTestEntries()
         using(new CollectionService<TestEntry>({}), (service) => {
           service.data.setValue({ count: 3, entries: testEntries })
@@ -232,8 +247,40 @@ describe('CollectionService', () => {
           const ev = createKeyboardEvent('ArrowDown')
           service.handleKeyDown(ev)
 
+          expect(ev.preventDefault).toHaveBeenCalled()
+          expect(service.focusedEntry.getValue()).toBe(testEntries[1])
+        })
+      })
+
+      it('Should not preventDefault ArrowDown at the last entry', () => {
+        const testEntries = createTestEntries()
+        using(new CollectionService<TestEntry>({}), (service) => {
+          service.data.setValue({ count: 3, entries: testEntries })
+          service.hasFocus.setValue(true)
+          service.focusedEntry.setValue(testEntries[2])
+
+          const ev = createKeyboardEvent('ArrowDown')
+          service.handleKeyDown(ev)
+
           expect(ev.preventDefault).not.toHaveBeenCalled()
-          expect(service.focusedEntry.getValue()).toBe(testEntries[0])
+          expect(service.focusedEntry.getValue()).toBe(testEntries[2])
+        })
+      })
+
+      it('Should not handle arrow keys when focusedEntry is undefined', () => {
+        const testEntries = createTestEntries()
+        using(new CollectionService<TestEntry>({}), (service) => {
+          service.data.setValue({ count: 3, entries: testEntries })
+          service.hasFocus.setValue(true)
+          service.focusedEntry.setValue(undefined)
+
+          const evDown = createKeyboardEvent('ArrowDown')
+          service.handleKeyDown(evDown)
+          expect(evDown.preventDefault).not.toHaveBeenCalled()
+
+          const evUp = createKeyboardEvent('ArrowUp')
+          service.handleKeyDown(evUp)
+          expect(evUp.preventDefault).not.toHaveBeenCalled()
         })
       })
     })

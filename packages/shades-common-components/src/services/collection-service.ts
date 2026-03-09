@@ -113,6 +113,26 @@ export class CollectionService<T>
           }
 
           break
+        case 'ArrowDown': {
+          if (focusedEntry !== undefined) {
+            const currentIndex = entries.indexOf(focusedEntry)
+            if (currentIndex >= 0 && currentIndex < entries.length - 1) {
+              ev.preventDefault()
+              this.focusedEntry.setValue(entries[currentIndex + 1])
+            }
+          }
+          break
+        }
+        case 'ArrowUp': {
+          if (focusedEntry !== undefined) {
+            const currentIndex = entries.indexOf(focusedEntry)
+            if (currentIndex > 0) {
+              ev.preventDefault()
+              this.focusedEntry.setValue(entries[currentIndex - 1])
+            }
+          }
+          break
+        }
         case 'Home': {
           ev.preventDefault()
           this.focusedEntry.setValue(entries[0])

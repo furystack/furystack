@@ -435,7 +435,7 @@ describe('DataGrid', () => {
   })
 
   describe('keyboard navigation', () => {
-    it('should not handle ArrowDown (delegated to spatial navigation)', async () => {
+    it('should move focus to next entry on ArrowDown', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -463,11 +463,11 @@ describe('DataGrid', () => {
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         window.dispatchEvent(keydownEvent)
 
-        expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
+        expect(service.focusedEntry.getValue()).toEqual({ id: 2, name: 'Second' })
       })
     })
 
-    it('should not handle ArrowUp (delegated to spatial navigation)', async () => {
+    it('should move focus to previous entry on ArrowUp', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -495,7 +495,7 @@ describe('DataGrid', () => {
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true })
         window.dispatchEvent(keydownEvent)
 
-        expect(service.focusedEntry.getValue()).toEqual({ id: 2, name: 'Second' })
+        expect(service.focusedEntry.getValue()).toEqual({ id: 1, name: 'First' })
       })
     })
 
@@ -738,7 +738,6 @@ describe('DataGrid', () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
-        service.hasFocus.setValue(false)
         service.focusedEntry.setValue(service.data.getValue().entries[0])
 
         initializeShadeRoot({
@@ -758,6 +757,8 @@ describe('DataGrid', () => {
         })
 
         await flushUpdates()
+
+        service.hasFocus.setValue(false)
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         window.dispatchEvent(keydownEvent)
