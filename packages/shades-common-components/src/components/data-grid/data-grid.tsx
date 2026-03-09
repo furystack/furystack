@@ -4,11 +4,11 @@ import { createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { GridProps } from '../grid.js'
-
-let nextDataGridId = 0
 import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
 import { DataGridHeader } from './header.js'
+
+let nextDataGridId = 0
 
 export type StringFilterConfig = { type: 'string' }
 export type NumberFilterConfig = { type: 'number' }

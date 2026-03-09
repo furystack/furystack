@@ -27,7 +27,7 @@
 
 ### 🔄 Migration Guide
 
-Custom themes must add `focusOutline` to the `action` object:
+**Custom themes** must add `focusOutline` to the `action` object:
 
 ```typescript
 // Before
@@ -43,6 +43,12 @@ action: {
   focusOutline: '2px solid #3f51b5', // your theme's accent color
 }
 ```
+
+**ArrowUp/ArrowDown/Tab removal from CollectionService, ListService, and TreeService:**
+Row-level arrow-key navigation is now handled by `SpatialNavigationService` through focusable `data-spatial-nav-target` elements. If you relied on the removed handlers for custom behavior, register your own `keydown` listener and call `ev.preventDefault()` to prevent spatial navigation from intercepting the event.
+
+**CommandPalette and Suggest `onkeyup` → `onkeydown`/`oninput`:**
+Arrow key navigation within the suggestion list now only activates when suggestions are visible. If you were relying on `keyup` event bubbling from these components, update your listeners to use `keydown` instead.
 
 ## 🐛 Bug Fixes
 

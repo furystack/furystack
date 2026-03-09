@@ -53,6 +53,7 @@ export const AccordionItem = Shade<AccordionItemProps>({
       width: '100%',
       textAlign: 'left',
       outline: 'none',
+      font: 'inherit',
       color: 'inherit',
       transition: buildTransition([
         'background-color',
@@ -61,7 +62,7 @@ export const AccordionItem = Shade<AccordionItemProps>({
       ]),
     },
 
-    '& .accordion-header:hover:not([data-disabled])': {
+    '& .accordion-header:hover:not(:disabled)': {
       backgroundColor: `color-mix(in srgb, ${cssVariableTheme.text.secondary} 8%, transparent)`,
     },
 
@@ -146,38 +147,31 @@ export const AccordionItem = Shade<AccordionItemProps>({
         setIsExpanded(false)
         await collapse(content, { duration: 250 })
       } else {
+        content.inert = false
         setIsExpanded(true)
         await expand(content, { duration: 250 })
       }
     }
 
-    const handleKeyDown = (ev: KeyboardEvent) => {
-      if (ev.key === 'Enter' || ev.key === ' ') {
-        ev.preventDefault()
-        void handleToggle()
-      }
-    }
-
     return (
       <>
-        <div
+        <button
           className="accordion-header"
-          role="button"
-          tabIndex={props.disabled ? -1 : 0}
+          type="button"
+          disabled={props.disabled}
           onclick={handleToggle}
-          onkeydown={handleKeyDown}
           aria-expanded={String(isExpanded)}
-          data-disabled={props.disabled ? '' : undefined}
         >
           {props.icon ? <span className="accordion-icon">{props.icon}</span> : null}
           <span className="accordion-title">{props.title}</span>
           <span className="accordion-chevron">
             <Icon icon={chevronDown} size={16} />
           </span>
-        </div>
+        </button>
         <div
           ref={contentRef}
           className="accordion-content"
+          inert={!isExpanded}
           style={{
             height: isExpanded ? undefined : '0px',
             opacity: isExpanded ? '1' : '0',
