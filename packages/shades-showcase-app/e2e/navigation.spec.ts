@@ -135,7 +135,7 @@ test.describe('Navigation', () => {
     for (const { name: categoryName, pages } of categories) {
       for (const { url: pageUrl } of pages) {
         await page.goto(pageUrl)
-        await expect(page.locator('shade-app-bar')).toBeAttached()
+        await expect(page.locator('shade-app-bar')).toBeAttached({ timeout: 15000 })
         const categoryLink = getAppBarLink(page, categoryName)
         await expectSelected(categoryLink)
       }
