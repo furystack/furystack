@@ -89,14 +89,17 @@ const categories = [
   },
 ]
 
+const CI_TIMEOUT = 15000
+
 const getAppBarLink = (page: Page, linkText: string) => {
   const appBar = page.locator('shade-app-bar')
   return appBar.locator('shade-app-bar-link', { has: page.locator(`text="${linkText}"`) })
 }
 
-const expectSelected = async (link: Locator) => await expect(link).toHaveCSS('opacity', '1')
+const expectSelected = async (link: Locator) =>
+  await expect(link).toHaveAttribute('data-active', '', { timeout: CI_TIMEOUT })
 
-const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveCSS('opacity', '1')
+const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveAttribute('data-active')
 
 test.describe('Navigation', () => {
   test.skip(({ isMobile }) => isMobile, 'AppBar navigation tests are desktop-only')
@@ -104,26 +107,28 @@ test.describe('Navigation', () => {
   test.describe('Category links in AppBar', () => {
     categories.forEach(({ name: categoryName, url: categoryUrl }) => {
       test(`${categoryName} should be accessible from AppBar and navigate to first child`, async ({ page }) => {
-        await page.goto('http://localhost:8080/')
+        await page.goto('/')
         const homePageTitle = page.locator('shades-showcase-home')
-        await expect(homePageTitle).toBeVisible()
+        await expect(homePageTitle).toBeVisible({ timeout: CI_TIMEOUT })
 
         const homeLink = getAppBarLink(page, 'Home')
-        await expectSelected(homeLink)
-
         const categoryLink = getAppBarLink(page, categoryName)
+
+        await expectSelected(homeLink)
         await expectNotSelected(categoryLink)
 
         await categoryLink.click()
-        await expect(page).toHaveURL(categoryUrl)
+        await page.waitForURL(categoryUrl, { timeout: CI_TIMEOUT })
 
         await expectSelected(categoryLink)
         await expectNotSelected(homeLink)
 
         await page.goBack()
+        await page.waitForURL('/', { timeout: CI_TIMEOUT })
         await expectSelected(homeLink)
 
         await page.goForward()
+        await page.waitForURL(categoryUrl, { timeout: CI_TIMEOUT })
         await expectSelected(categoryLink)
       })
     })
@@ -134,6 +139,7 @@ test.describe('Navigation', () => {
       pages.forEach(({ name: pageName, url: pageUrl }) => {
         test(`${pageName} should be accessible from URL and highlight ${categoryName} category`, async ({ page }) => {
           await page.goto(pageUrl)
+          await expect(page.locator('shade-app-bar')).toBeAttached({ timeout: CI_TIMEOUT })
           const categoryLink = getAppBarLink(page, categoryName)
           await expectSelected(categoryLink)
         })

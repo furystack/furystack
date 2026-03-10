@@ -36,6 +36,7 @@ export const jediTheme = {
     selectedBackground: 'rgba(74, 144, 217, 0.12)',
     activeBackground: 'rgba(74, 144, 217, 0.18)',
     focusRing: '0 0 0 3px rgba(74, 144, 217, 0.3)',
+    focusOutline: '2px solid #4a90d9',
     disabledOpacity: '0.5',
     backdrop: 'rgba(30, 26, 20, 0.45)',
     subtleBorder: 'rgba(74, 144, 217, 0.18)',

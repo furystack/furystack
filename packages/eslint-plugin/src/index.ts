@@ -14,6 +14,7 @@ import { preferUseState } from './rules/prefer-use-state.js'
 import { preferUsingWrapper } from './rules/prefer-using-wrapper.js'
 import { requireDisposableForObservableOwner } from './rules/require-disposable-for-observable-owner.js'
 import { requireObservableDisposal } from './rules/require-observable-disposal.js'
+import { requireTabindexWithSpatialNavTarget } from './rules/require-tabindex-with-spatial-nav-target.js'
 import { requireUseObservableForRender } from './rules/require-use-observable-for-render.js'
 import { restActionUseRequestError } from './rules/rest-action-use-request-error.js'
 import { restActionValidateWrapper } from './rules/rest-action-validate-wrapper.js'
@@ -33,6 +34,7 @@ const rules = {
   'prefer-using-wrapper': preferUsingWrapper,
   'require-disposable-for-observable-owner': requireDisposableForObservableOwner,
   'require-observable-disposal': requireObservableDisposal,
+  'require-tabindex-with-spatial-nav-target': requireTabindexWithSpatialNavTarget,
   'require-use-observable-for-render': requireUseObservableForRender,
   'rest-action-use-request-error': restActionUseRequestError,
   'rest-action-validate-wrapper': restActionValidateWrapper,

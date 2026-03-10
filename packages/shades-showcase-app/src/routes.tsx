@@ -649,6 +649,20 @@ export const appRoutes = {
               />
             ),
           },
+          '/spatial-navigation': {
+            meta: { title: 'Spatial Navigation' },
+
+            component: () => (
+              <LazyLoad
+                viewTransition
+                loader={<PageLoader />}
+                component={async () => {
+                  const { SpatialNavigationPage } = await import('./pages/navigation/spatial-navigation.js')
+                  return <SpatialNavigationPage />
+                }}
+              />
+            ),
+          },
         },
       },
       '/feedback': {

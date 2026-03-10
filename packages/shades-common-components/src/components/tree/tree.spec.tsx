@@ -501,8 +501,107 @@ describe('Tree', () => {
     })
   })
 
+  describe('item spatial navigation attributes', () => {
+    it('should set data-spatial-nav-target on tree items', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const treeData = createTreeData()
+        const service = createTestService()
+
+        service.rootItems.setValue(treeData)
+        service.updateFlattenedNodes()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Tree<TestNode>
+              rootItems={treeData}
+              treeService={service}
+              renderItem={(node) => <span>{node.name}</span>}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const items = document.querySelectorAll('shade-tree-item')
+        for (const item of items) {
+          expect(item.hasAttribute('data-spatial-nav-target')).toBe(true)
+        }
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should set tabIndex 0 on focused item and -1 on others', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const treeData = createTreeData()
+        const service = createTestService()
+
+        service.rootItems.setValue(treeData)
+        service.updateFlattenedNodes()
+        service.focusedItem.setValue(treeData[1])
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Tree<TestNode>
+              rootItems={treeData}
+              treeService={service}
+              renderItem={(node) => <span>{node.name}</span>}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const items = document.querySelectorAll<HTMLDivElement>('shade-tree-item')
+        expect(items[0]?.tabIndex).toBe(-1)
+        expect(items[1]?.tabIndex).toBe(0)
+
+        service[Symbol.dispose]()
+      })
+    })
+
+    it('should sync focusedItem on item onfocus', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const treeData = createTreeData()
+        const service = createTestService()
+
+        service.rootItems.setValue(treeData)
+        service.updateFlattenedNodes()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Tree<TestNode>
+              rootItems={treeData}
+              treeService={service}
+              renderItem={(node) => <span>{node.name}</span>}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const items = document.querySelectorAll('shade-tree-item')
+        items[1]?.dispatchEvent(new FocusEvent('focus'))
+
+        expect(service.focusedItem.getValue()).toEqual(treeData[1])
+        expect(service.hasFocus.getValue()).toBe(true)
+
+        service[Symbol.dispose]()
+      })
+    })
+  })
+
   describe('keyboard navigation', () => {
-    it('should handle ArrowDown to move focus to next item', async () => {
+    it('should not handle ArrowDown (delegated to spatial navigation)', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
@@ -529,7 +628,7 @@ describe('Tree', () => {
 
         window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 
-        expect(service.focusedItem.getValue()).toEqual(treeData[1])
+        expect(service.focusedItem.getValue()).toEqual(treeData[0])
 
         service[Symbol.dispose]()
       })

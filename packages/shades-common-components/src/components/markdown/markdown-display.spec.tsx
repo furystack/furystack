@@ -240,4 +240,136 @@ describe('MarkdownDisplay', () => {
       expect(root?.children.length).toBe(0)
     })
   })
+
+  describe('keyboard navigation', () => {
+    it('should make links focusable', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownDisplay content="[Link A](https://a.com) and [Link B](https://b.com)" />,
+        })
+
+        await flushUpdates()
+
+        const links = document.querySelectorAll<HTMLAnchorElement>('shade-markdown-display .md-link')
+        expect(links.length).toBe(2)
+
+        links[0].focus()
+        expect(document.activeElement).toBe(links[0])
+
+        links[1].focus()
+        expect(document.activeElement).toBe(links[1])
+      })
+    })
+
+    it('should make code blocks focusable via tabIndex', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownDisplay content={'```js\nconsole.log("hi")\n```'} />,
+        })
+
+        await flushUpdates()
+
+        const codeBlock = document.querySelector('shade-markdown-display .md-code-block') as HTMLPreElement
+        expect(codeBlock).not.toBeNull()
+        expect(codeBlock.tabIndex).toBe(0)
+
+        codeBlock.focus()
+        expect(document.activeElement).toBe(codeBlock)
+      })
+    })
+
+    it('should make checkbox inputs focusable when not disabled', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownDisplay content={'- [ ] Task A\n- [ ] Task B'} readOnly={false} onChange={() => {}} />,
+        })
+
+        await flushUpdates()
+
+        const checkboxes = document.querySelectorAll<HTMLInputElement>(
+          'shade-markdown-display shade-checkbox input[type="checkbox"]',
+        )
+        expect(checkboxes.length).toBe(2)
+
+        checkboxes[0].focus()
+        expect(document.activeElement).toBe(checkboxes[0])
+        expect(checkboxes[0].disabled).toBe(false)
+      })
+    })
+
+    it('should toggle checkbox via keyboard activation', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const onChange = vi.fn()
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownDisplay content="- [ ] My Task" readOnly={false} onChange={onChange} />,
+        })
+
+        await flushUpdates()
+
+        const input = document.querySelector(
+          'shade-markdown-display shade-checkbox input[type="checkbox"]',
+        ) as HTMLInputElement
+        expect(input).not.toBeNull()
+
+        input.focus()
+        expect(document.activeElement).toBe(input)
+
+        input.click()
+        await flushUpdates()
+
+        expect(onChange).toHaveBeenCalledOnce()
+        expect(onChange).toHaveBeenCalledWith('- [x] My Task')
+      })
+    })
+
+    it('should have correct focus order for mixed interactive elements', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        const content = [
+          '[First link](https://first.com)',
+          '',
+          '```js',
+          'code()',
+          '```',
+          '',
+          '[Second link](https://second.com)',
+        ].join('\n')
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownDisplay content={content} />,
+        })
+
+        await flushUpdates()
+
+        const focusableElements = document.querySelectorAll(
+          'shade-markdown-display a[href], shade-markdown-display [tabindex="0"]',
+        )
+        expect(focusableElements.length).toBe(3)
+
+        const [firstLink, codeBlock, secondLink] = focusableElements
+        expect(firstLink.tagName).toBe('A')
+        expect(codeBlock.tagName).toBe('PRE')
+        expect(secondLink.tagName).toBe('A')
+      })
+    })
+  })
 })

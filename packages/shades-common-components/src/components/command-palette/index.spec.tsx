@@ -121,10 +121,14 @@ describe('CommandPalette', () => {
   })
 
   describe('keyboard navigation', () => {
-    const triggerKeyup = (input: HTMLInputElement, key: string) => {
-      const event = new KeyboardEvent('keyup', { key, bubbles: true })
+    const triggerKeydown = (input: HTMLInputElement, key: string) => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true })
       Object.defineProperty(event, 'target', { value: input, writable: false })
       input.dispatchEvent(event)
+    }
+
+    const triggerInput = (input: HTMLInputElement) => {
+      input.dispatchEvent(new Event('input', { bubbles: true }))
     }
 
     const getSuggestionItems = (commandPalette: HTMLElement) => {
@@ -155,13 +159,13 @@ describe('CommandPalette', () => {
 
         // Open and trigger suggestions
         input.value = 'test'
-        triggerKeyup(input, 'a')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
 
         // Press ArrowDown
-        triggerKeyup(input, 'ArrowDown')
+        triggerKeydown(input, 'ArrowDown')
         await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
@@ -192,15 +196,15 @@ describe('CommandPalette', () => {
 
         // Open and trigger suggestions
         input.value = 'test'
-        triggerKeyup(input, 'a')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
 
         // Navigate down then up
-        triggerKeyup(input, 'ArrowDown')
+        triggerKeydown(input, 'ArrowDown')
         await flushUpdates()
-        triggerKeyup(input, 'ArrowUp')
+        triggerKeydown(input, 'ArrowUp')
         await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
@@ -226,15 +230,15 @@ describe('CommandPalette', () => {
         const input = commandPalette.querySelector('input') as HTMLInputElement
 
         input.value = 'test'
-        triggerKeyup(input, 'a')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
 
         // Press ArrowDown multiple times
-        triggerKeyup(input, 'ArrowDown')
-        triggerKeyup(input, 'ArrowDown')
-        triggerKeyup(input, 'ArrowDown')
+        triggerKeydown(input, 'ArrowDown')
+        triggerKeydown(input, 'ArrowDown')
+        triggerKeydown(input, 'ArrowDown')
         await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
@@ -260,13 +264,13 @@ describe('CommandPalette', () => {
         const input = commandPalette.querySelector('input') as HTMLInputElement
 
         input.value = 'test'
-        triggerKeyup(input, 'a')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
 
         // Press ArrowUp when already at first item
-        triggerKeyup(input, 'ArrowUp')
+        triggerKeydown(input, 'ArrowUp')
         await flushUpdates()
 
         const suggestionItems = getSuggestionItems(commandPalette)
@@ -293,13 +297,13 @@ describe('CommandPalette', () => {
         const input = commandPalette.querySelector('input') as HTMLInputElement
 
         input.value = 'test'
-        triggerKeyup(input, 'a')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
 
         // Press Enter
-        triggerKeyup(input, 'Enter')
+        triggerKeydown(input, 'Enter')
         await flushUpdates()
 
         expect(onSelected).toHaveBeenCalledTimes(1)
@@ -309,10 +313,14 @@ describe('CommandPalette', () => {
   })
 
   describe('selection', () => {
-    const triggerKeyup = (input: HTMLInputElement, key: string) => {
-      const event = new KeyboardEvent('keyup', { key, bubbles: true })
+    const triggerKeydown = (input: HTMLInputElement, key: string) => {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true })
       Object.defineProperty(event, 'target', { value: input, writable: false })
       input.dispatchEvent(event)
+    }
+
+    const triggerInput = (input: HTMLInputElement) => {
+      input.dispatchEvent(new Event('input', { bubbles: true }))
     }
 
     const getSuggestionItems = (commandPalette: HTMLElement) => {
@@ -345,7 +353,7 @@ describe('CommandPalette', () => {
 
         const input = commandPalette.querySelector('input') as HTMLInputElement
         input.value = 'test'
-        triggerKeyup(input, 'a')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
@@ -386,12 +394,13 @@ describe('CommandPalette', () => {
 
         const input = commandPalette.querySelector('input') as HTMLInputElement
         input.value = 'test'
-        triggerKeyup(input, 'a')
+        triggerInput(input)
 
+        await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
 
         // Select via Enter
-        triggerKeyup(input, 'Enter')
+        triggerKeydown(input, 'Enter')
         await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-opened')).toBe(false)
@@ -400,10 +409,8 @@ describe('CommandPalette', () => {
   })
 
   describe('command providers', () => {
-    const triggerKeyup = (input: HTMLInputElement, key: string) => {
-      const event = new KeyboardEvent('keyup', { key, bubbles: true })
-      Object.defineProperty(event, 'target', { value: input, writable: false })
-      input.dispatchEvent(event)
+    const triggerInput = (input: HTMLInputElement) => {
+      input.dispatchEvent(new Event('input', { bubbles: true }))
     }
 
     const getSuggestionItems = (commandPalette: HTMLElement) => {
@@ -430,7 +437,7 @@ describe('CommandPalette', () => {
         const input = commandPalette.querySelector('input') as HTMLInputElement
 
         input.value = 'search'
-        triggerKeyup(input, 'h')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
@@ -459,7 +466,7 @@ describe('CommandPalette', () => {
         const input = commandPalette.querySelector('input') as HTMLInputElement
 
         input.value = 'search'
-        triggerKeyup(input, 'h')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
@@ -493,7 +500,7 @@ describe('CommandPalette', () => {
         const input = commandPalette.querySelector('input') as HTMLInputElement
 
         input.value = 'search'
-        triggerKeyup(input, 'h')
+        triggerInput(input)
 
         await vi.advanceTimersByTimeAsync(300)
         await flushUpdates()
@@ -585,9 +592,7 @@ describe('CommandPalette', () => {
         const input = commandPalette.querySelector('input') as HTMLInputElement
 
         input.value = 'test'
-        const event = new KeyboardEvent('keyup', { key: 't', bubbles: true })
-        Object.defineProperty(event, 'target', { value: input, writable: false })
-        input.dispatchEvent(event)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await vi.advanceTimersByTimeAsync(260)
         await flushUpdates()
@@ -598,6 +603,65 @@ describe('CommandPalette', () => {
         await flushUpdates()
 
         expect(commandPalette.hasAttribute('data-loading')).toBe(false)
+      })
+    })
+  })
+
+  describe('spatial navigation attributes', () => {
+    it('should have data-spatial-nav-target on the host element', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
+        })
+
+        await flushUpdates()
+
+        const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
+        expect(commandPalette.hasAttribute('data-spatial-nav-target')).toBe(true)
+      })
+    })
+
+    it('should have tabIndex of -1 on the host element', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
+        })
+
+        await flushUpdates()
+
+        const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
+        expect(commandPalette.tabIndex).toBe(-1)
+      })
+    })
+
+    it('should delegate focus to the inner input when the host is focused', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <CommandPalette commandProviders={[]} defaultPrefix=">" />,
+        })
+
+        await flushUpdates()
+
+        const commandPalette = document.querySelector('shade-command-palette') as HTMLElement
+        const input = commandPalette.querySelector('input') as HTMLInputElement
+
+        commandPalette.dispatchEvent(new FocusEvent('focus', { bubbles: false }))
+
+        await flushUpdates()
+
+        expect(document.activeElement).toBe(input)
       })
     })
   })
@@ -681,9 +745,7 @@ describe('CommandPalette', () => {
 
         const input = commandPalette.querySelector('input') as HTMLInputElement
         input.value = 'test'
-        const event = new KeyboardEvent('keyup', { key: 't', bubbles: true })
-        Object.defineProperty(event, 'target', { value: input, writable: false })
-        input.dispatchEvent(event)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
 
         await flushUpdates()
 

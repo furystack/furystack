@@ -293,6 +293,7 @@ export const Slider = Shade<SliderProps>({
     },
 
     '& .slider-thumb:focus-visible': {
+      outline: 'none',
       boxShadow: '0 0 0 4px color-mix(in srgb, var(--slider-color) 30%, transparent)',
     },
 

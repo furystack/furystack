@@ -400,4 +400,127 @@ describe('MarkdownEditor', () => {
       })
     })
   })
+
+  describe('keyboard navigation', () => {
+    it('should have a focusable textarea in side-by-side layout', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="# Hello" />,
+        })
+
+        await flushUpdates()
+
+        const textarea = document.querySelector('shade-markdown-editor textarea') as HTMLTextAreaElement
+        expect(textarea).not.toBeNull()
+
+        textarea.focus()
+        expect(document.activeElement).toBe(textarea)
+      })
+    })
+
+    it('should have focusable tab buttons in tabs layout', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="# Hello" layout="tabs" />,
+        })
+
+        await flushUpdates()
+
+        const tabButtons = document.querySelectorAll<HTMLButtonElement>('shade-markdown-editor .shade-tab-btn')
+        expect(tabButtons.length).toBe(2)
+
+        tabButtons[0].focus()
+        expect(document.activeElement).toBe(tabButtons[0])
+
+        tabButtons[1].focus()
+        expect(document.activeElement).toBe(tabButtons[1])
+      })
+    })
+
+    it('should use tabIndex to indicate active tab in controlled tabs layout', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="# Hello" layout="tabs" />,
+        })
+
+        await flushUpdates()
+
+        const tabButtons = document.querySelectorAll<HTMLButtonElement>('shade-markdown-editor .shade-tab-btn')
+
+        const activeTab = Array.from(tabButtons).find((btn) => btn.classList.contains('active'))
+        const inactiveTab = Array.from(tabButtons).find((btn) => !btn.classList.contains('active'))
+
+        expect(activeTab).not.toBeUndefined()
+        expect(inactiveTab).not.toBeUndefined()
+        expect(activeTab?.tabIndex).toBe(0)
+        expect(inactiveTab?.tabIndex).toBe(-1)
+      })
+    })
+
+    it('should switch tabs when tab button is clicked via keyboard activation', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: <MarkdownEditor value="# Hello" layout="tabs" />,
+        })
+
+        await flushUpdates()
+
+        const tabButtons = document.querySelectorAll<HTMLButtonElement>('shade-markdown-editor .shade-tab-btn')
+
+        const previewButton = Array.from(tabButtons).find((btn) => btn.textContent?.includes('Preview'))
+        expect(previewButton).not.toBeUndefined()
+
+        previewButton!.click()
+        await flushUpdates()
+
+        const display = document.querySelector('shade-markdown-editor shade-markdown-display')
+        expect(display).not.toBeNull()
+      })
+    })
+
+    it('should have focusable interactive elements in preview pane', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <MarkdownEditor
+              value={'- [ ] Task A\n- [x] Task B\n\n[A link](https://example.com)'}
+              onValueChange={() => {}}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const checkboxes = document.querySelectorAll(
+          'shade-markdown-editor shade-markdown-display shade-checkbox input[type="checkbox"]',
+        )
+        expect(checkboxes.length).toBe(2)
+
+        const link = document.querySelector('shade-markdown-editor shade-markdown-display .md-link')
+        expect(link).not.toBeNull()
+        ;(checkboxes[0] as HTMLElement).focus()
+        expect(document.activeElement).toBe(checkboxes[0])
+      })
+    })
+  })
 })

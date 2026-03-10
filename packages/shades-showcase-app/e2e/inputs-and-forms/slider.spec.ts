@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Slider', () => {
-  test('rendering: sections, accessibility, range, vertical, disabled, and marks', async ({ page }) => {
+  test('rendering and interaction: sections, accessibility, range, vertical, disabled, marks, and keyboard', async ({
+    page,
+  }) => {
     await page.goto('/inputs-and-forms/slider')
 
     const content = page.locator('slider-page')
@@ -48,14 +50,8 @@ test.describe('Slider', () => {
     expect(labelCount).toBeGreaterThan(0)
 
     await expect(content).toHaveScreenshot('slider-page.png')
-  })
 
-  test('interaction: keyboard update on basic slider', async ({ page }) => {
-    await page.goto('/inputs-and-forms/slider')
-
-    const content = page.locator('slider-page')
-    await content.waitFor({ state: 'visible' })
-
+    // Keyboard interaction on basic slider
     const basicThumb = content.locator('shade-slider').first().locator('.slider-thumb')
     await basicThumb.focus()
 

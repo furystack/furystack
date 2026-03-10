@@ -36,6 +36,7 @@ export const replicantTheme = {
     selectedBackground: 'rgba(255, 158, 0, 0.13)',
     activeBackground: 'rgba(255, 158, 0, 0.2)',
     focusRing: '0 0 0 2px rgba(255, 158, 0, 0.4)',
+    focusOutline: '2px solid #ff9e00',
     disabledOpacity: '0.4',
     backdrop: 'rgba(6, 8, 12, 0.85)',
     subtleBorder: 'rgba(42, 138, 148, 0.2)',

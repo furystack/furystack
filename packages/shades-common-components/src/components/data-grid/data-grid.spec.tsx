@@ -284,14 +284,10 @@ describe('DataGrid', () => {
         expect(headers?.length).toBe(2)
       })
     })
-  })
 
-  describe('focus management', () => {
-    it('should set focus on click', async () => {
+    it('should render with auto-generated data-nav-section attribute', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-
-        expect(service.hasFocus.getValue()).toBe(false)
 
         initializeShadeRoot({
           injector,
@@ -302,25 +298,20 @@ describe('DataGrid', () => {
               collectionService={service}
               findOptions={findOptions}
               onFindOptionsChange={onFindOptionsChange}
-              styles={{}}
-              headerComponents={{}}
-              rowComponents={{}}
             />
           ),
         })
 
         await flushUpdates()
 
-        const grid = document.querySelector('shade-data-grid')
-        const wrapper = grid?.querySelector('.shade-grid-wrapper') as HTMLElement
-
-        wrapper?.click()
-
-        expect(service.hasFocus.getValue()).toBe(true)
+        const wrapper = document.querySelector('.shade-grid-wrapper')
+        const navSection = wrapper?.getAttribute('data-nav-section')
+        expect(navSection).toBeTruthy()
+        expect(navSection).toMatch(/^data-grid-/)
       })
     })
 
-    it('should lose focus on click outside', async () => {
+    it('should render with custom navSection', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -328,31 +319,115 @@ describe('DataGrid', () => {
           injector,
           rootElement,
           jsxElement: (
-            <>
-              <div data-testid="outside">Outside</div>
-              <DataGrid<TestEntry, 'id' | 'name'>
-                columns={['id', 'name']}
-                collectionService={service}
-                findOptions={findOptions}
-                onFindOptionsChange={onFindOptionsChange}
-                styles={{}}
-                headerComponents={{}}
-                rowComponents={{}}
-              />
-            </>
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+              navSection="my-grid"
+            />
           ),
         })
 
         await flushUpdates()
 
-        const grid = document.querySelector('shade-data-grid')
-        const wrapper = grid?.querySelector('.shade-grid-wrapper') as HTMLElement
-        wrapper?.click()
+        const wrapper = document.querySelector('.shade-grid-wrapper')
+        expect(wrapper?.getAttribute('data-nav-section')).toBe('my-grid')
+      })
+    })
+  })
 
-        expect(service.hasFocus.getValue()).toBe(true)
+  describe('focus management', () => {
+    it('should clear hasFocus on focusout when focus leaves the grid', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const outsideBtn = document.createElement('button')
+        document.body.appendChild(outsideBtn)
 
-        const outside = document.querySelector('[data-testid="outside"]') as HTMLElement
-        outside?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+        await new Promise((r) => setTimeout(r, 0))
+
+        service.hasFocus.setValue(true)
+
+        const wrapper = document.querySelector('.shade-grid-wrapper') as HTMLElement
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: outsideBtn }))
+
+        expect(service.hasFocus.getValue()).toBe(false)
+        outsideBtn.remove()
+      })
+    })
+
+    it('should clear hasFocus on focusout when focus moves outside', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        const outsideEl = document.createElement('button')
+        outsideEl.textContent = 'Outside'
+        document.body.appendChild(outsideEl)
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+        await new Promise((r) => setTimeout(r, 0))
+
+        service.hasFocus.setValue(true)
+
+        const wrapper = document.querySelector('.shade-grid-wrapper') as HTMLElement
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: outsideEl }))
+
+        expect(service.hasFocus.getValue()).toBe(false)
+
+        outsideEl.remove()
+      })
+    })
+
+    it('should clear hasFocus on focusout when relatedTarget is null', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+        await new Promise((r) => setTimeout(r, 0))
+
+        service.hasFocus.setValue(true)
+
+        const wrapper = document.querySelector('.shade-grid-wrapper') as HTMLElement
+        wrapper?.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))
 
         expect(service.hasFocus.getValue()).toBe(false)
       })
@@ -360,7 +435,7 @@ describe('DataGrid', () => {
   })
 
   describe('keyboard navigation', () => {
-    it('should handle ArrowDown to move focus to next entry', async () => {
+    it('should move focus to next entry on ArrowDown', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -392,7 +467,7 @@ describe('DataGrid', () => {
       })
     })
 
-    it('should handle ArrowUp to move focus to previous entry', async () => {
+    it('should move focus to previous entry on ArrowUp', async () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -485,37 +560,6 @@ describe('DataGrid', () => {
         window.dispatchEvent(keydownEvent)
 
         expect(service.focusedEntry.getValue()).toEqual({ id: 3, name: 'Third' })
-      })
-    })
-
-    it('should handle Tab to toggle focus', async () => {
-      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
-        const rootElement = document.getElementById('root') as HTMLDivElement
-
-        service.hasFocus.setValue(true)
-
-        initializeShadeRoot({
-          injector,
-          rootElement,
-          jsxElement: (
-            <DataGrid<TestEntry, 'id' | 'name'>
-              columns={['id', 'name']}
-              collectionService={service}
-              findOptions={findOptions}
-              onFindOptionsChange={onFindOptionsChange}
-              styles={{}}
-              headerComponents={{}}
-              rowComponents={{}}
-            />
-          ),
-        })
-
-        await flushUpdates()
-
-        const keydownEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
-        window.dispatchEvent(keydownEvent)
-
-        expect(service.hasFocus.getValue()).toBe(false)
       })
     })
 
@@ -694,7 +738,6 @@ describe('DataGrid', () => {
       await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
-        service.hasFocus.setValue(false)
         service.focusedEntry.setValue(service.data.getValue().entries[0])
 
         initializeShadeRoot({
@@ -714,6 +757,8 @@ describe('DataGrid', () => {
         })
 
         await flushUpdates()
+
+        service.hasFocus.setValue(false)
 
         const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })
         window.dispatchEvent(keydownEvent)
@@ -931,6 +976,89 @@ describe('DataGrid', () => {
         },
         { createService: () => new CollectionService<TestEntry>({ onRowDoubleClick }) },
       )
+    })
+  })
+
+  describe('row spatial navigation attributes', () => {
+    it('should set data-spatial-nav-target on rows', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const rows = document.querySelectorAll('shades-data-grid-row')
+        for (const row of rows) {
+          expect(row.hasAttribute('data-spatial-nav-target')).toBe(true)
+        }
+      })
+    })
+
+    it('should set tabIndex 0 on focused row and -1 on others', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        service.focusedEntry.setValue(service.data.getValue().entries[1])
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const rows = document.querySelectorAll<HTMLTableRowElement>('shades-data-grid-row')
+        expect(rows[0]?.tabIndex).toBe(-1)
+        expect(rows[1]?.tabIndex).toBe(0)
+        expect(rows[2]?.tabIndex).toBe(-1)
+      })
+    })
+
+    it('should sync focusedEntry on row onfocus', async () => {
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+            />
+          ),
+        })
+
+        await flushUpdates()
+
+        const rows = document.querySelectorAll('shades-data-grid-row')
+        rows[2]?.dispatchEvent(new FocusEvent('focus'))
+
+        expect(service.focusedEntry.getValue()).toEqual({ id: 3, name: 'Third' })
+        expect(service.hasFocus.getValue()).toBe(true)
+      })
     })
   })
 

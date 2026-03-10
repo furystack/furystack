@@ -407,7 +407,7 @@ export const PageLayout = Shade<PageLayoutProps>({
         )}
 
         {/* Main Content */}
-        <main className="page-layout-content" data-testid="page-layout-content">
+        <main className="page-layout-content" data-testid="page-layout-content" data-nav-section="content">
           {children}
         </main>
       </div>

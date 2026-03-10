@@ -1,12 +1,21 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 
+let nextAccordionId = 0
+
 /**
  * Props for the Accordion container component.
  */
 export type AccordionProps = {
   /** Visual variant of the accordion container */
   variant?: 'outlined' | 'elevation'
+  /**
+   * Section name for spatial navigation scoping.
+   * Sets `data-nav-section` on the accordion so that SpatialNavigationService
+   * constrains arrow-key navigation within the accordion group.
+   * Auto-generated per instance when not provided.
+   */
+  navSection?: string
 }
 
 /**
@@ -41,9 +50,12 @@ export const Accordion = Shade<AccordionProps>({
       background: cssVariableTheme.background.paper,
     },
   },
-  render: ({ props, useHostProps, children }) => {
+  render: ({ props, useHostProps, children, useState }) => {
+    const [navSectionId] = useState('navSectionId', String(nextAccordionId++))
+
     useHostProps({
       'data-variant': props.variant || undefined,
+      'data-nav-section': props.navSection ?? `accordion-${navSectionId}`,
     })
 
     return <>{children}</>

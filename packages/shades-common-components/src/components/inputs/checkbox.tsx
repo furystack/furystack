@@ -95,6 +95,7 @@ export const Checkbox = Shade<CheckboxProps>({
     },
 
     '& input[type="checkbox"]:focus-visible': {
+      outline: 'none',
       boxShadow: cssVariableTheme.action.focusRing,
     },
 

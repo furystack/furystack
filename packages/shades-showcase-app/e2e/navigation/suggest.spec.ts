@@ -19,4 +19,18 @@ test.describe('Suggest', () => {
     await input.pressSequentially('Entry', { delay: 50 })
     await expect(content.getByText('First Entry')).toBeVisible({ timeout: 10000 })
   })
+
+  test('focusing the suggest host delegates focus to the inner input', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Keyboard interaction not supported on mobile')
+    await page.goto('/navigation/suggest')
+
+    const content = page.locator('shades-suggest-page')
+    await content.waitFor({ state: 'visible' })
+
+    const suggest = content.locator('shade-suggest')
+    const input = suggest.locator('input')
+
+    await suggest.focus()
+    await expect(input).toBeFocused()
+  })
 })

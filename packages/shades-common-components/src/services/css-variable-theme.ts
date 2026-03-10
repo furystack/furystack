@@ -75,6 +75,7 @@ export const cssVariableTheme = {
     selectedBackground: 'var(--shades-theme-action-selected-background)',
     activeBackground: 'var(--shades-theme-action-active-background)',
     focusRing: 'var(--shades-theme-action-focus-ring)',
+    focusOutline: 'var(--shades-theme-action-focus-outline)',
     disabledOpacity: 'var(--shades-theme-action-disabled-opacity)',
     backdrop: 'var(--shades-theme-action-backdrop)',
     subtleBorder: 'var(--shades-theme-action-subtle-border)',
@@ -175,6 +176,30 @@ export const cssVariableTheme = {
  */
 export const buildTransition = (...specs: Array<[property: string, duration: string, easing: string]>): string =>
   specs.map(([prop, dur, ease]) => `${prop} ${dur} ${ease}`).join(', ')
+
+const FOCUS_STYLES_ID = 'shades-focus-visible-styles'
+
+/**
+ * Injects global `:focus-visible` styles using the theme's `focusOutline` CSS variable.
+ * Ensures keyboard/spatial navigation focus is visible while mouse clicks produce no outline.
+ * Safe to call multiple times — the style element is only created once.
+ */
+export const injectFocusVisibleStyles = (): void => {
+  if (document.getElementById(FOCUS_STYLES_ID)) return
+
+  const style = document.createElement('style')
+  style.id = FOCUS_STYLES_ID
+  style.textContent = `
+:focus-visible {
+  outline: ${cssVariableTheme.action.focusOutline};
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+`
+  document.head.appendChild(style)
+}
 
 const extractVarName = (key: string): string => key.replace(/^var\(/, '').replace(/[,)].*/, '')
 

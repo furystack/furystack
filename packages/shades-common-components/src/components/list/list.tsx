@@ -1,10 +1,11 @@
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { ClickAwayService } from '../../services/click-away-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { ListService } from '../../services/list-service.js'
 import { Pagination } from '../pagination.js'
 import { ListItem } from './list-item.js'
+
+let nextListId = 0
 
 export type ListItemState = {
   isFocused: boolean
@@ -31,6 +32,13 @@ export type ListProps<T> = {
   onSelectionChange?: (selected: T[]) => void
   /** Optional pagination configuration. When provided, items are sliced and a Pagination control is rendered. */
   pagination?: ListPaginationProps
+  /**
+   * Section name for spatial navigation scoping.
+   * Sets `data-nav-section` on the list wrapper so that SpatialNavigationService
+   * constrains arrow-key navigation within the list.
+   * Auto-generated per instance when not provided.
+   */
+  navSection?: string
 } & PartialElement<HTMLDivElement>
 
 export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Element<any> = Shade({
@@ -46,8 +54,9 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
       padding: '8px 0',
     },
   },
-  render: ({ props, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, useDisposable, useHostProps, useRef, useState }) => {
     const wrapperRef = useRef<HTMLDivElement>('listWrapper')
+    const [navSectionId] = useState('navSectionId', String(nextListId++))
 
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => {
@@ -60,8 +69,8 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
           }
         }
       }
-      window.addEventListener('keydown', listener)
-      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
+      window.addEventListener('keydown', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener, true) }
     })
 
     const { pagination } = props
@@ -79,13 +88,30 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
 
     props.listService.items.setValue(visibleItems)
 
-    useDisposable(
-      'clickAway',
-      () =>
-        new ClickAwayService(wrapperRef, () => {
+    useDisposable('focus-coordination', () => {
+      const handleFocusOut = (ev: FocusEvent) => {
+        const wrapper = wrapperRef.current
+        if (wrapper && (!ev.relatedTarget || !wrapper.contains(ev.relatedTarget as Node))) {
           props.listService.hasFocus.setValue(false)
-        }),
-    )
+        }
+      }
+
+      queueMicrotask(() => {
+        const wrapper = wrapperRef.current
+        if (wrapper) {
+          wrapper.addEventListener('focusout', handleFocusOut)
+        }
+      })
+
+      return {
+        [Symbol.dispose]: () => {
+          const wrapper = wrapperRef.current
+          if (wrapper) {
+            wrapper.removeEventListener('focusout', handleFocusOut)
+          }
+        },
+      }
+    })
 
     if (props.onSelectionChange) {
       const { onSelectionChange } = props
@@ -107,6 +133,7 @@ export const List: <T>(props: ListProps<T>, children: ChildrenList) => JSX.Eleme
           role="listbox"
           ariaMultiSelectable="true"
           className="shade-list-wrapper"
+          data-nav-section={props.navSection ?? `list-${navSectionId}`}
           onclick={() => props.listService.hasFocus.setValue(true)}
         >
           {visibleItems.map((item) => (

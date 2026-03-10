@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Select', () => {
-  test('single select: open, select, validate, disabled, and option groups', async ({ page }) => {
+  test('single select, multi select, and searchable select', async ({ page, isMobile }) => {
     await page.goto('/inputs-and-forms/select')
 
     const content = page.locator('select-page')
     await content.waitFor({ state: 'visible' })
+
+    // --- Single select ---
 
     // Select an option from a dropdown
     const fruitTrigger = content.locator('shade-select').first().locator('[role="combobox"]')
@@ -50,23 +52,18 @@ test.describe('Select', () => {
     // Select from group
     await groupListbox.getByRole('option', { name: 'Broccoli' }).click()
     await expect(groupTrigger.locator('.select-value')).toHaveText('Broccoli')
-  })
 
-  test('multi select: select options, chips, remove chip, and check icons', async ({ page, isMobile }) => {
-    await page.goto('/inputs-and-forms/select')
-
-    const content = page.locator('select-page')
-    await content.waitFor({ state: 'visible' })
+    // --- Multi select ---
 
     // Select multiple options
     const multiSelect = content.locator('shade-select').filter({ hasText: 'Favorite Fruits' }).first()
-    const trigger = multiSelect.locator('[role="combobox"]')
-    await trigger.click()
-    const listbox = multiSelect.locator('[role="listbox"]')
-    await expect(listbox).toBeVisible()
-    await listbox.getByRole('option', { name: 'Apple' }).click()
-    await expect(listbox).toBeVisible()
-    await listbox.getByRole('option', { name: 'Cherry' }).click()
+    const multiTrigger = multiSelect.locator('[role="combobox"]')
+    await multiTrigger.click()
+    const multiListbox = multiSelect.locator('[role="listbox"]')
+    await expect(multiListbox).toBeVisible()
+    await multiListbox.getByRole('option', { name: 'Apple' }).click()
+    await expect(multiListbox).toBeVisible()
+    await multiListbox.getByRole('option', { name: 'Cherry' }).click()
 
     await expect(multiSelect.locator('.select-chip')).toHaveCount(2)
     await expect(multiSelect.locator('.select-chip').first()).toHaveText(/Apple/)
@@ -93,33 +90,29 @@ test.describe('Select', () => {
       const selectedOptions = colorsListbox.locator('.dropdown-item[data-selected]')
       await expect(selectedOptions).toHaveCount(1)
       await expect(selectedOptions.first().locator('.check-icon shade-icon')).toBeVisible()
+      await content.locator('.dropdown-backdrop').click()
     }
-  })
 
-  test('searchable select: filter options and no results', async ({ page }) => {
-    await page.goto('/inputs-and-forms/select')
-
-    const content = page.locator('select-page')
-    await content.waitFor({ state: 'visible' })
+    // --- Searchable select ---
 
     const searchSelect = content.locator('shade-select').filter({ hasText: 'Search Countries' }).first()
-    const trigger = searchSelect.locator('[role="combobox"]')
+    const searchTrigger = searchSelect.locator('[role="combobox"]')
 
     // Filter options
-    await trigger.click()
-    const listbox = searchSelect.locator('[role="listbox"]')
-    await expect(listbox).toBeVisible()
-    const searchInput = listbox.locator('.dropdown-search')
+    await searchTrigger.click()
+    const searchListbox = searchSelect.locator('[role="listbox"]')
+    await expect(searchListbox).toBeVisible()
+    const searchInput = searchListbox.locator('.dropdown-search')
     await expect(searchInput).toBeVisible()
     await searchInput.fill('uni')
 
-    const options = listbox.locator('.dropdown-item')
+    const options = searchListbox.locator('.dropdown-item')
     await expect(options).toHaveCount(2)
     await expect(options.first()).toHaveText('United States')
     await expect(options.last()).toHaveText('United Kingdom')
 
     // No results
     await searchInput.fill('zzzzz')
-    await expect(listbox.locator('.dropdown-no-results')).toHaveText('No results found')
+    await expect(searchListbox.locator('.dropdown-no-results')).toHaveText('No results found')
   })
 })

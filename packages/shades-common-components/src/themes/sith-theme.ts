@@ -36,6 +36,7 @@ export const sithTheme = {
     selectedBackground: 'rgba(204, 32, 32, 0.14)',
     activeBackground: 'rgba(204, 32, 32, 0.22)',
     focusRing: '0 0 0 2px rgba(204, 32, 32, 0.5)',
+    focusOutline: '2px solid #cc2020',
     disabledOpacity: '0.4',
     backdrop: 'rgba(6, 4, 4, 0.9)',
     subtleBorder: 'rgba(204, 32, 32, 0.2)',

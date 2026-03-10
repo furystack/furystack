@@ -152,11 +152,13 @@ export const Chip = Shade<ChipProps>({
     const { variant, color, size, disabled, clickable, onDelete, style, ...rest } = props
 
     const colors = color ? paletteFullColors[color] : defaultColors
+    const isClickable = clickable || rest.onclick
     useHostProps({
       'data-variant': variant || undefined,
       'data-size': size === 'small' ? 'small' : undefined,
       'data-disabled': disabled ? '' : undefined,
-      'data-clickable': clickable || rest.onclick ? '' : undefined,
+      'data-clickable': isClickable ? '' : undefined,
+      tabIndex: isClickable && !disabled ? 0 : undefined,
       style: {
         '--chip-color-main': colors.main,
         '--chip-color-main-contrast': colors.mainContrast,
@@ -174,6 +176,7 @@ export const Chip = Shade<ChipProps>({
           <span
             className="chip-delete"
             role="button"
+            tabIndex={0}
             onclick={(ev: MouseEvent) => {
               ev.stopPropagation()
               onDelete(ev)

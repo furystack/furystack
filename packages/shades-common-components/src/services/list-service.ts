@@ -41,6 +41,19 @@ export class ListService<T> implements Disposable {
 
   public focusedItem = new ObservableValue<T | undefined>(undefined)
 
+  /**
+   * Stores the focused item captured on pointerdown, before the focus event
+   * can update focusedItem. Used as the anchor for SHIFT+click range selection.
+   * Call {@link setFocusAnchor} from `onpointerdown` to snapshot the anchor
+   * before focus shifts.
+   */
+  private focusAnchor: T | undefined = undefined
+
+  /** Snapshot the current focused item as the anchor for SHIFT+click range selection. */
+  public setFocusAnchor(): void {
+    this.focusAnchor = this.focusedItem.getValue()
+  }
+
   public selection = new ObservableValue<T[]>([])
 
   public searchTerm = new ObservableValue('')
@@ -89,14 +102,6 @@ export class ListService<T> implements Disposable {
             this.focusedItem.setValue(items[items.findIndex((e) => e === this.focusedItem.getValue()) + 1])
           }
           break
-        case 'ArrowUp':
-          ev.preventDefault()
-          this.focusedItem.setValue(items[Math.max(0, items.findIndex((e) => e === focusedItem) - 1)])
-          break
-        case 'ArrowDown':
-          ev.preventDefault()
-          this.focusedItem.setValue(items[Math.min(items.length - 1, items.findIndex((e) => e === focusedItem) + 1)])
-          break
         case 'Home': {
           ev.preventDefault()
           this.focusedItem.setValue(items[0])
@@ -105,10 +110,6 @@ export class ListService<T> implements Disposable {
         case 'End': {
           ev.preventDefault()
           this.focusedItem.setValue(items[items.length - 1])
-          break
-        }
-        case 'Tab': {
-          this.hasFocus.setValue(!hasFocus)
           break
         }
         case 'Escape': {
@@ -134,7 +135,8 @@ export class ListService<T> implements Disposable {
 
   public handleItemClick(item: T, ev: MouseEvent) {
     const currentSelectionValue = this.selection.getValue()
-    const lastFocused = this.focusedItem.getValue()
+    const lastFocused = this.focusAnchor ?? this.focusedItem.getValue()
+    this.focusAnchor = undefined
     if (ev.ctrlKey) {
       if (currentSelectionValue.includes(item)) {
         this.selection.setValue(currentSelectionValue.filter((s) => s !== item))

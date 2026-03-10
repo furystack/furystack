@@ -1,0 +1,65 @@
+<!-- version-type: major -->
+
+# @furystack/shades-common-components
+
+## ✨ Features
+
+- Added `navSection` prop to `Accordion`, `DataGrid`, `List`, and `Tree` — sets a `data-nav-section` attribute so `SpatialNavigationService` constrains arrow-key navigation within the component (auto-generated per instance when not provided)
+- Added `trapFocus` and `navSection` props to `Modal` — when `trapFocus` is true, spatial navigation is locked within the modal's bounds until it closes
+- Added `trapFocus` (defaults to `true`) and `navSection` props to `Dialog` — forwarded to the underlying `Modal` component
+- Made `Chip` focusable when clickable (including delete button) for spatial/keyboard navigation
+- Made `Image` focusable when `preview={true}` and activatable with Enter/Space for spatial/keyboard navigation
+- Added `focusOutline` to the `ActionColors` theme type and `cssVariableTheme` — provides a dedicated CSS variable (`--shades-theme-action-focus-outline`) for keyboard/spatial focus indicators
+- Added `injectFocusVisibleStyles()` helper that injects global `:focus-visible` / `:focus:not(:focus-visible)` styles using the theme's `focusOutline` variable
+- Added `focusOutline` values to all built-in themes
+- Added focus coordination to `DataGrid`, `List`, and `Tree` — `focusin`/`focusout` DOM events now sync `hasFocus` and `focusedEntry`/`focusedItem` state, replacing previous click-based focus management
+- Added `data-nav-section="content"` to `PageLayout` main content area for spatial navigation scoping
+- Added `:focus-visible` styles to `MarkdownDisplay` code blocks and links using the theme's `focusOutline` variable
+- Made `MarkdownDisplay` code blocks focusable (`tabIndex={0}`) for keyboard navigation
+
+## 💥 Breaking Changes
+
+- Removed `ArrowUp`/`ArrowDown` handlers from `ListService` — arrow-key navigation is now fully delegated to `SpatialNavigationService`
+- Changed `ArrowUp`/`ArrowDown` handlers in `CollectionService` — they no longer unconditionally `preventDefault()`, only intercepting when there is a valid adjacent entry to move to, allowing `SpatialNavigationService` to handle boundary navigation
+- Removed `Tab` handler from `CollectionService` and `ListService` — focus management now uses native `focusin`/`focusout`
+- `TreeService` `ArrowRight` on an expanded node no longer focuses the first child — delegated to spatial navigation
+- `ActionColors` type now requires a `focusOutline` property — all custom themes must include this value
+- `CommandPalette` and `Suggest` keyboard handling changed from `onkeyup` to `onkeydown` — arrow key navigation within the suggestion list now only activates when suggestions are open
+- Scroll-to-focused-item behavior changed from `smooth` to `instant` in `List`, `DataGrid`, and `Tree` — keyboard navigation no longer animates scrolling
+- `AccordionItem` header changed from `<div role="button" data-disabled>` to a native `<button disabled>` — consumers with CSS targeting `.accordion-header[data-disabled]` must update to `.accordion-header:disabled` or the host's `[data-disabled]`
+
+### 🔄 Migration Guide
+
+**Custom themes** must add `focusOutline` to the `action` object:
+
+```typescript
+// Before
+action: {
+  hoverBackground: '...',
+  focusRing: '0 0 0 3px ...',
+}
+
+// After
+action: {
+  hoverBackground: '...',
+  focusRing: '0 0 0 3px ...',
+  focusOutline: '2px solid #3f51b5', // your theme's accent color
+}
+```
+
+**ArrowUp/ArrowDown/Tab removal from CollectionService, ListService, and TreeService:**
+Row-level arrow-key navigation is now handled by `SpatialNavigationService` through focusable `data-spatial-nav-target` elements. If you relied on the removed handlers for custom behavior, register your own `keydown` listener and call `ev.preventDefault()` to prevent spatial navigation from intercepting the event.
+
+**CommandPalette and Suggest `onkeyup` → `onkeydown`/`oninput`:**
+Arrow key navigation within the suggestion list now only activates when suggestions are visible. If you were relying on `keyup` event bubbling from these components, update your listeners to use `keydown` instead.
+
+## 🐛 Bug Fixes
+
+- Added `outline: 'none'` to `AccordionItem`, `Checkbox`, `Radio`, `Slider`, and `Switch` `:focus-visible` styles to prevent double focus rings when using the global `focusOutline`
+
+## 🧪 Tests
+
+- Added tests for `DataGrid` focus coordination and `navSection` attribute
+- Added tests for `List` focus coordination behavior
+- Added tests for `Modal` `trapFocus` and `navSection` behavior
+- Updated `CollectionService`, `ListService`, and `TreeService` tests to verify arrow keys are no longer handled

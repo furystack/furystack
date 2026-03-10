@@ -647,6 +647,26 @@ describe('PageLayout component', () => {
       })
     })
 
+    it('should set data-nav-section="content" on the content area for spatial navigation scoping', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <PageLayout>
+              <div>Content</div>
+            </PageLayout>
+          ),
+        })
+
+        await flushUpdates()
+        const contentArea = document.querySelector('.page-layout-content')
+        expect(contentArea?.getAttribute('data-nav-section')).toBe('content')
+      })
+    })
+
     it('should set CSS variable for zero paddingTop when no AppBar is configured', async () => {
       await usingAsync(new Injector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement

@@ -12,6 +12,7 @@ export const shades: TSESLint.FlatConfig.Config = {
     'furystack/no-direct-get-value-in-render': 'warn',
     'furystack/prefer-location-service': 'warn',
     'furystack/prefer-nested-route-link': 'warn',
+    'furystack/require-tabindex-with-spatial-nav-target': 'warn',
   },
 }
 
@@ -27,5 +28,6 @@ export const shadesStrict: TSESLint.FlatConfig.Config = {
     'furystack/no-direct-get-value-in-render': 'error',
     'furystack/prefer-location-service': 'error',
     'furystack/prefer-nested-route-link': 'error',
+    'furystack/require-tabindex-with-spatial-nav-target': 'error',
   },
 }

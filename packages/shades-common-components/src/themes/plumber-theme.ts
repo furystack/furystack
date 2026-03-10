@@ -34,6 +34,7 @@ export const plumberTheme = {
     selectedBackground: 'rgba(230, 0, 18, 0.1)',
     activeBackground: 'rgba(230, 0, 18, 0.16)',
     focusRing: '0 0 0 3px rgba(230, 0, 18, 0.25)',
+    focusOutline: '2px solid #e60012',
     disabledOpacity: '0.45',
     backdrop: 'rgba(26, 26, 46, 0.5)',
     subtleBorder: 'rgba(26, 26, 46, 0.15)',

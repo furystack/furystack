@@ -36,6 +36,7 @@ export const wildHuntTheme = {
     selectedBackground: 'rgba(168, 32, 32, 0.14)',
     activeBackground: 'rgba(168, 32, 32, 0.22)',
     focusRing: '0 0 0 3px rgba(168, 176, 188, 0.3)',
+    focusOutline: '2px solid #a8b0bc',
     disabledOpacity: '0.5',
     backdrop: 'rgba(6, 8, 12, 0.85)',
     subtleBorder: 'rgba(168, 176, 188, 0.2)',

@@ -34,6 +34,7 @@ export const xenomorphTheme = {
     selectedBackground: 'rgba(126, 200, 80, 0.13)',
     activeBackground: 'rgba(126, 200, 80, 0.2)',
     focusRing: '0 0 0 2px rgba(126, 200, 80, 0.45)',
+    focusOutline: '2px solid #7ec850',
     disabledOpacity: '0.4',
     backdrop: 'rgba(6, 8, 10, 0.9)',
     subtleBorder: 'rgba(126, 200, 80, 0.18)',

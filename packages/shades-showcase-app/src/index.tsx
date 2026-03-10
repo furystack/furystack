@@ -1,10 +1,11 @@
 /// <reference types="vite/client" />
 
 import { Injector } from '@furystack/inject'
-import { createComponent, initializeShadeRoot, LocationService } from '@furystack/shades'
+import { createComponent, initializeShadeRoot, LocationService, SpatialNavigationService } from '@furystack/shades'
 import {
   defaultDarkTheme,
   defaultLightTheme,
+  injectFocusVisibleStyles,
   ThemeProviderService,
   useThemeCssVariables,
 } from '@furystack/shades-common-components'
@@ -14,8 +15,10 @@ import './style.css'
 export const shadesInjector = new Injector()
 
 shadesInjector.getInstance(ThemeProviderService)
+shadesInjector.getInstance(SpatialNavigationService)
 
 useThemeCssVariables(defaultLightTheme)
+injectFocusVisibleStyles()
 
 const el = document.querySelector('#root') as HTMLDivElement
 

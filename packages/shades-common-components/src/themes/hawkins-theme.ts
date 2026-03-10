@@ -36,6 +36,7 @@ export const hawkinsTheme = {
     selectedBackground: 'rgba(204, 51, 51, 0.14)',
     activeBackground: 'rgba(204, 51, 51, 0.22)',
     focusRing: '0 0 0 2px rgba(204, 51, 51, 0.45)',
+    focusOutline: '2px solid #cc3333',
     disabledOpacity: '0.4',
     backdrop: 'rgba(8, 6, 4, 0.9)',
     subtleBorder: 'rgba(204, 51, 51, 0.18)',

@@ -226,16 +226,17 @@ describe('TreeService', () => {
       })
     })
 
-    it('should move focus to first child on ArrowRight when already expanded', () => {
+    it('should not move focus on ArrowRight when already expanded (delegated to spatial navigation)', () => {
       const { service, rootItems } = createTestService()
       using(service, () => {
         service.hasFocus.setValue(true)
         service.expand(rootItems[0])
         service.focusedItem.setValue(rootItems[0])
 
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+        const ev = new KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true })
+        service.handleKeyDown(ev)
 
-        expect(service.focusedItem.getValue()).toBe(rootItems[0].children![0])
+        expect(service.focusedItem.getValue()).toBe(rootItems[0])
       })
     })
 
@@ -303,27 +304,29 @@ describe('TreeService', () => {
   })
 
   describe('inherited ListService keyboard navigation', () => {
-    it('should handle ArrowDown to move focus to next visible item', () => {
+    it('should not handle ArrowDown (delegated to spatial navigation)', () => {
       const { service, rootItems } = createTestService()
       using(service, () => {
         service.hasFocus.setValue(true)
         service.focusedItem.setValue(rootItems[0])
 
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+        const ev = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true })
+        service.handleKeyDown(ev)
 
-        expect(service.focusedItem.getValue()).toBe(rootItems[1])
+        expect(service.focusedItem.getValue()).toBe(rootItems[0])
       })
     })
 
-    it('should handle ArrowUp to move focus to previous visible item', () => {
+    it('should not handle ArrowUp (delegated to spatial navigation)', () => {
       const { service, rootItems } = createTestService()
       using(service, () => {
         service.hasFocus.setValue(true)
         service.focusedItem.setValue(rootItems[1])
 
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+        const ev = new KeyboardEvent('keydown', { key: 'ArrowUp', cancelable: true })
+        service.handleKeyDown(ev)
 
-        expect(service.focusedItem.getValue()).toBe(rootItems[0])
+        expect(service.focusedItem.getValue()).toBe(rootItems[1])
       })
     })
 

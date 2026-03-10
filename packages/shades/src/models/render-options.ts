@@ -79,12 +79,15 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
   useRef: <T extends Element = HTMLElement>(key: string) => RefObject<T>
 
   /**
-   * Creates and disposes a resource after the component has been detached from the DOM
+   * Creates and disposes a resource after the component has been detached from the DOM.
+   * When `deps` is provided, the resource is re-created (and the old one disposed) whenever
+   * the serialized deps value changes.
    * @param key The key for caching the disposable resource
    * @param factory A factory method for creating the disposable resource
+   * @param deps Optional dependency array — when deps change, the old resource is disposed and a new one is created
    * @returns The Disposable instance
    */
-  useDisposable: <T extends Disposable | AsyncDisposable>(key: string, factory: () => T) => T
+  useDisposable: <T extends Disposable | AsyncDisposable>(key: string, factory: () => T, deps?: readonly unknown[]) => T
 
   /**
    * Creates a state object from an existing observable value.

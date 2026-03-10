@@ -309,6 +309,7 @@ export const Dropdown: (props: DropdownProps, children: ChildrenList) => JSX.Ele
         <div
           ref={backdropRef}
           className="dropdown-backdrop"
+          data-spatial-nav-passthrough=""
           style={{
             position: 'fixed',
             top: '0',

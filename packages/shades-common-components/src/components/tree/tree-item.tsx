@@ -69,10 +69,20 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
     const isSelected = selection.includes(item)
 
     useHostProps({
+      tabIndex: isFocused ? 0 : -1,
+      'data-spatial-nav-target': '',
       role: 'treeitem',
       'aria-level': (level + 1).toString(),
       'aria-selected': isSelected.toString(),
       ...(hasChildren ? { 'aria-expanded': isExpanded.toString() } : {}),
+      onfocus: () => {
+        if (treeService.focusedItem.getValue() !== item) {
+          treeService.focusedItem.setValue(item)
+        }
+        if (!treeService.hasFocus.getValue()) {
+          treeService.hasFocus.setValue(true)
+        }
+      },
       onclick: (ev: MouseEvent) => {
         treeService.handleItemClick(item, ev)
       },
@@ -93,10 +103,15 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
       queueMicrotask(() => {
         const el = wrapperRef.current
         if (!el) return
+        const hostEl = el.closest('shade-tree-item') as HTMLElement
+        if (!hostEl) return
+
+        if (document.activeElement !== hostEl) {
+          hostEl.focus({ preventScroll: true })
+        }
+
         const scrollContainer = el.closest('shade-tree') as HTMLElement
         if (scrollContainer) {
-          const hostEl = el.closest('shade-tree-item') as HTMLElement
-          if (!hostEl) return
           const containerRect = scrollContainer.getBoundingClientRect()
           const itemRect = hostEl.getBoundingClientRect()
           const itemTopInContainer = itemRect.top - containerRect.top
@@ -105,12 +120,12 @@ export const TreeItem: <T>(props: TreeItemProps<T>, children: ChildrenList) => J
           if (itemTopInContainer < 0) {
             scrollContainer.scrollTo({
               top: scrollContainer.scrollTop + itemTopInContainer,
-              behavior: 'smooth',
+              behavior: 'instant',
             })
           } else if (itemBottomInContainer > scrollContainer.clientHeight) {
             scrollContainer.scrollTo({
               top: scrollContainer.scrollTop + (itemBottomInContainer - scrollContainer.clientHeight),
-              behavior: 'smooth',
+              behavior: 'instant',
             })
           }
         }

@@ -75,7 +75,20 @@ export const DataGridRow: <T, Column extends string>(
     }
 
     useHostProps({
+      tabIndex: isFocused ? 0 : -1,
+      'data-spatial-nav-target': '',
       'aria-selected': isSelected.toString(),
+      onpointerdown: () => {
+        service.setFocusAnchor()
+      },
+      onfocus: () => {
+        if (service.focusedEntry.getValue() !== entry) {
+          service.focusedEntry.setValue(entry)
+        }
+        if (!service.hasFocus.getValue()) {
+          service.hasFocus.setValue(true)
+        }
+      },
       ...(isSelected ? { 'data-selected': '' } : {}),
       ...(isFocused ? { 'data-focused': '' } : {}),
       ...(Object.keys(rowStyle).length > 0 ? { style: rowStyle } : {}),
@@ -89,6 +102,11 @@ export const DataGridRow: <T, Column extends string>(
         if (!el) return
         const hostEl = el.closest('shades-data-grid-row') as HTMLElement
         if (!hostEl) return
+
+        if (document.activeElement !== hostEl) {
+          hostEl.focus({ preventScroll: true })
+        }
+
         const scrollContainer = hostEl.closest('shade-data-grid') as HTMLElement
         if (!scrollContainer) return
 
@@ -106,13 +124,13 @@ export const DataGridRow: <T, Column extends string>(
           const scrollAdjustment = rowTopInContainer - headerHeight
           scrollContainer.scrollTo({
             top: scrollContainer.scrollTop + scrollAdjustment,
-            behavior: 'smooth',
+            behavior: 'instant',
           })
         } else if (rowBottomInContainer > scrollContainer.clientHeight - footerHeight) {
           const scrollAdjustment = rowBottomInContainer - (scrollContainer.clientHeight - footerHeight)
           scrollContainer.scrollTo({
             top: scrollContainer.scrollTop + scrollAdjustment,
-            behavior: 'smooth',
+            behavior: 'instant',
           })
         }
       })

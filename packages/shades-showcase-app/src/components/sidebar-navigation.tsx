@@ -117,7 +117,18 @@ const SidebarCategory = Shade<{ node: NavTreeNode }>({
 
     return (
       <div>
-        <div className={`category-header${isCategoryActive ? ' active' : ''}`} onclick={handleHeaderClick}>
+        <div
+          className={`category-header${isCategoryActive ? ' active' : ''}`}
+          onclick={handleHeaderClick}
+          onkeydown={(ev: KeyboardEvent) => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+              ev.preventDefault()
+              handleHeaderClick()
+            }
+          }}
+          tabIndex={0}
+          role="button"
+        >
           {hasChildren && <span className={`expand-arrow${isExpanded ? ' expanded' : ''}`}>▶</span>}
           {props.node.meta?.icon && <Icon icon={props.node.meta.icon} size={16} />}
           <span>{props.node.meta?.title ?? props.node.pattern}</span>
@@ -194,7 +205,7 @@ export const SidebarNavigation = Shade({
   },
   render: () => {
     return (
-      <nav style={{ padding: '4px 0 8px' }}>
+      <nav style={{ padding: '4px 0 8px' }} data-nav-section="sidebar">
         <NestedRouteLink className="sidebar-header" href="/">
           <Icon icon={icons.flame} size={18} />
           <span>FuryStack Shades</span>

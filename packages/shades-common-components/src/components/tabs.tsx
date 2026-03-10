@@ -115,6 +115,10 @@ export const Tabs = Shade<{
       color: cssVariableTheme.text.primary,
       boxShadow: `inset 0 -2px 0 ${cssVariableTheme.palette.primary.main}`,
     },
+    '& .shade-tab-btn:focus-visible': {
+      outline: cssVariableTheme.action.focusOutline,
+      outlineOffset: '-2px',
+    },
 
     // Close button (span with role="button" via event delegation)
     '& .shade-tab-close': {

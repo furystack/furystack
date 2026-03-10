@@ -52,6 +52,34 @@ describe('Accordion', () => {
     await flushUpdates()
     expect(accordion.hasAttribute('data-variant')).toBe(false)
   })
+
+  describe('spatial navigation', () => {
+    it('should set data-nav-section with auto-generated id', async () => {
+      const el = (
+        <div>
+          <Accordion />
+        </div>
+      )
+      const accordion = el.firstElementChild as JSX.Element
+      accordion.updateComponent()
+      await flushUpdates()
+      const navSection = accordion.getAttribute('data-nav-section')
+      expect(navSection).toBeTruthy()
+      expect(navSection).toMatch(/^accordion-\d+$/)
+    })
+
+    it('should use custom navSection when provided', async () => {
+      const el = (
+        <div>
+          <Accordion navSection="my-accordion" />
+        </div>
+      )
+      const accordion = el.firstElementChild as JSX.Element
+      accordion.updateComponent()
+      await flushUpdates()
+      expect(accordion.getAttribute('data-nav-section')).toBe('my-accordion')
+    })
+  })
 })
 
 describe('AccordionItem', () => {
@@ -239,7 +267,7 @@ describe('AccordionItem', () => {
     expect(content.style.height).not.toBe('0px')
   })
 
-  it('should have a role="button" on the header', async () => {
+  it('should render the header as a <button> element', async () => {
     const el = (
       <div>
         <AccordionItem title="Test" />
@@ -248,11 +276,12 @@ describe('AccordionItem', () => {
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
     await flushUpdates()
-    const header = item.querySelector('.accordion-header') as HTMLElement
-    expect(header.getAttribute('role')).toBe('button')
+    const header = item.querySelector('.accordion-header') as HTMLButtonElement
+    expect(header.tagName).toBe('BUTTON')
+    expect(header.type).toBe('button')
   })
 
-  it('should set tabIndex on the header when not disabled', async () => {
+  it('should not disable the header button when not disabled', async () => {
     const el = (
       <div>
         <AccordionItem title="Test" />
@@ -261,11 +290,11 @@ describe('AccordionItem', () => {
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
     await flushUpdates()
-    const header = item.querySelector('.accordion-header') as HTMLElement
-    expect(header.tabIndex).toBe(0)
+    const header = item.querySelector('.accordion-header') as HTMLButtonElement
+    expect(header.disabled).toBe(false)
   })
 
-  it('should set tabIndex to -1 on the header when disabled', async () => {
+  it('should disable the header button when disabled', async () => {
     const el = (
       <div>
         <AccordionItem title="Test" disabled />
@@ -274,8 +303,8 @@ describe('AccordionItem', () => {
     const item = el.firstElementChild as JSX.Element
     item.updateComponent()
     await flushUpdates()
-    const header = item.querySelector('.accordion-header') as HTMLElement
-    expect(header.tabIndex).toBe(-1)
+    const header = item.querySelector('.accordion-header') as HTMLButtonElement
+    expect(header.disabled).toBe(true)
   })
 
   it('should toggle data-expanded on header click', async () => {
@@ -299,7 +328,6 @@ describe('AccordionItem', () => {
     header.click()
     await flushUpdates()
 
-    // The attribute is set synchronously before the animation awaits
     expect(item.hasAttribute('data-expanded')).toBe(true)
   })
 
@@ -324,75 +352,6 @@ describe('AccordionItem', () => {
     header.click()
     await flushUpdates()
 
-    // The attribute is removed synchronously before the animation awaits
-    expect(item.hasAttribute('data-expanded')).toBe(false)
-  })
-
-  it('should toggle on Enter keydown', async () => {
-    const mockAnimation = { finished: Promise.resolve() }
-    Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
-
-    const el = (
-      <div>
-        <AccordionItem title="Keyboard Toggle">
-          <p>Content</p>
-        </AccordionItem>
-      </div>
-    )
-    const item = el.firstElementChild as JSX.Element
-    item.updateComponent()
-    await flushUpdates()
-
-    expect(item.hasAttribute('data-expanded')).toBe(false)
-
-    const header = item.querySelector('.accordion-header') as HTMLElement
-    header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
-    await flushUpdates()
-
-    expect(item.hasAttribute('data-expanded')).toBe(true)
-  })
-
-  it('should toggle on Space keydown', async () => {
-    const mockAnimation = { finished: Promise.resolve() }
-    Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
-
-    const el = (
-      <div>
-        <AccordionItem title="Space Toggle">
-          <p>Content</p>
-        </AccordionItem>
-      </div>
-    )
-    const item = el.firstElementChild as JSX.Element
-    item.updateComponent()
-    await flushUpdates()
-
-    expect(item.hasAttribute('data-expanded')).toBe(false)
-
-    const header = item.querySelector('.accordion-header') as HTMLElement
-    header.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }))
-    await flushUpdates()
-
-    expect(item.hasAttribute('data-expanded')).toBe(true)
-  })
-
-  it('should not toggle on unrelated keydown', async () => {
-    const el = (
-      <div>
-        <AccordionItem title="No Toggle">
-          <p>Content</p>
-        </AccordionItem>
-      </div>
-    )
-    const item = el.firstElementChild as JSX.Element
-    item.updateComponent()
-    await flushUpdates()
-
-    expect(item.hasAttribute('data-expanded')).toBe(false)
-
-    const header = item.querySelector('.accordion-header') as HTMLElement
-    header.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
-
     expect(item.hasAttribute('data-expanded')).toBe(false)
   })
 
@@ -414,5 +373,101 @@ describe('AccordionItem', () => {
     header.click()
 
     expect(item.hasAttribute('data-expanded')).toBe(false)
+  })
+
+  describe('spatial navigation integration', () => {
+    it('should set inert on content when collapsed', async () => {
+      const el = (
+        <div>
+          <AccordionItem title="Collapsed">
+            <p>Content</p>
+          </AccordionItem>
+        </div>
+      )
+      const item = el.firstElementChild as JSX.Element
+      item.updateComponent()
+      await flushUpdates()
+      const content = item.querySelector('.accordion-content') as HTMLElement
+      expect(content.inert).toBe(true)
+    })
+
+    it('should not set inert on content when expanded', async () => {
+      const el = (
+        <div>
+          <AccordionItem title="Expanded" defaultExpanded>
+            <p>Content</p>
+          </AccordionItem>
+        </div>
+      )
+      const item = el.firstElementChild as JSX.Element
+      item.updateComponent()
+      await flushUpdates()
+      const content = item.querySelector('.accordion-content') as HTMLElement
+      expect(content.inert).toBe(false)
+    })
+
+    it('should set inert on content after collapsing', async () => {
+      const mockAnimation = { finished: Promise.resolve() }
+      Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
+
+      const el = (
+        <div>
+          <AccordionItem title="Toggleable" defaultExpanded>
+            <p>Content</p>
+          </AccordionItem>
+        </div>
+      )
+      const item = el.firstElementChild as JSX.Element
+      item.updateComponent()
+      await flushUpdates()
+
+      const content = item.querySelector('.accordion-content') as HTMLElement
+      expect(content.inert).toBe(false)
+
+      const header = item.querySelector('.accordion-header') as HTMLElement
+      header.click()
+      await flushUpdates()
+
+      expect(content.inert).toBe(true)
+    })
+
+    it('should remove inert on content after expanding', async () => {
+      const mockAnimation = { finished: Promise.resolve() }
+      Element.prototype.animate = vi.fn().mockReturnValue(mockAnimation)
+
+      const el = (
+        <div>
+          <AccordionItem title="Toggleable">
+            <p>Content</p>
+          </AccordionItem>
+        </div>
+      )
+      const item = el.firstElementChild as JSX.Element
+      item.updateComponent()
+      await flushUpdates()
+
+      const content = item.querySelector('.accordion-content') as HTMLElement
+      expect(content.inert).toBe(true)
+
+      const header = item.querySelector('.accordion-header') as HTMLElement
+      header.click()
+      await flushUpdates()
+
+      expect(content.inert).toBe(false)
+    })
+
+    it('should exclude disabled header from spatial navigation via native disabled attribute', async () => {
+      const el = (
+        <div>
+          <AccordionItem title="Disabled" disabled />
+        </div>
+      )
+      const item = el.firstElementChild as JSX.Element
+      item.updateComponent()
+      await flushUpdates()
+      const header = item.querySelector('.accordion-header') as HTMLButtonElement
+      expect(header.disabled).toBe(true)
+      expect(header.matches('button:not([disabled])')).toBe(false)
+    })
   })
 })

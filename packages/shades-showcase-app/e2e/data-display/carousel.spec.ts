@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Carousel', () => {
-  test('rendering: slides, dots, no-dots, vertical, and ARIA attributes', async ({ page }) => {
+  test('rendering and navigation: slides, dots, ARIA, arrows, dot click, and wrap-around', async ({ page }) => {
     await page.goto('/data-display/carousel')
 
     const content = page.locator('shades-carousel-page')
@@ -34,18 +34,8 @@ test.describe('Carousel', () => {
     await expect(verticalCarousel).toBeVisible()
 
     await expect(content).toHaveScreenshot('carousel-rendering.png')
-  })
 
-  test('navigation: next arrow, dot click, and previous arrow wrap-around', async ({ page }) => {
-    await page.goto('/data-display/carousel')
-
-    const content = page.locator('shades-carousel-page')
-    await content.waitFor({ state: 'visible' })
-
-    const firstCarousel = content.locator('shade-carousel').first()
-    const dots = firstCarousel.locator('.carousel-dot')
-
-    // First dot should be active initially
+    // Navigation: first dot should be active initially
     await expect(dots.nth(0)).toHaveAttribute('data-active', '')
 
     // Navigate to next slide via arrow

@@ -114,8 +114,7 @@ export const Rating = Shade<RatingProps>({
 
     '&:focus-visible': {
       outline: 'none',
-      boxShadow: cssVariableTheme.action.focusRing,
-      borderRadius: cssVariableTheme.shape.borderRadius.xs,
+      boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
     },
 
     '&[data-size="small"] .rating-star': {
@@ -159,45 +158,52 @@ export const Rating = Shade<RatingProps>({
     useHostProps({
       'data-size': props.size || 'medium',
       style: { '--rating-color': color },
+      ...(isInteractive ? { 'data-spatial-nav-target': '' } : {}),
       ...(props.disabled ? { 'data-disabled': '', 'aria-disabled': 'true' } : {}),
       ...(props.readOnly ? { 'data-readonly': '', 'aria-readonly': 'true' } : {}),
       ...(isInteractive
         ? {
             role: 'slider',
-            tabindex: '0',
+            tabIndex: 0,
             'aria-valuenow': String(value),
             'aria-valuemin': '0',
             'aria-valuemax': String(max),
             'aria-label': 'Rating',
+            'aria-orientation': 'horizontal',
             onkeydown: (ev: KeyboardEvent) => {
               const step = precision === 0.5 ? 0.5 : 1
-              let newValue: number
 
               switch (ev.key) {
-                case 'ArrowRight':
-                case 'ArrowUp':
-                  ev.preventDefault()
-                  newValue = Math.min(value + step, max)
-                  break
-                case 'ArrowLeft':
-                case 'ArrowDown':
-                  ev.preventDefault()
-                  newValue = Math.max(value - step, 0)
-                  break
+                case 'ArrowRight': {
+                  const newValue = Math.min(value + step, max)
+                  if (newValue !== value) {
+                    ev.preventDefault()
+                    props.onValueChange?.(newValue)
+                  }
+                  return
+                }
+                case 'ArrowLeft': {
+                  const newValue = Math.max(value - step, 0)
+                  if (newValue !== value) {
+                    ev.preventDefault()
+                    props.onValueChange?.(newValue)
+                  }
+                  return
+                }
                 case 'Home':
                   ev.preventDefault()
-                  newValue = 0
-                  break
+                  if (value !== 0) {
+                    props.onValueChange?.(0)
+                  }
+                  return
                 case 'End':
                   ev.preventDefault()
-                  newValue = max
-                  break
+                  if (value !== max) {
+                    props.onValueChange?.(max)
+                  }
+                  return
                 default:
                   return
-              }
-
-              if (newValue !== value) {
-                props.onValueChange?.(newValue)
               }
             },
           }

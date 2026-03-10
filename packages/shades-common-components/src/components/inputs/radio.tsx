@@ -87,6 +87,7 @@ export const Radio = Shade<RadioProps>({
     },
 
     '& input[type="radio"]:focus-visible': {
+      outline: 'none',
       boxShadow: cssVariableTheme.action.focusRing,
     },
 

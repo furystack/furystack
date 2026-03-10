@@ -33,6 +33,7 @@ export const neonRunnerTheme = {
     selectedBackground: 'rgba(0, 240, 255, 0.14)',
     activeBackground: 'rgba(0, 240, 255, 0.22)',
     focusRing: '0 0 0 2px rgba(0, 240, 255, 0.5)',
+    focusOutline: '2px solid #00f0ff',
     disabledOpacity: '0.4',
     backdrop: 'rgba(4, 6, 14, 0.85)',
     subtleBorder: 'rgba(0, 240, 255, 0.2)',

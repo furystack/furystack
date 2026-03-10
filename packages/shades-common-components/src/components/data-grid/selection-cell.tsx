@@ -22,6 +22,7 @@ export const SelectionCell = Shade<{ entry: any; service: CollectionService<any>
 
     return (
       <input
+        tabIndex={-1}
         onchange={() => {
           props.service.toggleSelection(props.entry)
         }}

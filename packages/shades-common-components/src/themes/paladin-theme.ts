@@ -36,6 +36,7 @@ export const paladinTheme = {
     selectedBackground: 'rgba(200, 168, 78, 0.15)',
     activeBackground: 'rgba(200, 168, 78, 0.22)',
     focusRing: '0 0 0 3px rgba(200, 168, 78, 0.3)',
+    focusOutline: '2px solid #c8a84e',
     disabledOpacity: '0.5',
     backdrop: 'rgba(14, 18, 22, 0.8)',
     subtleBorder: 'rgba(180, 192, 205, 0.28)',

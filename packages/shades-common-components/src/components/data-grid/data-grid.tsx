@@ -1,13 +1,14 @@
 import type { FindOptions } from '@furystack/core'
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
-import { ClickAwayService } from '../../services/click-away-service.js'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { GridProps } from '../grid.js'
 import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
 import { DataGridHeader } from './header.js'
+
+let nextDataGridId = 0
 
 export type StringFilterConfig = { type: 'string' }
 export type NumberFilterConfig = { type: 'number' }
@@ -119,6 +120,14 @@ export interface DataGridProps<T, Column extends string> {
    * @default dataGridItemsPerPage ([10, 20, 25, 50, 100, Infinity])
    */
   paginationOptions?: number[]
+
+  /**
+   * Section name for spatial navigation scoping.
+   * Sets `data-nav-section` on the grid wrapper so that SpatialNavigationService
+   * constrains arrow-key navigation within the grid.
+   * Auto-generated per instance when not provided.
+   */
+  navSection?: string
 }
 
 export const DataGrid: <T, Column extends string>(
@@ -157,25 +166,43 @@ export const DataGrid: <T, Column extends string>(
       borderRight: `1px solid ${cssVariableTheme.action.subtleBorder}`,
     },
   },
-  render: ({ props, useDisposable, useRef, useHostProps }) => {
+  render: ({ props, useDisposable, useRef, useHostProps, useState }) => {
     const wrapperRef = useRef<HTMLDivElement>('gridWrapper')
+    const [navSectionId] = useState('navSectionId', String(nextDataGridId++))
 
     const headerFindOptions = props.findOptions as FilterableFindOptions
     const handleHeaderChange = props.onFindOptionsChange as (options: FilterableFindOptions) => void
 
     useDisposable('keydown-handler', () => {
       const listener = (ev: KeyboardEvent) => props.collectionService.handleKeyDown(ev)
-      window.addEventListener('keydown', listener)
-      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener) }
+      window.addEventListener('keydown', listener, true)
+      return { [Symbol.dispose]: () => window.removeEventListener('keydown', listener, true) }
     })
 
-    useDisposable(
-      'clickAway',
-      () =>
-        new ClickAwayService(wrapperRef, () => {
+    useDisposable('focus-coordination', () => {
+      const handleFocusOut = (ev: FocusEvent) => {
+        const wrapper = wrapperRef.current
+        if (wrapper && (!ev.relatedTarget || !wrapper.contains(ev.relatedTarget as Node))) {
           props.collectionService.hasFocus.setValue(false)
-        }),
-    )
+        }
+      }
+
+      queueMicrotask(() => {
+        const wrapper = wrapperRef.current
+        if (wrapper) {
+          wrapper.addEventListener('focusout', handleFocusOut)
+        }
+      })
+
+      return {
+        [Symbol.dispose]: () => {
+          const wrapper = wrapperRef.current
+          if (wrapper) {
+            wrapper.removeEventListener('focusout', handleFocusOut)
+          }
+        },
+      }
+    })
 
     if (props.styles?.wrapper) {
       useHostProps({ style: props.styles.wrapper as Record<string, string> })
@@ -185,9 +212,7 @@ export const DataGrid: <T, Column extends string>(
       <div
         ref={wrapperRef}
         className="shade-grid-wrapper"
-        onclick={() => {
-          props.collectionService.hasFocus.setValue(true)
-        }}
+        data-nav-section={props.navSection ?? `data-grid-${navSectionId}`}
         ariaMultiSelectable="true"
       >
         <table>

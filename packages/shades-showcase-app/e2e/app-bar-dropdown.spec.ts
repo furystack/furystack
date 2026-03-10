@@ -4,7 +4,7 @@ const getThemeBackground = (page: Page) =>
   page.evaluate(() => document.documentElement.style.getPropertyValue('--shades-theme-background-default'))
 
 test.describe('AppBar Theme Dropdown', () => {
-  test('open dropdown, close via backdrop, and select a theme', async ({ page }) => {
+  test('open, close via backdrop, switch themes, and trigger special notification', async ({ page }) => {
     await page.goto('/')
     await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
 
@@ -23,16 +23,8 @@ test.describe('AppBar Theme Dropdown', () => {
     // Close via backdrop click (verifies backdrop-filter fix on AppBar)
     await backdrop.click({ position: { x: 10, y: 10 } })
     await expect(panel).not.toHaveClass(/visible/)
-  })
 
-  test('should apply the light theme when selected', async ({ page }) => {
-    await page.goto('/')
-    await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
-
-    const dropdown = page.locator('theme-switch shade-dropdown')
-    const trigger = dropdown.locator('.dropdown-trigger')
-    const panel = dropdown.locator('.dropdown-panel')
-
+    // Apply light theme
     await expect(() => expect(getThemeBackground(page)).resolves.toBe('#121212')).toPass({ timeout: 5000 })
 
     await trigger.click()
@@ -41,35 +33,13 @@ test.describe('AppBar Theme Dropdown', () => {
     await expect(panel).not.toHaveClass(/visible/)
 
     await expect(() => expect(getThemeBackground(page)).resolves.toBe('#fafafa')).toPass({ timeout: 5000 })
-  })
 
-  test('should switch back to dark theme', async ({ page }) => {
-    await page.goto('/')
-    await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
-
-    const dropdown = page.locator('theme-switch shade-dropdown')
-    const trigger = dropdown.locator('.dropdown-trigger')
-    const panel = dropdown.locator('.dropdown-panel')
-
-    // Switch to light first
-    await trigger.click()
-    await panel.getByText('Light').click()
-    await expect(() => expect(getThemeBackground(page)).resolves.toBe('#fafafa')).toPass({ timeout: 5000 })
-
-    // Switch back to dark
+    // Switch back to dark theme
     await trigger.click()
     await panel.getByText('Dark').click()
     await expect(() => expect(getThemeBackground(page)).resolves.toBe('#121212')).toPass({ timeout: 5000 })
-  })
 
-  test('should show a notification when a special theme is selected', async ({ page }) => {
-    await page.goto('/')
-    await page.locator('shade-app-bar[data-visible]').waitFor({ state: 'visible' })
-
-    const dropdown = page.locator('theme-switch shade-dropdown')
-    const trigger = dropdown.locator('.dropdown-trigger')
-    const panel = dropdown.locator('.dropdown-panel')
-
+    // Select Paladin theme and verify notification
     await trigger.click()
     await panel.getByText('Paladin').click()
     await expect(panel).not.toHaveClass(/visible/)

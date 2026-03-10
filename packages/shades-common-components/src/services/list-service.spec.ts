@@ -1,5 +1,5 @@
 import { using } from '@furystack/utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ListService } from './list-service.js'
 
 type TestItem = { id: number; name: string }
@@ -80,51 +80,33 @@ describe('ListService', () => {
       })
     })
 
-    it('should handle ArrowDown to move focus to next item', () => {
+    it('should not handle ArrowDown (delegated to spatial navigation)', () => {
       const { service, items } = createTestService()
       using(service, () => {
         service.hasFocus.setValue(true)
         service.focusedItem.setValue(items[0])
 
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
+        const ev = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true })
+        const preventSpy = vi.spyOn(ev, 'preventDefault')
+        service.handleKeyDown(ev)
 
-        expect(service.focusedItem.getValue()).toBe(items[1])
+        expect(service.focusedItem.getValue()).toBe(items[0])
+        expect(preventSpy).not.toHaveBeenCalled()
       })
     })
 
-    it('should not move past last item on ArrowDown', () => {
-      const { service, items } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-        service.focusedItem.setValue(items[2])
-
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
-
-        expect(service.focusedItem.getValue()).toBe(items[2])
-      })
-    })
-
-    it('should handle ArrowUp to move focus to previous item', () => {
+    it('should not handle ArrowUp (delegated to spatial navigation)', () => {
       const { service, items } = createTestService()
       using(service, () => {
         service.hasFocus.setValue(true)
         service.focusedItem.setValue(items[1])
 
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
+        const ev = new KeyboardEvent('keydown', { key: 'ArrowUp', cancelable: true })
+        const preventSpy = vi.spyOn(ev, 'preventDefault')
+        service.handleKeyDown(ev)
 
-        expect(service.focusedItem.getValue()).toBe(items[0])
-      })
-    })
-
-    it('should not move past first item on ArrowUp', () => {
-      const { service, items } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-        service.focusedItem.setValue(items[0])
-
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
-
-        expect(service.focusedItem.getValue()).toBe(items[0])
+        expect(service.focusedItem.getValue()).toBe(items[1])
+        expect(preventSpy).not.toHaveBeenCalled()
       })
     })
 
@@ -229,17 +211,6 @@ describe('ListService', () => {
 
         expect(service.selection.getValue()).not.toContain(items[0])
         expect(service.focusedItem.getValue()).toBe(items[1])
-      })
-    })
-
-    it('should handle Tab to toggle focus', () => {
-      const { service } = createTestService()
-      using(service, () => {
-        service.hasFocus.setValue(true)
-
-        service.handleKeyDown(new KeyboardEvent('keydown', { key: 'Tab' }))
-
-        expect(service.hasFocus.getValue()).toBe(false)
       })
     })
 

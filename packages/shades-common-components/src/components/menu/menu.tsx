@@ -250,7 +250,7 @@ export const Menu = Shade<MenuProps>({
     useHostProps({
       role: mode === 'horizontal' ? 'menubar' : 'menu',
       'data-mode': mode,
-      tabindex: '0',
+      tabIndex: 0,
     })
 
     useHostProps({

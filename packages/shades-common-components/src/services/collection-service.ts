@@ -62,6 +62,19 @@ export class CollectionService<T>
 
   public focusedEntry = new ObservableValue<T | undefined>(undefined)
 
+  /**
+   * Stores the focused entry captured on pointerdown, before the focus event
+   * can update focusedEntry. Used as the anchor for SHIFT+click range selection.
+   * Call {@link setFocusAnchor} from `onpointerdown` to snapshot the anchor
+   * before focus shifts.
+   */
+  private focusAnchor: T | undefined = undefined
+
+  /** Snapshot the current focused entry as the anchor for SHIFT+click range selection. */
+  public setFocusAnchor(): void {
+    this.focusAnchor = this.focusedEntry.getValue()
+  }
+
   public selection = new ObservableValue<T[]>([])
 
   public searchTerm = new ObservableValue('')
@@ -107,26 +120,34 @@ export class CollectionService<T>
           }
 
           break
-        case 'ArrowUp':
-          ev.preventDefault()
-          this.focusedEntry.setValue(entries[Math.max(0, entries.findIndex((e) => e === focusedEntry) - 1)])
+        case 'ArrowDown': {
+          if (focusedEntry !== undefined) {
+            const currentIndex = entries.indexOf(focusedEntry)
+            if (currentIndex >= 0 && currentIndex < entries.length - 1) {
+              ev.preventDefault()
+              this.focusedEntry.setValue(entries[currentIndex + 1])
+            }
+          }
           break
-        case 'ArrowDown':
-          ev.preventDefault()
-          this.focusedEntry.setValue(
-            entries[Math.min(entries.length - 1, entries.findIndex((e) => e === focusedEntry) + 1)],
-          )
+        }
+        case 'ArrowUp': {
+          if (focusedEntry !== undefined) {
+            const currentIndex = entries.indexOf(focusedEntry)
+            if (currentIndex > 0) {
+              ev.preventDefault()
+              this.focusedEntry.setValue(entries[currentIndex - 1])
+            }
+          }
           break
+        }
         case 'Home': {
+          ev.preventDefault()
           this.focusedEntry.setValue(entries[0])
           break
         }
         case 'End': {
+          ev.preventDefault()
           this.focusedEntry.setValue(entries[entries.length - 1])
-          break
-        }
-        case 'Tab': {
-          this.hasFocus.setValue(!hasFocus)
           break
         }
         case 'Escape': {
@@ -152,7 +173,8 @@ export class CollectionService<T>
   public handleRowClick(entry: T, ev: MouseEvent) {
     this.emit('onRowClick', entry)
     const currentSelectionValue = this.selection.getValue()
-    const lastFocused = this.focusedEntry.getValue()
+    const lastFocused = this.focusAnchor ?? this.focusedEntry.getValue()
+    this.focusAnchor = undefined
     if (ev.ctrlKey) {
       if (currentSelectionValue.includes(entry)) {
         this.selection.setValue(currentSelectionValue.filter((s) => s !== entry))

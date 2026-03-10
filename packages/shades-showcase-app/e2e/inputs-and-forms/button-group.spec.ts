@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('Button Group', () => {
-  test('rendering and toggle button groups: sections, variants, exclusive and multi-select', async ({ page }) => {
+  test('button groups, toggle groups, and segmented controls: rendering, selection, and disabled', async ({ page }) => {
     await page.goto('/inputs-and-forms/button-group')
 
     const content = page.locator('button-group-page')
@@ -44,15 +44,8 @@ test.describe('Button Group', () => {
     await italicBtn.click()
     await expect(boldBtn).toHaveAttribute('data-selected', '')
     await expect(italicBtn).toHaveAttribute('data-selected', '')
-  })
 
-  test('segmented control: rendering, selection, and disabled state', async ({ page }) => {
-    await page.goto('/inputs-and-forms/button-group')
-
-    const content = page.locator('button-group-page')
-    await content.waitFor({ state: 'visible' })
-
-    // Verify segmented controls
+    // Segmented controls
     const segmented = content.locator('shade-segmented-control')
     const segmentedCount = await segmented.count()
     expect(segmentedCount).toBe(4)
