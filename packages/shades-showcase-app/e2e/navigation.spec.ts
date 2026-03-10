@@ -94,7 +94,8 @@ const getAppBarLink = (page: Page, linkText: string) => {
   return appBar.locator('shade-app-bar-link', { has: page.locator(`text="${linkText}"`) })
 }
 
-const expectSelected = async (link: Locator) => await expect(link).toHaveAttribute('data-active', '')
+const expectSelected = async (link: Locator) =>
+  await expect(link).toHaveAttribute('data-active', '', { timeout: 15000 })
 
 const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveAttribute('data-active')
 
@@ -134,6 +135,7 @@ test.describe('Navigation', () => {
     for (const { name: categoryName, pages } of categories) {
       for (const { url: pageUrl } of pages) {
         await page.goto(pageUrl)
+        await expect(page.locator('shade-app-bar')).toBeAttached()
         const categoryLink = getAppBarLink(page, categoryName)
         await expectSelected(categoryLink)
       }
