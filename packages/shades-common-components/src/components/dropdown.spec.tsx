@@ -416,6 +416,15 @@ describe('Dropdown', () => {
     })
   })
 
+  describe('spatial navigation', () => {
+    it('should have data-spatial-nav-passthrough on the backdrop', async () => {
+      await usingAsync(await renderDropdown({}), async ({ dropdown }) => {
+        const backdrop = dropdown.querySelector('.dropdown-backdrop') as HTMLElement
+        expect(backdrop.hasAttribute('data-spatial-nav-passthrough')).toBe(true)
+      })
+    })
+  })
+
   describe('placement', () => {
     it('should accept bottomRight placement', async () => {
       await usingAsync(await renderDropdown({ placement: 'bottomRight' }), async ({ dropdown }) => {

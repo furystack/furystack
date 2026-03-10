@@ -89,57 +89,62 @@ const categories = [
   },
 ]
 
+const CI_TIMEOUT = 15000
+
 const getAppBarLink = (page: Page, linkText: string) => {
   const appBar = page.locator('shade-app-bar')
   return appBar.locator('shade-app-bar-link', { has: page.locator(`text="${linkText}"`) })
 }
 
 const expectSelected = async (link: Locator) =>
-  await expect(link).toHaveAttribute('data-active', '', { timeout: 15000 })
+  await expect(link).toHaveAttribute('data-active', '', { timeout: CI_TIMEOUT })
 
 const expectNotSelected = async (link: Locator) => await expect(link).not.toHaveAttribute('data-active')
 
 test.describe('Navigation', () => {
   test.skip(({ isMobile }) => isMobile, 'AppBar navigation tests are desktop-only')
 
-  test('all category links should be accessible from AppBar and navigate to first child', async ({ page }) => {
-    await page.goto('http://localhost:8080/')
-    const homePageTitle = page.locator('shades-showcase-home')
-    await expect(homePageTitle).toBeVisible()
+  test.describe('Category links in AppBar', () => {
+    categories.forEach(({ name: categoryName, url: categoryUrl }) => {
+      test(`${categoryName} should be accessible from AppBar and navigate to first child`, async ({ page }) => {
+        await page.goto('/')
+        const homePageTitle = page.locator('shades-showcase-home')
+        await expect(homePageTitle).toBeVisible({ timeout: CI_TIMEOUT })
 
-    for (const { name: categoryName, url: categoryUrl } of categories) {
-      const homeLink = getAppBarLink(page, 'Home')
-      const categoryLink = getAppBarLink(page, categoryName)
+        const homeLink = getAppBarLink(page, 'Home')
+        const categoryLink = getAppBarLink(page, categoryName)
 
-      await homeLink.click()
-      await page.waitForURL('http://localhost:8080/')
-      await expect(homePageTitle).toBeVisible({ timeout: 10000 })
-      await expectSelected(homeLink)
-      await expectNotSelected(categoryLink)
+        await expectSelected(homeLink)
+        await expectNotSelected(categoryLink)
 
-      await categoryLink.click()
-      await expect(page).toHaveURL(categoryUrl)
+        await categoryLink.click()
+        await expect(page).toHaveURL(categoryUrl, { timeout: CI_TIMEOUT })
 
-      await expectSelected(categoryLink)
-      await expectNotSelected(homeLink)
+        await expectSelected(categoryLink)
+        await expectNotSelected(homeLink)
 
-      await page.goBack()
-      await expectSelected(homeLink)
+        await page.goBack()
+        await page.waitForURL('/', { timeout: CI_TIMEOUT })
+        await expectSelected(homeLink)
 
-      await page.goForward()
-      await expectSelected(categoryLink)
-    }
+        await page.goForward()
+        await page.waitForURL(categoryUrl, { timeout: CI_TIMEOUT })
+        await expectSelected(categoryLink)
+      })
+    })
   })
 
-  test('all pages should be accessible from URL and highlight their category', async ({ page }) => {
-    for (const { name: categoryName, pages } of categories) {
-      for (const { url: pageUrl } of pages) {
-        await page.goto(pageUrl)
-        await expect(page.locator('shade-app-bar')).toBeAttached({ timeout: 15000 })
-        const categoryLink = getAppBarLink(page, categoryName)
-        await expectSelected(categoryLink)
-      }
-    }
+  test.describe('Pages accessible from URL', () => {
+    categories.forEach(({ name: categoryName, pages }) => {
+      pages.forEach(({ name: pageName, url: pageUrl }) => {
+        test(`${pageName} should be accessible from URL and highlight ${categoryName} category`, async ({ page }) => {
+          await page.goto(pageUrl)
+          await expect(page.locator('shade-app-bar')).toBeAttached({ timeout: CI_TIMEOUT })
+          const categoryLink = getAppBarLink(page, categoryName)
+          await expectSelected(categoryLink)
+        })
+      })
+    })
   })
 
   test('Should have a 404 page', async ({ page }) => {

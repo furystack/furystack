@@ -4,7 +4,7 @@
 
 ## ✨ Features
 
-- Added `navSection` prop to `DataGrid`, `List`, and `Tree` — sets a `data-nav-section` attribute so `SpatialNavigationService` constrains arrow-key navigation within the component (auto-generated per instance when not provided)
+- Added `navSection` prop to `Accordion`, `DataGrid`, `List`, and `Tree` — sets a `data-nav-section` attribute so `SpatialNavigationService` constrains arrow-key navigation within the component (auto-generated per instance when not provided)
 - Added `trapFocus` and `navSection` props to `Modal` — when `trapFocus` is true, spatial navigation is locked within the modal's bounds until it closes
 - Added `trapFocus` (defaults to `true`) and `navSection` props to `Dialog` — forwarded to the underlying `Modal` component
 - Made `Chip` focusable when clickable (including delete button) for spatial/keyboard navigation
@@ -26,6 +26,7 @@
 - `ActionColors` type now requires a `focusOutline` property — all custom themes must include this value
 - `CommandPalette` and `Suggest` keyboard handling changed from `onkeyup` to `onkeydown` — arrow key navigation within the suggestion list now only activates when suggestions are open
 - Scroll-to-focused-item behavior changed from `smooth` to `instant` in `List`, `DataGrid`, and `Tree` — keyboard navigation no longer animates scrolling
+- `AccordionItem` header changed from `<div role="button" data-disabled>` to a native `<button disabled>` — consumers with CSS targeting `.accordion-header[data-disabled]` must update to `.accordion-header:disabled` or the host's `[data-disabled]`
 
 ### 🔄 Migration Guide
 
