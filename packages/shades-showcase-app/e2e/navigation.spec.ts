@@ -118,7 +118,7 @@ test.describe('Navigation', () => {
         await expectNotSelected(categoryLink)
 
         await categoryLink.click()
-        await expect(page).toHaveURL(categoryUrl, { timeout: CI_TIMEOUT })
+        await page.waitForURL(categoryUrl, { timeout: CI_TIMEOUT })
 
         await expectSelected(categoryLink)
         await expectNotSelected(homeLink)
