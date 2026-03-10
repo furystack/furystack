@@ -1,5 +1,15 @@
 # Changelog
 
+## [9.1.0] - 2026-03-10
+
+### ✨ Features
+
+- Added Spatial Navigation showcase page under Navigation demonstrating section-scoped arrow-key navigation, cross-section movement, input passthrough, focus-trapped dialogs, and an action log
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core` dependency to the new major version
+
 ## [9.0.0] - 2026-03-07
 
 ### ⬆️ Dependencies

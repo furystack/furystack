@@ -1,7 +1,0 @@
-<!-- version-type: patch -->
-
-# @furystack/shades-i18n
-
-## ⬆️ Dependencies
-
-- Bumped `@furystack/shades` dependency

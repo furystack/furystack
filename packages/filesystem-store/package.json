@@ -1,6 +1,6 @@
 {
   "name": "@furystack/filesystem-store",
-  "version": "7.1.2",
+  "version": "7.1.3",
   "description": "Simple File System store implementation for FuryStack",
   "type": "module",
   "scripts": {

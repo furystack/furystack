@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.0.44] - 2026-03-10
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/core` dependency to the new major version
+
 ## [10.0.43] - 2026-03-07
 
 ### ⬆️ Dependencies

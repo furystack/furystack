@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.1.3] - 2026-03-10
+
+### ⬆️ Dependencies
+
+- Bumped `@furystack/shades` and `@furystack/shades-common-components` dependencies
+- Updated `@furystack/core` dependency to the new major version
+
 ## [8.1.2] - 2026-03-07
 
 ### ⬆️ Dependencies

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/websocket-api",
-  "version": "13.2.2",
+  "version": "13.2.3",
   "description": "WebSocket API implementation for FuryStack",
   "type": "module",
   "scripts": {

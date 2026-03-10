@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.0.1] - 2026-03-10
+
+### ⬆️ Dependencies
+
+- Bumped `@furystack/shades` dependency
+- Updated `@furystack/core` dependency to the new major version
+
 ## [9.0.0] - 2026-03-07
 
 ### ⬆️ Dependencies
