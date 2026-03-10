@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 const isInCi = !!process.env.CI
 
 export default defineConfig({
+  timeout: 60000,
   forbidOnly: isInCi,
   testDir: 'e2e',
   fullyParallel: true,
@@ -30,12 +31,10 @@ export default defineConfig({
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
-      timeout: 60000,
     },
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
-      timeout: 60000,
     },
   ],
   webServer: {
