@@ -1,3 +1,4 @@
+import type { ESLint } from 'eslint'
 import type { TSESLint } from '@typescript-eslint/utils'
 import { recommended, recommendedStrict } from './configs/recommended.js'
 import { shades, shadesStrict } from './configs/shades.js'
@@ -51,5 +52,6 @@ const plugin = {
   },
 }
 
-export default plugin
+// https://github.com/typescript-eslint/typescript-eslint/issues/11543
+export default plugin as ESLint.Plugin & typeof plugin
 export { rules }

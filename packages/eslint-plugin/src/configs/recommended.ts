@@ -1,6 +1,6 @@
-import type { TSESLint } from '@typescript-eslint/utils'
+import type { Linter } from 'eslint'
 
-export const recommended: TSESLint.FlatConfig.Config = {
+export const recommended: Linter.Config = {
   rules: {
     'furystack/no-direct-physical-store': 'error',
     'furystack/require-disposable-for-observable-owner': 'error',
@@ -12,7 +12,7 @@ export const recommended: TSESLint.FlatConfig.Config = {
   },
 }
 
-export const recommendedStrict: TSESLint.FlatConfig.Config = {
+export const recommendedStrict: Linter.Config = {
   rules: {
     'furystack/no-direct-physical-store': 'error',
     'furystack/require-disposable-for-observable-owner': 'error',
