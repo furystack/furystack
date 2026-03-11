@@ -1,13 +1,13 @@
 // @ts-check
-
 import eslint from '@eslint/js'
 import furystack from '@furystack/eslint-plugin'
 import prettierConfig from 'eslint-config-prettier'
 import jsdoc from 'eslint-plugin-jsdoc'
 import playwright from 'eslint-plugin-playwright'
+import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
-export default tseslint.config(
+export default defineConfig(
   {
     ...playwright.configs['flat/recommended'],
     files: ['packages/shades-showcase-app/e2e'],

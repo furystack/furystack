@@ -1,6 +1,6 @@
-import type { TSESLint } from '@typescript-eslint/utils'
+import type { Linter } from 'eslint'
 
-export const shades: TSESLint.FlatConfig.Config = {
+export const shades: Linter.Config = {
   rules: {
     'furystack/no-module-level-jsx': 'error',
     'furystack/no-removed-shade-apis': 'error',
@@ -16,7 +16,7 @@ export const shades: TSESLint.FlatConfig.Config = {
   },
 }
 
-export const shadesStrict: TSESLint.FlatConfig.Config = {
+export const shadesStrict: Linter.Config = {
   rules: {
     'furystack/no-module-level-jsx': 'error',
     'furystack/no-removed-shade-apis': 'error',

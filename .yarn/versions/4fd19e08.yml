@@ -1,0 +1,3 @@
+releases:
+  "@furystack/eslint-plugin": patch
+  furystack: patch
