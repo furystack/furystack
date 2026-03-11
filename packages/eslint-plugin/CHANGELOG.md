@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1] - 2026-03-11
+
+### 🐛 Bug Fixes
+
+- Replaced `TSESLint.FlatConfig.Config` with native `Linter.Config` from `eslint` for config type definitions in `recommended` and `shades` configs, fixing type compatibility issues with `eslint/config`'s `defineConfig()`
+- Added type assertion on the default plugin export to work around a [typescript-eslint typing issue](https://github.com/typescript-eslint/typescript-eslint/issues/11543) that prevented proper type inference when using the plugin
+
 ## [2.1.0] - 2026-03-10
 
 ### ✨ Features

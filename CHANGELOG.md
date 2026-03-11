@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.4] - 2026-03-11
+
+### 🐛 Bug Fixes
+
+- Switched root ESLint config from `tseslint.config()` to `defineConfig()` from `eslint/config` for proper type inference with the updated `@furystack/eslint-plugin` types
+
 ## [8.1.3] - 2026-03-10
 
 ### ⬆️ Dependencies
