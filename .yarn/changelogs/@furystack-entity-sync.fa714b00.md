@@ -1,4 +1,5 @@
 <!-- version-type: patch -->
+
 # @furystack/entity-sync
 
 <!--
@@ -18,32 +19,41 @@ appear before simple list items within each section.
 -->
 
 ## ⬆️ Dependencies
+
 - 1.0.7 patch: updated `@furystack/core` dependency to the new major version (2026‑03‑10).
 
-
 ## 🐛 Bug Fixes
+
 <!-- PLACEHOLDER: Describe the nasty little bugs that has been eradicated (fix:) -->
 
 ## 📚 Documentation
+
 <!-- PLACEHOLDER: Describe documentation changes (docs:) -->
 
 ## ⚡ Performance
+
 <!-- PLACEHOLDER: Describe performance improvements (perf:) -->
 
 ## ♻️ Refactoring
+
 <!-- PLACEHOLDER: Describe code refactoring (refactor:) -->
 
 ## 🧪 Tests
+
 <!-- PLACEHOLDER: Describe test changes (test:) -->
 
 ## 📦 Build
+
 <!-- PLACEHOLDER: Describe build system changes (build:) -->
 
 ## 👷 CI
+
 <!-- PLACEHOLDER: Describe CI configuration changes (ci:) -->
 
 ## ⬆️ Dependencies
+
 <!-- PLACEHOLDER: Describe dependency updates (deps:) -->
 
 ## 🔧 Chores
+
 <!-- PLACEHOLDER: Describe other changes (chore:) -->
