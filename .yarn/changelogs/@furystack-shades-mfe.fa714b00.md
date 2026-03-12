@@ -1,6 +1,6 @@
 <!-- version-type: patch -->
 
-# furystack
+# @furystack/shades-mfe
 
 <!--
 FORMATTING GUIDE:
@@ -18,17 +18,10 @@ TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
 
-## 🐛 Bug Fixes
-
-- Switched root ESLint config from `tseslint.config()` to `defineConfig()` from `eslint/config` for proper type inference with the updated `@furystack/eslint-plugin` types.
-
-## ⬆️ Dependencies
-
-- Bumped various workspace packages and upgraded the core dependency.
-
 ## ✨ Features
 
-- Integrated `@furystack/eslint-plugin` into the monorepo ESLint configuration with `recommendedStrict` for all packages and `shadesStrict` for Shades-related packages.
+- 3.0.1 patch: bumped `@furystack/shades` and `@furystack/core` dependencies.
+- 3.0.0 breaking change: Shade API rename `shadowDomName` → `customElementName`.
 
 ## 🐛 Bug Fixes
 

@@ -1,6 +1,6 @@
 <!-- version-type: patch -->
 
-# furystack
+# @furystack/rest-service
 
 <!--
 FORMATTING GUIDE:
@@ -18,17 +18,14 @@ TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
 
-## 🐛 Bug Fixes
-
-- Switched root ESLint config from `tseslint.config()` to `defineConfig()` from `eslint/config` for proper type inference with the updated `@furystack/eslint-plugin` types.
-
-## ⬆️ Dependencies
-
-- Bumped various workspace packages and upgraded the core dependency.
-
 ## ✨ Features
 
-- Integrated `@furystack/eslint-plugin` into the monorepo ESLint configuration with `recommendedStrict` for all packages and `shadesStrict` for Shades-related packages.
+- OpenAPI document generation with metadata (`generateOpenApiDocument`, `CreateGetOpenApiDocumentAction`, `WithSchemaAndOpenApiAction`).
+- Added server lifecycle events (`onServerListening`, `onServerClosed`) and HTTP auth events (`onLogin`, `onLogout`, `onSessionInvalidated`).
+
+## 🐛 Bug Fixes
+
+- `ApiManager` now responds with 400 for malformed percent‑encoded path parameters instead of crashing.
 
 ## 🐛 Bug Fixes
 

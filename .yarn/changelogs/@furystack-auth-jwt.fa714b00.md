@@ -20,7 +20,7 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-- 2.1.3 patch: updated `@furystack/core` dependency to the new major version (2026‑03‑10).
+- Updated `@furystack/core` dependency to the latest major version.
 
 ## 🐛 Bug Fixes
 

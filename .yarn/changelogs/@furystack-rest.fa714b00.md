@@ -1,6 +1,6 @@
 <!-- version-type: patch -->
 
-# furystack
+# @furystack/rest
 
 <!--
 FORMATTING GUIDE:
@@ -18,17 +18,14 @@ TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
 
-## 🐛 Bug Fixes
-
-- Switched root ESLint config from `tseslint.config()` to `defineConfig()` from `eslint/config` for proper type inference with the updated `@furystack/eslint-plugin` types.
-
-## ⬆️ Dependencies
-
-- Bumped various workspace packages and upgraded the core dependency.
-
 ## ✨ Features
 
-- Integrated `@furystack/eslint-plugin` into the monorepo ESLint configuration with `recommendedStrict` for all packages and `shadesStrict` for Shades-related packages.
+- Added bidirectional OpenAPI 3.1 support (`OpenApiToRestApi`, `openApiToSchema()`, converters, metadata).
+- Improved error handling: `decode()` throws `RequestError` on invalid query values and percent-encoding.
+
+## 🐛 Bug Fixes
+
+- `decode()` now throws `RequestError` for malformed base64/JSON/percent‑encoding inputs.
 
 ## 🐛 Bug Fixes
 
