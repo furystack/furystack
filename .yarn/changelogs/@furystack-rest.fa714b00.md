@@ -23,9 +23,9 @@ appear before simple list items within each section.
 - Added bidirectional OpenAPI 3.1 support (`OpenApiToRestApi`, `openApiToSchema()`, converters, metadata).
 - Improved error handling: `decode()` throws `RequestError` on invalid query values and percent-encoding.
 
-## 🐛 Bug Fixes
-
 - `decode()` now throws `RequestError` for malformed base64/JSON/percent‑encoding inputs.
+
+## 🐛 Bug Fixes
 
 ## 🐛 Bug Fixes
 

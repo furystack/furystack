@@ -23,6 +23,7 @@ appear before simple list items within each section.
 ### Spatial Navigation Service
 
 - Added `SpatialNavigationService` with section-scoped arrow-key focus movement, cross-section memory, input passthrough, and configurable backspace/escape behaviors.
+
 - Added optional `deps` parameter to `useDisposable()` for automatic resource recreation.
 
 ### 💥 Breaking Changes

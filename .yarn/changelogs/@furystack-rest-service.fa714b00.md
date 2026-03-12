@@ -23,9 +23,9 @@ appear before simple list items within each section.
 - OpenAPI document generation with metadata (`generateOpenApiDocument`, `CreateGetOpenApiDocumentAction`, `WithSchemaAndOpenApiAction`).
 - Added server lifecycle events (`onServerListening`, `onServerClosed`) and HTTP auth events (`onLogin`, `onLogout`, `onSessionInvalidated`).
 
-## 🐛 Bug Fixes
-
 - `ApiManager` now responds with 400 for malformed percent‑encoded path parameters instead of crashing.
+
+## 🐛 Bug Fixes
 
 ## 🐛 Bug Fixes
 
