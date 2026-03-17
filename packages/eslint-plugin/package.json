@@ -36,10 +36,10 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@typescript-eslint/utils": "^8.57.0"
+    "@typescript-eslint/utils": "^8.57.1"
   },
   "devDependencies": {
-    "@typescript-eslint/rule-tester": "^8.57.0",
+    "@typescript-eslint/rule-tester": "^8.57.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.0"
   },

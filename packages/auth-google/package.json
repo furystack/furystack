@@ -47,7 +47,7 @@
     "@furystack/repository": "workspace:^",
     "@furystack/rest": "workspace:^",
     "@furystack/rest-service": "workspace:^",
-    "google-auth-library": "^10.6.1"
+    "google-auth-library": "^10.6.2"
   },
   "devDependencies": {
     "@furystack/utils": "workspace:^",
