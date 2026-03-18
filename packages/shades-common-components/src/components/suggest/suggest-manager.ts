@@ -51,7 +51,7 @@ export class SuggestManager<T> extends EventHub<{ onSelectSuggestion: T }> imple
       if (this.lastGetSuggestionOptions?.term === options.term) {
         return
       }
-      const lastSelectedSuggestion = JSON.stringify(this.currentSuggestions.getValue()[this.selectedIndex.getValue()])
+      const lastSelectedEntry = JSON.stringify(this.currentSuggestions.getValue()[this.selectedIndex.getValue()]?.entry)
       this.isLoading.setValue(true)
       this.lastGetSuggestionOptions = options
       const newEntries = await this.getEntries(options.term)
@@ -60,7 +60,7 @@ export class SuggestManager<T> extends EventHub<{ onSelectSuggestion: T }> imple
       this.selectedIndex.setValue(
         Math.max(
           0,
-          this.currentSuggestions.getValue().findIndex((e) => JSON.stringify(e) === lastSelectedSuggestion),
+          this.currentSuggestions.getValue().findIndex((e) => JSON.stringify(e.entry) === lastSelectedEntry),
         ),
       )
     } finally {

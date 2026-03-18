@@ -71,7 +71,8 @@ describe('Shades Component Factory', () => {
       )
 
       const shade = component.firstElementChild as JSX.Element
-      expect(shade.props).toEqual({})
+      const { __self, __source, ...props } = shade.props as Record<string, unknown>
+      expect(props).toEqual({})
       expect(shade.shadeChildren).toEqual([])
     })
 
