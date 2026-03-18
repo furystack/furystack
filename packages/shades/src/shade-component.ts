@@ -166,7 +166,7 @@ export const createComponent = <TProps extends object>(...args: CreateComponentA
   if (rawProps && typeof rawProps === 'object') {
     if ('__self' in rawProps) delete (rawProps as Record<string, unknown>).__self
     if ('__source' in rawProps) delete (rawProps as Record<string, unknown>).__source
-    if (Object.keys(rawProps).length === 0) args[1] = null as (typeof args)[1]
+    if (Object.keys(rawProps).length === 0) args[1] = null as unknown as (typeof args)[1]
   }
 
   // In render mode, produce VNode descriptors instead of real DOM elements
