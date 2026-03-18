@@ -163,10 +163,9 @@ export const createComponent = <TProps extends object>(...args: CreateComponentA
   // inject into the props object. These are not real component props and would
   // pollute shallow-equality checks, prop forwarding, and component rendering.
   const rawProps = args[1]
-  if (rawProps && typeof rawProps === 'object') {
-    if ('__self' in rawProps) delete (rawProps as Record<string, unknown>).__self
-    if ('__source' in rawProps) delete (rawProps as Record<string, unknown>).__source
-    if (Object.keys(rawProps).length === 0) args[1] = null as unknown as (typeof args)[1]
+  if (rawProps && typeof rawProps === 'object' && ('__self' in rawProps || '__source' in rawProps)) {
+    const { __self, __source, ...cleanProps } = rawProps as Record<string, unknown>
+    args[1] = cleanProps as (typeof args)[1]
   }
 
   // In render mode, produce VNode descriptors instead of real DOM elements
