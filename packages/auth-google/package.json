@@ -47,13 +47,13 @@
     "@furystack/repository": "workspace:^",
     "@furystack/rest": "workspace:^",
     "@furystack/rest-service": "workspace:^",
-    "google-auth-library": "^10.6.1"
+    "google-auth-library": "^10.6.2"
   },
   "devDependencies": {
     "@furystack/utils": "workspace:^",
-    "@types/node": "^25.4.0",
+    "@types/node": "^25.5.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "engines": {
     "node": ">=22.0.0"

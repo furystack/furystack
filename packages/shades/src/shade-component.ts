@@ -159,6 +159,15 @@ export const createFragmentInner = (...[_props, ...children]: CreateFragmentArgs
 }
 
 export const createComponent = <TProps extends object>(...args: CreateComponentArgs<TProps> | CreateFragmentArgs) => {
+  // Strip __self / __source dev-mode metadata that JSX transpilers (e.g. Vite 8+)
+  // inject into the props object. These are not real component props and would
+  // pollute shallow-equality checks, prop forwarding, and component rendering.
+  const rawProps = args[1]
+  if (rawProps && typeof rawProps === 'object' && ('__self' in rawProps || '__source' in rawProps)) {
+    const { __self, __source, ...cleanProps } = rawProps as Record<string, unknown>
+    args[1] = cleanProps as (typeof args)[1]
+  }
+
   // In render mode, produce VNode descriptors instead of real DOM elements
   if (renderMode) {
     const [type, props, ...children] = args
