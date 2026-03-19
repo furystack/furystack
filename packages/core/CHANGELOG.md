@@ -1,5 +1,27 @@
 # Changelog
 
+## [16.0.1] - 2026-03-19
+
+### ✨ Features
+
+- Core package bump to 16.0.0 with the breaking change above and other internal refinements.
+
+### 📚 Documentation
+
+- Updated `IdentityContext` JSDoc to reflect the new explicit lifetime and parent‑chain inheritance.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
+### 💥 Breaking Changes
+
+### IdentityContext lifetime changed from `scoped` to `explicit`
+
+`IdentityContext` now uses `@Injectable({ lifetime: 'explicit' })` so child injectors inherit the instance from their parent. Code that previously relied on the default scoped instance may now need to call `injector.setExplicitInstance` before accessing it. See migration notes in the package changelog.
+
 ## [16.0.0] - 2026-03-10
 
 ### 💥 Breaking Changes

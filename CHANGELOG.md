@@ -1,5 +1,22 @@
 # Changelog
 
+## [8.1.5] - 2026-03-19
+
+### ✨ Features
+
+- Integrated `@furystack/eslint-plugin` into the monorepo ESLint configuration with `recommendedStrict` for all packages and `shadesStrict` for Shades-related packages.
+
+### 🐛 Bug Fixes
+
+- Switched root ESLint config from `tseslint.config()` to `defineConfig()` from `eslint/config` for proper type inference with the updated `@furystack/eslint-plugin` types.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+- Bumped various workspace packages and upgraded the core dependency.
+
 ## [8.1.4] - 2026-03-11
 
 ### 🐛 Bug Fixes

@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.1.2] - 2026-03-19
+
+### ✨ Features
+
+- Version bump and existing rule enhancements.
+
+### 🐛 Bug Fixes
+
+- Replaced `TSESLint.FlatConfig.Config` with native `Linter.Config` from `eslint` in `recommended` and `shades` configs to fix type compatibility with `eslint/config`.
+- Added type assertion on the default plugin export to work around a typescript-eslint typing issue that prevented proper inference.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
 ## [2.1.1] - 2026-03-11
 
 ### 🐛 Bug Fixes

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.7] - 2026-03-19
+
+### ✨ Features
+
+- 1.0.6 patch: updated `@types/node` dependency to ^25.3.5.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
 ## [1.0.6] - 2026-03-07
 
 ### ⬆️ Dependencies

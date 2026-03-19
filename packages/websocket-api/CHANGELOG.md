@@ -1,5 +1,14 @@
 # Changelog
 
+## [13.2.4] - 2026-03-19
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+- 13.2.3 patch: updated `@furystack/core` dependency to the new major version (2026‑03‑10).
+
 ## [13.2.3] - 2026-03-10
 
 ### ⬆️ Dependencies

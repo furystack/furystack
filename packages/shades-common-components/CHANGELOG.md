@@ -1,5 +1,25 @@
 # Changelog
 
+## [15.0.1] - 2026-03-19
+
+### ✨ Features
+
+- Added `navSection` prop to `Accordion`, `DataGrid`, `List`, and `Tree` for spatial‑navigation scoping.
+- Added `trapFocus` and `navSection` props to `Modal` and `Dialog`, plus focusable behaviour for `Chip` and `Image` when interactive.
+- Introduced `focusOutline` theme variable and `injectFocusVisibleStyles()` helper; added focus coordination to DataGrid/List/Tree and semantics improvements across components.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
+### 💥 Breaking Changes
+
+- Removed arrow‑key and Tab handlers from `ListService`/`CollectionService`/`TreeService`; spatial navigation now handles boundaries.
+- `AccordionItem` header changed to a native `<button disabled>`; custom CSS selectors must be updated.
+- Themes must supply a `focusOutline` value; various behavioural changes to keyboard handling detailed in package changelog.
+
 ## [15.0.0] - 2026-03-10
 
 ### ✨ Features

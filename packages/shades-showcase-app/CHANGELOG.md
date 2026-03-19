@@ -1,5 +1,18 @@
 # Changelog
 
+## [9.1.1] - 2026-03-19
+
+### ✨ Features
+
+- Added Spatial Navigation showcase page demonstrating section‑scoped arrow‑key navigation, focus traps, input passthrough, and an action log.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+- 9.1.0 patch: updated `@furystack/core` dependency to the new major version.
+
 ## [9.1.0] - 2026-03-10
 
 ### ✨ Features

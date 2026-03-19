@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.35] - 2026-03-19
+
+### ✨ Features
+
+- Updated development dependencies and TypeScript project references.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
 ## [1.0.34] - 2026-03-07
 
 ### ⬆️ Dependencies

@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.2] - 2026-03-19
+
+### ✨ Features
+
+- Bumped `@furystack/shades` and `@furystack/core` dependencies.
+- 3.0.0 breaking change: option `shadowDomName` renamed to `customElementName` in `createI18nComponent()`.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
 ## [3.0.1] - 2026-03-10
 
 ### ⬆️ Dependencies

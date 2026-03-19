@@ -1,5 +1,19 @@
 # Changelog
 
+## [8.1.2] - 2026-03-19
+
+### ✨ Features
+
+- Added bidirectional OpenAPI 3.1 support (`OpenApiToRestApi`, `openApiToSchema()`, converters, metadata).
+- Improved error handling: `decode()` throws `RequestError` on invalid query values and percent-encoding.
+- `decode()` now throws `RequestError` for malformed base64/JSON/percent‑encoding inputs.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
 ## [8.1.1] - 2026-03-10
 
 ### ⬆️ Dependencies

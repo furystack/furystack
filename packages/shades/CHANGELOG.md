@@ -1,5 +1,30 @@
 # Changelog
 
+## [13.1.1] - 2026-03-19
+
+### ✨ Features
+
+### Spatial Navigation Service
+
+- Added `SpatialNavigationService` with section-scoped arrow-key focus movement, cross-section memory, input passthrough, and configurable backspace/escape behaviors.
+
+- Added optional `deps` parameter to `useDisposable()` for automatic resource recreation.
+
+### 💥 Breaking Changes
+
+- `shadowDomName` renamed to `customElementName` for Shade APIs (see migration docs).
+
+### 🐛 Bug Fixes
+
+- Memory leak fixes for `LocationService` and `ScreenService` observables due to missing disposals.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+- Updated `@furystack/core` dependency to the new major version.
+
 ## [13.1.0] - 2026-03-10
 
 ### ✨ Features

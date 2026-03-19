@@ -1,5 +1,19 @@
 # Changelog
 
+## [12.3.2] - 2026-03-19
+
+### ✨ Features
+
+- OpenAPI document generation with metadata (`generateOpenApiDocument`, `CreateGetOpenApiDocumentAction`, `WithSchemaAndOpenApiAction`).
+- Added server lifecycle events (`onServerListening`, `onServerClosed`) and HTTP auth events (`onLogin`, `onLogout`, `onSessionInvalidated`).
+- `ApiManager` now responds with 400 for malformed percent‑encoded path parameters instead of crashing.
+
+### ⬆️ Dependencies
+
+- Upgraded `vite` from ^7.3.1 to ^8.0.0 for improved build performance and new features
+- Upgraded `vitest` from ^4.0.18 to ^4.1.0
+- Upgraded `@vitest/coverage-istanbul` from ^4.0.18 to ^4.1.0
+
 ## [12.3.1] - 2026-03-10
 
 ### ⬆️ Dependencies
