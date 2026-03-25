@@ -3,12 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src",
     "types": ["node"],
     "composite": true,
     "experimentalDecorators": true,
     "module": "CommonJS",
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "declaration": true,
     "declarationMap": true
   },

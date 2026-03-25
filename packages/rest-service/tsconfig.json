@@ -4,8 +4,7 @@
     "outDir": "./esm",
     "composite": true,
     "rootDir": "./src",
-    "baseUrl": "./src",
-    "lib": ["ES2022", "DOM", "DOM.Iterable", "ESNext"],
+    "lib": ["ES2022", "DOM", "ESNext"],
     "resolveJsonModule": true
   },
   "include": ["src", "src/**/*.json"],

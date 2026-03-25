@@ -3,8 +3,7 @@
   "compilerOptions": {
     "outDir": "./esm",
     "composite": true,
-    "rootDir": "./src",
-    "baseUrl": "./src"
+    "rootDir": "./src"
   },
   "include": ["src"],
   "references": [{ "path": "../core" }, { "path": "../inject" }, { "path": "../utils" }]
