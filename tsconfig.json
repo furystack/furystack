@@ -2,7 +2,8 @@
   "compilerOptions": {
     "pretty": true,
     "target": "ES2024",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "lib": ["ESNext", "DOM"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "declaration": true,
@@ -12,7 +13,6 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitThis": true,
-    "alwaysStrict": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,

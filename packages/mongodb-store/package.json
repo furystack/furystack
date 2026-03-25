@@ -41,12 +41,12 @@
     "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "mongodb": "7.1.0"
+    "mongodb": "7.1.1"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.1"
   },
   "engines": {
     "node": ">=22.0.0"

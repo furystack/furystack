@@ -41,14 +41,14 @@
     "@furystack/inject": "workspace:^",
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "ws": "^8.19.0"
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@furystack/repository": "workspace:^",
     "@furystack/security": "workspace:^",
     "@types/ws": "^8.18.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.1"
   },
   "engines": {
     "node": ">=22.0.0"

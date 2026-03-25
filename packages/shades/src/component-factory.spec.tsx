@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { describe, expect, it, vi } from 'vitest'
-import './jsx'
+import './jsx.js'
 import { createComponent } from './shade-component.js'
 import { flushUpdates, Shade } from './shade.js'
 
