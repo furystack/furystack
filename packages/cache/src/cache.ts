@@ -3,7 +3,7 @@ import type { CacheResult } from './cache-result.js'
 import { isLoadedCacheResult } from './cache-result.js'
 import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
 
-interface CacheSettings<TData, TArgs extends any[]> {
+export interface CacheSettings<TData, TArgs extends any[]> {
   /**
    *  Callback to retrieve the uncached entity
    * @param args The arguments for getting the entity
@@ -45,10 +45,21 @@ export class Cache<TData, TArgs extends any[]>
   private readonly pendingLoads = new Map<string, Promise<TData>>()
 
   /**
+   * Stores active stale/cache timer IDs per cache key so they can be cleared on reload, remove, or dispose
+   */
+  private readonly timers = new Map<string, Array<ReturnType<typeof setTimeout>>>()
+
+  /**
    * Disposes the cache
    */
   public [Symbol.dispose]() {
     this.pendingLoads.clear()
+    for (const timerIds of this.timers.values()) {
+      for (const id of timerIds) {
+        clearTimeout(id)
+      }
+    }
+    this.timers.clear()
     this.stateManager[Symbol.dispose]()
     super[Symbol.dispose]()
   }
@@ -100,13 +111,23 @@ export class Cache<TData, TArgs extends any[]>
     }
   }
 
-  private async loadEntry(index: string, args: TArgs): Promise<TData> {
-    try {
-      this.stateManager.setLoadingState(index)
-      const loaded = await this.options.load(...args)
-      this.stateManager.setLoadedState(index, loaded)
+  private clearTimers(index: string) {
+    const existing = this.timers.get(index)
+    if (existing) {
+      for (const id of existing) {
+        clearTimeout(id)
+      }
+    }
+    this.timers.delete(index)
+  }
 
-      if (this.options.staleTimeMs) {
+  private setupTimers(index: string, args: TArgs) {
+    this.clearTimers(index)
+
+    const timerIds: Array<ReturnType<typeof setTimeout>> = []
+
+    if (this.options.staleTimeMs) {
+      timerIds.push(
         setTimeout(() => {
           try {
             this.setObsolete(...args)
@@ -115,13 +136,25 @@ export class Cache<TData, TArgs extends any[]>
               throw error
             }
           }
-        }, this.options.staleTimeMs)
-      }
+        }, this.options.staleTimeMs),
+      )
+    }
 
-      if (this.options.cacheTimeMs) {
-        setTimeout(() => this.remove(...args), this.options.cacheTimeMs)
-      }
+    if (this.options.cacheTimeMs) {
+      timerIds.push(setTimeout(() => this.remove(...args), this.options.cacheTimeMs))
+    }
 
+    if (timerIds.length) {
+      this.timers.set(index, timerIds)
+    }
+  }
+
+  private async loadEntry(index: string, args: TArgs): Promise<TData> {
+    try {
+      this.stateManager.setLoadingState(index)
+      const loaded = await this.options.load(...args)
+      this.stateManager.setLoadedState(index, loaded)
+      this.setupTimers(index, args)
       return loaded
     } catch (error) {
       this.stateManager.setFailedState(index, error)
@@ -135,25 +168,13 @@ export class Cache<TData, TArgs extends any[]>
    */
   public async reload(...args: TArgs) {
     const index = this.getIndex(...args)
-    const loadPromise = this.reloadEntry(index, args)
+    const loadPromise = this.loadEntry(index, args)
     this.pendingLoads.set(index, loadPromise)
     loadPromise.then(
       () => this.cleanupPendingLoad(index, loadPromise),
       () => this.cleanupPendingLoad(index, loadPromise),
     )
     return loadPromise
-  }
-
-  private async reloadEntry(index: string, args: TArgs): Promise<TData> {
-    try {
-      this.stateManager.setLoadingState(index)
-      const loaded = await this.options.load(...args)
-      this.stateManager.setLoadedState(index, loaded)
-      return loaded
-    } catch (error) {
-      this.stateManager.setFailedState(index, error)
-      throw error
-    }
   }
 
   /**
@@ -184,6 +205,7 @@ export class Cache<TData, TArgs extends any[]>
    */
   public remove(...args: TArgs) {
     const index = this.getIndex(...args)
+    this.clearTimers(index)
     return this.stateManager.remove(index)
   }
 

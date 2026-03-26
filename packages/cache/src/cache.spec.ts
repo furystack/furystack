@@ -1,7 +1,15 @@
-import { sleepAsync, using, usingAsync } from '@furystack/utils'
+import { using, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Cache } from './cache.js'
 describe('Cache', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('should be constructed and disposed', () => {
     using(new Cache({ load: () => Promise.resolve(1) }), () => {
       // Constructed and disposed automatically
@@ -13,7 +21,7 @@ describe('Cache', () => {
       const obs = cache.getObservable(1, 2)
       expect(obs.getValue().status).toEqual('loading')
 
-      await sleepAsync(10)
+      await vi.advanceTimersByTimeAsync(10)
 
       expect(obs.getValue().status).toEqual('loaded')
       expect(obs.getValue().value).toEqual(3)
@@ -55,7 +63,7 @@ describe('Cache', () => {
       new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 }),
       async (cache) => {
         await cache.get(1, 2)
-        await sleepAsync(200)
+        await vi.advanceTimersByTimeAsync(200)
         const obs = cache.getObservable(1, 2)
         expect(obs.getValue().status).toEqual('obsolete')
       },
@@ -68,7 +76,7 @@ describe('Cache', () => {
       async (cache) => {
         await cache.get(1, 2)
         cache.remove(1, 2)
-        await sleepAsync(200)
+        await vi.advanceTimersByTimeAsync(200)
       },
     )
   })
@@ -79,8 +87,60 @@ describe('Cache', () => {
       async (cache) => {
         await cache.get(1, 2)
         cache.remove(1, 2)
-        await sleepAsync(200)
+        await vi.advanceTimersByTimeAsync(200)
         expect(cache.has(1, 2)).toEqual(false)
+      },
+    )
+  })
+
+  it('Should mark the value as obsolete after stale time has passed following a reload', async () => {
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await cache.reload(1, 2)
+        await vi.advanceTimersByTimeAsync(200)
+        const obs = cache.getObservable(1, 2)
+        expect(obs.getValue().status).toEqual('obsolete')
+      },
+    )
+  })
+
+  it('Should remove the value from the cache after cache time has passed following a reload', async () => {
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), cacheTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await cache.reload(1, 2)
+        await vi.advanceTimersByTimeAsync(200)
+        expect(cache.has(1, 2)).toEqual(false)
+      },
+    )
+  })
+
+  it('Should reset stale timer on reload so the old timer does not fire prematurely', async () => {
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await vi.advanceTimersByTimeAsync(80)
+        await cache.reload(1, 2)
+        await vi.advanceTimersByTimeAsync(50)
+        const obs = cache.getObservable(1, 2)
+        expect(obs.getValue().status).toEqual('loaded')
+      },
+    )
+  })
+
+  it('Should reset cache time timer on reload so the old timer does not evict prematurely', async () => {
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), cacheTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await vi.advanceTimersByTimeAsync(80)
+        await cache.reload(1, 2)
+        await vi.advanceTimersByTimeAsync(50)
+        expect(cache.has(1, 2)).toEqual(true)
       },
     )
   })
@@ -164,14 +224,6 @@ describe('Cache', () => {
   })
 
   describe('Loading, locking and reloading', () => {
-    beforeEach(() => {
-      vi.useFakeTimers()
-    })
-
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
     it('should store and retrieve results based on the arguments', async () => {
       const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
 
@@ -424,7 +476,7 @@ describe('Cache', () => {
       await usingAsync(new Cache({ load: () => Promise.reject(loadError) }), async (cache) => {
         cache.addListener('onLoadError', errorHandler)
         cache.getObservable()
-        await sleepAsync(50)
+        await vi.advanceTimersByTimeAsync(50)
         expect(errorHandler).toHaveBeenCalledTimes(1)
         expect(errorHandler).toHaveBeenCalledWith({ args: [], error: loadError })
       })
