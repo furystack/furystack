@@ -3,7 +3,7 @@ import type { CacheResult } from './cache-result.js'
 import { isLoadedCacheResult } from './cache-result.js'
 import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
 
-interface CacheSettings<TData, TArgs extends any[]> {
+export interface CacheSettings<TData, TArgs extends any[]> {
   /**
    *  Callback to retrieve the uncached entity
    * @param args The arguments for getting the entity
@@ -100,28 +100,30 @@ export class Cache<TData, TArgs extends any[]>
     }
   }
 
+  private setupTimers(args: TArgs) {
+    if (this.options.staleTimeMs) {
+      setTimeout(() => {
+        try {
+          this.setObsolete(...args)
+        } catch (error) {
+          if (!(error instanceof CannotObsoleteUnloadedError)) {
+            throw error
+          }
+        }
+      }, this.options.staleTimeMs)
+    }
+
+    if (this.options.cacheTimeMs) {
+      setTimeout(() => this.remove(...args), this.options.cacheTimeMs)
+    }
+  }
+
   private async loadEntry(index: string, args: TArgs): Promise<TData> {
     try {
       this.stateManager.setLoadingState(index)
       const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
-
-      if (this.options.staleTimeMs) {
-        setTimeout(() => {
-          try {
-            this.setObsolete(...args)
-          } catch (error) {
-            if (!(error instanceof CannotObsoleteUnloadedError)) {
-              throw error
-            }
-          }
-        }, this.options.staleTimeMs)
-      }
-
-      if (this.options.cacheTimeMs) {
-        setTimeout(() => this.remove(...args), this.options.cacheTimeMs)
-      }
-
+      this.setupTimers(args)
       return loaded
     } catch (error) {
       this.stateManager.setFailedState(index, error)
@@ -149,6 +151,7 @@ export class Cache<TData, TArgs extends any[]>
       this.stateManager.setLoadingState(index)
       const loaded = await this.options.load(...args)
       this.stateManager.setLoadedState(index, loaded)
+      this.setupTimers(args)
       return loaded
     } catch (error) {
       this.stateManager.setFailedState(index, error)
