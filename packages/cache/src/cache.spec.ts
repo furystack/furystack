@@ -110,6 +110,33 @@ describe('Cache', () => {
     )
   })
 
+  it('Should reset stale timer on reload so the old timer does not fire prematurely', async () => {
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), staleTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await sleepAsync(80)
+        await cache.reload(1, 2)
+        await sleepAsync(50)
+        const obs = cache.getObservable(1, 2)
+        expect(obs.getValue().status).toEqual('loaded')
+      },
+    )
+  })
+
+  it('Should reset cache time timer on reload so the old timer does not evict prematurely', async () => {
+    await usingAsync(
+      new Cache({ load: (a: number, b: number) => Promise.resolve(a + b), cacheTimeMs: 100 }),
+      async (cache) => {
+        await cache.get(1, 2)
+        await sleepAsync(80)
+        await cache.reload(1, 2)
+        await sleepAsync(50)
+        expect(cache.has(1, 2)).toEqual(true)
+      },
+    )
+  })
+
   it('Should remove value from the cache', async () => {
     await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
       await cache.get(1, 2)
