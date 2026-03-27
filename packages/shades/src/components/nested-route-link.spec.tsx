@@ -299,5 +299,43 @@ describe('Type utilities', () => {
         .parameter(0)
         .toExtend<{ params: { userId: string; postId: string } }>()
     })
+
+    it('Should accept routes with typed match parameters (NestedRoute<T>)', () => {
+      const routes = {
+        '/stacks/:stackName': {
+          component: ({ match }) => <div>{match.params.stackName}</div>,
+        },
+      } satisfies Record<string, NestedRoute<{ stackName: string }>>
+
+      const AppLink = createNestedRouteLink<typeof routes>()
+      expectTypeOf(AppLink<'/stacks/:stackName'>)
+        .parameter(0)
+        .toExtend<{ params: { stackName: string } }>()
+    })
+
+    it('Should accept a mixed route tree with typed and untyped match parameters', () => {
+      const usersRoute: NestedRoute<{ userId: string }> = {
+        component: ({ match }) => <div>{match.params.userId}</div>,
+      }
+      const buttonsRoute: NestedRoute = {
+        component: () => <div />,
+      }
+
+      const routes = {
+        '/': {
+          component: ({ outlet }) => outlet ?? <div />,
+          children: {
+            '/buttons': buttonsRoute,
+            '/users/:userId': usersRoute,
+          },
+        },
+      } satisfies Record<string, NestedRoute<any>>
+
+      const AppLink = createNestedRouteLink<typeof routes>()
+      expectTypeOf(AppLink).parameter(0).toHaveProperty('href')
+      expectTypeOf(AppLink<'/users/:userId'>)
+        .parameter(0)
+        .toExtend<{ params: { userId: string } }>()
+    })
   })
 })
