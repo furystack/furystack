@@ -1,5 +1,16 @@
 # Changelog
 
+## [13.2.1] - 2026-03-27
+
+### 🐛 Bug Fixes
+
+- Normalized `VNode.props` to always be an empty object instead of `null` when no props are provided, preventing errors when props transition from a value to none during component patching
+
+### 🧪 Tests
+
+- Added test for `null` props normalization in `createVNode`
+- Added test verifying Shade elements receive `{}` (not `null`) when props transition to none
+
 ## [13.2.0] - 2026-03-27
 
 ### ✨ Features

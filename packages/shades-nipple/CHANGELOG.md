@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.0.1] - 2026-03-27
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/shades` dependency
+
 ## [10.0.0] - 2026-03-27
 
 ### ✨ Features
