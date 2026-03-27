@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.1.6] - 2026-03-27
+
+### ⬆️ Dependencies
+
+- Updated `vitest` to ^4.1.2
+
 ## [7.1.5] - 2026-03-25
 
 ### 📦 Build

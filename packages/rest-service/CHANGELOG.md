@@ -1,5 +1,12 @@
 # Changelog
 
+## [12.3.4] - 2026-03-27
+
+### ⬆️ Dependencies
+
+- Updated `path-to-regexp` to ^8.4.0
+- Updated `vitest` to ^4.1.2
+
 ## [12.3.3] - 2026-03-25
 
 ### 📦 Build

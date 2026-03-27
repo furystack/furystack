@@ -1,5 +1,34 @@
 # Changelog
 
+## [13.2.0] - 2026-03-27
+
+### ✨ Features
+
+### Type-safe programmatic navigation for NestedRouter
+
+Added `nestedNavigate()` and `createNestedNavigate()` for programmatic SPA navigation within the nested router system.
+
+- `nestedNavigate(injector, path, params?)` navigates to a route path using `LocationService`, with optional route parameter compilation (e.g. `/users/:id`)
+- `createNestedNavigate<typeof routes>()` returns a type-safe wrapper that restricts `path` to valid route paths and requires `params` when the route is parameterized
+
+**Usage:**
+
+```typescript
+const appNavigate = createNestedNavigate<typeof appRoutes>()
+
+appNavigate(injector, '/buttons')
+appNavigate(injector, '/users/:id', { id: '123' })
+```
+
+### 🐛 Bug Fixes
+
+- Fixed `ExtractRoutePaths` and `createNestedRouteLink` generic constraints from `NestedRoute<unknown>` to `NestedRoute<any>`, resolving type inference failures when routes use concrete component prop types
+
+### 🧪 Tests
+
+- Added tests for `nestedNavigate()` and `createNestedNavigate()`
+- Added tests for `NestedRouteLink` and `createNestedRouteLink` with parameterized routes
+
 ## [13.1.2] - 2026-03-25
 
 ### 📦 Build

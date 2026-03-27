@@ -1,5 +1,12 @@
 # Changelog
 
+## [15.0.3] - 2026-03-27
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/cache` with cache timer fixes
+- Updated `@furystack/shades` dependency
+
 ## [15.0.2] - 2026-03-25
 
 ### 📦 Build

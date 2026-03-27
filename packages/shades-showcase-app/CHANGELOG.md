@@ -1,5 +1,16 @@
 # Changelog
 
+## [9.1.3] - 2026-03-27
+
+### 🐛 Bug Fixes
+
+- Updated the Nipple integration page to read joystick output from `event.data`, so live output rendering matches the current `@furystack/shades-nipple` callback payload.
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/cache` with cache timer fixes
+- Updated `@furystack/shades` dependency
+
 ## [9.1.2] - 2026-03-25
 
 ### 📦 Build

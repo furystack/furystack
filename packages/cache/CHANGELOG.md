@@ -1,5 +1,27 @@
 # Changelog
 
+## [6.1.4] - 2026-03-27
+
+### ✨ Features
+
+- Exported `CacheSettings` interface, allowing consumers to reference cache configuration types directly
+
+### 🐛 Bug Fixes
+
+- Fixed `reload()` not resetting stale and cache time timers — reloaded entries would never become obsolete or get evicted on schedule
+
+### ♻️ Refactoring
+
+- Extracted timer setup into a dedicated `setupTimers()` method reused by both initial load and reload paths
+
+### 🧪 Tests
+
+- Added tests verifying that stale time and cache time timers are correctly restarted after calling `reload()`
+
+### ⬆️ Dependencies
+
+- Updated `vitest` to ^4.1.2
+
 ## [6.1.3] - 2026-03-25
 
 ### 📦 Build

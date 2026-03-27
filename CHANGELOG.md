@@ -1,5 +1,25 @@
 # Changelog
 
+## [8.1.7] - 2026-03-27
+
+### ✨ Features
+
+- Updated the Nipple integration surface across the workspace to use a normalized single-event callback payload with joystick data available under `event.data`.
+
+### 📚 Documentation
+
+- Refreshed joystick integration documentation examples to reflect the current callback signature and payload access pattern.
+
+### 🧪 Tests
+
+- Updated Nipple component callback mocks to use explicit event handler typing, keeping tests aligned with the exported API.
+
+### ⬆️ Dependencies
+
+- Upgraded `nipplejs` to `^1.0.1` in the Nipple integration package and refreshed lockfile entries.
+- Updated `@furystack/cache` with cache timer fixes
+- Updated `@furystack/shades` dependency
+
 ## [8.1.6] - 2026-03-25
 
 ### 📦 Build
