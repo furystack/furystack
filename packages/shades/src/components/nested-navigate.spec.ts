@@ -1,6 +1,6 @@
 import { Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { LocationService } from '../services/location-service.js'
 import type { TypedNavigateArgs } from './nested-navigate.js'
 import { createNestedNavigate, nestedNavigate } from './nested-navigate.js'
@@ -9,13 +9,6 @@ import type { NestedRoute } from './nested-router.js'
 type TestRoute = Pick<NestedRoute<unknown>, 'component'>
 
 describe('nestedNavigate', () => {
-  beforeEach(() => {
-    document.body.innerHTML = '<div id="root"></div>'
-  })
-  afterEach(() => {
-    document.body.innerHTML = ''
-  })
-
   it('Should navigate to a simple path', async () => {
     await usingAsync(new Injector(), async (injector) => {
       const locationService = injector.getInstance(LocationService)
@@ -115,6 +108,21 @@ describe('Type utilities', () => {
       expectTypeOf(appNavigate<'/buttons'>).parameters.toEqualTypeOf<
         [injector: Injector, path: '/buttons', params?: Record<string, string>]
       >()
+    })
+
+    it('Should reject invalid paths', () => {
+      type Routes = {
+        '/': TestRoute & {
+          children: {
+            '/buttons': TestRoute
+            '/inputs': TestRoute
+          }
+        }
+      }
+
+      const appNavigate = createNestedNavigate<Routes>()
+      // @ts-expect-error -- '/nonexistent' is not a valid route path
+      appNavigate(new Injector(), '/nonexistent')
     })
 
     it('Should accept routes with typed match parameters (NestedRoute<T>)', () => {

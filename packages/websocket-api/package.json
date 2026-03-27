@@ -48,7 +48,7 @@
     "@furystack/security": "workspace:^",
     "@types/ws": "^8.18.1",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.1"
+    "vitest": "^4.1.2"
   },
   "engines": {
     "node": ">=22.0.0"

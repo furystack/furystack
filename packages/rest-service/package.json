@@ -47,14 +47,14 @@
     "@furystack/utils": "workspace:^",
     "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
-    "path-to-regexp": "^8.3.0"
+    "path-to-regexp": "^8.4.0"
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
     "@types/node": "^25.5.0",
     "@types/ws": "^8.18.1",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.1",
+    "vitest": "^4.1.2",
     "ws": "^8.20.0"
   },
   "engines": {

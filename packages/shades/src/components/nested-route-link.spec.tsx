@@ -270,6 +270,20 @@ describe('Type utilities', () => {
       expectTypeOf(AppLink).parameter(0).toHaveProperty('href')
     })
 
+    it('Should reject invalid paths', () => {
+      type Routes = {
+        '/': TestRoute & {
+          children: {
+            '/buttons': TestRoute
+          }
+        }
+      }
+
+      const AppLink = createNestedRouteLink<Routes>()
+      // @ts-expect-error -- '/nonexistent' is not a valid route path
+      AppLink({ href: '/nonexistent' })
+    })
+
     it('Should require params for parameterized routes in the tree', () => {
       type Routes = {
         '/': TestRoute & {
