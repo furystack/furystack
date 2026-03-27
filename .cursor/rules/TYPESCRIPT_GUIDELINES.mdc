@@ -87,7 +87,7 @@ export class Cache<A, R> {
 
 ### NEVER use `any`
 
-There are no acceptable uses of `any` in library code:
+There are no acceptable uses of `any` in library code, **with one exception**: generic constraint positions where `unknown` breaks type inference due to variance. This is common when a generic type is not covariant in its type parameter (e.g. it appears in a callback parameter), making `Foo<ConcreteType>` not assignable to `Foo<unknown>`. In such cases, `any` in the constraint is the standard TypeScript pattern.
 
 ```typescript
 // ✅ Good - use unknown for truly unknown types
@@ -103,7 +103,11 @@ export function identity<T>(value: T): T {
   return value
 }
 
-// ❌ FORBIDDEN - using any
+// ✅ Good - `any` in generic constraint to accept any instantiation
+type ExtractPaths<T extends Record<string, SomeGenericType<any>>> = { /* ... */ }
+children?: Record<string, NestedRoute<any>>
+
+// ❌ FORBIDDEN - using any in values, parameters, or return types
 export function processData(data: any): string {
   return data.toString()
 }
@@ -441,7 +445,7 @@ const user = maybeUser! // Can cause runtime error
 
 **Key Principles:**
 
-1. **NEVER use `any`** - Especially in public APIs
+1. **NEVER use `any`** - Except in generic constraint positions where variance requires it
 2. **Explicit types for exports** - Document the contract
 3. **Prefer `type` over `interface`**
 4. **Generic constraints** - Make generics meaningful
@@ -454,7 +458,7 @@ const user = maybeUser! // Can cause runtime error
 
 **Library Type Safety Checklist:**
 
-- [ ] No `any` types in public API
+- [ ] No `any` types in public API (except generic constraints where variance requires it)
 - [ ] All exported functions have explicit types
 - [ ] Generic types have proper constraints
 - [ ] Type guards provided for runtime checks
