@@ -27,7 +27,7 @@ const vtext = (text: string): VTextNode => ({ _brand: 'vtext', text })
 const vel = (tag: string, props: Record<string, unknown> | null, ...children: VChild[]): VNode => ({
   _brand: 'vnode',
   type: tag,
-  props,
+  props: props ?? {},
   children,
 })
 
@@ -77,6 +77,12 @@ describe('vnode', () => {
       expect(vnode.children).toHaveLength(1)
       expect((vnode.children[0] as VTextNode).text).toBe('42')
     })
+
+    it('should normalize null props to empty object', () => {
+      const vnode = createVNode('div', null)
+      expect(vnode.props).toEqual({})
+      expect(vnode.props).not.toBeNull()
+    })
   })
 
   describe('flattenVChildren', () => {
@@ -122,10 +128,8 @@ describe('vnode', () => {
       expect(shallowEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false)
     })
 
-    it('should handle null comparisons', () => {
-      expect(shallowEqual(null, null)).toBe(true)
-      expect(shallowEqual(null, {})).toBe(false)
-      expect(shallowEqual({}, null)).toBe(false)
+    it('should return true for two empty objects', () => {
+      expect(shallowEqual({}, {})).toBe(true)
     })
   })
 
@@ -213,7 +217,7 @@ describe('vnode', () => {
       const parent = document.createElement('div')
       const existing = document.createElement('span')
       existing.textContent = 'existing'
-      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: null, children: [], _el: existing }
+      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [], _el: existing }
       mountChild(child, parent)
       expect(parent.firstChild).toBe(existing)
     })
@@ -268,7 +272,7 @@ describe('vnode', () => {
 
     it('should not mount EXISTING_NODE when _el is undefined', () => {
       const parent = document.createElement('div')
-      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: null, children: [] }
+      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [] }
       const result = mountChild(child, parent)
       expect(result).toBeUndefined()
       expect(parent.childNodes.length).toBe(0)
@@ -307,7 +311,7 @@ describe('vnode', () => {
   describe('patchProps', () => {
     it('should add new props', () => {
       const el = document.createElement('div')
-      patchProps(el, null, { id: 'new' })
+      patchProps(el, {}, { id: 'new' })
       expect(el.id).toBe('new')
     })
 
@@ -343,7 +347,7 @@ describe('vnode', () => {
 
     it('should set data attributes', () => {
       const el = document.createElement('div')
-      patchProps(el, null, { 'data-testid': 'foo' })
+      patchProps(el, {}, { 'data-testid': 'foo' })
       expect(el.getAttribute('data-testid')).toBe('foo')
     })
 
@@ -357,7 +361,7 @@ describe('vnode', () => {
     describe('SVG elements', () => {
       it('should set attributes via setAttribute on SVG elements', () => {
         const el = document.createElementNS(SVG_NS, 'rect')
-        patchProps(el, null, { width: '100', height: '50', rx: '5' })
+        patchProps(el, {}, { width: '100', height: '50', rx: '5' })
         expect(el.getAttribute('width')).toBe('100')
         expect(el.getAttribute('height')).toBe('50')
         expect(el.getAttribute('rx')).toBe('5')
@@ -365,7 +369,7 @@ describe('vnode', () => {
 
       it('should set className as class attribute on SVG elements', () => {
         const el = document.createElementNS(SVG_NS, 'g')
-        patchProps(el, null, { className: 'my-group' })
+        patchProps(el, {}, { className: 'my-group' })
         expect(el.getAttribute('class')).toBe('my-group')
       })
 
@@ -393,7 +397,7 @@ describe('vnode', () => {
       it('should set event handlers as properties on SVG elements', () => {
         const el = document.createElementNS(SVG_NS, 'rect')
         const handler = vi.fn()
-        patchProps(el, null, { onclick: handler })
+        patchProps(el, {}, { onclick: handler })
         expect((el as unknown as Record<string, unknown>).onclick).toBe(handler)
       })
     })
@@ -495,11 +499,11 @@ describe('vnode', () => {
       const real = document.createElement('span')
       real.textContent = 'real'
 
-      const old: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: null, children: [], _el: real }]
+      const old: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [], _el: real }]
       patchChildren(parent, [], old)
       expect(parent.firstChild).toBe(real)
 
-      const updated: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: null, children: [], _el: real }]
+      const updated: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [], _el: real }]
       patchChildren(parent, old, updated)
       expect(parent.firstChild).toBe(real)
     })
@@ -551,6 +555,30 @@ describe('vnode', () => {
 
         expect(updateFn).toHaveBeenCalledOnce()
         expect(fakeShadeEl.props).toEqual({ count: 2 })
+      })
+
+      it('should set empty object (not null) on Shade when props transition to none', () => {
+        const parent = document.createElement('div')
+
+        const fakeShadeEl = document.createElement('my-shade-3') as unknown as JSX.Element
+        const updateFn = vi.fn()
+        ;(fakeShadeEl as unknown as Record<string, unknown>).updateComponentSync = updateFn
+        ;(fakeShadeEl as unknown as Record<string, unknown>).props = { elevation: 2 }
+        ;(fakeShadeEl as unknown as Record<string, unknown>).shadeChildren = undefined
+
+        const factory = vi.fn(() => fakeShadeEl as unknown as JSX.Element)
+
+        const old: VChild[] = [
+          { _brand: 'vnode', type: factory, props: { elevation: 2 }, children: [], _el: fakeShadeEl },
+        ]
+        parent.appendChild(fakeShadeEl)
+
+        const updated: VChild[] = [{ _brand: 'vnode', type: factory, props: {}, children: [] }]
+        patchChildren(parent, old, updated)
+
+        expect(updateFn).toHaveBeenCalledOnce()
+        expect(fakeShadeEl.props).toEqual({})
+        expect(fakeShadeEl.props).not.toBeNull()
       })
 
       it('should NOT call updateComponentSync when props are unchanged', () => {
