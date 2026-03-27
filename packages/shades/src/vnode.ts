@@ -39,7 +39,7 @@ export const EXISTING_NODE: unique symbol = Symbol('existing-node')
 export type VNode = {
   _brand: typeof VNODE_BRAND
   type: string | ((...args: unknown[]) => unknown) | typeof FRAGMENT | typeof EXISTING_NODE
-  props: Record<string, unknown> | null
+  props: Record<string, unknown>
   children: VChild[]
   _el?: Node
 }
@@ -99,7 +99,7 @@ export const flattenVChildren = (raw: unknown[]): VChild[] => {
     } else if (child instanceof Node) {
       // Real DOM node from shadeChildren (created outside render mode).
       // Wrap it so the reconciler can track it.
-      result.push({ _brand: VNODE_BRAND, type: EXISTING_NODE, props: null, children: [], _el: child })
+      result.push({ _brand: VNODE_BRAND, type: EXISTING_NODE, props: {}, children: [], _el: child })
     }
   }
   return result
@@ -125,7 +125,7 @@ export const createVNode = (
   const vnode: VNode = {
     _brand: VNODE_BRAND,
     type: type === null ? FRAGMENT : type,
-    props: props ? { ...props } : null,
+    props: props ? { ...props } : {},
     children,
   }
 
@@ -134,21 +134,20 @@ export const createVNode = (
   if (typeof type === 'string') {
     const v = vnode as unknown as Record<string, unknown>
     v.setAttribute = (name: string, value: string) => {
-      if (!vnode.props) vnode.props = {}
       vnode.props[name] = value
     }
     v.removeAttribute = (name: string) => {
-      if (vnode.props) delete vnode.props[name]
+      delete vnode.props[name]
     }
     v.getAttribute = (name: string) => {
-      return (vnode.props?.[name] as string) ?? null
+      return (vnode.props[name] as string) ?? null
     }
     v.hasAttribute = (name: string) => {
-      return vnode.props ? name in vnode.props : false
+      return name in vnode.props
     }
     v.appendChild = (child: unknown) => {
       if (child instanceof Node) {
-        vnode.children.push({ _brand: VNODE_BRAND, type: EXISTING_NODE, props: null, children: [], _el: child })
+        vnode.children.push({ _brand: VNODE_BRAND, type: EXISTING_NODE, props: {}, children: [], _el: child })
       } else if (isVNode(child) || isVTextNode(child)) {
         vnode.children.push(child)
       }
@@ -201,13 +200,13 @@ export const toVChildArray = (renderResult: unknown): VChild[] => {
     return Array.from(renderResult.childNodes).map((node) => ({
       _brand: VNODE_BRAND as typeof VNODE_BRAND,
       type: EXISTING_NODE,
-      props: null,
+      props: {} as Record<string, unknown>,
       children: [] as VChild[],
       _el: node,
     }))
   }
   if (renderResult instanceof Node) {
-    return [{ _brand: VNODE_BRAND, type: EXISTING_NODE, props: null, children: [], _el: renderResult }]
+    return [{ _brand: VNODE_BRAND, type: EXISTING_NODE, props: {}, children: [], _el: renderResult }]
   }
   return []
 }

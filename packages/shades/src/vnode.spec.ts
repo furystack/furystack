@@ -27,7 +27,7 @@ const vtext = (text: string): VTextNode => ({ _brand: 'vtext', text })
 const vel = (tag: string, props: Record<string, unknown> | null, ...children: VChild[]): VNode => ({
   _brand: 'vnode',
   type: tag,
-  props,
+  props: props ?? {},
   children,
 })
 
@@ -76,6 +76,12 @@ describe('vnode', () => {
       const vnode = createVNode('span', null, 42)
       expect(vnode.children).toHaveLength(1)
       expect((vnode.children[0] as VTextNode).text).toBe('42')
+    })
+
+    it('should normalize null props to empty object', () => {
+      const vnode = createVNode('div', null)
+      expect(vnode.props).toEqual({})
+      expect(vnode.props).not.toBeNull()
     })
   })
 
@@ -213,7 +219,7 @@ describe('vnode', () => {
       const parent = document.createElement('div')
       const existing = document.createElement('span')
       existing.textContent = 'existing'
-      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: null, children: [], _el: existing }
+      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [], _el: existing }
       mountChild(child, parent)
       expect(parent.firstChild).toBe(existing)
     })
@@ -268,7 +274,7 @@ describe('vnode', () => {
 
     it('should not mount EXISTING_NODE when _el is undefined', () => {
       const parent = document.createElement('div')
-      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: null, children: [] }
+      const child: VNode = { _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [] }
       const result = mountChild(child, parent)
       expect(result).toBeUndefined()
       expect(parent.childNodes.length).toBe(0)
@@ -495,11 +501,11 @@ describe('vnode', () => {
       const real = document.createElement('span')
       real.textContent = 'real'
 
-      const old: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: null, children: [], _el: real }]
+      const old: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [], _el: real }]
       patchChildren(parent, [], old)
       expect(parent.firstChild).toBe(real)
 
-      const updated: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: null, children: [], _el: real }]
+      const updated: VChild[] = [{ _brand: 'vnode', type: EXISTING_NODE, props: {}, children: [], _el: real }]
       patchChildren(parent, old, updated)
       expect(parent.firstChild).toBe(real)
     })
@@ -551,6 +557,30 @@ describe('vnode', () => {
 
         expect(updateFn).toHaveBeenCalledOnce()
         expect(fakeShadeEl.props).toEqual({ count: 2 })
+      })
+
+      it('should set empty object (not null) on Shade when props transition to none', () => {
+        const parent = document.createElement('div')
+
+        const fakeShadeEl = document.createElement('my-shade-3') as unknown as JSX.Element
+        const updateFn = vi.fn()
+        ;(fakeShadeEl as unknown as Record<string, unknown>).updateComponentSync = updateFn
+        ;(fakeShadeEl as unknown as Record<string, unknown>).props = { elevation: 2 }
+        ;(fakeShadeEl as unknown as Record<string, unknown>).shadeChildren = undefined
+
+        const factory = vi.fn(() => fakeShadeEl as unknown as JSX.Element)
+
+        const old: VChild[] = [
+          { _brand: 'vnode', type: factory, props: { elevation: 2 }, children: [], _el: fakeShadeEl },
+        ]
+        parent.appendChild(fakeShadeEl)
+
+        const updated: VChild[] = [{ _brand: 'vnode', type: factory, props: {}, children: [] }]
+        patchChildren(parent, old, updated)
+
+        expect(updateFn).toHaveBeenCalledOnce()
+        expect(fakeShadeEl.props).toEqual({})
+        expect(fakeShadeEl.props).not.toBeNull()
       })
 
       it('should NOT call updateComponentSync when props are unchanged', () => {
