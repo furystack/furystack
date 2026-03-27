@@ -128,10 +128,8 @@ describe('vnode', () => {
       expect(shallowEqual({ a: 1 }, { a: 1, b: 2 })).toBe(false)
     })
 
-    it('should handle null comparisons', () => {
-      expect(shallowEqual(null, null)).toBe(true)
-      expect(shallowEqual(null, {})).toBe(false)
-      expect(shallowEqual({}, null)).toBe(false)
+    it('should return true for two empty objects', () => {
+      expect(shallowEqual({}, {})).toBe(true)
     })
   })
 
@@ -313,7 +311,7 @@ describe('vnode', () => {
   describe('patchProps', () => {
     it('should add new props', () => {
       const el = document.createElement('div')
-      patchProps(el, null, { id: 'new' })
+      patchProps(el, {}, { id: 'new' })
       expect(el.id).toBe('new')
     })
 
@@ -349,7 +347,7 @@ describe('vnode', () => {
 
     it('should set data attributes', () => {
       const el = document.createElement('div')
-      patchProps(el, null, { 'data-testid': 'foo' })
+      patchProps(el, {}, { 'data-testid': 'foo' })
       expect(el.getAttribute('data-testid')).toBe('foo')
     })
 
@@ -363,7 +361,7 @@ describe('vnode', () => {
     describe('SVG elements', () => {
       it('should set attributes via setAttribute on SVG elements', () => {
         const el = document.createElementNS(SVG_NS, 'rect')
-        patchProps(el, null, { width: '100', height: '50', rx: '5' })
+        patchProps(el, {}, { width: '100', height: '50', rx: '5' })
         expect(el.getAttribute('width')).toBe('100')
         expect(el.getAttribute('height')).toBe('50')
         expect(el.getAttribute('rx')).toBe('5')
@@ -371,7 +369,7 @@ describe('vnode', () => {
 
       it('should set className as class attribute on SVG elements', () => {
         const el = document.createElementNS(SVG_NS, 'g')
-        patchProps(el, null, { className: 'my-group' })
+        patchProps(el, {}, { className: 'my-group' })
         expect(el.getAttribute('class')).toBe('my-group')
       })
 
@@ -399,7 +397,7 @@ describe('vnode', () => {
       it('should set event handlers as properties on SVG elements', () => {
         const el = document.createElementNS(SVG_NS, 'rect')
         const handler = vi.fn()
-        patchProps(el, null, { onclick: handler })
+        patchProps(el, {}, { onclick: handler })
         expect((el as unknown as Record<string, unknown>).onclick).toBe(handler)
       })
     })

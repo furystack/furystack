@@ -167,9 +167,8 @@ export const createVNode = (
 /**
  * Shallow-compares two props objects. Returns true if all keys and values match.
  */
-export const shallowEqual = (a: Record<string, unknown> | null, b: Record<string, unknown> | null): boolean => {
+export const shallowEqual = (a: Record<string, unknown>, b: Record<string, unknown>): boolean => {
   if (a === b) return true
-  if (!a || !b) return false
   const keysA = Object.keys(a)
   const keysB = Object.keys(b)
   if (keysA.length !== keysB.length) return false
@@ -290,8 +289,7 @@ const patchStyle = (
 /**
  * Applies all props to a freshly created element (initial mount).
  */
-const applyProps = (el: Element, props: Record<string, unknown> | null): void => {
-  if (!props) return
+const applyProps = (el: Element, props: Record<string, unknown>): void => {
   for (const [key, value] of Object.entries(props)) {
     setProp(el, key, value)
   }
@@ -300,26 +298,19 @@ const applyProps = (el: Element, props: Record<string, unknown> | null): void =>
 /**
  * Diffs old and new props and applies minimal updates to a live DOM element.
  */
-export const patchProps = (
-  el: Element,
-  oldProps: Record<string, unknown> | null,
-  newProps: Record<string, unknown> | null,
-): void => {
-  const oldP = oldProps || {}
-  const newP = newProps || {}
-
+export const patchProps = (el: Element, oldProps: Record<string, unknown>, newProps: Record<string, unknown>): void => {
   // Remove props that no longer exist
-  for (const key of Object.keys(oldP)) {
-    if (!(key in newP)) {
+  for (const key of Object.keys(oldProps)) {
+    if (!(key in newProps)) {
       removeProp(el, key)
     }
   }
 
   // Add / update props
-  for (const [key, value] of Object.entries(newP)) {
+  for (const [key, value] of Object.entries(newProps)) {
     if (key === 'style') {
-      patchStyle(el, oldP.style as Record<string, string> | undefined, value as Record<string, string> | undefined)
-    } else if (oldP[key] !== value) {
+      patchStyle(el, oldProps.style as Record<string, string> | undefined, value as Record<string, string> | undefined)
+    } else if (oldProps[key] !== value) {
       setProp(el, key, value)
     }
   }
@@ -351,7 +342,7 @@ export const mountChild = (child: VChild, parent: Node | null): Node => {
   // Shade component
   if (typeof child.type === 'function') {
     const factory = child.type as (props: unknown, children?: ChildrenList) => JSX.Element
-    const el = factory(child.props || {}, child.children as unknown as ChildrenList)
+    const el = factory(child.props, child.children as unknown as ChildrenList)
     child._el = el
     if (parent) parent.appendChild(el)
     return el
