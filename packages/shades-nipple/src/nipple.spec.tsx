@@ -2,7 +2,7 @@ import { Injector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { NippleComponentProps } from './nipple.js'
+import type { NippleComponentProps, NippleManagerEventHandler } from './nipple.js'
 import { NippleComponent } from './nipple.js'
 
 describe('Nipple', () => {
@@ -29,10 +29,10 @@ describe('Nipple', () => {
     await usingAsync(new Injector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
-      const onStart = vi.fn()
-      const onDir = vi.fn()
-      const onMove = vi.fn()
-      const onEnd = vi.fn()
+      const onStart: NippleManagerEventHandler = vi.fn()
+      const onDir: NippleManagerEventHandler = vi.fn()
+      const onMove: NippleManagerEventHandler = vi.fn()
+      const onEnd: NippleManagerEventHandler = vi.fn()
 
       initializeShadeRoot({
         injector,

@@ -28,20 +28,20 @@ const GameControls = Shade({
         color: 'blue',
       }}
       style={{ width: '200px', height: '200px', position: 'relative' }}
-      onStart={(evt, data) => {
-        console.log('Joystick started', data)
+      onStart={(event) => {
+        console.log('Joystick started', event.data)
       }}
-      onMove={(evt, data) => {
-        console.log('Direction:', data.direction?.angle)
-        console.log('Distance:', data.distance)
-        console.log('Force:', data.force)
+      onMove={(event) => {
+        console.log('Direction:', event.data.direction?.angle)
+        console.log('Distance:', event.data.distance)
+        console.log('Force:', event.data.force)
       }}
-      onEnd={(evt, data) => {
+      onEnd={() => {
         console.log('Joystick released')
       }}
-      onDir={(evt, data) => {
+      onDir={(event) => {
         // Fired when direction changes (up, down, left, right)
-        console.log('Direction changed:', data.direction?.angle)
+        console.log('Direction changed:', event.data.direction?.angle)
       }}
     />
   ),
@@ -50,14 +50,14 @@ const GameControls = Shade({
 
 ## Props
 
-| Prop             | Type                     | Description                                  |
-| ---------------- | ------------------------ | -------------------------------------------- |
-| `managerOptions` | `JoystickManagerOptions` | NippleJS manager options (see NippleJS docs) |
-| `style`          | `CSSStyleDeclaration`    | Inline styles for the container              |
-| `onStart`        | `(evt, data) => void`    | Called when the joystick is pressed          |
-| `onEnd`          | `(evt, data) => void`    | Called when the joystick is released         |
-| `onMove`         | `(evt, data) => void`    | Called while the joystick is being moved     |
-| `onDir`          | `(evt, data) => void`    | Called when direction changes                |
+| Prop             | Type                   | Description                                  |
+| ---------------- | ---------------------- | -------------------------------------------- |
+| `managerOptions` | `NippleManagerOptions` | NippleJS options passed to `nipplejs.create` |
+| `style`          | `CSSStyleDeclaration`  | Inline styles for the container              |
+| `onStart`        | `(event) => void`      | Called when the joystick is pressed          |
+| `onEnd`          | `(event) => void`      | Called when the joystick is released         |
+| `onMove`         | `(event) => void`      | Called while the joystick is being moved     |
+| `onDir`          | `(event) => void`      | Called when direction changes                |
 
 ## Manager Options
 
@@ -72,4 +72,6 @@ Common `managerOptions` properties:
 | `threshold` | `number`                          | Minimum distance before triggering events |
 | `fadeTime`  | `number`                          | Fade animation duration                   |
 
-See the [NippleJS documentation](https://yoannmoi.net/nipplejs/) for all available options.
+Event callback props receive a single object that contains at least a `data` field with the joystick payload.
+
+See the [NippleJS documentation](https://yoannmoi.net/nipplejs/) for all available options and event payload details.
