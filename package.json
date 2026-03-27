@@ -10,11 +10,11 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jsdom": "^28.0.1",
-    "@vitest/coverage-istanbul": "^4.1.1",
+    "@vitest/coverage-istanbul": "^4.1.2",
     "ajv": "^8.18.0",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jsdoc": "^62.8.0",
+    "eslint-plugin-jsdoc": "^62.8.1",
     "eslint-plugin-playwright": "^2.10.1",
     "husky": "^9.1.7",
     "jsdom": "^29.0.1",
@@ -24,8 +24,8 @@
     "ts-json-schema-generator": "^2.9.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.57.2",
-    "vite": "^8.0.2",
-    "vitest": "^4.1.1"
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
   },
   "scripts": {
     "start": "yarn workspace @furystack/shades-showcase-app start",

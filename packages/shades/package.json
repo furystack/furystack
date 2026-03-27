@@ -43,13 +43,13 @@
     "@types/node": "^25.5.0",
     "jsdom": "^29.0.1",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.1"
+    "vitest": "^4.1.2"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",
     "@furystack/rest": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "path-to-regexp": "^8.3.0"
+    "path-to-regexp": "^8.4.0"
   },
   "engines": {
     "node": ">=22.0.0"
