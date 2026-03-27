@@ -12,10 +12,10 @@ export type ConcatPaths<Parent extends string, Child extends string> = Parent ex
  * Recursively extracts all valid full URL paths from a nested route tree.
  * @typeParam T - A record of route patterns to NestedRoute definitions
  */
-export type ExtractRoutePaths<T extends Record<string, NestedRoute<unknown>>> = {
+export type ExtractRoutePaths<T extends Record<string, NestedRoute<any>>> = {
   [K in keyof T & string]:
     | K
-    | (T[K] extends { children: infer C extends Record<string, NestedRoute<unknown>> }
+    | (T[K] extends { children: infer C extends Record<string, NestedRoute<any>> }
         ? ConcatPaths<K, ExtractRoutePaths<C> & string>
         : never)
 }[keyof T & string]

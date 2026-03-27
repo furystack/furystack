@@ -93,7 +93,7 @@ export const NestedRouteLink = _NestedRouteLink as unknown as <TPath extends str
  * <AppLink href="/users/:id" params={{ id: '123' }}>User</AppLink>
  * ```
  */
-export const createNestedRouteLink = <TRoutes extends Record<string, NestedRoute<unknown>>>() => {
+export const createNestedRouteLink = <TRoutes extends Record<string, NestedRoute<any>>>() => {
   return _NestedRouteLink as unknown as <TPath extends ExtractRoutePaths<TRoutes>>(
     props: TypedNestedRouteLinkProps<TPath>,
     children?: ChildrenList,
