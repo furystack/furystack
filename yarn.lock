@@ -989,7 +989,7 @@ __metadata:
   dependencies:
     "@furystack/inject": "workspace:^"
     "@furystack/shades": "workspace:^"
-    nipplejs: "npm:^0.10.2"
+    nipplejs: "npm:^1.0.1"
     typescript: "npm:^6.0.2"
     vitest: "npm:^4.1.1"
   languageName: unknown
@@ -5684,10 +5684,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nipplejs@npm:^0.10.2":
-  version: 0.10.2
-  resolution: "nipplejs@npm:0.10.2"
-  checksum: 10c0/7123558685ccdb8144c9ce04f78db56916f4579b94cb19f5b412535a69981d288252974592692dba6857bd0ad012431156fe1442becd70097df86152ea7fe9ac
+"nipplejs@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "nipplejs@npm:1.0.1"
+  checksum: 10c0/f5aed7cc6467ba6cfbb66da5ef07ce55574c2430c6cbabd939a9912eee811eae24079f0067ce9cb5b5446db3c03e4258b58e8b504ad42ea1124ac327c159daff
   languageName: node
   linkType: hard
 

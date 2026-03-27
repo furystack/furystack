@@ -1,0 +1,4 @@
+releases:
+  "@furystack/shades-nipple": major
+  "@furystack/shades-showcase-app": patch
+  furystack: patch

@@ -1,14 +1,20 @@
 import { Shade, createComponent } from '@furystack/shades'
-import type { EventData, JoystickManagerOptions, JoystickOutputData } from 'nipplejs'
 import nipplejs from 'nipplejs'
 
-export interface NippleComponentProps {
-  managerOptions: JoystickManagerOptions
+type NippleManager = ReturnType<typeof nipplejs.create>
+export type NippleManagerOptions = Parameters<typeof nipplejs.create>[0]
+export type NippleManagerEvent = {
+  data: unknown
+}
+export type NippleManagerEventHandler = (evt: NippleManagerEvent) => void
+
+export type NippleComponentProps = {
+  managerOptions: NippleManagerOptions
   style?: Partial<CSSStyleDeclaration>
-  onStart?: (evt: EventData, data: JoystickOutputData) => void
-  onEnd?: (evt: EventData, data: JoystickOutputData) => void
-  onDir?: (evt: EventData, data: JoystickOutputData) => void
-  onMove?: (evt: EventData, data: JoystickOutputData) => void
+  onStart?: NippleManagerEventHandler
+  onEnd?: NippleManagerEventHandler
+  onDir?: NippleManagerEventHandler
+  onMove?: NippleManagerEventHandler
 }
 
 export const NippleComponent = Shade<NippleComponentProps>({
@@ -17,7 +23,7 @@ export const NippleComponent = Shade<NippleComponentProps>({
     const zoneRef = useRef<HTMLDivElement>('zone')
 
     useDisposable('nipple-init', () => {
-      let manager: ReturnType<typeof nipplejs.create> | undefined
+      let manager: NippleManager | undefined
       queueMicrotask(() => {
         if (!zoneRef.current) return
         manager = nipplejs.create({

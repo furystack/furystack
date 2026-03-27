@@ -39,9 +39,9 @@ export const NipplePage = Shade({
               color: 'black',
               position: { left: '50%', top: '50%' },
             }}
-            onMove={(_evt, newData) => {
+            onMove={(event) => {
               if (outputRef.current) {
-                outputRef.current.textContent = JSON.stringify(newData, undefined, 2)
+                outputRef.current.textContent = JSON.stringify(event.data, undefined, 2)
               }
             }}
           />

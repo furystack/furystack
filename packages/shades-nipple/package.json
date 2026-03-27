@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@furystack/shades": "workspace:^",
-    "nipplejs": "^0.10.2"
+    "nipplejs": "^1.0.1"
   },
   "engines": {
     "node": ">=22.0.0"
