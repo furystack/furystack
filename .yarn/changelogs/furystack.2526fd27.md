@@ -20,7 +20,7 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
-<!-- PLACEHOLDER: Describe your shiny new features (feat:) -->
+- Updated the Nipple integration surface across the workspace to use a normalized single-event callback payload with joystick data available under `event.data`.
 
 ## 🐛 Bug Fixes
 
@@ -28,7 +28,7 @@ appear before simple list items within each section.
 
 ## 📚 Documentation
 
-<!-- PLACEHOLDER: Describe documentation changes (docs:) -->
+- Refreshed joystick integration documentation examples to reflect the current callback signature and payload access pattern.
 
 ## ⚡ Performance
 
@@ -40,7 +40,7 @@ appear before simple list items within each section.
 
 ## 🧪 Tests
 
-<!-- PLACEHOLDER: Describe test changes (test:) -->
+- Updated Nipple component callback mocks to use explicit event handler typing, keeping tests aligned with the exported API.
 
 ## 📦 Build
 
@@ -52,7 +52,7 @@ appear before simple list items within each section.
 
 ## ⬆️ Dependencies
 
-<!-- PLACEHOLDER: Describe dependency updates (deps:) -->
+- Upgraded `nipplejs` to `^1.0.1` in the Nipple integration package and refreshed lockfile entries.
 
 ## 🔧 Chores
 

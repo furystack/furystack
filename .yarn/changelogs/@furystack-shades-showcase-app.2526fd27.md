@@ -24,7 +24,7 @@ appear before simple list items within each section.
 
 ## 🐛 Bug Fixes
 
-<!-- PLACEHOLDER: Describe the nasty little bugs that has been eradicated (fix:) -->
+- Updated the Nipple integration page to read joystick output from `event.data`, so live output rendering matches the current `@furystack/shades-nipple` callback payload.
 
 ## 📚 Documentation
 
