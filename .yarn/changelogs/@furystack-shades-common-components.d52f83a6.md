@@ -53,6 +53,12 @@ Added a reusable `RouteBreadcrumb` component that automatically derives breadcru
 
 The `Timeline` component now accepts an `orientation` prop (`'vertical' | 'horizontal'`). Horizontal mode supports all existing `mode` values (`'left'`, `'right'`, `'alternate'`) as well as the `pending` indicator, rendering items in a row with a horizontal connector line.
 
+## ⚠️ Breaking Changes
+
+### `Input` component: native `size` attribute replaced
+
+The `Input` component's `size` prop is now typed as `ComponentSize` (`'small' | 'medium' | 'large'`) instead of the native HTML `<input size>` number attribute (which controlled visible character width). Consumers who relied on the native `size` attribute should use CSS `width` instead.
+
 ## 🧪 Tests
 
 - Added `size` prop tests (`small`, `medium`, `large`, unset) for Checkbox, Radio, Switch, Input, InputNumber, TextArea, and Select

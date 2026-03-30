@@ -42,9 +42,14 @@ export const RouteBreadcrumb = Shade<RouteBreadcrumbProps>({
 
     const [resolvedItems, setResolvedItems] = useState<BreadcrumbItem[]>('resolvedItems', [])
     const [initializedRef] = useState<{ current: boolean }>('initialized', { current: false })
+    const [generationRef] = useState<{ current: number }>('generation', { current: 0 })
 
     const resolveAndSetTitles = async (chain: MatchChainEntry[]) => {
+      const generation = ++generationRef.current
       const titles = await resolveRouteTitles(chain, injector)
+
+      if (generation !== generationRef.current) return
+
       const items: BreadcrumbItem[] = []
       let accumulatedPath = ''
 
