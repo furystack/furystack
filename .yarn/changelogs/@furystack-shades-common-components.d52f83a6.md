@@ -18,15 +18,11 @@ TIP: When multiple changelog drafts are merged, heading-based entries
 appear before simple list items within each section.
 -->
 
-## 🗑️ Deprecated
-
-<!-- PLACEHOLDER: Describe deprecated features. Double-check if they are annotated with a `@deprecated` jsdoc tag. -->
-
 ## ✨ Features
 
 ### Unified `ComponentSize` type
 
-Added a shared `ComponentSize` type (`'small' | 'medium' | 'large'`) exported from the package. All components that support sizing now use this type instead of individual inline union types, ensuring consistency across the component library.
+Added a shared `ComponentSize` type (`'small' | 'medium' | 'large'`) exported from the package. All components that support sizing now reference this single type instead of individual inline union types, ensuring consistency across the component library.
 
 ### `size` prop on form controls
 
@@ -45,38 +41,20 @@ All default to `'medium'` with no visual changes for existing consumers.
 
 These components previously only supported `'small' | 'medium'`. They now also accept `'large'` for better alignment with other components in dense or spacious layouts.
 
-## 🐛 Bug Fixes
+### `RouteBreadcrumb` component
 
-<!-- PLACEHOLDER: Describe the nasty little bugs that has been eradicated (fix:) -->
+Added a reusable `RouteBreadcrumb` component that automatically derives breadcrumb items from the current `RouteMatchService` match chain. It resolves route titles (including async resolvers) from `meta.title` and accumulates path segments to produce correct links.
 
-## 📚 Documentation
+```tsx
+<RouteBreadcrumb homeItem={{ path: '/', label: <Icon icon={icons.home} size="small" /> }} separator=" › " />
+```
 
-<!-- PLACEHOLDER: Describe documentation changes (docs:) -->
+### Horizontal Timeline orientation
 
-## ⚡ Performance
-
-<!-- PLACEHOLDER: Describe performance improvements (perf:) -->
-
-## ♻️ Refactoring
-
-<!-- PLACEHOLDER: Describe code refactoring (refactor:) -->
+The `Timeline` component now accepts an `orientation` prop (`'vertical' | 'horizontal'`). Horizontal mode supports all existing `mode` values (`'left'`, `'right'`, `'alternate'`) as well as the `pending` indicator, rendering items in a row with a horizontal connector line.
 
 ## 🧪 Tests
 
-<!-- PLACEHOLDER: Describe test changes (test:) -->
-
-## 📦 Build
-
-<!-- PLACEHOLDER: Describe build system changes (build:) -->
-
-## 👷 CI
-
-<!-- PLACEHOLDER: Describe CI configuration changes (ci:) -->
-
-## ⬆️ Dependencies
-
-<!-- PLACEHOLDER: Describe dependency updates (deps:) -->
-
-## 🔧 Chores
-
-<!-- PLACEHOLDER: Describe other changes (chore:) -->
+- Added `size` prop tests (`small`, `medium`, `large`, unset) for Checkbox, Radio, Switch, Input, InputNumber, TextArea, and Select
+- Added `large` size test for Chip and SegmentedControl
+- Added tests for the new `RouteBreadcrumb` component covering route resolution, async titles, `skipRootPath`, `homeItem`, `separator`, and observable-driven updates
