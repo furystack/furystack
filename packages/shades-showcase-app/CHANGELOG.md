@@ -1,5 +1,17 @@
 # Changelog
 
+## [9.1.5] - 2026-03-30
+
+### ✨ Features
+
+- Added size variant demos (`small` / `medium` / `large`) to the Input, InputNumber, Select, Checkbox, and Radio showcase pages
+- Added horizontal Timeline examples (basic, colored, labeled, custom dots, pending) to the Timeline showcase page
+- Added `large` Switch demo to the Switch showcase page
+
+### ♻️ Refactoring
+
+- Replaced the hand-rolled breadcrumb logic in `ShowcaseBreadcrumbComponent` with the new `RouteBreadcrumb` component from `@furystack/shades-common-components`
+
 ## [9.1.4] - 2026-03-27
 
 ### ⬆️ Dependencies

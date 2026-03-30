@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.9] - 2026-03-30
+
+### ⬆️ Dependencies
+
+- Bumped `@furystack/shades-common-components` to pick up new component sizing, `RouteBreadcrumb`, and horizontal Timeline features
+
 ## [8.1.8] - 2026-03-27
 
 ### ⬆️ Dependencies

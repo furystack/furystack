@@ -1,5 +1,54 @@
 # Changelog
 
+## [15.1.0] - 2026-03-30
+
+### ✨ Features
+
+### Unified `ComponentSize` type
+
+Added a shared `ComponentSize` type (`'small' | 'medium' | 'large'`) exported from the package. All components that support sizing now reference this single type instead of individual inline union types, ensuring consistency across the component library.
+
+### `size` prop on form controls
+
+The following form controls now accept a `size` prop for density control:
+
+- **Input** — adjusts label padding, input font size, and icon size
+- **Select** — adjusts label padding, trigger font size, and dropdown item sizing
+- **InputNumber** — adjusts label padding, input font size, and stepper button dimensions
+- **TextArea** — adjusts label padding and content font size
+- **Checkbox** — adjusts control box dimensions (`16px` / `20px` / `24px`) and label font size
+- **Radio** — adjusts control circle dimensions and label font size
+
+All default to `'medium'` with no visual changes for existing consumers.
+
+### `large` size added to Chip, Switch, and SegmentedControl
+
+These components previously only supported `'small' | 'medium'`. They now also accept `'large'` for better alignment with other components in dense or spacious layouts.
+
+### `RouteBreadcrumb` component
+
+Added a reusable `RouteBreadcrumb` component that automatically derives breadcrumb items from the current `RouteMatchService` match chain. It resolves route titles (including async resolvers) from `meta.title` and accumulates path segments to produce correct links.
+
+```tsx
+<RouteBreadcrumb homeItem={{ path: '/', label: <Icon icon={icons.home} size="small" /> }} separator=" › " />
+```
+
+### Horizontal Timeline orientation
+
+The `Timeline` component now accepts an `orientation` prop (`'vertical' | 'horizontal'`). Horizontal mode supports all existing `mode` values (`'left'`, `'right'`, `'alternate'`) as well as the `pending` indicator, rendering items in a row with a horizontal connector line.
+
+### ⚠️ Breaking Changes
+
+### `Input` component: native `size` attribute replaced
+
+The `Input` component's `size` prop is now typed as `ComponentSize` (`'small' | 'medium' | 'large'`) instead of the native HTML `<input size>` number attribute (which controlled visible character width). Consumers who relied on the native `size` attribute should use CSS `width` instead.
+
+### 🧪 Tests
+
+- Added `size` prop tests (`small`, `medium`, `large`, unset) for Checkbox, Radio, Switch, Input, InputNumber, TextArea, and Select
+- Added `large` size test for Chip and SegmentedControl
+- Added tests for the new `RouteBreadcrumb` component covering route resolution, async titles, `skipRootPath`, `homeItem`, `separator`, and observable-driven updates
+
 ## [15.0.4] - 2026-03-27
 
 ### ⬆️ Dependencies
