@@ -1231,4 +1231,30 @@ describe('Select', () => {
       })
     })
   })
+
+  describe('size', () => {
+    it('should not set data-size when size is not specified', async () => {
+      await usingAsync(await renderSelect({ options: defaultOptions }), async ({ select }) => {
+        expect(select.getAttribute('data-size')).toBeNull()
+      })
+    })
+
+    it('should not set data-size for medium size (default)', async () => {
+      await usingAsync(await renderSelect({ options: defaultOptions, size: 'medium' }), async ({ select }) => {
+        expect(select.getAttribute('data-size')).toBeNull()
+      })
+    })
+
+    it('should set data-size="small" for small size', async () => {
+      await usingAsync(await renderSelect({ options: defaultOptions, size: 'small' }), async ({ select }) => {
+        expect(select.getAttribute('data-size')).toBe('small')
+      })
+    })
+
+    it('should set data-size="large" for large size', async () => {
+      await usingAsync(await renderSelect({ options: defaultOptions, size: 'large' }), async ({ select }) => {
+        expect(select.getAttribute('data-size')).toBe('large')
+      })
+    })
+  })
 })

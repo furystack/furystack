@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { ComponentSize } from '../component-size.js'
 import { FormService } from '../form.js'
 
 const emptyValidity = {} as ValidityState
@@ -13,7 +14,7 @@ export type InvalidInputValidationResult = { isValid: false; message: string }
 
 export type InputValidationResult = ValidInputValidationResult | InvalidInputValidationResult
 
-export interface TextInputProps extends PartialElement<HTMLInputElement> {
+export interface TextInputProps extends Omit<PartialElement<HTMLInputElement>, 'size'> {
   /**
    * Callback that will be called when the input value changes
    */
@@ -36,6 +37,12 @@ export interface TextInputProps extends PartialElement<HTMLInputElement> {
    * The variant of the input
    */
   variant?: 'contained' | 'outlined'
+  /**
+   * The size of the input.
+   * @default 'medium'
+   */
+  size?: ComponentSize
+
   /**
    * The default color of the input (Error color will be used in case of invalid input value)
    */
@@ -223,8 +230,32 @@ export const Input = Shade<TextInputProps>({
       alignItems: 'center',
       fontSize: cssVariableTheme.typography.fontSize.lg,
     },
+
+    // Size: small
+    '&[data-size="small"] label': {
+      padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
+    },
+    '&[data-size="small"] input': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+    '&[data-size="small"] .startIcon, &[data-size="small"] .endIcon': {
+      fontSize: cssVariableTheme.typography.fontSize.md,
+    },
+
+    // Size: large
+    '&[data-size="large"] label': {
+      padding: `${cssVariableTheme.spacing.md} ${cssVariableTheme.spacing.lg}`,
+      fontSize: cssVariableTheme.typography.fontSize.sm,
+    },
+    '&[data-size="large"] input': {
+      fontSize: cssVariableTheme.typography.fontSize.md,
+    },
+    '&[data-size="large"] .startIcon, &[data-size="large"] .endIcon': {
+      fontSize: cssVariableTheme.typography.fontSize.xl,
+    },
   },
   render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
+    const { size: componentSize, ...nativeProps } = props
     const inputRef = useRef<HTMLInputElement>('formInput')
 
     useDisposable('form-registration', () => {
@@ -277,6 +308,7 @@ export const Input = Shade<TextInputProps>({
     const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
     useHostProps({
       'data-variant': props.variant || undefined,
+      'data-size': componentSize && componentSize !== 'medium' ? componentSize : undefined,
       'data-disabled': props.disabled ? '' : undefined,
       'data-invalid': isInvalid ? '' : undefined,
       style: {
@@ -324,7 +356,7 @@ export const Input = Shade<TextInputProps>({
               setFocused(false)
               setValidity((ev.target as HTMLInputElement).validity)
             }}
-            {...props}
+            {...nativeProps}
             style={props.style}
             {...(props.value !== undefined ? { value: props.value } : {})}
           />

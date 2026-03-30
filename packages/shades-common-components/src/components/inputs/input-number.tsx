@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { ComponentSize } from '../component-size.js'
 import { FormService } from '../form.js'
 
 export type InputNumberProps = {
@@ -81,6 +82,12 @@ export type InputNumberProps = {
    * The name attribute for form integration
    */
   name?: string
+
+  /**
+   * The size of the input.
+   * @default 'medium'
+   */
+  size?: ComponentSize
 
   /**
    * Helper text displayed below the input
@@ -251,6 +258,33 @@ export const InputNumber = Shade<InputNumberProps>({
       opacity: '0.85',
       lineHeight: '1.4',
     },
+
+    // Size: small
+    '&[data-size="small"] label': {
+      padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
+    },
+    '&[data-size="small"] input': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+    '&[data-size="small"] .step-button': {
+      width: '22px',
+      height: '22px',
+      fontSize: cssVariableTheme.typography.fontSize.sm,
+    },
+
+    // Size: large
+    '&[data-size="large"] label': {
+      padding: `${cssVariableTheme.spacing.md} ${cssVariableTheme.spacing.lg}`,
+      fontSize: cssVariableTheme.typography.fontSize.sm,
+    },
+    '&[data-size="large"] input': {
+      fontSize: cssVariableTheme.typography.fontSize.md,
+    },
+    '&[data-size="large"] .step-button': {
+      width: '34px',
+      height: '34px',
+      fontSize: cssVariableTheme.typography.fontSize.lg,
+    },
   },
   render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
     const inputRef = useRef<HTMLInputElement>('formInput')
@@ -274,6 +308,7 @@ export const InputNumber = Shade<InputNumberProps>({
     const primaryColor = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({
       'data-variant': props.variant || undefined,
+      'data-size': props.size && props.size !== 'medium' ? props.size : undefined,
       'data-disabled': props.disabled ? '' : undefined,
       style: { '--input-number-color': primaryColor },
     })

@@ -22,6 +22,24 @@ export const InputNumberPage = Shade({
           description="InputNumber provides a numeric input with increment/decrement buttons, keyboard navigation (ArrowUp/Down), min/max clamping, step control, precision formatting, and custom formatter/parser support."
         />
 
+        <Paper elevation={3} style={{ padding: '32px', marginBottom: '24px' }}>
+          <Typography variant="h3">Sizes</Typography>
+          <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            {(['small', 'medium', 'large'] as const).map((size) => (
+              <div style={{ flex: '1', minWidth: '200px' }}>
+                <Typography variant="h4">{size}</Typography>
+                <InputNumber
+                  size={size}
+                  variant="outlined"
+                  labelTitle="Quantity"
+                  value={5}
+                  helperText={`Size: ${size}`}
+                />
+              </div>
+            ))}
+          </div>
+        </Paper>
+
         <Paper elevation={3} style={{ padding: '32px' }}>
           <Typography variant="h3">Basic</Typography>
           <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>

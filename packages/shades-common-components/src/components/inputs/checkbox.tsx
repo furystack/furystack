@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { ComponentSize } from '../component-size.js'
 import { FormService } from '../form.js'
 
 export type CheckboxProps = {
@@ -42,6 +43,11 @@ export type CheckboxProps = {
    * Whether the checkbox is required
    */
   required?: boolean
+  /**
+   * The size of the checkbox.
+   * @default 'medium'
+   */
+  size?: ComponentSize
   /**
    * Optional props for the label element
    */
@@ -144,6 +150,54 @@ export const Checkbox = Shade<CheckboxProps>({
       opacity: cssVariableTheme.action.disabledOpacity,
       cursor: 'not-allowed',
     },
+
+    // Size: small
+    '&[data-size="small"] label': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+    '&[data-size="small"] .checkbox-control': {
+      width: '16px',
+      height: '16px',
+    },
+    '&[data-size="small"] input[type="checkbox"]': {
+      width: '16px',
+      height: '16px',
+    },
+    '&[data-size="small"] input[type="checkbox"]:checked::after': {
+      left: '4px',
+      top: '1px',
+      width: '4px',
+      height: '8px',
+    },
+    '&[data-size="small"][data-indeterminate] input[type="checkbox"]::after': {
+      left: '3px',
+      top: '6px',
+      width: '8px',
+    },
+
+    // Size: large
+    '&[data-size="large"] label': {
+      fontSize: cssVariableTheme.typography.fontSize.md,
+    },
+    '&[data-size="large"] .checkbox-control': {
+      width: '24px',
+      height: '24px',
+    },
+    '&[data-size="large"] input[type="checkbox"]': {
+      width: '24px',
+      height: '24px',
+    },
+    '&[data-size="large"] input[type="checkbox"]:checked::after': {
+      left: '8px',
+      top: '3px',
+      width: '6px',
+      height: '12px',
+    },
+    '&[data-size="large"][data-indeterminate] input[type="checkbox"]::after': {
+      left: '5px',
+      top: '10px',
+      width: '12px',
+    },
   },
   render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
     const inputRef = useRef<HTMLInputElement>('formInput')
@@ -166,6 +220,7 @@ export const Checkbox = Shade<CheckboxProps>({
 
     const color = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({
+      'data-size': props.size && props.size !== 'medium' ? props.size : undefined,
       'data-disabled': props.disabled ? '' : undefined,
       'data-indeterminate': props.indeterminate ? '' : undefined,
       style: { '--checkbox-color': color },

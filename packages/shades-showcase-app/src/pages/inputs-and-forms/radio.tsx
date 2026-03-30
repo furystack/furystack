@@ -82,6 +82,17 @@ export const RadioPage = Shade({
 
           <Paper elevation={3} style={{ padding: '32px' }}>
             <Typography variant="h6" style={{ marginTop: '0' }}>
+              Sizes
+            </Typography>
+            <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <Radio value="sm" name="sizes" labelTitle="Small" size="small" checked />
+              <Radio value="md" name="sizes" labelTitle="Medium (default)" size="medium" />
+              <Radio value="lg" name="sizes" labelTitle="Large" size="large" />
+            </div>
+          </Paper>
+
+          <Paper elevation={3} style={{ padding: '32px' }}>
+            <Typography variant="h6" style={{ marginTop: '0' }}>
               Palette Colors
             </Typography>
             <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>

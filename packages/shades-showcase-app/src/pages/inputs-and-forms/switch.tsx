@@ -38,6 +38,7 @@ export const SwitchPage = Shade({
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             <Switch checked size="small" labelTitle="Small" />
             <Switch checked size="medium" labelTitle="Medium (default)" />
+            <Switch checked size="large" labelTitle="Large" />
           </div>
         </Paper>
 

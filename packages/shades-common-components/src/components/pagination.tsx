@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteMainColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
+import type { ComponentSize } from './component-size.js'
 
 export type PaginationProps = PartialElement<HTMLElement> & {
   /** Total number of pages */
@@ -18,7 +19,7 @@ export type PaginationProps = PartialElement<HTMLElement> & {
   /** If true, the pagination is disabled */
   disabled?: boolean
   /** Size variant */
-  size?: 'small' | 'medium' | 'large'
+  size?: ComponentSize
   /** Palette color */
   color?: keyof Palette
 }

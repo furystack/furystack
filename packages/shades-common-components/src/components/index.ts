@@ -1,3 +1,4 @@
+export * from './component-size.js'
 export * from './accordion/index.js'
 export * from './alert.js'
 export * from './animations.js'
