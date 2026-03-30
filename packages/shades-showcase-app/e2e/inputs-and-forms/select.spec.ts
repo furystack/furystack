@@ -10,7 +10,7 @@ test.describe('Select', () => {
     // --- Single select ---
 
     // Select an option from a dropdown
-    const singleSection = content.locator('shade-paper').filter({ hasText: 'Single Select' })
+    const singleSection = content.locator('[is="shade-paper"]').filter({ hasText: 'Single Select' })
     const fruitTrigger = singleSection.locator('shade-select').first().locator('[role="combobox"]')
     await expect(fruitTrigger).toBeVisible()
     await fruitTrigger.click()
