@@ -119,10 +119,10 @@ export const TimelinePage = Shade({
             Horizontal basic
           </Typography>
           <Timeline orientation="horizontal">
-            <TimelineItem>Create a services site</TimelineItem>
-            <TimelineItem>Solve initial network problems</TimelineItem>
-            <TimelineItem>Technical testing</TimelineItem>
-            <TimelineItem>Network problems being solved</TimelineItem>
+            <TimelineItem>Plan architecture</TimelineItem>
+            <TimelineItem>Implement features</TimelineItem>
+            <TimelineItem>Write documentation</TimelineItem>
+            <TimelineItem>Release to production</TimelineItem>
           </Timeline>
 
           <Typography variant="h3" style={{ margin: '0' }}>
@@ -140,16 +140,16 @@ export const TimelinePage = Shade({
           </Typography>
           <Timeline orientation="horizontal" mode="alternate">
             <TimelineItem label="Q1" color="primary">
-              Project kickoff
+              Research phase
             </TimelineItem>
             <TimelineItem label="Q2" color="info">
-              Design complete
+              Prototype ready
             </TimelineItem>
             <TimelineItem label="Q3" color="warning">
-              Beta release
+              User testing
             </TimelineItem>
             <TimelineItem label="Q4" color="success">
-              Production launch
+              General availability
             </TimelineItem>
           </Timeline>
 
@@ -175,9 +175,9 @@ export const TimelinePage = Shade({
             Horizontal pending
           </Typography>
           <Timeline orientation="horizontal" pending="Loading...">
-            <TimelineItem color="success">Step 1</TimelineItem>
-            <TimelineItem color="success">Step 2</TimelineItem>
-            <TimelineItem color="primary">Step 3</TimelineItem>
+            <TimelineItem color="success">Phase 1</TimelineItem>
+            <TimelineItem color="success">Phase 2</TimelineItem>
+            <TimelineItem color="primary">Phase 3</TimelineItem>
           </Timeline>
         </Paper>
       </PageContainer>
