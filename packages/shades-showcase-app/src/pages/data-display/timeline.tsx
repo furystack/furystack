@@ -110,6 +110,75 @@ export const TimelinePage = Shade({
             <TimelineItem color="success">Complete onboarding 2024-09-02</TimelineItem>
             <TimelineItem color="primary">Deploy first app 2024-09-05</TimelineItem>
           </Timeline>
+
+          <Typography variant="h2" style={{ margin: '0' }}>
+            Horizontal orientation
+          </Typography>
+
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Horizontal basic
+          </Typography>
+          <Timeline orientation="horizontal">
+            <TimelineItem>Create a services site</TimelineItem>
+            <TimelineItem>Solve initial network problems</TimelineItem>
+            <TimelineItem>Technical testing</TimelineItem>
+            <TimelineItem>Network problems being solved</TimelineItem>
+          </Timeline>
+
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Horizontal with colors
+          </Typography>
+          <Timeline orientation="horizontal">
+            <TimelineItem color="primary">Design</TimelineItem>
+            <TimelineItem color="info">Develop</TimelineItem>
+            <TimelineItem color="warning">Test</TimelineItem>
+            <TimelineItem color="success">Deploy</TimelineItem>
+          </Timeline>
+
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Horizontal with labels
+          </Typography>
+          <Timeline orientation="horizontal" mode="alternate">
+            <TimelineItem label="Q1" color="primary">
+              Project kickoff
+            </TimelineItem>
+            <TimelineItem label="Q2" color="info">
+              Design complete
+            </TimelineItem>
+            <TimelineItem label="Q3" color="warning">
+              Beta release
+            </TimelineItem>
+            <TimelineItem label="Q4" color="success">
+              Production launch
+            </TimelineItem>
+          </Timeline>
+
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Horizontal with custom dots
+          </Typography>
+          <Timeline orientation="horizontal">
+            <TimelineItem dot={<Icon icon={icons.partyPopper} size="small" />} color="success">
+              Launched
+            </TimelineItem>
+            <TimelineItem dot={<Icon icon={icons.circleDot} size="small" />} color="error">
+              Bug found
+            </TimelineItem>
+            <TimelineItem dot={<Icon icon={icons.wrench} size="small" />} color="warning">
+              Fixing
+            </TimelineItem>
+            <TimelineItem dot={<Icon icon={icons.checkCircle} size="small" />} color="success">
+              Resolved
+            </TimelineItem>
+          </Timeline>
+
+          <Typography variant="h3" style={{ margin: '0' }}>
+            Horizontal pending
+          </Typography>
+          <Timeline orientation="horizontal" pending="Loading...">
+            <TimelineItem color="success">Step 1</TimelineItem>
+            <TimelineItem color="success">Step 2</TimelineItem>
+            <TimelineItem color="primary">Step 3</TimelineItem>
+          </Timeline>
         </Paper>
       </PageContainer>
     )

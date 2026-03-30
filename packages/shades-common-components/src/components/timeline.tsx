@@ -148,6 +148,8 @@ export const TimelineItem = Shade<TimelineItemProps>({
 export type TimelineProps = PartialElement<HTMLElement> & {
   /** Layout mode. 'left' places content on the right, 'right' on the left, 'alternate' switches sides. Defaults to 'left'. */
   mode?: 'left' | 'right' | 'alternate'
+  /** Orientation of the timeline axis. Defaults to 'vertical'. */
+  orientation?: 'vertical' | 'horizontal'
   /** Show a pending indicator on the last item. `true` shows a default "Loading..." text, a string/JSX shows custom content. */
   pending?: boolean | string | JSX.Element
 }
@@ -201,12 +203,103 @@ export const Timeline = Shade<TimelineProps>({
     '&[data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-dot-column': {
       order: '2',
     },
+
+    '&[data-orientation="horizontal"]': {
+      flexDirection: 'row',
+    },
+
+    '&[data-orientation="horizontal"] > shade-timeline-item': {
+      flexDirection: 'column',
+      minHeight: 'auto',
+      flex: '1',
+    },
+
+    '&[data-orientation="horizontal"] > shade-timeline-item .timeline-label': {
+      flex: 'none',
+      textAlign: 'center',
+      paddingRight: '0',
+      paddingBottom: cssVariableTheme.spacing.xs,
+    },
+
+    '&[data-orientation="horizontal"] > shade-timeline-item .timeline-dot-column': {
+      flexDirection: 'row',
+      width: '100%',
+      paddingTop: '0',
+    },
+
+    '&[data-orientation="horizontal"] > shade-timeline-item .timeline-tail': {
+      height: '2px',
+      width: 'auto',
+      flex: '1',
+      marginTop: '0',
+      marginLeft: cssVariableTheme.spacing.xs,
+    },
+
+    '&[data-orientation="horizontal"] > shade-timeline-item .timeline-tail[data-pending]': {
+      borderLeft: 'none',
+      borderTop: `2px dashed ${cssVariableTheme.divider}`,
+      height: '0',
+      width: 'auto',
+    },
+
+    '&[data-orientation="horizontal"] > shade-timeline-item .timeline-content': {
+      flex: 'none',
+      paddingLeft: '0',
+      paddingTop: cssVariableTheme.spacing.sm,
+      paddingBottom: '0',
+      textAlign: 'center',
+    },
+
+    '&[data-orientation="horizontal"][data-mode="right"] > shade-timeline-item .timeline-label': {
+      order: '3',
+      paddingBottom: '0',
+      paddingLeft: '0',
+      paddingTop: cssVariableTheme.spacing.sm,
+      textAlign: 'center',
+    },
+
+    '&[data-orientation="horizontal"][data-mode="right"] > shade-timeline-item .timeline-content': {
+      order: '1',
+      paddingTop: '0',
+      paddingRight: '0',
+      paddingBottom: cssVariableTheme.spacing.xs,
+      textAlign: 'center',
+    },
+
+    '&[data-orientation="horizontal"][data-mode="right"] > shade-timeline-item .timeline-dot-column': {
+      order: '2',
+    },
+
+    '&[data-orientation="horizontal"][data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-label': {
+      order: '3',
+      paddingRight: '0',
+      paddingLeft: '0',
+      paddingBottom: '0',
+      paddingTop: cssVariableTheme.spacing.sm,
+      textAlign: 'center',
+    },
+
+    '&[data-orientation="horizontal"][data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-content':
+      {
+        order: '1',
+        paddingLeft: '0',
+        paddingRight: '0',
+        paddingTop: '0',
+        paddingBottom: cssVariableTheme.spacing.xs,
+        textAlign: 'center',
+      },
+
+    '&[data-orientation="horizontal"][data-mode="alternate"] > shade-timeline-item:nth-of-type(even) .timeline-dot-column':
+      {
+        order: '2',
+      },
   },
   render: ({ props, children, useHostProps }) => {
-    const { mode = 'left', pending, style } = props
+    const { mode = 'left', orientation = 'vertical', pending, style } = props
 
     useHostProps({
       'data-mode': mode,
+      ...(orientation === 'horizontal' ? { 'data-orientation': 'horizontal' as const } : {}),
       ...(style ? { style: style as Record<string, string> } : {}),
     })
 
