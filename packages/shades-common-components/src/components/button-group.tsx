@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteFullColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
+import type { ComponentSize } from './component-size.js'
 
 // ==========================================
 // ButtonGroup
@@ -86,7 +87,7 @@ export type ToggleButtonProps = PartialElement<HTMLButtonElement> & {
    * The size of the toggle button.
    * @default 'medium'
    */
-  size?: 'small' | 'medium' | 'large'
+  size?: ComponentSize
   /**
    * Whether the button is in a pressed (selected) state.
    * Use this for standalone toggle buttons or controlled state.
@@ -202,7 +203,7 @@ export type ToggleButtonGroupProps = PartialElement<HTMLElement> & {
    * Individual ToggleButton `size` props are overridden by this value.
    * @default 'medium'
    */
-  size?: 'small' | 'medium' | 'large'
+  size?: ComponentSize
 }
 
 export const ToggleButtonGroup: (props: ToggleButtonGroupProps, children: ChildrenList) => JSX.Element =
@@ -364,7 +365,7 @@ export type SegmentedControlProps = PartialElement<HTMLElement> & {
   /** Whether the entire control is disabled */
   disabled?: boolean
   /** Size variant */
-  size?: 'small' | 'medium'
+  size?: ComponentSize
 }
 
 const defaultSegmentedColors = {
@@ -425,6 +426,11 @@ export const SegmentedControl = Shade<SegmentedControlProps>({
       padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.md}`,
       fontSize: cssVariableTheme.typography.fontSize.sm,
     },
+
+    '&[data-size="large"] .segmented-option': {
+      padding: `${cssVariableTheme.spacing.md} ${cssVariableTheme.spacing.xl}`,
+      fontSize: cssVariableTheme.typography.fontSize.lg,
+    },
   },
   render: ({ props, useHostProps }) => {
     const { options, value, onValueChange, color, disabled, size, style } = props
@@ -435,7 +441,7 @@ export const SegmentedControl = Shade<SegmentedControlProps>({
 
     useHostProps({
       role: 'radiogroup',
-      'data-size': size === 'small' ? 'small' : undefined,
+      'data-size': size && size !== 'medium' ? size : undefined,
       style: {
         '--seg-color-main': colors.main,
         '--seg-color-main-contrast': colors.mainContrast,

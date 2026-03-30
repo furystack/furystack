@@ -20,6 +20,25 @@ export const InputsPage = Shade({
           title="Input Fields"
           description="Input components provide text entry with built-in validation, helper text, and icon slots. Three variants are available: default, outlined, and contained. Each input supports HTML5 validation attributes like required, pattern, min/max, and provides real-time feedback through customizable helper text and validation icons. The Autocomplete component extends inputs with suggestion dropdown functionality."
         />
+        <Paper elevation={3} style={{ padding: '32px', marginBottom: '32px' }}>
+          <Typography variant="h5" style={{ marginTop: '0' }}>
+            Sizes
+          </Typography>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+            {(['small', 'medium', 'large'] as const).map((size) => (
+              <div style={{ flex: '1' }}>
+                <Typography variant="h6">{size}</Typography>
+                <Input
+                  size={size}
+                  variant="outlined"
+                  labelTitle="Text Input"
+                  value="Example"
+                  getHelperText={() => `Size: ${size}`}
+                />
+              </div>
+            ))}
+          </div>
+        </Paper>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <div style={{ display: 'flex', gap: '32px' }}>
             {([undefined, 'outlined', 'contained'] as const).map((variant) => (

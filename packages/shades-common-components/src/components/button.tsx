@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteFullColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
+import type { ComponentSize } from './component-size.js'
 
 export type ButtonProps = PartialElement<HTMLButtonElement> & {
   /**
@@ -18,7 +19,7 @@ export type ButtonProps = PartialElement<HTMLButtonElement> & {
    * The size of the button.
    * @default 'medium'
    */
-  size?: 'small' | 'medium' | 'large'
+  size?: ComponentSize
   /** When true, applies the error palette color regardless of the `color` prop */
   danger?: boolean
   /** When true, shows a loading spinner and disables the button */

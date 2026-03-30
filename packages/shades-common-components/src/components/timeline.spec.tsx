@@ -196,4 +196,113 @@ describe('Timeline', () => {
     const items = timeline.querySelectorAll('shade-timeline-item')
     expect(items.length).toBe(2)
   })
+
+  describe('orientation', () => {
+    it('should not set data-orientation when orientation is not specified (defaults to vertical)', async () => {
+      const el = (
+        <div>
+          <Timeline>
+            <TimelineItem>Event</TimelineItem>
+          </Timeline>
+        </div>
+      )
+      const timeline = el.firstElementChild as JSX.Element
+      timeline.updateComponent()
+      await flushUpdates()
+      expect(timeline.hasAttribute('data-orientation')).toBe(false)
+    })
+
+    it('should not set data-orientation when orientation is "vertical"', async () => {
+      const el = (
+        <div>
+          <Timeline orientation="vertical">
+            <TimelineItem>Event</TimelineItem>
+          </Timeline>
+        </div>
+      )
+      const timeline = el.firstElementChild as JSX.Element
+      timeline.updateComponent()
+      await flushUpdates()
+      expect(timeline.hasAttribute('data-orientation')).toBe(false)
+    })
+
+    it('should set data-orientation="horizontal" when orientation is "horizontal"', async () => {
+      const el = (
+        <div>
+          <Timeline orientation="horizontal">
+            <TimelineItem>Event</TimelineItem>
+          </Timeline>
+        </div>
+      )
+      const timeline = el.firstElementChild as JSX.Element
+      timeline.updateComponent()
+      await flushUpdates()
+      expect(timeline.getAttribute('data-orientation')).toBe('horizontal')
+    })
+
+    it('should render children in horizontal mode', async () => {
+      const el = (
+        <div>
+          <Timeline orientation="horizontal">
+            <TimelineItem>First</TimelineItem>
+            <TimelineItem>Second</TimelineItem>
+            <TimelineItem>Third</TimelineItem>
+          </Timeline>
+        </div>
+      )
+      const timeline = el.firstElementChild as JSX.Element
+      timeline.updateComponent()
+      await flushUpdates()
+      const items = timeline.querySelectorAll('shade-timeline-item')
+      expect(items.length).toBe(3)
+    })
+
+    it('should support horizontal with mode="alternate"', async () => {
+      const el = (
+        <div>
+          <Timeline orientation="horizontal" mode="alternate">
+            <TimelineItem>First</TimelineItem>
+            <TimelineItem>Second</TimelineItem>
+          </Timeline>
+        </div>
+      )
+      const timeline = el.firstElementChild as JSX.Element
+      timeline.updateComponent()
+      await flushUpdates()
+      expect(timeline.getAttribute('data-orientation')).toBe('horizontal')
+      expect(timeline.getAttribute('data-mode')).toBe('alternate')
+    })
+
+    it('should support horizontal with mode="right"', async () => {
+      const el = (
+        <div>
+          <Timeline orientation="horizontal" mode="right">
+            <TimelineItem>First</TimelineItem>
+          </Timeline>
+        </div>
+      )
+      const timeline = el.firstElementChild as JSX.Element
+      timeline.updateComponent()
+      await flushUpdates()
+      expect(timeline.getAttribute('data-orientation')).toBe('horizontal')
+      expect(timeline.getAttribute('data-mode')).toBe('right')
+    })
+
+    it('should add pending item in horizontal mode', async () => {
+      const el = (
+        <div>
+          <Timeline orientation="horizontal" pending="Loading...">
+            <TimelineItem>Step 1</TimelineItem>
+            <TimelineItem>Step 2</TimelineItem>
+          </Timeline>
+        </div>
+      )
+      const timeline = el.firstElementChild as JSX.Element
+      timeline.updateComponent()
+      await flushUpdates()
+      const items = timeline.querySelectorAll('shade-timeline-item')
+      expect(items.length).toBe(3)
+      expect(timeline.getAttribute('data-orientation')).toBe('horizontal')
+    })
+  })
 })

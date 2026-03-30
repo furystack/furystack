@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { ComponentSize } from '../component-size.js'
 import { FormService } from '../form.js'
 
 export type SwitchProps = {
@@ -41,7 +42,7 @@ export type SwitchProps = {
   /**
    * The size of the switch
    */
-  size?: 'small' | 'medium'
+  size?: ComponentSize
   /**
    * Optional props for the label element
    */
@@ -116,6 +117,18 @@ export const Switch = Shade<SwitchProps>({
       height: '14px',
     },
 
+    // Large size
+    '&[data-size="large"] .switch-track': {
+      width: '48px',
+      height: '26px',
+      borderRadius: '13px',
+    },
+
+    '&[data-size="large"] .switch-thumb': {
+      width: '22px',
+      height: '22px',
+    },
+
     // Hidden input
     '& input[type="checkbox"]': {
       position: 'absolute',
@@ -141,6 +154,10 @@ export const Switch = Shade<SwitchProps>({
 
     '&[data-size="small"] input[type="checkbox"]:checked + .switch-track .switch-thumb': {
       transform: 'translateX(14px)',
+    },
+
+    '&[data-size="large"] input[type="checkbox"]:checked + .switch-track .switch-thumb': {
+      transform: 'translateX(22px)',
     },
 
     // Hover state
@@ -191,7 +208,7 @@ export const Switch = Shade<SwitchProps>({
     const color = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({
       'data-disabled': props.disabled ? '' : undefined,
-      'data-size': props.size === 'small' ? 'small' : undefined,
+      'data-size': props.size && props.size !== 'medium' ? props.size : undefined,
       style: { '--switch-color': color },
     })
 

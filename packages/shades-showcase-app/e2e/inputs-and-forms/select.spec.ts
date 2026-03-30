@@ -10,11 +10,12 @@ test.describe('Select', () => {
     // --- Single select ---
 
     // Select an option from a dropdown
-    const fruitTrigger = content.locator('shade-select').first().locator('[role="combobox"]')
+    const singleSection = content.locator('[is="shade-paper"]').filter({ hasText: 'Single Select' })
+    const fruitTrigger = singleSection.locator('shade-select').first().locator('[role="combobox"]')
     await expect(fruitTrigger).toBeVisible()
     await fruitTrigger.click()
 
-    const fruitListbox = content.locator('shade-select').first().locator('[role="listbox"]')
+    const fruitListbox = singleSection.locator('shade-select').first().locator('[role="listbox"]')
     await expect(fruitListbox).toBeVisible()
     await fruitListbox.getByRole('option', { name: 'Cherry' }).click()
     await expect(fruitTrigger.locator('.select-value')).toHaveText('Cherry')

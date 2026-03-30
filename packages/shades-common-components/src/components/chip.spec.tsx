@@ -92,6 +92,30 @@ describe('Chip', () => {
     expect(chip.getAttribute('data-size')).toBe('small')
   })
 
+  it('should set data-size attribute when size is large', async () => {
+    const el = (
+      <div>
+        <Chip size="large">Large</Chip>
+      </div>
+    )
+    const chip = el.firstElementChild as JSX.Element
+    chip.updateComponent()
+    await flushUpdates()
+    expect(chip.getAttribute('data-size')).toBe('large')
+  })
+
+  it('should not set data-size when size is medium (default)', async () => {
+    const el = (
+      <div>
+        <Chip size="medium">Medium</Chip>
+      </div>
+    )
+    const chip = el.firstElementChild as JSX.Element
+    chip.updateComponent()
+    await flushUpdates()
+    expect(chip.getAttribute('data-size')).toBeNull()
+  })
+
   it('should set data-disabled attribute when disabled', async () => {
     const el = (
       <div>

@@ -602,6 +602,12 @@ describe('SegmentedControl', () => {
         expect(control.getAttribute('data-size')).toBe('small')
       })
     })
+
+    it('should set data-size="large" for large size', async () => {
+      await usingAsync(await renderSegmented({ size: 'large' }), async ({ control }) => {
+        expect(control.getAttribute('data-size')).toBe('large')
+      })
+    })
   })
 
   describe('color', () => {

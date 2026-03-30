@@ -60,6 +60,17 @@ export const CheckboxesPage = Shade({
 
           <div>
             <Typography variant="h6" style={{ margin: '0 0 12px 0' }}>
+              Sizes
+            </Typography>
+            <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <Checkbox labelTitle="Small" size="small" checked disabled={state.isDisabled} />
+              <Checkbox labelTitle="Medium (default)" size="medium" checked disabled={state.isDisabled} />
+              <Checkbox labelTitle="Large" size="large" checked disabled={state.isDisabled} />
+            </div>
+          </div>
+
+          <div>
+            <Typography variant="h6" style={{ margin: '0 0 12px 0' }}>
               Without labels
             </Typography>
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>

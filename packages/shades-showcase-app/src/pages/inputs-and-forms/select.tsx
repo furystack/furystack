@@ -86,6 +86,27 @@ export const SelectPage = Shade({
 
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '32px' }}>
           <Typography variant="h5" style={{ marginTop: '0' }}>
+            Sizes
+          </Typography>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+            {(['small', 'medium', 'large'] as const).map((size) => (
+              <div style={{ flex: '1' }}>
+                <Typography variant="h6">{size}</Typography>
+                <Select
+                  size={size}
+                  variant="outlined"
+                  labelTitle="Fruit"
+                  options={fruitOptions}
+                  placeholder="Choose..."
+                  getHelperText={() => `Size: ${size}`}
+                />
+              </div>
+            ))}
+          </div>
+        </Paper>
+
+        <Paper elevation={3} style={{ padding: '32px', marginBottom: '32px' }}>
+          <Typography variant="h5" style={{ marginTop: '0' }}>
             Single Select
           </Typography>
           <div style={{ display: 'flex', gap: '32px' }}>

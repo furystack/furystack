@@ -19,7 +19,7 @@ test.describe('Radio', () => {
     await expect(greenRadio).toBeChecked()
 
     // Horizontal group: select option
-    const mediumRadio = content.getByRole('radio', { name: 'Medium' })
+    const mediumRadio = content.getByRole('radio', { name: 'Medium', exact: true })
     await mediumRadio.check()
     await expect(mediumRadio).toBeChecked()
 

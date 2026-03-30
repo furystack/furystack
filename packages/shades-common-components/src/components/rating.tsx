@@ -2,6 +2,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import type { Palette } from '../services/theme-provider-service.js'
 import { ThemeProviderService } from '../services/theme-provider-service.js'
+import type { ComponentSize } from './component-size.js'
 import { Icon } from './icons/icon.js'
 import { star as starIcon, starOutline } from './icons/icon-definitions.js'
 
@@ -24,7 +25,7 @@ export type RatingProps = {
   /**
    * Size of the rating stars
    */
-  size?: 'small' | 'medium' | 'large'
+  size?: ComponentSize
   /**
    * Whether the rating is disabled
    */

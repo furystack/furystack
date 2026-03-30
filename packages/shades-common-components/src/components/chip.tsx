@@ -3,13 +3,14 @@ import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { paletteFullColors } from '../services/palette-css-vars.js'
 import type { Palette } from '../services/theme-provider-service.js'
+import type { ComponentSize } from './component-size.js'
 import { Icon } from './icons/icon.js'
 import { close } from './icons/icon-definitions.js'
 
 export type ChipProps = PartialElement<HTMLElement> & {
   variant?: 'filled' | 'outlined'
   color?: keyof Palette
-  size?: 'small' | 'medium'
+  size?: ComponentSize
   disabled?: boolean
   clickable?: boolean
   onDelete?: (ev: MouseEvent) => void
@@ -56,6 +57,12 @@ export const Chip = Shade<ChipProps>({
       height: '24px',
       padding: `0 ${cssVariableTheme.spacing.sm}`,
       fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+
+    '&[data-size="large"]': {
+      height: '40px',
+      padding: `0 ${cssVariableTheme.spacing.lg}`,
+      fontSize: cssVariableTheme.typography.fontSize.md,
     },
 
     // Disabled state
@@ -155,7 +162,7 @@ export const Chip = Shade<ChipProps>({
     const isClickable = clickable || rest.onclick
     useHostProps({
       'data-variant': variant || undefined,
-      'data-size': size === 'small' ? 'small' : undefined,
+      'data-size': size && size !== 'medium' ? size : undefined,
       'data-disabled': disabled ? '' : undefined,
       'data-clickable': isClickable ? '' : undefined,
       tabIndex: isClickable && !disabled ? 0 : undefined,

@@ -270,4 +270,46 @@ describe('Radio', () => {
       })
     })
   })
+
+  describe('size', () => {
+    it('should not set data-size when size is not specified', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Radio value="opt1" /> })
+        await flushUpdates()
+        const el = document.querySelector('shade-radio') as HTMLElement
+        expect(el.getAttribute('data-size')).toBeNull()
+      })
+    })
+
+    it('should not set data-size for medium size (default)', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Radio value="opt1" size="medium" /> })
+        await flushUpdates()
+        const el = document.querySelector('shade-radio') as HTMLElement
+        expect(el.getAttribute('data-size')).toBeNull()
+      })
+    })
+
+    it('should set data-size="small" for small size', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Radio value="opt1" size="small" /> })
+        await flushUpdates()
+        const el = document.querySelector('shade-radio') as HTMLElement
+        expect(el.getAttribute('data-size')).toBe('small')
+      })
+    })
+
+    it('should set data-size="large" for large size', async () => {
+      await usingAsync(new Injector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+        initializeShadeRoot({ injector, rootElement, jsxElement: <Radio value="opt1" size="large" /> })
+        await flushUpdates()
+        const el = document.querySelector('shade-radio') as HTMLElement
+        expect(el.getAttribute('data-size')).toBe('large')
+      })
+    })
+  })
 })

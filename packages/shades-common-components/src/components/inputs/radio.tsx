@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { ComponentSize } from '../component-size.js'
 import { FormService } from '../form.js'
 
 export type RadioProps = {
@@ -34,6 +35,11 @@ export type RadioProps = {
    * Whether the radio button is checked
    */
   checked?: boolean
+  /**
+   * The size of the radio button.
+   * @default 'medium'
+   */
+  size?: ComponentSize
   /**
    * Optional props for the label element
    */
@@ -116,6 +122,44 @@ export const Radio = Shade<RadioProps>({
       opacity: cssVariableTheme.action.disabledOpacity,
       cursor: 'not-allowed',
     },
+
+    // Size: small
+    '&[data-size="small"] label': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+    '&[data-size="small"] .radio-control': {
+      width: '16px',
+      height: '16px',
+    },
+    '&[data-size="small"] input[type="radio"]': {
+      width: '16px',
+      height: '16px',
+    },
+    '&[data-size="small"] input[type="radio"]:checked::after': {
+      left: '4px',
+      top: '4px',
+      width: '8px',
+      height: '8px',
+    },
+
+    // Size: large
+    '&[data-size="large"] label': {
+      fontSize: cssVariableTheme.typography.fontSize.md,
+    },
+    '&[data-size="large"] .radio-control': {
+      width: '24px',
+      height: '24px',
+    },
+    '&[data-size="large"] input[type="radio"]': {
+      width: '24px',
+      height: '24px',
+    },
+    '&[data-size="large"] input[type="radio"]:checked::after': {
+      left: '6px',
+      top: '6px',
+      width: '12px',
+      height: '12px',
+    },
   },
   render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
     const inputRef = useRef<HTMLInputElement>('formInput')
@@ -177,6 +221,7 @@ export const Radio = Shade<RadioProps>({
 
     const color = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({
+      'data-size': props.size && props.size !== 'medium' ? props.size : undefined,
       'data-disabled': isDisabled ? '' : undefined,
       style: { '--radio-color': color },
     })

@@ -3,6 +3,7 @@ import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
+import type { ComponentSize } from '../component-size.js'
 import { FormService } from '../form.js'
 import { check, close } from '../icons/icon-definitions.js'
 import { Icon } from '../icons/icon.js'
@@ -47,6 +48,11 @@ export type SelectProps = {
   labelProps?: PartialElement<HTMLLabelElement>
   /** The visual variant of the select */
   variant?: 'contained' | 'outlined'
+  /**
+   * The size of the select.
+   * @default 'medium'
+   */
+  size?: ComponentSize
   /** The default color of the select */
   defaultColor?: keyof Palette
   /** The name attribute for form integration */
@@ -340,6 +346,31 @@ export const Select = Shade<SelectProps>({
       opacity: '0.85',
       lineHeight: '1.4',
     },
+
+    // Size: small
+    '&[data-size="small"] label': {
+      padding: `${cssVariableTheme.spacing.xs} ${cssVariableTheme.spacing.sm}`,
+    },
+    '&[data-size="small"] .select-value': {
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+    '&[data-size="small"] .dropdown-item': {
+      padding: `6px ${cssVariableTheme.spacing.sm}`,
+      fontSize: cssVariableTheme.typography.fontSize.xs,
+    },
+
+    // Size: large
+    '&[data-size="large"] label': {
+      padding: `${cssVariableTheme.spacing.md} ${cssVariableTheme.spacing.lg}`,
+      fontSize: cssVariableTheme.typography.fontSize.sm,
+    },
+    '&[data-size="large"] .select-value': {
+      fontSize: cssVariableTheme.typography.fontSize.md,
+    },
+    '&[data-size="large"] .dropdown-item': {
+      padding: `${cssVariableTheme.spacing.sm} ${cssVariableTheme.spacing.lg}`,
+      fontSize: cssVariableTheme.typography.fontSize.md,
+    },
   },
   render: ({ props, injector, useState, useDisposable, useHostProps, useRef }) => {
     const selectRootRef = useRef<HTMLDivElement>('selectRoot')
@@ -394,6 +425,7 @@ export const Select = Shade<SelectProps>({
     const primaryColor = themeProvider.theme.palette[props.defaultColor || 'primary'].main
     useHostProps({
       'data-variant': props.variant || undefined,
+      'data-size': props.size && props.size !== 'medium' ? props.size : undefined,
       'data-disabled': props.disabled ? '' : undefined,
       'data-multiple': isMultiple ? '' : undefined,
       'data-open': state.isOpen && !props.disabled ? '' : undefined,

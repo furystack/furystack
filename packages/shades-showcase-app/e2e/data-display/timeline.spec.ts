@@ -17,17 +17,17 @@ test.describe('Timeline', () => {
     await expect(content.getByText('Network problems being solved')).toBeVisible()
 
     // Verify colors section
-    await expect(content.locator('h3:has-text("Colors")')).toBeVisible()
+    await expect(content.getByRole('heading', { name: 'Colors', exact: true })).toBeVisible()
     await expect(content.getByText('Primary event (1)')).toBeVisible()
     await expect(content.getByText('Success event (5)')).toBeVisible()
 
     // Verify custom dots
-    await expect(content.locator('h3:has-text("Custom dots")')).toBeVisible()
+    await expect(content.getByRole('heading', { name: 'Custom dots', exact: true })).toBeVisible()
     await expect(content.getByText('Project launched')).toBeVisible()
     await expect(content.getByText('Bug reported')).toBeVisible()
 
     // Verify alternate mode with labels
-    await expect(content.locator('h3:has-text("With labels")')).toBeVisible()
+    await expect(content.getByRole('heading', { name: 'With labels', exact: true })).toBeVisible()
     await expect(content.getByText('2024-01-15')).toBeVisible()
     await expect(content.getByText('Project kickoff meeting')).toBeVisible()
     await expect(content.getByText('Production launch')).toBeVisible()
