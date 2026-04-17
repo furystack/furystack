@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.1.5] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised `typescript` to ^6.0.3 and `vitest` to ^4.1.4 so package builds and tests track the workspace compiler and test runner.
+
 ## [6.1.4] - 2026-03-27
 
 ### ✨ Features

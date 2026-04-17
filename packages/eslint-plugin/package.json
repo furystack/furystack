@@ -1,6 +1,6 @@
 {
   "name": "@furystack/eslint-plugin",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Custom ESLint rules for FuryStack and Shades",
   "type": "module",
   "scripts": {

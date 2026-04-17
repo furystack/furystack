@@ -1,5 +1,11 @@
 # Changelog
 
+## [13.2.2] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised `path-to-regexp` to ^8.4.2, `jsdom` to ^29.0.2, `@types/node` to ^25.6.0, and dev `typescript` to ^6.0.3 and `vitest` to ^4.1.4.
+
 ## [13.2.1] - 2026-03-27
 
 ### 🐛 Bug Fixes

@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.5] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised `@types/node` to ^25.6.0, `typescript` to ^6.0.3, and `vitest` to ^4.1.4 so package development matches the workspace toolchain.
+
 ## [8.1.4] - 2026-03-27
 
 ### ⬆️ Dependencies

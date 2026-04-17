@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.7] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised `path-to-regexp` to ^8.4.2 and dev `typescript` to ^6.0.3 and `vitest` to ^4.1.4.
+
 ## [8.1.6] - 2026-03-27
 
 ### ⬆️ Dependencies

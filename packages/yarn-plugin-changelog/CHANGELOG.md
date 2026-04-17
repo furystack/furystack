@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.10] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised `@yarnpkg/cli` to ^4.14.1 and `@yarnpkg/core` to ^4.7.0 so the plugin targets the Yarn 4.14 API line used by the repository, plus `@types/node` ^25.6.0 and dev `typescript` ^6.0.3 and `vitest` ^4.1.4.
+
 ## [1.0.9] - 2026-03-27
 
 ### ⬆️ Dependencies

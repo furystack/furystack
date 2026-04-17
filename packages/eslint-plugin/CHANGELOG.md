@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.5] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised `@typescript-eslint/utils` and `@typescript-eslint/rule-tester` to ^8.58.2, and dev `typescript` to ^6.0.3 and `vitest` to ^4.1.4, keeping the plugin aligned with current TypeScript ESLint releases used in the workspace.
+
 ## [2.1.4] - 2026-03-27
 
 ### ⬆️ Dependencies

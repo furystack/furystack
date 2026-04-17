@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.1.6] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Bump `@furystack/shades-common-components` to pick up the new `CollectionService.idField` option.
+- Upgraded `@codecov/vite-plugin` to ^2.0.1, `@playwright/test` to ^1.59.1, `vite` to ^8.0.8, and dev `typescript` to ^6.0.3 and `vitest` to ^4.1.4 for the showcase app’s bundling, coverage reporting, and end-to-end tests.
+
 ## [9.1.5] - 2026-03-30
 
 ### ✨ Features

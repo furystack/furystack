@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.12] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised `typescript` to ^6.0.3 and `vitest` to ^4.1.4 so package builds and tests track the workspace toolchain.
+
 ## [1.0.11] - 2026-03-27
 
 ### ⬆️ Dependencies

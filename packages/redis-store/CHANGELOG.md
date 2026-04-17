@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.0.48] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised the `redis` client dependency to ^5.12.1 and dev `@types/node` to ^25.6.0, `typescript` to ^6.0.3, and `vitest` to ^4.1.4.
+
 ## [10.0.47] - 2026-03-27
 
 ### ⬆️ Dependencies

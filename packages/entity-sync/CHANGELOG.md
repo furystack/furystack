@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.11] - 2026-04-17
+
+### ⬆️ Dependencies
+
+- Raised the `typescript` devDependency to ^6.0.3 so the package compiles with the same compiler revision as the rest of the monorepo.
+
 ## [1.0.10] - 2026-03-27
 
 ### ⬆️ Dependencies

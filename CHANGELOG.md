@@ -1,5 +1,19 @@
 # Changelog
 
+## [8.1.10] - 2026-04-17
+
+### 📦 Build
+
+- Pinned the repository to **Yarn 4.14.1** by checking in `.yarn/releases/yarn-4.14.1.cjs`, updating `.yarnrc.yml` `yarnPath`, and setting the root `packageManager` field so every install uses the same Yarn release.
+
+### ⬆️ Dependencies
+
+- Refreshed root `devDependencies` and `yarn.lock`: `@vitest/coverage-istanbul` ^4.1.4, `eslint` ^10.2.0, `eslint-plugin-jsdoc` ^62.9.0, `jsdom` ^29.0.2, `prettier` ^3.8.3, `typescript` ^6.0.3, `typescript-eslint` ^8.58.2, `vite` ^8.0.8, and `vitest` ^4.1.4.
+
+### 🔧 Chores
+
+- Workspace release accompanying the `@furystack/shades-common-components` `CollectionService` `idField` auto-reconciliation feature; no changes in the root package itself.
+
 ## [8.1.9] - 2026-03-30
 
 ### ⬆️ Dependencies
