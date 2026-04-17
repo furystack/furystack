@@ -13,11 +13,12 @@ export interface CollectionServiceOptions<T> {
 
   /**
    * A field used as a stable identity key for entries.
-   * When provided, the service automatically reconciles `focusedEntry`
-   * and `selection` after `data` changes so that stale object references
-   * are swapped for their matching counterparts in the new data array.
-   * This keeps keyboard navigation and selection working correctly when
-   * the backing data is rebuilt with new object instances.
+   * When provided, the service automatically reconciles `focusedEntry`,
+   * `selection`, and the internal SHIFT+click focus anchor after `data`
+   * changes so that stale object references are swapped for their matching
+   * counterparts in the new data array. This keeps keyboard navigation and
+   * selection working correctly when the backing data is rebuilt with new
+   * object instances.
    */
   idField?: keyof T
 
@@ -224,6 +225,11 @@ export class CollectionService<T>
       if (reconciled !== currentFocused) {
         this.focusedEntry.setValue(reconciled)
       }
+    }
+
+    if (this.focusAnchor) {
+      const anchor = this.focusAnchor
+      this.focusAnchor = entries.find((e) => e[idField] === anchor[idField])
     }
 
     const currentSelection = this.selection.getValue()

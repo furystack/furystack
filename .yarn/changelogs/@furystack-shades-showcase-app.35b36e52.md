@@ -36,7 +36,7 @@
 
 ## ⬆️ Dependencies
 
-- Bumped `@furystack/shades-common-components` to pick up the new `CollectionService` `idField` option for automatic `focusedEntry`/`selection` reconciliation on data changes.
+- Bump `@furystack/shades-common-components` to pick up the new `CollectionService.idField` option.
 
 ## 🔧 Chores
 

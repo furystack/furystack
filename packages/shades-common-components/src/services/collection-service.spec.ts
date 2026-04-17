@@ -69,6 +69,21 @@ describe('CollectionService', () => {
       expect(hasFocusSpy).toHaveBeenCalled()
       expect(focusedEntrySpy).toHaveBeenCalled()
     })
+
+    it('Should dispose the data subscription when idField is set', () => {
+      const service = new CollectionService<TestEntry>({ idField: 'foo' })
+      const entries = createTestEntries()
+
+      service.data.setValue({ count: 3, entries })
+      service.focusedEntry.setValue(entries[1])
+      expect(service.focusedEntry.getValue()).toBe(entries[1])
+
+      const dataSpy = vi.spyOn(service.data, Symbol.dispose)
+      service[Symbol.dispose]()
+
+      expect(dataSpy).toHaveBeenCalled()
+      expect(() => service.data.setValue({ count: 0, entries: [] })).toThrowError('Observable already disposed')
+    })
   })
 
   describe('idField auto-reconciliation', () => {
@@ -141,10 +156,14 @@ describe('CollectionService', () => {
       using(new CollectionService<TestEntry>({}), (service) => {
         service.data.setValue({ count: 3, entries: oldEntries })
         service.focusedEntry.setValue(oldEntries[1])
+        service.selection.setValue([oldEntries[0], oldEntries[2]])
 
         service.data.setValue({ count: 3, entries: newEntries })
 
         expect(service.focusedEntry.getValue()).toBe(oldEntries[1])
+        const selection = service.selection.getValue()
+        expect(selection[0]).toBe(oldEntries[0])
+        expect(selection[1]).toBe(oldEntries[2])
       })
     })
 
