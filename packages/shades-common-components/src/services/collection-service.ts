@@ -10,6 +10,17 @@ export interface CollectionServiceOptions<T> {
    * An optional field that can be used for quick search
    */
   searchField?: keyof T
+
+  /**
+   * A field used as a stable identity key for entries.
+   * When provided, the service automatically reconciles `focusedEntry`
+   * and `selection` after `data` changes so that stale object references
+   * are swapped for their matching counterparts in the new data array.
+   * This keeps keyboard navigation and selection working correctly when
+   * the backing data is rebuilt with new object instances.
+   */
+  idField?: keyof T
+
   /**
    * @param entry The clicked entry
    * @deprecated Use `subscribe('onRowClick', ...)` instead
@@ -31,7 +42,10 @@ export class CollectionService<T>
   }>
   implements Disposable
 {
+  private dataSubscription?: Disposable
+
   public [Symbol.dispose]() {
+    this.dataSubscription?.[Symbol.dispose]()
     this.data[Symbol.dispose]()
     this.selection[Symbol.dispose]()
     this.searchTerm[Symbol.dispose]()
@@ -200,6 +214,28 @@ export class CollectionService<T>
     this.focusedEntry.setValue(entry)
   }
 
+  private reconcileRefs(entries: T[]): void {
+    const { idField } = this.options
+    if (!idField) return
+
+    const currentFocused = this.focusedEntry.getValue()
+    if (currentFocused) {
+      const reconciled = entries.find((e) => e[idField] === currentFocused[idField])
+      if (reconciled !== currentFocused) {
+        this.focusedEntry.setValue(reconciled)
+      }
+    }
+
+    const currentSelection = this.selection.getValue()
+    if (currentSelection.length > 0) {
+      const entryById = new Map(entries.map((e) => [e[idField], e]))
+      const reconciled = currentSelection.map((s) => entryById.get(s[idField])).filter((e): e is T => e !== undefined)
+      if (reconciled.length !== currentSelection.length || reconciled.some((e, i) => e !== currentSelection[i])) {
+        this.selection.setValue(reconciled)
+      }
+    }
+  }
+
   constructor(private options: CollectionServiceOptions<T> = {}) {
     super()
     if (options.onRowClick) {
@@ -207,6 +243,11 @@ export class CollectionService<T>
     }
     if (options.onRowDoubleClick) {
       this.addListener('onRowDoubleClick', options.onRowDoubleClick)
+    }
+    if (options.idField) {
+      this.dataSubscription = this.data.subscribe(({ entries }) => {
+        this.reconcileRefs(entries)
+      })
     }
   }
 

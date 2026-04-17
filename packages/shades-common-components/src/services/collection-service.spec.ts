@@ -71,6 +71,122 @@ describe('CollectionService', () => {
     })
   })
 
+  describe('idField auto-reconciliation', () => {
+    it('Should reconcile focusedEntry when data changes', () => {
+      const oldEntries = createTestEntries()
+      const newEntries = createTestEntries()
+
+      using(new CollectionService<TestEntry>({ idField: 'foo' }), (service) => {
+        service.data.setValue({ count: 3, entries: oldEntries })
+        service.focusedEntry.setValue(oldEntries[1])
+
+        service.data.setValue({ count: 3, entries: newEntries })
+
+        expect(service.focusedEntry.getValue()).toBe(newEntries[1])
+        expect(service.focusedEntry.getValue()).not.toBe(oldEntries[1])
+      })
+    })
+
+    it('Should reconcile selection when data changes', () => {
+      const oldEntries = createTestEntries()
+      const newEntries = createTestEntries()
+
+      using(new CollectionService<TestEntry>({ idField: 'foo' }), (service) => {
+        service.data.setValue({ count: 3, entries: oldEntries })
+        service.selection.setValue([oldEntries[0], oldEntries[2]])
+
+        service.data.setValue({ count: 3, entries: newEntries })
+
+        const selection = service.selection.getValue()
+        expect(selection[0]).toBe(newEntries[0])
+        expect(selection[1]).toBe(newEntries[2])
+      })
+    })
+
+    it('Should clear focusedEntry if the entry is removed from data', () => {
+      const oldEntries = createTestEntries()
+      const newEntries = [{ ...oldEntries[0] }, { ...oldEntries[2] }]
+
+      using(new CollectionService<TestEntry>({ idField: 'foo' }), (service) => {
+        service.data.setValue({ count: 3, entries: oldEntries })
+        service.focusedEntry.setValue(oldEntries[1])
+
+        service.data.setValue({ count: 2, entries: newEntries })
+
+        expect(service.focusedEntry.getValue()).toBeUndefined()
+      })
+    })
+
+    it('Should remove stale selection entries when data changes', () => {
+      const oldEntries = createTestEntries()
+      const newEntries = [{ ...oldEntries[0] }, { ...oldEntries[2] }]
+
+      using(new CollectionService<TestEntry>({ idField: 'foo' }), (service) => {
+        service.data.setValue({ count: 3, entries: oldEntries })
+        service.selection.setValue([...oldEntries])
+
+        service.data.setValue({ count: 2, entries: newEntries })
+
+        const selection = service.selection.getValue()
+        expect(selection.length).toBe(2)
+        expect(selection[0]).toBe(newEntries[0])
+        expect(selection[1]).toBe(newEntries[1])
+      })
+    })
+
+    it('Should not reconcile when idField is not provided', () => {
+      const oldEntries = createTestEntries()
+      const newEntries = createTestEntries()
+
+      using(new CollectionService<TestEntry>({}), (service) => {
+        service.data.setValue({ count: 3, entries: oldEntries })
+        service.focusedEntry.setValue(oldEntries[1])
+
+        service.data.setValue({ count: 3, entries: newEntries })
+
+        expect(service.focusedEntry.getValue()).toBe(oldEntries[1])
+      })
+    })
+
+    it('Should not update focusedEntry if the reference already matches', () => {
+      const entries = createTestEntries()
+
+      using(new CollectionService<TestEntry>({ idField: 'foo' }), (service) => {
+        service.data.setValue({ count: 3, entries })
+        service.focusedEntry.setValue(entries[0])
+
+        const spy = vi.spyOn(service.focusedEntry, 'setValue')
+
+        service.data.setValue({ count: 3, entries })
+
+        expect(spy).not.toHaveBeenCalled()
+      })
+    })
+
+    it('Should keep selection and keyboard navigation working after data refresh', () => {
+      const oldEntries = createTestEntries()
+      const newEntries = createTestEntries()
+
+      using(new CollectionService<TestEntry>({ idField: 'foo' }), (service) => {
+        service.data.setValue({ count: 3, entries: oldEntries })
+        service.hasFocus.setValue(true)
+        service.focusedEntry.setValue(oldEntries[0])
+
+        service.data.setValue({ count: 3, entries: newEntries })
+
+        service.handleKeyDown(createKeyboardEvent('*'))
+        expect(service.selection.getValue().length).toBe(3)
+
+        service.handleKeyDown(createKeyboardEvent('ArrowDown'))
+        expect(service.focusedEntry.getValue()).toBe(newEntries[1])
+
+        service.handleKeyDown(createKeyboardEvent('Insert'))
+        expect(service.selection.getValue()).not.toContain(newEntries[1])
+        expect(service.focusedEntry.getValue()).toBe(newEntries[2])
+      })
+    })
+  })
+
   describe('handleKeyDown', () => {
     it('Should do nothing when hasFocus is false', () => {
       const testEntries = createTestEntries()
