@@ -47,8 +47,8 @@
     "@furystack/repository": "workspace:^",
     "@furystack/security": "workspace:^",
     "@types/ws": "^8.18.1",
-    "typescript": "^6.0.2",
-    "vitest": "^4.1.2"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.4"
   },
   "engines": {
     "node": ">=22.0.0"
