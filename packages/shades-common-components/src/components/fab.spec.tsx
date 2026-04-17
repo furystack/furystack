@@ -73,9 +73,10 @@ describe('Fab', () => {
 
   describe('styling', () => {
     it('should have circular shape', async () => {
-      await usingAsync(await renderFab(), async ({ fab }) => {
-        const computedStyle = window.getComputedStyle(fab)
-        expect(computedStyle.borderRadius).toBe(cssVariableTheme.shape.borderRadius.full)
+      await usingAsync(await renderFab(), async () => {
+        const styleEl = document.querySelector('style[data-shades-styles]')
+        const cssText = styleEl?.textContent ?? ''
+        expect(cssText).toContain(`border-radius: ${cssVariableTheme.shape.borderRadius.full}`)
       })
     })
 
