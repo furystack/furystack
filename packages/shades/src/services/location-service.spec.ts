@@ -49,6 +49,45 @@ describe('LocationService', () => {
     })
   })
 
+  describe('replace', () => {
+    it('Should update the observable path without pushing a new history entry', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(LocationService)
+        const lengthBefore = history.length
+        s.replace('/replaced')
+        expect(s.onLocationPathChanged.getValue()).toBe('/replaced')
+        expect(history.length).toBe(lengthBefore)
+      })
+    })
+
+    it('Should call history.replaceState rather than pushState', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(LocationService)
+        const pushSpy = vi.spyOn(history, 'pushState')
+        const replaceSpy = vi.spyOn(history, 'replaceState')
+
+        s.replace('/replaced-2')
+
+        expect(replaceSpy).toHaveBeenCalledTimes(1)
+        expect(replaceSpy).toHaveBeenCalledWith(null, '', '/replaced-2')
+        expect(pushSpy).not.toHaveBeenCalled()
+
+        pushSpy.mockRestore()
+        replaceSpy.mockRestore()
+      })
+    })
+
+    it('Should notify path subscribers after replace', async () => {
+      await usingAsync(new Injector(), async (i) => {
+        const s = i.getInstance(LocationService)
+        const onLocationChanged = vi.fn()
+        s.onLocationPathChanged.subscribe(onLocationChanged)
+        s.replace('/notify')
+        expect(onLocationChanged).toHaveBeenCalledWith('/notify')
+      })
+    })
+  })
+
   describe('useSearchParam', () => {
     it('Should create observables lazily', async () => {
       await usingAsync(new Injector(), async (i) => {

@@ -203,6 +203,10 @@ export const buildMatchChain = (
  * Entries whose route declares neither `query` nor `hash` are returned with
  * `query: null` / `hash: undefined`.
  *
+ * When no entry in the chain declares either `query` or `hash`, the input
+ * array is returned unchanged to avoid a per-navigation allocation on the
+ * common path-only case.
+ *
  * @param chain - The chain produced by {@link buildMatchChain}
  * @param deserializedSearch - The deserialized URL query string
  * @param currentHash - The current URL hash (without the leading `#`)
@@ -211,14 +215,18 @@ export const enrichMatchChain = (
   chain: MatchChainEntry[],
   deserializedSearch: Record<string, unknown>,
   currentHash: string,
-): MatchChainEntry[] =>
-  chain.map((entry) => {
+): MatchChainEntry[] => {
+  const hasAnyDeclaration = chain.some((entry) => entry.route.query || entry.route.hash)
+  if (!hasAnyDeclaration) return chain
+
+  return chain.map((entry) => {
     const validator = entry.route.query as QueryValidator<unknown> | undefined
     const query: unknown = validator ? validator(deserializedSearch) : null
     const declaredHash = entry.route.hash as readonly string[] | undefined
     const hash = declaredHash?.includes(currentHash) ? currentHash : undefined
     return { ...entry, query, hash }
   })
+}
 
 /**
  * Finds the first index where two match chains diverge, considering route
@@ -242,16 +250,51 @@ export const findDivergenceIndex = (oldChain: MatchChainEntry[], newChain: Match
 }
 
 /**
+ * Shallow structural equality for query values. Handles the shapes produced by
+ * route-declared query validators: primitives, plain objects (by own enumerable
+ * string keys, recursively shallow-compared), and arrays (by index).
+ *
+ * Nested objects / arrays are compared shallowly one level deep, then fall back
+ * to `Object.is` — sufficient for the typed-query shapes the router surfaces,
+ * and order-independent unlike `JSON.stringify`.
+ */
+const isShallowEqual = (a: unknown, b: unknown): boolean => {
+  if (Object.is(a, b)) return true
+  if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') return false
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false
+    for (let i = 0; i < a.length; i++) {
+      if (!Object.is(a[i], b[i])) return false
+    }
+    return true
+  }
+  if (Array.isArray(b)) return false
+
+  const aKeys = Object.keys(a as Record<string, unknown>)
+  const bKeys = Object.keys(b as Record<string, unknown>)
+  if (aKeys.length !== bKeys.length) return false
+  for (const key of aKeys) {
+    if (!Object.prototype.hasOwnProperty.call(b, key)) return false
+    if (!Object.is((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) return false
+  }
+  return true
+}
+
+/**
  * Returns true when any chain entry differs in its `query` value or `hash`
  * segment, ignoring path-level fields (route identity and params). Used to
  * force a re-render when the URL's query string or hash changes without the
  * matched route chain itself changing.
+ *
+ * Query values are compared with a key-order-independent shallow equality —
+ * sufficient for the typed shapes a route's `query` validator surfaces.
  */
 export const hasQueryOrHashChanged = (oldChain: MatchChainEntry[], newChain: MatchChainEntry[]): boolean => {
   const minLength = Math.min(oldChain.length, newChain.length)
   for (let i = 0; i < minLength; i++) {
     if (oldChain[i].hash !== newChain[i].hash) return true
-    if (JSON.stringify(oldChain[i].query) !== JSON.stringify(newChain[i].query)) return true
+    if (!isShallowEqual(oldChain[i].query, newChain[i].query)) return true
   }
   return false
 }
@@ -420,22 +463,38 @@ export const NestedRouter = Shade<NestedRouterProps>({
       }
     }
 
+    /**
+     * A single `LocationService.navigate` call synchronously fires three
+     * observables (path, search, hash). Without coalescing, each would kick
+     * off its own `updateUrl` and rely on `versionRef` to cancel the two
+     * that lose the race.
+     *
+     * We dedupe by the composed URL key: each observer fires after the
+     * browser's location has already been updated, so the key read at fire
+     * time is the final target URL. The first observer in the burst kicks
+     * off `updateUrl`; the remaining two see the same key and short-circuit.
+     */
+    const getUrlKey = () =>
+      `${locationService.onLocationPathChanged.getValue()}?${locationService.onLocationSearchChanged.getValue()}#${locationService.onLocationHashChanged.getValue()}`
+
+    const [lastKeyRef] = useState('navLastKey', { current: getUrlKey() })
+    const scheduleUpdate = () => {
+      const key = getUrlKey()
+      if (key === lastKeyRef.current) return
+      lastKeyRef.current = key
+      void updateUrl(locationService.onLocationPathChanged.getValue())
+    }
+
     const [locationPath] = useObservable('locationPathChanged', locationService.onLocationPathChanged, {
-      onChange: (newValue) => {
-        void updateUrl(newValue)
-      },
+      onChange: scheduleUpdate,
     })
 
     useObservable('locationSearchChanged', locationService.onDeserializedLocationSearchChanged, {
-      onChange: () => {
-        void updateUrl(locationService.onLocationPathChanged.getValue())
-      },
+      onChange: scheduleUpdate,
     })
 
     useObservable('locationHashChanged', locationService.onLocationHashChanged, {
-      onChange: () => {
-        void updateUrl(locationService.onLocationPathChanged.getValue())
-      },
+      onChange: scheduleUpdate,
     })
 
     void updateUrl(locationPath)

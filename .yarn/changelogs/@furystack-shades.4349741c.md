@@ -76,12 +76,12 @@ export const appRoutes = defineNestedRoutes({
 
 ### `createNestedHooks` factory
 
-`createNestedHooks<typeof routes>()` returns `{ getTypedQuery, getTypedHash }`, synchronous read helpers that look up the route declared at a given path and narrow the current URL's query / hash against its schema. Intended for non-component consumers (services, side effects) that need a typed snapshot without subscribing through the router.
+`createNestedHooks(routes)` returns `{ getTypedQuery, getTypedHash }`, synchronous read helpers that look up the route declared at a given path and narrow the current URL's query / hash against its schema. The route tree is captured at factory time, so call sites only pass `(injector, path)` and the type-level narrowing is inferred from the tree. Intended for non-component consumers (services, side effects) that need a typed snapshot without subscribing through the router.
 
 ```typescript
-const { getTypedQuery, getTypedHash } = createNestedHooks<typeof routes>()
-const query = getTypedQuery(injector, '/users/:id', routes) // typed | null
-const hash = getTypedHash(injector, '/users/:id', routes) // typed | undefined
+const { getTypedQuery, getTypedHash } = createNestedHooks(routes)
+const query = getTypedQuery(injector, '/users/:id') // typed | null
+const hash = getTypedHash(injector, '/users/:id') // typed | undefined
 ```
 
 ### `buildNestedNavigateUrl` utility
@@ -102,7 +102,10 @@ appReplace(injector, { path: '/login' })
 ## ♻️ Refactoring
 
 - The nested router now subscribes to query-string and hash changes in addition to path changes, re-rendering the matched chain without firing `onLeave` / `onVisit` lifecycle hooks when only the URL's search or hash segment changes.
-- `findDivergenceIndex` keeps its path-only semantics; a separate `hasQueryOrHashChanged` helper drives re-render decisions when the matched chain stays stable but its query / hash differ.
+- Path / query / hash observable bursts from a single `navigate` are now coalesced onto one microtask, so one logical navigation triggers one `updateUrl` run (the `versionRef` guard is retained as a race-safety net).
+- `findDivergenceIndex` keeps its path-only semantics; a separate `hasQueryOrHashChanged` helper drives re-render decisions when the matched chain stays stable but its query / hash differ. Query values are compared with a key-order-independent shallow equality helper instead of `JSON.stringify`.
+- `enrichMatchChain` short-circuits when no chain entry declares `query` or `hash`, returning the input array reference to avoid a per-navigation allocation on the common path-only case.
+- New low-level exports surfaced for advanced routing integrations: `enrichMatchChain`, `hasQueryOrHashChanged`, and the supporting types `QueryValidator`, `HashLiterals`, `ExtractRouteQuery`, `ExtractRouteHash`, `RouteAt`, `TypedParamsArg`, `TypedQueryArg`, `TypedHashArg`, and `TreeAwareNestedRouteLinkProps`.
 
 ## 🧪 Tests
 

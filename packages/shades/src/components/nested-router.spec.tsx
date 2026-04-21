@@ -1,13 +1,17 @@
 import { Injector } from '@furystack/inject'
+import { serializeValue } from '@furystack/rest'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
 import { createComponent } from '../shade-component.js'
 import { flushUpdates } from '../shade.js'
 import { RouteMatchService } from '../services/route-match-service.js'
+import { LocationService } from '../services/location-service.js'
 import {
   buildMatchChain,
+  enrichMatchChain,
   findDivergenceIndex,
+  hasQueryOrHashChanged,
   NestedRouter,
   renderMatchChain,
   resolveViewTransition,
@@ -171,6 +175,112 @@ describe('findDivergenceIndex', () => {
       { route, match: { path: '/', params: { id: '2' } }, query: null, hash: undefined },
     ]
     expect(findDivergenceIndex(oldChain, newChain)).toBe(0)
+  })
+
+  it('should ignore query and hash differences when deciding divergence', () => {
+    const route: NestedRoute = { component: () => <div /> }
+    const oldChain: MatchChainEntry[] = [{ route, match: { path: '/', params: {} }, query: { page: 1 }, hash: 'a' }]
+    const newChain: MatchChainEntry[] = [{ route, match: { path: '/', params: {} }, query: { page: 2 }, hash: 'b' }]
+    expect(findDivergenceIndex(oldChain, newChain)).toBe(1)
+  })
+})
+
+describe('enrichMatchChain', () => {
+  it('should return the input chain unchanged when no entry declares query or hash', () => {
+    const route: NestedRoute = { component: () => <div /> }
+    const chain: MatchChainEntry[] = [{ route, match: { path: '/', params: {} }, query: null, hash: undefined }]
+    const result = enrichMatchChain(chain, {}, '')
+    expect(result).toBe(chain)
+  })
+
+  it('should populate query from the route validator', () => {
+    const route: NestedRoute<unknown, { page: number }> = {
+      component: () => <div />,
+      query: (raw): { page: number } | null => (typeof raw.page === 'number' ? { page: raw.page } : null),
+    }
+    const chain: MatchChainEntry[] = [{ route, match: { path: '/', params: {} }, query: null, hash: undefined }]
+    const result = enrichMatchChain(chain, { page: 3 }, '')
+    expect(result).not.toBe(chain)
+    expect(result[0].query).toEqual({ page: 3 })
+  })
+
+  it('should set query to null when the validator rejects the current search', () => {
+    const route: NestedRoute<unknown, { page: number }> = {
+      component: () => <div />,
+      query: (raw): { page: number } | null => (typeof raw.page === 'number' ? { page: raw.page } : null),
+    }
+    const chain: MatchChainEntry[] = [{ route, match: { path: '/', params: {} }, query: null, hash: undefined }]
+    const result = enrichMatchChain(chain, { page: 'nope' }, '')
+    expect(result[0].query).toBeNull()
+  })
+
+  it('should populate hash only when the current hash is listed in the declared tuple', () => {
+    const route: NestedRoute<unknown, any, readonly ['a', 'b']> = {
+      component: () => <div />,
+      hash: ['a', 'b'] as const,
+    }
+    const chain: MatchChainEntry[] = [{ route, match: { path: '/', params: {} }, query: null, hash: undefined }]
+    expect(enrichMatchChain(chain, {}, 'a')[0].hash).toBe('a')
+    expect(enrichMatchChain(chain, {}, 'unknown')[0].hash).toBeUndefined()
+  })
+
+  it('should leave entries without a declared schema as null/undefined', () => {
+    const bareRoute: NestedRoute = { component: () => <div /> }
+    const declaringRoute: NestedRoute<unknown, any, readonly ['a']> = {
+      component: () => <div />,
+      hash: ['a'] as const,
+    }
+    const chain: MatchChainEntry[] = [
+      { route: bareRoute, match: { path: '/', params: {} }, query: null, hash: undefined },
+      { route: declaringRoute, match: { path: '/', params: {} }, query: null, hash: undefined },
+    ]
+    const result = enrichMatchChain(chain, {}, 'a')
+    expect(result[0].query).toBeNull()
+    expect(result[0].hash).toBeUndefined()
+    expect(result[1].hash).toBe('a')
+  })
+})
+
+describe('hasQueryOrHashChanged', () => {
+  const makeEntry = (query: unknown, hash: string | undefined): MatchChainEntry => ({
+    route: { component: () => <div /> },
+    match: { path: '/', params: {} },
+    query,
+    hash,
+  })
+
+  it('should return false when both chains are empty', () => {
+    expect(hasQueryOrHashChanged([], [])).toBe(false)
+  })
+
+  it('should return false for identical chains', () => {
+    const oldChain = [makeEntry({ page: 1 }, 'a')]
+    const newChain = [makeEntry({ page: 1 }, 'a')]
+    expect(hasQueryOrHashChanged(oldChain, newChain)).toBe(false)
+  })
+
+  it('should return true when the hash differs', () => {
+    expect(hasQueryOrHashChanged([makeEntry(null, 'a')], [makeEntry(null, 'b')])).toBe(true)
+  })
+
+  it('should return true when the query differs', () => {
+    expect(hasQueryOrHashChanged([makeEntry({ page: 1 }, undefined)], [makeEntry({ page: 2 }, undefined)])).toBe(true)
+  })
+
+  it('should treat equal query objects as unchanged regardless of key order', () => {
+    const oldChain = [makeEntry({ a: 1, b: 2 }, undefined)]
+    const newChain = [makeEntry({ b: 2, a: 1 }, undefined)]
+    expect(hasQueryOrHashChanged(oldChain, newChain)).toBe(false)
+  })
+
+  it('should detect query diffs on arrays', () => {
+    expect(hasQueryOrHashChanged([makeEntry([1, 2], undefined)], [makeEntry([1, 3], undefined)])).toBe(true)
+  })
+
+  it('should ignore chain entries beyond the shorter length', () => {
+    const oldChain = [makeEntry(null, 'a')]
+    const newChain = [makeEntry(null, 'a'), makeEntry({ x: 1 }, 'b')]
+    expect(hasQueryOrHashChanged(oldChain, newChain)).toBe(false)
   })
 })
 
@@ -427,6 +537,163 @@ describe('NestedRouter lifecycle hooks', () => {
       expect(getContent()).toBe('not found')
       expect(onLeaveOther).toBeCalledTimes(1)
       expect(callOrder).toEqual(['leave-other'])
+    })
+  })
+})
+
+describe('NestedRouter query / hash re-render', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="root"></div>'
+  })
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  it('should re-render the chain on a hash-only change without firing lifecycle hooks', async () => {
+    history.pushState(null, '', '/tabs')
+
+    const onVisit = vi.fn(async () => {})
+    const onLeave = vi.fn(async () => {})
+    const componentFn = vi.fn(({ hash }: { hash: string | undefined }) => <div id="content">hash={hash ?? 'none'}</div>)
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <NestedRouter
+            routes={{
+              '/tabs': {
+                component: componentFn,
+                onVisit,
+                onLeave,
+                hash: ['a', 'b'] as const,
+              },
+            }}
+          />
+        ),
+      })
+
+      await flushUpdates()
+      expect(document.getElementById('content')?.innerHTML).toBe('hash=none')
+      expect(onVisit).toBeCalledTimes(1)
+      expect(onLeave).not.toBeCalled()
+
+      const locationService = injector.getInstance(LocationService)
+      locationService.navigate('/tabs#a')
+      await flushUpdates()
+      await flushUpdates()
+
+      expect(document.getElementById('content')?.innerHTML).toBe('hash=a')
+      expect(onVisit).toBeCalledTimes(1)
+      expect(onLeave).not.toBeCalled()
+
+      locationService.navigate('/tabs#b')
+      await flushUpdates()
+      await flushUpdates()
+
+      expect(document.getElementById('content')?.innerHTML).toBe('hash=b')
+      expect(onVisit).toBeCalledTimes(1)
+      expect(onLeave).not.toBeCalled()
+    })
+  })
+
+  it('should re-render the chain on a query-only change without firing lifecycle hooks', async () => {
+    history.pushState(null, '', '/list')
+
+    const onVisit = vi.fn(async () => {})
+    const onLeave = vi.fn(async () => {})
+    const componentFn = vi.fn(({ query }: { query: { page: number } | null }) => (
+      <div id="content">page={query?.page ?? 'none'}</div>
+    ))
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <NestedRouter
+            routes={{
+              '/list': {
+                component: componentFn,
+                onVisit,
+                onLeave,
+                query: (raw): { page: number } | null => (typeof raw.page === 'number' ? { page: raw.page } : null),
+              },
+            }}
+          />
+        ),
+      })
+
+      await flushUpdates()
+      expect(document.getElementById('content')?.innerHTML).toBe('page=none')
+      expect(onVisit).toBeCalledTimes(1)
+
+      const locationService = injector.getInstance(LocationService)
+      locationService.navigate(`/list?page=${serializeValue(2)}`)
+      await flushUpdates()
+      await flushUpdates()
+
+      expect(document.getElementById('content')?.innerHTML).toBe('page=2')
+      expect(onVisit).toBeCalledTimes(1)
+      expect(onLeave).not.toBeCalled()
+
+      locationService.navigate(`/list?page=${serializeValue(5)}`)
+      await flushUpdates()
+      await flushUpdates()
+
+      expect(document.getElementById('content')?.innerHTML).toBe('page=5')
+      expect(onVisit).toBeCalledTimes(1)
+      expect(onLeave).not.toBeCalled()
+    })
+  })
+
+  it('should coalesce path + query + hash bursts into a single updateUrl', async () => {
+    history.pushState(null, '', '/a')
+
+    const aComponent = vi.fn(() => <div id="content">a</div>)
+    const bComponent = vi.fn(({ query, hash }: { query: { page: number } | null; hash: string | undefined }) => (
+      <div id="content">
+        b-page={query?.page ?? 'none'}-hash={hash ?? 'none'}
+      </div>
+    ))
+
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <NestedRouter
+            routes={{
+              '/a': { component: aComponent },
+              '/b': {
+                component: bComponent,
+                hash: ['x'] as const,
+                query: (raw): { page: number } | null => (typeof raw.page === 'number' ? { page: raw.page } : null),
+              },
+            }}
+          />
+        ),
+      })
+
+      await flushUpdates()
+      expect(document.getElementById('content')?.innerHTML).toBe('a')
+      bComponent.mockClear()
+
+      injector.getInstance(LocationService).navigate(`/b?page=${serializeValue(7)}#x`)
+      await flushUpdates()
+      await flushUpdates()
+
+      expect(document.getElementById('content')?.innerHTML).toBe('b-page=7-hash=x')
+      // A single logical navigation should render the /b component exactly once,
+      // not three times (once per observable subscription).
+      expect(bComponent).toHaveBeenCalledTimes(1)
     })
   })
 })

@@ -21,7 +21,6 @@ export type NestedHooks<TRoutes extends Record<string, NestedRoute<any, any, any
   getTypedQuery: <TPath extends ExtractRoutePaths<TRoutes>>(
     injector: Injector,
     path: TPath,
-    routes: TRoutes,
   ) => ExtractRouteQuery<RouteAt<TRoutes, TPath>> | null
   /**
    * Reads the current URL hash and narrows it against the declared literal
@@ -34,11 +33,20 @@ export type NestedHooks<TRoutes extends Record<string, NestedRoute<any, any, any
   getTypedHash: <TPath extends ExtractRoutePaths<TRoutes>>(
     injector: Injector,
     path: TPath,
-    routes: TRoutes,
   ) => ExtractRouteHash<RouteAt<TRoutes, TPath>> | undefined
 }
 
-const walkRoute = (
+/**
+ * Walks a route tree and returns the route value declared at the given path,
+ * matching each URL pattern segment-by-segment. The root `/` pattern is
+ * transparent: its children are searched with the full path.
+ *
+ * Exported for unit testing only — consumers should go through
+ * {@link createNestedHooks}.
+ *
+ * @internal
+ */
+export const walkRoute = (
   routes: Record<string, NestedRoute<any, any, any>>,
   path: string,
 ): NestedRoute<any, any, any> | undefined => {
@@ -64,32 +72,32 @@ const walkRoute = (
  * validate the current URL's query and hash against the route declared at
  * the given path, returning typed values or `null`/`undefined` on mismatch.
  *
- * Pass the concrete route tree as the third argument to each helper so the
- * runtime can locate the declared validator / hash tuple; the type-level
- * narrowing is derived from the generic parameter at creation time.
+ * The concrete route tree is captured at factory time, so call sites only
+ * pass `(injector, path)`; the type-level narrowing is derived from the
+ * inferred tree generic.
  *
- * @typeParam TRoutes - The route tree type (use `typeof yourRoutes`)
+ * @typeParam TRoutes - The route tree type (inferred from the `routes` argument)
  *
  * @example
  * ```typescript
- * const { getTypedQuery, getTypedHash } = createNestedHooks<typeof appRoutes>()
+ * const { getTypedQuery, getTypedHash } = createNestedHooks(appRoutes)
  *
- * const query = getTypedQuery(injector, '/users', appRoutes) // typed
- * const hash = getTypedHash(injector, '/users', appRoutes)   // typed
+ * const query = getTypedQuery(injector, '/users') // typed
+ * const hash = getTypedHash(injector, '/users')   // typed
  * ```
  */
-export const createNestedHooks = <
-  TRoutes extends Record<string, NestedRoute<any, any, any>>,
->(): NestedHooks<TRoutes> => {
+export const createNestedHooks = <TRoutes extends Record<string, NestedRoute<any, any, any>>>(
+  routes: TRoutes,
+): NestedHooks<TRoutes> => {
   return {
-    getTypedQuery: (injector, path, routes) => {
+    getTypedQuery: (injector, path) => {
       const route = walkRoute(routes, path)
       if (!route?.query) return null
       const locationService = injector.getInstance(LocationService)
       const deserialized = locationService.onDeserializedLocationSearchChanged.getValue()
       return route.query(deserialized) as never
     },
-    getTypedHash: (injector, path, routes) => {
+    getTypedHash: (injector, path) => {
       const route = walkRoute(routes, path)
       const declaredHash = route?.hash as readonly string[] | undefined
       if (!declaredHash) return undefined

@@ -22,7 +22,7 @@ import { appRoutes } from '../../routes.js'
 
 const AppLink = createNestedRouteLink<typeof appRoutes>()
 const appNavigate = createNestedNavigate<typeof appRoutes>()
-const { getTypedQuery, getTypedHash } = createNestedHooks<typeof appRoutes>()
+const { getTypedQuery, getTypedHash } = createNestedHooks(appRoutes)
 
 const TypedRouteDemo = Shade({
   customElementName: 'typed-route-demo',
@@ -56,10 +56,10 @@ const TypedRouteDemo = Shade({
         </div>
         <Paper elevation={1} style={{ padding: '12px', fontFamily: 'Source Code Pro, monospace', fontSize: '13px' }}>
           <div>
-            <strong>getTypedHash:</strong> {JSON.stringify(getTypedHash(injector, '/navigation/tabs', appRoutes))}
+            <strong>getTypedHash:</strong> {JSON.stringify(getTypedHash(injector, '/navigation/tabs'))}
           </div>
           <div>
-            <strong>getTypedQuery:</strong> {JSON.stringify(getTypedQuery(injector, '/navigation/tabs', appRoutes))}
+            <strong>getTypedQuery:</strong> {JSON.stringify(getTypedQuery(injector, '/navigation/tabs'))}
           </div>
         </Paper>
       </div>
