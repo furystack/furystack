@@ -19,7 +19,7 @@ tester.run('prefer-nested-route-link', preferNestedRouteLink, {
       code: `
         Shade({
           customElementName: 'my-comp',
-          render: () => <NestedRouteLink href="/dashboard">Dashboard</NestedRouteLink>
+          render: () => <NestedRouteLink path="/dashboard">Dashboard</NestedRouteLink>
         })
       `,
     },

@@ -57,13 +57,13 @@ export const ShowcaseAppBar = Shade({
             overflowX: 'auto',
           }}
         >
-          <ShowcaseAppBarLinks href="/">Home</ShowcaseAppBarLinks>
+          <ShowcaseAppBarLinks path="/">Home</ShowcaseAppBarLinks>
           {getCategoryNodes().map((node) => (
-            <ShowcaseAppBarLinks href={node.fullPath as AppRoutePath} routingOptions={{ end: false }}>
+            <ShowcaseAppBarLinks path={node.fullPath as AppRoutePath} routingOptions={{ end: false }}>
               {node.meta?.title ?? node.pattern}
             </ShowcaseAppBarLinks>
           ))}
-          <ShowcaseAppBarLinks href="/layout-tests" routingOptions={{ end: false }}>
+          <ShowcaseAppBarLinks path="/layout-tests" routingOptions={{ end: false }}>
             Layout Tests
           </ShowcaseAppBarLinks>
         </div>

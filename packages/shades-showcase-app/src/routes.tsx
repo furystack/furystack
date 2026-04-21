@@ -1,5 +1,4 @@
-import type { NestedRoute } from '@furystack/shades'
-import { createComponent, LazyLoad } from '@furystack/shades'
+import { createComponent, defineNestedRoutes, LazyLoad } from '@furystack/shades'
 import { icons } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
@@ -14,7 +13,7 @@ import { ShowcaseLayout } from './components/showcase-layout.js'
  * `/layout-tests` and its children render standalone (no PageLayout wrapper).
  * `/` wraps its children in the main app layout with AppBar + Sidebar navigation.
  */
-export const appRoutes = {
+export const appRoutes = defineNestedRoutes({
   '/layout-tests': {
     meta: { title: 'Layout Tests', icon: icons.ruler },
     component: ({ outlet }) => {
@@ -539,7 +538,13 @@ export const appRoutes = {
         children: {
           '/tabs': {
             meta: { title: 'Tabs' },
-
+            hash: ['ctrl-1', 'ctrl-2', 'ctrl-3'] as const,
+            query: (raw): { highlight?: string } | null => {
+              if ('highlight' in raw && typeof raw.highlight === 'string') {
+                return { highlight: raw.highlight }
+              }
+              return {}
+            },
             component: () => (
               <LazyLoad
                 viewTransition
@@ -962,4 +967,4 @@ export const appRoutes = {
       },
     },
   },
-} satisfies Record<string, NestedRoute<any>>
+})

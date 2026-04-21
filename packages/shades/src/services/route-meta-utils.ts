@@ -72,7 +72,10 @@ export type NavTreeNode = {
  * @param parentPath - The parent path prefix (used internally for recursion)
  * @returns An array of navigation tree nodes
  */
-export const extractNavTree = (routes: Record<string, NestedRoute<unknown>>, parentPath?: string): NavTreeNode[] => {
+export const extractNavTree = (
+  routes: Record<string, NestedRoute<any, any, any>>,
+  parentPath?: string,
+): NavTreeNode[] => {
   return Object.entries(routes).map(([pattern, route]) => {
     const fullPath = parentPath ? `${parentPath === '/' ? '' : parentPath}${pattern}` : pattern
     return {

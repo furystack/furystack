@@ -14,7 +14,7 @@ export const preferNestedRouteLink = createRule({
     },
     messages: {
       preferNestedRouteLink:
-        'Use <NestedRouteLink href="..."> instead of <a href="..."> for in-app navigation. Raw <a> tags bypass SPA routing and cause full page reloads.',
+        'Use <NestedRouteLink path="..."> instead of <a href="..."> for in-app navigation. Raw <a> tags bypass SPA routing and cause full page reloads.',
     },
     schema: [],
   },

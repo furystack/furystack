@@ -1,0 +1,10 @@
+releases:
+  "@furystack/eslint-plugin": patch
+  "@furystack/shades": major
+  "@furystack/shades-common-components": major
+  "@furystack/shades-i18n": major
+  "@furystack/shades-lottie": major
+  "@furystack/shades-mfe": major
+  "@furystack/shades-nipple": major
+  "@furystack/shades-showcase-app": patch
+  furystack: patch

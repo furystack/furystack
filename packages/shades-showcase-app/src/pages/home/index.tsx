@@ -58,11 +58,11 @@ export const HomePage = Shade({
           <hr />
           <CustomHeader style={{ color: 'white' }}>Custom styled elements:</CustomHeader>
           <div>
-            <CustomNestedRouteLink href="/wizard" style={{ color: 'black' }}>
+            <CustomNestedRouteLink path="/wizard" style={{ color: 'black' }}>
               Go to wizard
             </CustomNestedRouteLink>
             &nbsp;
-            <CustomNestedRouteLink href="/">NestedRouteLink</CustomNestedRouteLink>
+            <CustomNestedRouteLink path="/">NestedRouteLink</CustomNestedRouteLink>
           </div>
         </Paper>
       </PageContainer>
