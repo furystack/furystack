@@ -107,27 +107,3 @@ export const createNestedNavigate = <TRoutes extends Record<string, NestedRoute<
     args: TypedNestedNavigateArgs<TRoutes, TPath>,
   ) => void
 }
-
-/**
- * Creates a type-safe replace function constrained to a specific route tree.
- * The returned function has the same runtime behavior as {@link nestedReplace}
- * but narrows `path` to valid route paths, requires `params` when the route has
- * parameters, and enforces the route's declared `query` and `hash` schemas.
- *
- * @typeParam TRoutes - The route tree type (use `typeof yourRoutes`)
- * @returns A type-safe replace function
- *
- * @example
- * ```typescript
- * const appReplace = createNestedReplace<typeof appRoutes>()
- *
- * // Redirect an unauthenticated visitor without polluting history
- * appReplace(injector, { path: '/login' })
- * ```
- */
-export const createNestedReplace = <TRoutes extends Record<string, NestedRoute<any, any, any>>>() => {
-  return nestedReplace as <TPath extends ExtractRoutePaths<TRoutes>>(
-    injector: Injector,
-    args: TypedNestedNavigateArgs<TRoutes, TPath>,
-  ) => void
-}
