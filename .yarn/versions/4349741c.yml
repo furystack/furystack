@@ -1,7 +1,10 @@
 releases:
+  "@furystack/auth-google": patch
   "@furystack/auth-jwt": major
-  "@furystack/eslint-plugin": patch
+  "@furystack/entity-sync-service": patch
+  "@furystack/eslint-plugin": minor
   "@furystack/rest": major
+  "@furystack/rest-client-fetch": patch
   "@furystack/rest-service": major
   "@furystack/shades": major
   "@furystack/shades-common-components": major
@@ -10,4 +13,5 @@ releases:
   "@furystack/shades-mfe": major
   "@furystack/shades-nipple": major
   "@furystack/shades-showcase-app": patch
+  "@furystack/websocket-api": patch
   furystack: patch
