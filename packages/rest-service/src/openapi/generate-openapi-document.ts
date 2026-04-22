@@ -193,6 +193,3 @@ export const generateOpenApiDocument = ({
 
   return doc
 }
-
-/** @deprecated Use generateOpenApiDocument instead */
-export const generateSwaggerJsonFromApiSchema = generateOpenApiDocument

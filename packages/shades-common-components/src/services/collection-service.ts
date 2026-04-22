@@ -21,18 +21,6 @@ export interface CollectionServiceOptions<T> {
    * object instances.
    */
   idField?: keyof T
-
-  /**
-   * @param entry The clicked entry
-   * @deprecated Use `subscribe('onRowClick', ...)` instead
-   */
-  onRowClick?: (entry: T) => void
-
-  /**
-   * @param entry The clicked entry
-   * @deprecated Use `subscribe('onRowDoubleClick', ...)` instead
-   */
-  onRowDoubleClick?: (entry: T) => void
 }
 
 export class CollectionService<T>
@@ -244,12 +232,6 @@ export class CollectionService<T>
 
   constructor(private options: CollectionServiceOptions<T> = {}) {
     super()
-    if (options.onRowClick) {
-      this.addListener('onRowClick', options.onRowClick)
-    }
-    if (options.onRowDoubleClick) {
-      this.addListener('onRowDoubleClick', options.onRowDoubleClick)
-    }
     if (options.idField) {
       this.dataSubscription = this.data.subscribe(({ entries }) => {
         this.reconcileRefs(entries)

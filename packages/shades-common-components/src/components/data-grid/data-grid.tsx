@@ -3,7 +3,6 @@ import type { ChildrenList } from '@furystack/shades'
 import { createComponent, Shade } from '@furystack/shades'
 import type { CollectionService } from '../../services/collection-service.js'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
-import type { GridProps } from '../grid.js'
 import { DataGridBody } from './body.js'
 import { DataGridFooter } from './footer.js'
 import { DataGridHeader } from './header.js'
@@ -54,7 +53,11 @@ export interface DataGridProps<T, Column extends string> {
   /**
    * Optional style overrides for the grid
    */
-  styles?: GridProps<T, Column>['styles']
+  styles?: {
+    wrapper?: Partial<CSSStyleDeclaration>
+    header?: Partial<CSSStyleDeclaration>
+    cell?: Partial<CSSStyleDeclaration>
+  }
   /**
    * A collection service to use for data source
    */

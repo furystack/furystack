@@ -6,9 +6,10 @@ import type { RestApi } from '@furystack/rest'
 import { serializeValue } from '@furystack/rest'
 import { PathHelper, usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
-import { GetCurrentUser, IsAuthenticated, LoginAction, LogoutAction } from './actions/index.js'
+import { GetCurrentUser, IsAuthenticated, LogoutAction, createPasswordLoginAction } from './actions/index.js'
 import './helpers.js'
 import { useHttpAuthentication, useRestService } from './helpers.js'
+import { createCookieLoginStrategy } from './login-response-strategy.js'
 import { DefaultSession } from './models/default-session.js'
 import { ServerManager } from './server-manager.js'
 import { JsonResult } from './request-action-implementation.js'
@@ -56,7 +57,7 @@ const createIntegrationApi = async () => {
         '/testUrlParams/:urlParam': async (options) => JsonResult({ urlParamValue: options.getUrlParams().urlParam }),
       },
       POST: {
-        '/login': LoginAction,
+        '/login': createPasswordLoginAction(createCookieLoginStrategy(i)),
         '/logout': LogoutAction,
         '/testPostBody': async (options) => {
           const body = await options.getBody()

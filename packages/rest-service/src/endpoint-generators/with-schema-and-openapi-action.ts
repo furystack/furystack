@@ -9,6 +9,3 @@ export type WithSchemaAndOpenApiAction<T extends RestApi> = T & {
     '/openapi.json': { result: OpenApiDocument; headers: { accept: 'application/json' } }
   }
 }
-
-/** @deprecated Use WithSchemaAndOpenApiAction instead */
-export type WithSchemaAndSwaggerAction<T extends RestApi> = WithSchemaAndOpenApiAction<T>

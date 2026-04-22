@@ -58,39 +58,3 @@ export const CreateGetOpenApiDocumentAction = <T extends RestApiImplementation<R
     return JsonResult(cachedDoc, 200)
   }
 }
-
-/**
- * Generates a backward-compatible `/swagger.json` endpoint that serves the same OpenAPI document
- * as `CreateGetOpenApiDocumentAction` but includes `Deprecation` and `Link` headers
- * directing clients to use `/openapi.json` instead.
- *
- * @deprecated Use CreateGetOpenApiDocumentAction and `/openapi.json` instead.
- */
-export const CreateDeprecatedSwaggerRedirect = <T extends RestApiImplementation<RestApi>>(
-  api: T,
-  name = 'FuryStack API',
-  description = 'API documentation generated from FuryStack API schema',
-  version = '1.0.0',
-): RequestAction<{ result: OpenApiDocument }> => {
-  const { endpoints } = getSchemaFromApi({ api, name, description, version })
-  let cachedDoc: OpenApiDocument | undefined
-  return async ({ injector }) => {
-    if (!cachedDoc) {
-      const securitySchemes = getSecuritySchemesFromInjector(injector)
-      cachedDoc = buildOpenApiDoc(
-        endpoints,
-        name,
-        description,
-        version,
-        securitySchemes ? { securitySchemes } : undefined,
-      )
-    }
-    return JsonResult(cachedDoc, 200, {
-      Deprecation: 'true',
-      Link: '</openapi.json>; rel="successor-version"',
-    })
-  }
-}
-
-/** @deprecated Use CreateGetOpenApiDocumentAction instead */
-export const CreateGetSwaggerJsonAction = CreateGetOpenApiDocumentAction

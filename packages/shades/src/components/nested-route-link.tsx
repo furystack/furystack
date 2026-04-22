@@ -17,7 +17,7 @@ import type { NestedRoute } from './nested-router.js'
 
 /**
  * Props for the NestedRouteLink component.
- * Combines SPA navigation from RouteLink with parameter compilation from LinkToRoute,
+ * Combines SPA navigation with parameter compilation for nested routes,
  * plus optional query string and hash fragment composition.
  */
 export type NestedRouteLinkProps = {

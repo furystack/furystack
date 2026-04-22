@@ -4,6 +4,20 @@
 
 ## 💥 Breaking Changes
 
+### Removed the legacy flat router, `RouteLink`, and `LinkToRoute`
+
+The long-deprecated single-level `Router` component, its supporting `Route` / `RouterProps` / `RouterState` types, and the legacy `RouteLink` / `LinkToRoute` navigation components have been removed. They were superseded by the nested router stack (`NestedRouter`, `NestedRouteLink`, `createNestedRouteLink`, `nestedNavigate`, etc.) and marked `@deprecated` for several releases.
+
+**Removed exports:**
+
+- `Router`, `RouterProps`, `RouterState`, `Route`
+- `RouteLink`, `RouteLinkProps`
+- `LinkToRoute`, `LinkToRouteProps`
+
+**Impact:** Any module still importing `Router`, `RouteLink`, or `LinkToRoute` from `@furystack/shades` will fail to resolve.
+
+**Migration:** Replace flat routers with `NestedRouter` + `defineNestedRoutes`, and swap `RouteLink` / `LinkToRoute` for `NestedRouteLink` (or the route-tree-aware `createNestedRouteLink<typeof routes>()` factory). See the `NestedRouter` section in the package README for the migration recipe.
+
 ### `NestedRouteLink` and `nestedNavigate` now accept a `path` prop / object argument
 
 `NestedRouteLink` now uses `path` instead of `href`, matching the route-definition vocabulary used by `Breadcrumb` and the new navigation helpers. `nestedNavigate` / `createNestedNavigate` switched from positional arguments to an options object so that the new `query` and `hash` fields can be passed alongside `path` / `params` without a growing parameter list.

@@ -38,7 +38,7 @@ export const HomePage = Shade({
           <Typography variant="h2">Component Library</Typography>
           <Typography variant="body1">
             This showcase application demonstrates the shades-common-components library, which provides a collection of
-            ready-to-use UI components. You'll find form controls like Buttons, Inputs, and Autocomplete fields, layout
+            ready-to-use UI components. You'll find form controls like Buttons, Inputs, and Suggest fields, layout
             components like PageLayout and Paper, and specialized components for data display, notifications, and more.
           </Typography>
 

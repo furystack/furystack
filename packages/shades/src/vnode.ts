@@ -183,7 +183,7 @@ export const shallowEqual = (a: Record<string, unknown>, b: Record<string, unkno
  * VChild array suitable for `patchChildren`.
  *
  * Real DOM elements can appear here when component state stores elements created
- * outside renderMode (e.g. in async callbacks like Router's `updateUrl`).
+ * outside renderMode (e.g. in async callbacks like NestedRouter's `updateUrl`).
  */
 export const toVChildArray = (renderResult: unknown): VChild[] => {
   if (renderResult === null || renderResult === undefined) return []

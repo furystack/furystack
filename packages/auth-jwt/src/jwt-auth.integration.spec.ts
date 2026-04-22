@@ -8,7 +8,7 @@ import { PasswordAuthenticator, PasswordCredential } from '@furystack/security'
 import { usePasswordPolicy } from '@furystack/security'
 import { PathHelper, sleepAsync, usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
-import { JwtLoginAction } from './actions/jwt-login-action.js'
+import { createJwtLoginAction } from './actions/jwt-login-action.js'
 import { JwtLogoutAction } from './actions/jwt-logout-action.js'
 import { JwtRefreshAction } from './actions/jwt-refresh-action.js'
 import { useJwtAuthentication } from './helpers.js'
@@ -78,7 +78,7 @@ const createJwtTestServer = async (fingerprintCookie: FingerprintCookieSettings 
         '/currentUser': GetCurrentUser,
       },
       POST: {
-        '/jwt/login': JwtLoginAction,
+        '/jwt/login': createJwtLoginAction(injector),
         '/jwt/refresh': JwtRefreshAction,
         '/jwt/logout': JwtLogoutAction,
       },

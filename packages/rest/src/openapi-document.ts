@@ -16,9 +16,6 @@ export type OpenApiDocument = {
   [key: `x-${string}`]: unknown
 }
 
-/** @deprecated Use OpenApiDocument instead */
-export type SwaggerDocument = OpenApiDocument
-
 /**
  * Metadata about the API.
  * @see https://spec.openapis.org/oas/v3.1.0#info-object

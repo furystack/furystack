@@ -901,81 +901,77 @@ describe('DataGrid', () => {
   describe('row interactions', () => {
     it('should pass row click to collectionService', async () => {
       const onRowClick = vi.fn()
-      await withTestGrid(
-        async ({ injector, service, findOptions, onFindOptionsChange }) => {
-          const rootElement = document.getElementById('root') as HTMLDivElement
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        service.addListener('onRowClick', onRowClick)
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-          service.data.setValue({
-            count: 1,
-            entries: [{ id: 1, name: 'Test' }],
-          })
+        service.data.setValue({
+          count: 1,
+          entries: [{ id: 1, name: 'Test' }],
+        })
 
-          initializeShadeRoot({
-            injector,
-            rootElement,
-            jsxElement: (
-              <DataGrid<TestEntry, 'id' | 'name'>
-                columns={['id', 'name']}
-                collectionService={service}
-                findOptions={findOptions}
-                onFindOptionsChange={onFindOptionsChange}
-                styles={{}}
-                headerComponents={{}}
-                rowComponents={{}}
-              />
-            ),
-          })
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+              styles={{}}
+              headerComponents={{}}
+              rowComponents={{}}
+            />
+          ),
+        })
 
-          await flushUpdates()
+        await flushUpdates()
 
-          const grid = document.querySelector('shade-data-grid')
-          const cell = grid?.querySelector('td') as HTMLTableCellElement
-          cell?.click()
+        const grid = document.querySelector('shade-data-grid')
+        const cell = grid?.querySelector('td') as HTMLTableCellElement
+        cell?.click()
 
-          expect(onRowClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
-        },
-        { createService: () => new CollectionService<TestEntry>({ onRowClick }) },
-      )
+        expect(onRowClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
+      })
     })
 
     it('should pass row double click to collectionService', async () => {
       const onRowDoubleClick = vi.fn()
-      await withTestGrid(
-        async ({ injector, service, findOptions, onFindOptionsChange }) => {
-          const rootElement = document.getElementById('root') as HTMLDivElement
+      await withTestGrid(async ({ injector, service, findOptions, onFindOptionsChange }) => {
+        service.addListener('onRowDoubleClick', onRowDoubleClick)
+        const rootElement = document.getElementById('root') as HTMLDivElement
 
-          service.data.setValue({
-            count: 1,
-            entries: [{ id: 1, name: 'Test' }],
-          })
+        service.data.setValue({
+          count: 1,
+          entries: [{ id: 1, name: 'Test' }],
+        })
 
-          initializeShadeRoot({
-            injector,
-            rootElement,
-            jsxElement: (
-              <DataGrid<TestEntry, 'id' | 'name'>
-                columns={['id', 'name']}
-                collectionService={service}
-                findOptions={findOptions}
-                onFindOptionsChange={onFindOptionsChange}
-                styles={{}}
-                headerComponents={{}}
-                rowComponents={{}}
-              />
-            ),
-          })
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <DataGrid<TestEntry, 'id' | 'name'>
+              columns={['id', 'name']}
+              collectionService={service}
+              findOptions={findOptions}
+              onFindOptionsChange={onFindOptionsChange}
+              styles={{}}
+              headerComponents={{}}
+              rowComponents={{}}
+            />
+          ),
+        })
 
-          await flushUpdates()
+        await flushUpdates()
 
-          const grid = document.querySelector('shade-data-grid')
-          const cell = grid?.querySelector('td') as HTMLTableCellElement
-          const dblClickEvent = new MouseEvent('dblclick', { bubbles: true })
-          cell?.dispatchEvent(dblClickEvent)
+        const grid = document.querySelector('shade-data-grid')
+        const cell = grid?.querySelector('td') as HTMLTableCellElement
+        const dblClickEvent = new MouseEvent('dblclick', { bubbles: true })
+        cell?.dispatchEvent(dblClickEvent)
 
-          expect(onRowDoubleClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
-        },
-        { createService: () => new CollectionService<TestEntry>({ onRowDoubleClick }) },
-      )
+        expect(onRowDoubleClick).toHaveBeenCalledWith({ id: 1, name: 'Test' })
+      })
     })
   })
 

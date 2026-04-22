@@ -1,12 +1,12 @@
 import { createComponent, Shade } from '@furystack/shades'
 import {
-  Autocomplete,
   Icon,
   icons,
   Input,
   PageContainer,
   PageHeader,
   Paper,
+  Suggest,
   Typography,
 } from '@furystack/shades-common-components'
 
@@ -18,7 +18,7 @@ export const InputsPage = Shade({
         <PageHeader
           icon={<Icon icon={icons.fileText} />}
           title="Input Fields"
-          description="Input components provide text entry with built-in validation, helper text, and icon slots. Three variants are available: default, outlined, and contained. Each input supports HTML5 validation attributes like required, pattern, min/max, and provides real-time feedback through customizable helper text and validation icons. The Autocomplete component extends inputs with suggestion dropdown functionality."
+          description="Input components provide text entry with built-in validation, helper text, and icon slots. Three variants are available: default, outlined, and contained. Each input supports HTML5 validation attributes like required, pattern, min/max, and provides real-time feedback through customizable helper text and validation icons. The Suggest component layers a searchable suggestion dropdown on top of an input."
         />
         <Paper elevation={3} style={{ padding: '32px', marginBottom: '32px' }}>
           <Typography variant="h5" style={{ marginTop: '0' }}>
@@ -206,14 +206,10 @@ export const InputsPage = Shade({
                   getHelperText={() => 'You can pick a color'}
                 />
 
-                <Autocomplete
+                <Suggest
+                  defaultPrefix={<Icon icon={icons.search} size="small" />}
                   suggestions={['Apple', 'Banana', 'Orange', 'Pineapple', 'Strawberry']}
-                  inputProps={{
-                    variant,
-                    required: true,
-                    labelTitle: 'Autocomplete Field',
-                    getHelperText: () => 'You can select a fruit from the list',
-                  }}
+                  onSelectSuggestion={(entry: string) => console.log('Selected fruit:', entry)}
                 />
               </div>
             ))}
