@@ -88,6 +88,23 @@ const hash = getTypedHash(injector, '/users/:id') // typed | undefined
 
 Exposed the URL-composition helper used internally by `nestedNavigate` and `NestedRouteLink` so callers can produce a compiled URL (path + query + hash) without triggering navigation.
 
+### Strongly-typed `extractNavTree` / `NavTreeNode<TRoutes>`
+
+`extractNavTree` is now generic over the route tree it is called with, and returns `NavTreeNode<TRoutes>[]` instead of the previous loosely-typed `NavTreeNode[]`. On each node `pattern` is narrowed to `keyof TRoutes & string` and `fullPath` is narrowed to `ExtractRoutePaths<TRoutes> & string`, so the result feeds directly into `createNestedRouteLink` / `createNestedNavigate` / `createNestedReplace` / `createAppBarLink` without an `as` cast at the call site. Consumers that still reference `NavTreeNode` without a type argument keep compiling via a widened default parameter, preserving backward compatibility.
+
+```typescript
+import { extractNavTree, type NavTreeNode } from '@furystack/shades'
+
+const tree = extractNavTree(appRoutes)
+// tree[0].fullPath is 'ExtractRoutePaths<typeof appRoutes>', not `string`.
+
+const AppLink = createNestedRouteLink<typeof appRoutes>()
+tree.map((node) => <AppLink path={node.fullPath}>{node.meta?.title}</AppLink>)
+
+// Widened default is unchanged
+const loose: NavTreeNode = { pattern: '/anything', fullPath: '/anything' }
+```
+
 ### `nestedReplace` / `createNestedReplace`
 
 Symmetric counterparts to `nestedNavigate` / `createNestedNavigate` that call `history.replaceState` (via `LocationService.replace`) instead of `pushState`. Use this for SPA redirects — auth guards, canonicalization — where the intermediate URL should not be recoverable with the browser's Back button. Accepts the exact same object-argument shape and inherits the full type-safe narrowing of `path` / `params` / `query` / `hash` against the route tree.
@@ -111,3 +128,4 @@ appReplace(injector, { path: '/login' })
 
 - Added type-level and runtime coverage for the new `query` / `hash` paths on `createNestedNavigate`, `createNestedRouteLink`, and the router's match-chain enrichment.
 - Added a `buildNestedNavigateUrl` suite covering params, query and hash composition.
+- Added `expectTypeOf` assertions for the new generic `extractNavTree` output: `pattern` / `fullPath` narrow to the declared route keys and composed path union for flat and nested typed trees, and the widened `NavTreeNode` default keeps compiling for ad-hoc consumers.
