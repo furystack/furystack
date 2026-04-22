@@ -1,403 +1,430 @@
-import { usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
-import { Injectable } from './injectable.js'
-import { Injected } from './injected.js'
-import { Injector } from './injector.js'
-import { getInjectorReference } from './with-injector-reference.js'
+import { defineService, defineServiceAsync } from './define-service.js'
+import {
+  AsyncTokenInSyncContextError,
+  CannotProvideTransientError,
+  CircularDependencyError,
+  createInjector,
+  Injector,
+  InjectorDisposedError,
+  InvalidLifetimeDependencyError,
+  withScope,
+} from './injector.js'
 
 describe('Injector', () => {
-  it('Shold be constructed', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      expect(i).toBeInstanceOf(Injector)
-    })
-  })
-
-  it('Should be disposed', async () => {
-    await usingAsync(new Injector(), async () => {
-      /** */
-    })
-  })
-
-  it('Parent should be undefined by default', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      expect(i.options.parent).toBeUndefined()
-    })
-  })
-
-  it('Should throw an error when setting an Injector instance', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      expect(() => i.setExplicitInstance(new Injector())).toThrowError('Cannot set an injector instance as injectable')
-    })
-  })
-
-  it('Should throw an error when trying to set an instance without decorator', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      class TestClass {}
-      expect(() => i.setExplicitInstance(new TestClass())).toThrowError(`The class 'TestClass' is not an injectable`)
-    })
-  })
-
-  describe('Transient lifetime', () => {
-    it('Should not store an instance in the cache', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        @Injectable({ lifetime: 'transient' })
-        class InstanceClass {}
-
-        const instance = i.getInstance(InstanceClass)
-        expect(instance).toBeInstanceOf(InstanceClass)
-        expect(i.cachedSingletons.get(InstanceClass)).toBeUndefined()
+  describe('defineService / basic resolution', () => {
+    it('resolves a transient service with a fresh instance per call', () => {
+      const Counter = defineService({
+        name: 'test/Counter',
+        lifetime: 'transient',
+        factory: () => ({ id: Math.random() }),
       })
+      const injector = createInjector()
+      const a = injector.get(Counter)
+      const b = injector.get(Counter)
+      expect(a).not.toBe(b)
     })
 
-    it('Should throw an error if you try to set an explicit instance', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        @Injectable({ lifetime: 'transient' })
-        class InstanceClass {}
-
-        const instance = new InstanceClass()
-        expect(() => i.setExplicitInstance(instance)).toThrowError(
-          `Cannot set an instance of 'InstanceClass' as it's lifetime is set to 'transient'`,
-        )
+    it('resolves a singleton service as the same instance every time', () => {
+      const Singleton = defineService({
+        name: 'test/Singleton',
+        lifetime: 'singleton',
+        factory: () => ({ marker: 1 }),
       })
+      const injector = createInjector()
+      expect(injector.get(Singleton)).toBe(injector.get(Singleton))
+    })
+
+    it('resolves a scoped service as per-scope', async () => {
+      const Scoped = defineService({
+        name: 'test/Scoped',
+        lifetime: 'scoped',
+        factory: () => ({ marker: {} }),
+      })
+      const root = createInjector()
+      const childA = root.createScope()
+      const childB = root.createScope()
+      expect(childA.get(Scoped)).toBe(childA.get(Scoped))
+      expect(childA.get(Scoped)).not.toBe(childB.get(Scoped))
+      await childA[Symbol.asyncDispose]()
+      await childB[Symbol.asyncDispose]()
+      await root[Symbol.asyncDispose]()
+    })
+
+    it('caches singletons at the root regardless of requesting scope', async () => {
+      const Single = defineService({
+        name: 'test/Single',
+        lifetime: 'singleton',
+        factory: () => ({ id: 42 }),
+      })
+      const root = createInjector()
+      const child = root.createScope()
+      const fromChild = child.get(Single)
+      const fromRoot = root.get(Single)
+      expect(fromChild).toBe(fromRoot)
+      await child[Symbol.asyncDispose]()
+      await root[Symbol.asyncDispose]()
+    })
+
+    it('runs the factory only once per singleton', () => {
+      const factory = vi.fn(() => ({}))
+      const Token = defineService({ name: 'test/OnceSingleton', lifetime: 'singleton', factory })
+      const injector = createInjector()
+      injector.get(Token)
+      injector.get(Token)
+      injector.get(Token)
+      expect(factory).toHaveBeenCalledTimes(1)
     })
   })
 
-  describe('Scoped lifetime', () => {
-    it('Should set and return instance from cache', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        @Injectable({ lifetime: 'scoped' })
-        class InstanceClass {}
-        const instance = new InstanceClass()
-        i.setExplicitInstance(instance)
-        expect(i.getInstance(InstanceClass)).toBe(instance)
+  describe('inject dependency chain', () => {
+    it('injects a singleton dep into a singleton parent', () => {
+      const Dep = defineService({ name: 'test/Dep', lifetime: 'singleton', factory: () => ({ value: 'dep' }) })
+      const Parent = defineService({
+        name: 'test/Parent',
+        lifetime: 'singleton',
+        factory: ({ inject }) => ({ dep: inject(Dep) }),
       })
+      const injector = createInjector()
+      const parent = injector.get(Parent)
+      expect(parent.dep).toBe(injector.get(Dep))
     })
 
-    it('Should instantiate and return an instance', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        @Injectable({ lifetime: 'scoped' })
-        class InstanceClass {}
-        expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
+    it('rejects singleton depending on scoped', () => {
+      const Scoped = defineService({ name: 'test/S', lifetime: 'scoped', factory: () => ({}) })
+      const Singleton = defineService({
+        name: 'test/Singleton2',
+        lifetime: 'singleton',
+        factory: ({ inject }) => inject(Scoped as never),
       })
+      const injector = createInjector()
+      expect(() => injector.get(Singleton)).toThrow(InvalidLifetimeDependencyError)
     })
 
-    it('Scoped with transient dependencies should throw an error', async () => {
-      @Injectable({ lifetime: 'transient' })
-      class Tr2 {}
-
-      @Injectable({ lifetime: 'scoped' })
-      class Sc2 {
-        @Injected(Tr2)
-        declare sc: Tr2
-      }
-
-      await usingAsync(new Injector(), async (i) => {
-        expect(() => i.getInstance(Sc2)).toThrowError(
-          `Injector error: Scoped type 'Sc2' depends on transient injectables: Tr2:transient`,
-        )
+    it('rejects scoped depending on transient', () => {
+      const Transient = defineService({ name: 'test/T', lifetime: 'transient', factory: () => ({}) })
+      const Scoped = defineService({
+        name: 'test/S2',
+        lifetime: 'scoped',
+        factory: ({ inject }) => inject(Transient as never),
       })
+      const injector = createInjector()
+      expect(() => injector.get(Scoped)).toThrow(InvalidLifetimeDependencyError)
+    })
+
+    it('allows transient depending on any lifetime', () => {
+      const Scoped = defineService({ name: 'test/ScopedA', lifetime: 'scoped', factory: () => ({ s: 1 }) })
+      const Singleton = defineService({ name: 'test/SingletonA', lifetime: 'singleton', factory: () => ({ sg: 1 }) })
+      const Transient = defineService({
+        name: 'test/TransientA',
+        lifetime: 'transient',
+        factory: ({ inject }) => ({ a: inject(Scoped), b: inject(Singleton) }),
+      })
+      const injector = createInjector()
+      const t = injector.get(Transient)
+      expect(t.a.s).toBe(1)
+      expect(t.b.sg).toBe(1)
     })
   })
 
-  describe('Singleton lifetime', () => {
-    it('Should return from a parent injector if available', async () => {
-      await usingAsync(new Injector(), async (parent) => {
-        const i = parent.createChild()
-        @Injectable({ lifetime: 'singleton' })
-        class InstanceClass {}
-        const instance = new InstanceClass()
-        parent.setExplicitInstance(instance)
-        expect(i.getInstance(InstanceClass)).toBe(instance)
-        expect(parent.cachedSingletons.get(InstanceClass)).toBe(instance)
+  describe('circular dependencies', () => {
+    it('throws when a service depends on itself', () => {
+      type Self = { call: () => Self }
+      const tokenRef: { current?: ReturnType<typeof defineService<Self, 'singleton'>> } = {}
+      const Self = defineService<Self, 'singleton'>({
+        name: 'test/Self',
+        lifetime: 'singleton',
+        factory: ({ inject }) => ({ call: () => inject(tokenRef.current!) }),
       })
-    })
-
-    it('Should create instance on a parent injector if not available', async () => {
-      await usingAsync(new Injector(), async (parent) => {
-        const i = parent.createChild()
-        @Injectable({ lifetime: 'singleton' })
-        class InstanceClass {}
-        expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
-        expect(parent.cachedSingletons.get(InstanceClass)).toBeInstanceOf(InstanceClass)
+      tokenRef.current = Self
+      const injector = createInjector()
+      // Build-up: factory doesn't call inject(Self) synchronously; cycles come via two-party
+      // so build a direct two-party cycle instead:
+      type A = { name: string }
+      const refs: {
+        a?: ReturnType<typeof defineService<A, 'singleton'>>
+        b?: ReturnType<typeof defineService<A, 'singleton'>>
+      } = {}
+      const A = defineService<A, 'singleton'>({
+        name: 'test/CycleA',
+        lifetime: 'singleton',
+        factory: ({ inject }) => {
+          inject(refs.b!)
+          return { name: 'a' }
+        },
       })
-    })
-
-    it('Should preserve parent injector reference when singleton is retrieved from child', async () => {
-      await usingAsync(new Injector(), async (parent) => {
-        const child = parent.createChild()
-
-        @Injectable({ lifetime: 'singleton' })
-        class SingletonClass {}
-
-        // Parent creates the singleton first
-        const instanceFromParent = parent.getInstance(SingletonClass)
-        expect(getInjectorReference(instanceFromParent)).toBe(parent)
-
-        // Child retrieves the same singleton - injector reference should still point to parent
-        const instanceFromChild = child.getInstance(SingletonClass)
-        expect(instanceFromChild).toBe(instanceFromParent)
-        expect(getInjectorReference(instanceFromChild)).toBe(parent)
+      const B = defineService<A, 'singleton'>({
+        name: 'test/CycleB',
+        lifetime: 'singleton',
+        factory: ({ inject }) => {
+          inject(refs.a!)
+          return { name: 'b' }
+        },
       })
+      refs.a = A
+      refs.b = B
+      expect(() => injector.get(A)).toThrow(CircularDependencyError)
+    })
+  })
+
+  describe('provide', () => {
+    it('pre-seeds a singleton instance without running the factory', () => {
+      const factory = vi.fn(() => ({ value: 'from-factory' }))
+      const Token = defineService({ name: 'test/Seeded', lifetime: 'singleton', factory })
+      const injector = createInjector()
+      injector.provide(Token, { value: 'from-provide' })
+      expect(injector.get(Token).value).toBe('from-provide')
+      expect(factory).not.toHaveBeenCalled()
     })
 
-    it('Should set parent injector reference when singleton is first created via child', async () => {
-      await usingAsync(new Injector(), async (parent) => {
-        const child = parent.createChild()
+    it('rejects providing a transient', () => {
+      const Transient = defineService({ name: 'test/RejectTransient', lifetime: 'transient', factory: () => ({}) })
+      const injector = createInjector()
+      expect(() => injector.provide(Transient, {})).toThrow(CannotProvideTransientError)
+    })
 
-        @Injectable({ lifetime: 'singleton' })
-        class SingletonClass {}
-
-        // Child requests singleton first - it should be created on parent with parent's reference
-        const instanceFromChild = child.getInstance(SingletonClass)
-        expect(parent.cachedSingletons.get(SingletonClass)).toBe(instanceFromChild)
-        expect(getInjectorReference(instanceFromChild)).toBe(parent)
-
-        // Parent retrieves same singleton - reference should still be parent
-        const instanceFromParent = parent.getInstance(SingletonClass)
-        expect(instanceFromParent).toBe(instanceFromChild)
-        expect(getInjectorReference(instanceFromParent)).toBe(parent)
+    it('provides at scope level, overriding parent for that scope', async () => {
+      const Token = defineService({
+        name: 'test/ScopeOverride',
+        lifetime: 'scoped',
+        factory: () => ({ source: 'factory' }),
       })
+      const root = createInjector()
+      const scope = root.createScope()
+      scope.provide(Token, { source: 'override' })
+      expect(scope.get(Token).source).toBe('override')
+      await scope[Symbol.asyncDispose]()
+      await root[Symbol.asyncDispose]()
     })
+  })
 
-    it('Singleton with transient dependencies should throw an error', async () => {
-      @Injectable({ lifetime: 'transient' })
-      class Trs1 {}
-
-      @Injectable({ lifetime: 'singleton' })
-      class St1 {
-        @Injected(Trs1)
-        declare lt: Trs1
-      }
-
-      await usingAsync(new Injector(), async (i) => {
-        expect(() => i.getInstance(St1)).toThrowError(
-          `Injector error: Singleton type 'St1' depends on non-singleton injectables: Trs1:transient`,
-        )
+  describe('error caching', () => {
+    it('caches a factory error and rethrows on subsequent gets', () => {
+      const factory = vi.fn(() => {
+        throw new Error('boom')
       })
+      const Token = defineService({ name: 'test/Boom', lifetime: 'singleton', factory })
+      const injector = createInjector()
+      expect(() => injector.get(Token)).toThrow('boom')
+      expect(() => injector.get(Token)).toThrow('boom')
+      expect(factory).toHaveBeenCalledTimes(1)
     })
 
-    it('Singleton with transient dependencies should throw an error', async () => {
-      @Injectable({ lifetime: 'scoped' })
-      class Sc1 {}
-
-      @Injectable({ lifetime: 'singleton' })
-      class St2 {
-        @Injected(Sc1)
-        declare sc: Sc1
-      }
-
-      await usingAsync(new Injector(), async (i) => {
-        expect(() => i.getInstance(St2)).toThrowError(
-          `Injector error: Singleton type 'St2' depends on non-singleton injectables: Sc1:scoped`,
-        )
+    it('retries transient factories because they are not cached', () => {
+      const factory = vi.fn(() => {
+        throw new Error('boom')
       })
+      const Token = defineService({ name: 'test/BoomTransient', lifetime: 'transient', factory })
+      const injector = createInjector()
+      expect(() => injector.get(Token)).toThrow('boom')
+      expect(() => injector.get(Token)).toThrow('boom')
+      expect(factory).toHaveBeenCalledTimes(2)
     })
   })
 
-  describe('Explicit lifetime', () => {
-    it('Should return the instance from the cache', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        @Injectable({ lifetime: 'explicit' })
-        class InstanceClass {}
-
-        const instance = new InstanceClass()
-        i.setExplicitInstance(instance)
-        expect(i.getInstance(InstanceClass)).toBe(instance)
+  describe('disposal', () => {
+    it('runs onDispose callbacks in LIFO order', async () => {
+      const order: number[] = []
+      const First = defineService({
+        name: 'test/DisposeFirst',
+        lifetime: 'singleton',
+        factory: ({ onDispose }) => {
+          onDispose(() => {
+            order.push(1)
+          })
+          return {}
+        },
       })
-    })
-
-    it('Should return an instance from the parent injector', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const child = i.createChild()
-        @Injectable({ lifetime: 'explicit' })
-        class InstanceClass {}
-
-        const instance = new InstanceClass()
-        i.setExplicitInstance(instance)
-        expect(child.getInstance(InstanceClass)).toBe(instance)
+      const Second = defineService({
+        name: 'test/DisposeSecond',
+        lifetime: 'singleton',
+        factory: ({ onDispose, inject }) => {
+          inject(First)
+          onDispose(() => {
+            order.push(2)
+          })
+          return {}
+        },
       })
+      const injector = createInjector()
+      injector.get(Second)
+      await injector[Symbol.asyncDispose]()
+      expect(order).toEqual([2, 1])
     })
 
-    it('Should throw an error if the instance is not set', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        @Injectable({ lifetime: 'explicit' })
-        class InstanceClass {}
-
-        expect(() => i.getInstance(InstanceClass)).toThrowError(
-          `Cannot instantiate an instance of 'InstanceClass' as it's lifetime is set to 'explicit'. Ensure to initialize it properly`,
-        )
+    it('awaits async onDispose callbacks', async () => {
+      const order: string[] = []
+      const Token = defineService({
+        name: 'test/AsyncDispose',
+        lifetime: 'singleton',
+        factory: ({ onDispose }) => {
+          onDispose(async () => {
+            await new Promise((r) => setTimeout(r, 10))
+            order.push('done')
+          })
+          return {}
+        },
       })
+      const injector = createInjector()
+      injector.get(Token)
+      await injector[Symbol.asyncDispose]()
+      expect(order).toEqual(['done'])
+    })
+
+    it('aggregates errors thrown by dispose callbacks', async () => {
+      const Token = defineService({
+        name: 'test/DisposeError',
+        lifetime: 'singleton',
+        factory: ({ onDispose }) => {
+          onDispose(() => {
+            throw new Error('dispose-fail')
+          })
+          return {}
+        },
+      })
+      const injector = createInjector()
+      injector.get(Token)
+      await expect(injector[Symbol.asyncDispose]()).rejects.toBeInstanceOf(AggregateError)
+    })
+
+    it('throws when operating on a disposed injector', async () => {
+      const injector = createInjector()
+      await injector[Symbol.asyncDispose]()
+      const Token = defineService({ name: 'test/AfterDispose', lifetime: 'singleton', factory: () => ({}) })
+      expect(() => injector.get(Token)).toThrow(InjectorDisposedError)
     })
   })
 
-  it('Should resolve injectable fields', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      @Injectable()
-      class Injected1 {}
-      @Injectable()
-      class Injected2 {}
+  describe('withScope', () => {
+    it('disposes the scope when the callback resolves', async () => {
+      const disposed: string[] = []
+      const Scoped = defineService({
+        name: 'test/WithScopeOK',
+        lifetime: 'scoped',
+        factory: ({ onDispose }) => {
+          onDispose(() => {
+            disposed.push('ok')
+          })
+          return {}
+        },
+      })
+      const root = createInjector()
+      await withScope(root, async (scope) => {
+        scope.get(Scoped)
+      })
+      expect(disposed).toEqual(['ok'])
+      await root[Symbol.asyncDispose]()
+    })
 
-      @Injectable()
-      class InstanceClass {
-        @Injected(Injected1)
-        declare injected1: Injected1
-
-        @Injected(Injected2)
-        declare injected2: Injected2
-      }
-
-      const instance = i.getInstance(InstanceClass)
-
-      expect(instance).toBeInstanceOf(InstanceClass)
-      expect(instance.injected1).toBeInstanceOf(Injected1)
-      expect(instance.injected2).toBeInstanceOf(Injected2)
+    it('disposes the scope even when the callback throws', async () => {
+      const disposed: string[] = []
+      const Scoped = defineService({
+        name: 'test/WithScopeThrow',
+        lifetime: 'scoped',
+        factory: ({ onDispose }) => {
+          onDispose(() => {
+            disposed.push('threw')
+          })
+          return {}
+        },
+      })
+      const root = createInjector()
+      await expect(
+        withScope(root, (scope) => {
+          scope.get(Scoped)
+          throw new Error('nope')
+        }),
+      ).rejects.toThrow('nope')
+      expect(disposed).toEqual(['threw'])
+      await root[Symbol.asyncDispose]()
     })
   })
 
-  it('Should resolve injectable fields recursively', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      @Injectable()
-      class Injected1 {}
-      @Injectable()
-      class Injected2 {
-        @Injected(Injected1)
-        declare injected1: Injected1
-      }
+  describe('async factories', () => {
+    it('resolves an async service via getAsync', async () => {
+      const Token = defineServiceAsync({
+        name: 'test/AsyncValue',
+        lifetime: 'singleton',
+        factory: async () => {
+          await Promise.resolve()
+          return { value: 1 }
+        },
+      })
+      const injector = createInjector()
+      const value = await injector.getAsync(Token)
+      expect(value.value).toBe(1)
+    })
 
-      @Injectable()
-      class InstanceClass {
-        @Injected(Injected2)
-        declare injected2: Injected2
-      }
-      expect(i.getInstance(InstanceClass)).toBeInstanceOf(InstanceClass)
-      expect(i.getInstance(InstanceClass).injected2.injected1).toBeInstanceOf(Injected1)
+    it('throws when resolving an async token via get', () => {
+      const Token = defineServiceAsync({
+        name: 'test/AsyncInSync',
+        lifetime: 'singleton',
+        factory: async () => 1,
+      })
+      const injector = createInjector()
+      expect(() => injector.get(Token)).toThrow(AsyncTokenInSyncContextError)
+    })
+
+    it('shares the pending promise between concurrent callers', async () => {
+      let resolves = 0
+      const Token = defineServiceAsync({
+        name: 'test/AsyncShared',
+        lifetime: 'singleton',
+        factory: async () => {
+          resolves += 1
+          await new Promise((r) => setTimeout(r, 5))
+          return { id: resolves }
+        },
+      })
+      const injector = createInjector()
+      const [a, b] = await Promise.all([injector.getAsync(Token), injector.getAsync(Token)])
+      expect(resolves).toBe(1)
+      expect(a).toBe(b)
+    })
+
+    it('caches async errors and rethrows on later getAsync calls', async () => {
+      let calls = 0
+      const Token = defineServiceAsync({
+        name: 'test/AsyncBoom',
+        lifetime: 'singleton',
+        factory: async () => {
+          calls += 1
+          throw new Error('async-boom')
+        },
+      })
+      const injector = createInjector()
+      await expect(injector.getAsync(Token)).rejects.toThrow('async-boom')
+      await expect(injector.getAsync(Token)).rejects.toThrow('async-boom')
+      expect(calls).toBe(1)
     })
   })
 
-  it('Should throw if failed to dispose one or more entries', async () => {
-    expect.assertions(1)
-
-    @Injectable({ lifetime: 'singleton' })
-    class TestDisposableThrows implements Disposable {
-      public [Symbol.dispose]() {
-        throw Error(':(')
-      }
-    }
-
-    const i = new Injector()
-    i.getInstance(TestDisposableThrows)
-
-    await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: There was an error during disposing '1' global disposable objects: Error: :(]`,
-    )
-  })
-
-  it('Should throw if failed to dispose async one or more entries', async () => {
-    expect.assertions(1)
-
-    @Injectable({ lifetime: 'singleton' })
-    class TestDisposableThrows implements AsyncDisposable {
-      public async [Symbol.asyncDispose]() {
-        throw Error(':(')
-      }
-    }
-
-    const i = new Injector()
-    i.getInstance(TestDisposableThrows)
-
-    await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: There was an error during disposing '1' global disposable objects: Error: :(]`,
-    )
-  })
-
-  it('Should dispose cached entries on dispose and tolerate non-disposable ones', async () => {
-    const doneCallback = vi.fn()
-    @Injectable({ lifetime: 'explicit' })
-    class TestDisposable implements Disposable {
-      public [Symbol.dispose]() {
-        doneCallback()
-      }
-    }
-    @Injectable({ lifetime: 'explicit' })
-    class TestInstance {}
-
-    await usingAsync(new Injector(), async (i) => {
-      i.setExplicitInstance(new TestDisposable())
-      i.setExplicitInstance(new TestInstance())
+  describe('token identity', () => {
+    it('uses Symbol.for for namespaced names so same name across modules collides intentionally', () => {
+      const A = defineService({ name: 'pkg/Same', lifetime: 'singleton', factory: () => ({ v: 1 }) })
+      const B = defineService({ name: 'pkg/Same', lifetime: 'singleton', factory: () => ({ v: 2 }) })
+      expect(A.id).toBe(B.id)
     })
-    expect(doneCallback).toBeCalledTimes(1)
-  })
 
-  it('Remove should remove an entity from the cached instance list', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      @Injectable({ lifetime: 'scoped' })
-      class InjectableClass {}
-
-      i.setExplicitInstance({}, InjectableClass)
-      i.remove(InjectableClass)
-      expect(i.cachedSingletons.size).toBe(0)
+    it('uses a local symbol for anonymous names', () => {
+      const A = defineService({ name: 'anon', lifetime: 'singleton', factory: () => ({}) })
+      const B = defineService({ name: 'anon', lifetime: 'singleton', factory: () => ({}) })
+      expect(A.id).not.toBe(B.id)
     })
   })
 
-  it('Requesting an Injector instance should return self', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      expect(i.getInstance(Injector)).toBe(i)
-    })
-  })
-
-  it('Requesting an undecorated instance should throw an error', async () => {
-    class UndecoratedTestClass {}
-    await usingAsync(new Injector(), async (i) => {
-      expect(() => i.getInstance(UndecoratedTestClass)).toThrowError(
-        `The class 'UndecoratedTestClass' is not an injectable`,
-      )
-    })
-  })
-
-  it('Should exec an init() method, if present', async () => {
-    @Injectable()
-    class InitClass {
-      public initWasCalled = false
-      public init() {
-        this.initWasCalled = true
-      }
-    }
-
-    await usingAsync(new Injector(), async (i) => {
-      const instance = i.getInstance(InitClass)
-      expect(instance.initWasCalled).toBe(true)
-    })
-  })
-
-  describe('Disposed injector', () => {
-    it('Should throw an error on getInstance', async () => {
-      const i = new Injector()
-      await i[Symbol.asyncDispose]()
-      expect(() => i.getInstance(Injector)).toThrowError('Injector already disposed')
+  describe('createScope', () => {
+    it('exposes parent and owner', () => {
+      const root = createInjector()
+      const scope = root.createScope({ owner: 'request-1' })
+      expect(scope.parent).toBe(root)
+      expect(scope.owner).toBe('request-1')
+      expect(root.parent).toBeNull()
     })
 
-    it('Should throw an error on setExplicitInstance', async () => {
-      const i = new Injector()
-      await i[Symbol.asyncDispose]()
-      expect(() => i.setExplicitInstance({})).toThrowError('Injector already disposed')
-    })
-
-    it('Should throw an error on remove', async () => {
-      const i = new Injector()
-      await i[Symbol.asyncDispose]()
-      expect(() => i.remove(Object)).toThrowError('Injector already disposed')
-    })
-
-    it('Should throw an error on createChild', async () => {
-      const i = new Injector()
-      await i[Symbol.asyncDispose]()
-      expect(() => i.createChild()).toThrowError('Injector already disposed')
-    })
-
-    it('Should throw an error on dispose', async () => {
-      const i = new Injector()
-      await i[Symbol.asyncDispose]()
-      await expect(async () => await i[Symbol.asyncDispose]()).rejects.toThrowError('Injector already disposed')
+    it('supports constructing an Injector directly as an alternative', () => {
+      const root = new Injector()
+      expect(root.parent).toBeNull()
     })
   })
 })

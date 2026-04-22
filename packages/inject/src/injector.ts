@@ -1,212 +1,360 @@
-import { isAsyncDisposable, isDisposable } from '@furystack/utils'
-import { Injectable, getInjectableOptions, type InjectorLifetime } from './injectable.js'
-import { getDependencyList } from './injected.js'
-import type { Constructable } from './models/constructable.js'
-import { hasInjectorReference, withInjectorReference } from './with-injector-reference.js'
+import type {
+  AsyncServiceFactory,
+  CreateScopeOptions,
+  DisposeCallback,
+  Injector as InjectorContract,
+  Lifetime,
+  ServiceContext,
+  ServiceFactory,
+  Token,
+} from './types.js'
 
-const hasInitMethod = (obj: object): obj is { init: (injector: Injector) => void } => {
-  return typeof (obj as { init?: (injector: Injector) => void }).init === 'function'
-}
-
-export class InjectorAlreadyDisposedError extends Error {
+/**
+ * Thrown when a method is called on an injector that has already been disposed.
+ */
+export class InjectorDisposedError extends Error {
   constructor() {
     super('Injector already disposed')
+    this.name = 'InjectorDisposedError'
   }
 }
 
-const lifetimesToCache: InjectorLifetime[] = ['singleton', 'scoped', 'explicit']
+/**
+ * Thrown when a factory depends on itself (directly or transitively) during
+ * instantiation.
+ */
+export class CircularDependencyError extends Error {
+  constructor(public readonly path: readonly string[]) {
+    super(`Circular dependency detected: ${path.join(' -> ')}`)
+    this.name = 'CircularDependencyError'
+  }
+}
 
-export class CannotInstantiateExplicitLifetimeError extends Error {
-  /**
-   *
-   */
-  constructor(ctor: Constructable<unknown>) {
+/**
+ * Thrown when a singleton-lifetime service attempts to depend on a non-singleton
+ * service, or a scoped service attempts to depend on a transient.
+ */
+export class InvalidLifetimeDependencyError extends Error {
+  constructor(
+    public readonly parentName: string,
+    public readonly parentLifetime: Lifetime,
+    public readonly childName: string,
+    public readonly childLifetime: Lifetime,
+  ) {
     super(
-      `Cannot instantiate an instance of '${ctor.name}' as it's lifetime is set to 'explicit'. Ensure to initialize it properly`,
+      `Service '${parentName}' (${parentLifetime}) cannot depend on '${childName}' (${childLifetime}): ${parentLifetime} factories may only depend on compatible lifetimes.`,
     )
+    this.name = 'InvalidLifetimeDependencyError'
   }
 }
 
-@Injectable({ lifetime: 'system' as 'singleton' })
-export class Injector implements AsyncDisposable {
+/**
+ * Thrown when attempting to resolve an async token via the synchronous
+ * {@link Injector.get} method.
+ */
+export class AsyncTokenInSyncContextError extends Error {
+  constructor(public readonly tokenName: string) {
+    super(`Service '${tokenName}' is async. Resolve it via injector.getAsync() instead of injector.get().`)
+    this.name = 'AsyncTokenInSyncContextError'
+  }
+}
+
+/**
+ * Thrown when attempting to {@link Injector.provide} a transient-lifetime token.
+ * Transients are, by definition, not cached — providing them is meaningless.
+ */
+export class CannotProvideTransientError extends Error {
+  constructor(public readonly tokenName: string) {
+    super(`Cannot provide an instance for transient token '${tokenName}'. Transients are not cached.`)
+    this.name = 'CannotProvideTransientError'
+  }
+}
+
+type CacheEntry =
+  | { status: 'resolved'; value: unknown }
+  | { status: 'pending'; promise: Promise<unknown> }
+  | { status: 'failed'; error: unknown }
+
+const isParentCompatible = (parent: Lifetime, child: Lifetime): boolean => {
+  switch (parent) {
+    case 'singleton':
+      return child === 'singleton'
+    case 'scoped':
+      return child === 'singleton' || child === 'scoped'
+    case 'transient':
+      return true
+    default:
+      return false
+  }
+}
+
+/**
+ * The dependency injection container. Created via {@link createInjector} or
+ * {@link Injector.createScope}. Manages service resolution, caching, and
+ * disposal across a hierarchical scope tree.
+ */
+export class Injector implements InjectorContract, AsyncDisposable {
+  public readonly parent: Injector | null
+  public readonly owner: unknown
+  private readonly cache = new Map<symbol, CacheEntry>()
+  private readonly disposeCallbacks: DisposeCallback[] = []
+  private readonly resolutionStack: symbol[] = []
   private isDisposed = false
 
-  /**
-   * Disposes the Injector object and all its disposable injectables
-   */
-  public async [Symbol.asyncDispose]() {
+  constructor(options?: { parent?: Injector; owner?: unknown }) {
+    this.parent = options?.parent ?? null
+    this.owner = options?.owner
+  }
+
+  private ensureLive(): void {
     if (this.isDisposed) {
-      throw new InjectorAlreadyDisposedError()
+      throw new InjectorDisposedError()
+    }
+  }
+
+  private rootInjector(): Injector {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let current: Injector = this
+    while (current.parent) {
+      current = current.parent
+    }
+    return current
+  }
+
+  private ownerForLifetime(lifetime: Lifetime): Injector {
+    switch (lifetime) {
+      case 'singleton':
+        return this.rootInjector()
+      case 'scoped':
+      case 'transient':
+        return this
+      default:
+        return this
+    }
+  }
+
+  private findCached(token: Token<unknown>): { injector: Injector; entry: CacheEntry } | null {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    let current: Injector | null = this
+    while (current) {
+      const entry = current.cache.get(token.id)
+      if (entry) {
+        return { injector: current, entry }
+      }
+      current = current.parent
+    }
+    return null
+  }
+
+  private buildContext(lifetime: Lifetime, owningInjector: Injector, parentName: string): ServiceContext {
+    const inject = <TService>(depToken: Token<TService>): TService => {
+      if (!isParentCompatible(lifetime, depToken.lifetime)) {
+        throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
+      }
+      return owningInjector.get(depToken)
+    }
+    const injectAsync = <TService>(depToken: Token<TService>): Promise<TService> => {
+      if (!isParentCompatible(lifetime, depToken.lifetime)) {
+        throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
+      }
+      return owningInjector.getAsync(depToken)
+    }
+    const onDispose = (cb: DisposeCallback): void => {
+      owningInjector.disposeCallbacks.push(cb)
+    }
+    return {
+      inject: inject as ServiceContext['inject'],
+      injectAsync: injectAsync as ServiceContext['injectAsync'],
+      injector: owningInjector,
+      onDispose,
+    }
+  }
+
+  private pushResolving(token: Token<unknown>): void {
+    if (this.resolutionStack.includes(token.id)) {
+      const path = [...this.resolutionStack.map((id) => this.symbolDescription(id)), token.name]
+      throw new CircularDependencyError(path)
+    }
+    this.resolutionStack.push(token.id)
+  }
+
+  private popResolving(): void {
+    this.resolutionStack.pop()
+  }
+
+  private symbolDescription(id: symbol): string {
+    return id.description ?? '<anonymous>'
+  }
+
+  public get<TService>(token: Token<TService>): TService {
+    this.ensureLive()
+
+    if (token.isAsync) {
+      throw new AsyncTokenInSyncContextError(token.name)
     }
 
+    const existing = this.findCached(token)
+    if (existing) {
+      return this.consumeCached<TService>(existing.entry, token)
+    }
+
+    const owning = this.ownerForLifetime(token.lifetime)
+
+    if (token.lifetime !== 'transient' && owning !== this) {
+      return owning.get(token)
+    }
+
+    return owning.instantiateSync(token)
+  }
+
+  public async getAsync<TService>(token: Token<TService>): Promise<TService> {
+    this.ensureLive()
+
+    if (!token.isAsync) {
+      return this.get(token)
+    }
+
+    const existing = this.findCached(token)
+    if (existing) {
+      return this.consumeCachedAsync<TService>(existing.entry, token)
+    }
+
+    const owning = this.ownerForLifetime(token.lifetime)
+
+    if (token.lifetime !== 'transient' && owning !== this) {
+      return owning.getAsync(token)
+    }
+
+    return owning.instantiateAsync(token)
+  }
+
+  private consumeCached<TService>(entry: CacheEntry, token: Token<TService>): TService {
+    if (entry.status === 'resolved') {
+      return entry.value as TService
+    }
+    if (entry.status === 'failed') {
+      throw entry.error
+    }
+    throw new AsyncTokenInSyncContextError(token.name)
+  }
+
+  private async consumeCachedAsync<TService>(entry: CacheEntry, _token: Token<TService>): Promise<TService> {
+    if (entry.status === 'resolved') {
+      return entry.value as TService
+    }
+    if (entry.status === 'failed') {
+      throw entry.error
+    }
+    return entry.promise as Promise<TService>
+  }
+
+  private instantiateSync<TService>(token: Token<TService>): TService {
+    this.pushResolving(token)
+    const ctx = this.buildContext(token.lifetime, this, token.name)
+    try {
+      const value = (token.factory as ServiceFactory<TService>)(ctx)
+      if (token.lifetime !== 'transient') {
+        this.cache.set(token.id, { status: 'resolved', value })
+      }
+      return value
+    } catch (error) {
+      if (token.lifetime !== 'transient') {
+        this.cache.set(token.id, { status: 'failed', error })
+      }
+      throw error
+    } finally {
+      this.popResolving()
+    }
+  }
+
+  private instantiateAsync<TService>(token: Token<TService>): Promise<TService> {
+    this.pushResolving(token)
+    const ctx = this.buildContext(token.lifetime, this, token.name)
+    let promise: Promise<TService>
+    try {
+      promise = (token.factory as AsyncServiceFactory<TService>)(ctx)
+    } catch (error) {
+      this.popResolving()
+      if (token.lifetime !== 'transient') {
+        this.cache.set(token.id, { status: 'failed', error })
+      }
+      throw error
+    }
+    this.popResolving()
+
+    if (token.lifetime !== 'transient') {
+      this.cache.set(token.id, { status: 'pending', promise })
+    }
+
+    return promise.then(
+      (value) => {
+        if (token.lifetime !== 'transient') {
+          this.cache.set(token.id, { status: 'resolved', value })
+        }
+        return value
+      },
+      (error: unknown) => {
+        if (token.lifetime !== 'transient') {
+          this.cache.set(token.id, { status: 'failed', error })
+        }
+        throw error
+      },
+    )
+  }
+
+  public provide<TService>(token: Token<TService>, value: TService): void {
+    this.ensureLive()
+    if (token.lifetime === 'transient') {
+      throw new CannotProvideTransientError(token.name)
+    }
+    this.cache.set(token.id, { status: 'resolved', value })
+  }
+
+  public createScope(options?: CreateScopeOptions): Injector {
+    this.ensureLive()
+    return new Injector({ parent: this, owner: options?.owner })
+  }
+
+  public async [Symbol.asyncDispose](): Promise<void> {
+    if (this.isDisposed) {
+      throw new InjectorDisposedError()
+    }
     this.isDisposed = true
 
-    const singletons = Array.from(this.cachedSingletons.entries()).map((e) => e[1])
-    const disposeRequests = singletons
-      .filter((s) => s !== this)
-      .map(async (s) => {
-        if (isDisposable(s)) {
-          s[Symbol.dispose]()
-        }
-        if (isAsyncDisposable(s)) {
-          await s[Symbol.asyncDispose]()
-        }
-      })
-    const result = await Promise.allSettled(disposeRequests)
-    const fails = result.filter((r) => r.status === 'rejected')
-    if (fails && fails.length) {
-      throw new Error(
-        `There was an error during disposing '${fails.length}' global disposable objects: ${fails
-          .map((f) => f.reason as string)
-          .join(', ')}`,
-      )
-    }
-
-    this.cachedSingletons.clear()
-  }
-
-  /**
-   * Options object for an injector instance
-   */
-  public options: { parent?: Injector; owner?: unknown } = {}
-
-  // public static injectableFields: Map<Constructable<any>, { [K: string]: Constructable<any> }> = new Map()
-
-  public readonly cachedSingletons: Map<Constructable<unknown>, unknown> = new Map()
-
-  public remove = <T>(ctor: Constructable<T>) => {
-    if (this.isDisposed) {
-      throw new InjectorAlreadyDisposedError()
-    }
-
-    this.cachedSingletons.delete(ctor)
-  }
-
-  public getInstance<T>(ctor: Constructable<T>): T {
-    const instance = this.getInstanceInternal(ctor)
-    if (!hasInjectorReference(instance)) {
-      withInjectorReference(instance, this)
-    }
-    return instance
-  }
-
-  /**
-   *
-   * @param ctor The constructor object (e.g. MyClass)
-   * @returns The instance of the requested service
-   */
-  private getInstanceInternal<T>(ctor: Constructable<T>): T {
-    if (this.isDisposed) {
-      throw new InjectorAlreadyDisposedError()
-    }
-
-    if (ctor === this.constructor) {
-      return this as any as T
-    }
-
-    const existing = this.cachedSingletons.get(ctor)
-
-    if (existing) {
-      return existing as T
-    }
-
-    const meta = getInjectableOptions(ctor)
-
-    const { lifetime } = meta
-
-    const fromParent =
-      (lifetime === 'singleton' || lifetime === 'explicit') &&
-      this.options.parent &&
-      this.options.parent.getInstanceInternal(ctor)
-    if (fromParent) {
-      return fromParent
-    }
-
-    if (lifetime === 'explicit') {
-      throw new CannotInstantiateExplicitLifetimeError(ctor)
-    }
-
-    const dependencies = [...getDependencyList(ctor)]
-
-    if (dependencies.includes(ctor)) {
-      throw Error(`Circular dependencies found.`)
-    }
-
-    if (lifetime === 'singleton') {
-      const invalidDeps = dependencies
-        .map((dep) => ({ meta: getInjectableOptions(dep), dep }))
-        .filter((m) => m.meta && (m.meta.lifetime === 'scoped' || m.meta.lifetime === 'transient'))
-        .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
-      if (invalidDeps.length) {
-        throw Error(
-          `Injector error: Singleton type '${ctor.name}' depends on non-singleton injectables: ${invalidDeps.join(
-            ',',
-          )}`,
-        )
-      }
-    } else if (lifetime === 'scoped') {
-      const invalidDeps = dependencies
-        .map((dep) => ({ meta: getInjectableOptions(dep), dep }))
-        .filter((m) => m.meta && m.meta.lifetime === 'transient')
-        .map((i) => i.meta && `${i.dep.name}:${i.meta.lifetime}`)
-      if (invalidDeps.length) {
-        throw Error(
-          `Injector error: Scoped type '${ctor.name}' depends on transient injectables: ${invalidDeps.join(',')}`,
-        )
+    const callbacks = this.disposeCallbacks.splice(0).reverse()
+    const errors: unknown[] = []
+    for (const cb of callbacks) {
+      try {
+        await cb()
+      } catch (error) {
+        errors.push(error)
       }
     }
-
-    const newInstance = new ctor()
-    withInjectorReference(newInstance, this)
-
-    if (lifetimesToCache.includes(lifetime)) {
-      this.setExplicitInstance(newInstance)
+    this.cache.clear()
+    if (errors.length > 0) {
+      throw new AggregateError(errors, `Errors thrown during injector disposal (${errors.length})`)
     }
-
-    if (hasInitMethod(newInstance)) {
-      newInstance.init(this)
-    }
-    return newInstance
   }
+}
 
-  /**
-   * Sets explicitliy an instance for a key in the store
-   * @param instance The created instance
-   * @param key The class key to be persisted (optional, calls back to the instance's constructor)
-   */
-  public setExplicitInstance<T extends object>(instance: T, key?: Constructable<any>) {
-    if (this.isDisposed) {
-      throw new InjectorAlreadyDisposedError()
-    }
+/**
+ * Creates a new root {@link Injector}.
+ */
+export const createInjector = (): Injector => new Injector()
 
-    const ctor = key || (instance.constructor as Constructable<T>)
-
-    const { lifetime } = getInjectableOptions(ctor)
-
-    if (instance.constructor === this.constructor) {
-      throw Error('Cannot set an injector instance as injectable')
-    }
-
-    if (!lifetimesToCache.includes(lifetime)) {
-      throw new Error(`Cannot set an instance of '${ctor.name}' as it's lifetime is set to '${lifetime}'`)
-    }
-
-    this.cachedSingletons.set(ctor, instance)
-  }
-
-  /**
-   * Creates a child injector instance
-   * @param options Additional injector options
-   * @returns the created Injector
-   */
-  public createChild(options?: Partial<Injector['options']>) {
-    if (this.isDisposed) {
-      throw new InjectorAlreadyDisposedError()
-    }
-
-    const i = new Injector()
-    i.options = i.options || options
-    i.options.parent = this
-    return i
+/**
+ * Creates a child scope of `parent`, runs `fn` with it, then disposes the
+ * scope — including when `fn` throws. Returns `fn`'s resolved value.
+ */
+export const withScope = async <TResult>(
+  parent: Injector,
+  fn: (scope: Injector) => Promise<TResult> | TResult,
+  options?: CreateScopeOptions,
+): Promise<TResult> => {
+  const scope = parent.createScope(options)
+  try {
+    return await fn(scope)
+  } finally {
+    await scope[Symbol.asyncDispose]()
   }
 }

@@ -1,167 +1,193 @@
-import { Injector } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
+import { createInjector, withScope } from '@furystack/inject'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConsoleLogger, defaultFormat, verboseFormat } from './console-logger.js'
 import { getLogger, useLogging } from './helpers.js'
 import { LoggerCollection } from './logger-collection.js'
-import { TestLogger } from './test-logger.js'
+import type { ScopedLogger } from './logger.js'
+import { createTestLogger } from './test-logger.js'
 
 describe('Loggers', () => {
   it('Can be set up and retrieved with a helper', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      useLogging(i)
-      expect(getLogger(i)).toBeInstanceOf(LoggerCollection)
-    })
+    const injector = createInjector()
+    try {
+      useLogging(injector)
+      const collection = getLogger(injector)
+      expect(collection).toBe(injector.get(LoggerCollection))
+      expect(collection.getLoggers()).toEqual([])
+    } finally {
+      await injector[Symbol.asyncDispose]()
+    }
+  })
+
+  it('Resolves LoggerCollection as a singleton across scopes', async () => {
+    const root = createInjector()
+    try {
+      await withScope(root, (scope) => {
+        expect(scope.get(LoggerCollection)).toBe(root.get(LoggerCollection))
+      })
+    } finally {
+      await root[Symbol.asyncDispose]()
+    }
   })
 
   describe('LoggerCollection', () => {
-    it('Should be constructed', () => {
-      const loggers = new LoggerCollection()
-      expect(loggers).toBeInstanceOf(LoggerCollection)
+    it('Is resolvable from the injector', async () => {
+      const injector = createInjector()
+      try {
+        const loggers = injector.get(LoggerCollection)
+        expect(typeof loggers.attachLogger).toBe('function')
+        expect(typeof loggers.detach).toBe('function')
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
+    })
+
+    it('Attach and detach loggers', async () => {
+      const injector = createInjector()
+      try {
+        const loggers = injector.get(LoggerCollection)
+        const probe = createTestLogger(async () => undefined)
+        loggers.attachLogger(probe)
+        expect(loggers.getLoggers()).toContain(probe)
+        loggers.detach(probe)
+        expect(loggers.getLoggers()).not.toContain(probe)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
     })
 
     it('Should forward Verbose event', async () => {
       const doneCallback = vi.fn()
-      const loggers = new LoggerCollection()
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async (e) => {
+        createTestLogger(async (e) => {
           expect(e.level).toBe('verbose')
           doneCallback()
         }),
       )
-      await loggers.verbose({
-        message: 'alma',
-        scope: 'alma',
-      })
+      await loggers.verbose({ message: 'alma', scope: 'alma' })
       expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
     })
 
     it('Should forward Debug event', async () => {
-      const loggers = new LoggerCollection()
       const doneCallback = vi.fn()
-
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async (e) => {
+        createTestLogger(async (e) => {
           expect(e.level).toBe('debug')
           doneCallback()
         }),
       )
-      await loggers.debug({
-        message: 'alma',
-        scope: 'alma',
-      })
+      await loggers.debug({ message: 'alma', scope: 'alma' })
       expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
     })
 
     it('Should forward Information event', async () => {
-      const loggers = new LoggerCollection()
       const doneCallback = vi.fn()
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async (e) => {
+        createTestLogger(async (e) => {
           expect(e.level).toBe('information')
           doneCallback()
         }),
       )
-      await loggers.information({
-        message: 'alma',
-        scope: 'alma',
-      })
+      await loggers.information({ message: 'alma', scope: 'alma' })
       expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
     })
 
     it('Should forward Warning event', async () => {
-      const loggers = new LoggerCollection()
       const doneCallback = vi.fn()
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async (e) => {
+        createTestLogger(async (e) => {
           expect(e.level).toBe('warning')
           doneCallback()
         }),
       )
-      await loggers.warning({
-        message: 'alma',
-        scope: 'alma',
-      })
+      await loggers.warning({ message: 'alma', scope: 'alma' })
       expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
     })
 
     it('Should forward Error event', async () => {
-      const loggers = new LoggerCollection()
       const doneCallback = vi.fn()
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async (e) => {
+        createTestLogger(async (e) => {
           expect(e.level).toBe('error')
           doneCallback()
         }),
       )
-      await loggers.error({
-        message: 'alma',
-        scope: 'alma',
-      })
+      await loggers.error({ message: 'alma', scope: 'alma' })
       expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
     })
 
     it('Should raise an Error event if failed to insert below Error', async () => {
-      const loggers = new LoggerCollection()
       const doneCallback = vi.fn()
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async (e) => {
-          if (e.level < 'error') {
+        createTestLogger(async (e) => {
+          if (e.level !== 'error' && e.level !== 'fatal') {
             throw new Error('Nooo')
-          } else {
-            expect(e.level).toBe('error')
-            doneCallback()
           }
+          expect(e.level).toBe('error')
+          doneCallback()
         }),
       )
-      await loggers.verbose({
-        message: 'alma',
-        scope: 'alma',
-      })
+      await loggers.verbose({ message: 'alma', scope: 'alma' })
       expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
     })
 
     it('Should raise a Fatal event if failed to insert an Error', async () => {
-      const loggers = new LoggerCollection()
       const doneCallback = vi.fn()
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async (e) => {
-          if (e.level < 'fatal') {
+        createTestLogger(async (e) => {
+          if (e.level !== 'fatal') {
             throw new Error('Nooo')
-          } else {
-            expect(e.level).toBe('fatal')
-            doneCallback()
           }
-        }),
-      )
-      await loggers.verbose({
-        message: 'alma',
-        scope: 'alma',
-      })
-      expect(doneCallback).toBeCalledTimes(1)
-    })
-
-    it('Should forward Fatal event', async () => {
-      const loggers = new LoggerCollection()
-      const doneCallback = vi.fn()
-      loggers.attachLogger(
-        new TestLogger(async (e) => {
           expect(e.level).toBe('fatal')
           doneCallback()
         }),
       )
-      await loggers.fatal({
-        message: 'alma',
-        scope: 'alma',
-      })
+      await loggers.verbose({ message: 'alma', scope: 'alma' })
       expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
+    })
+
+    it('Should forward Fatal event', async () => {
+      const doneCallback = vi.fn()
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
+      loggers.attachLogger(
+        createTestLogger(async (e) => {
+          expect(e.level).toBe('fatal')
+          doneCallback()
+        }),
+      )
+      await loggers.fatal({ message: 'alma', scope: 'alma' })
+      expect(doneCallback).toBeCalledTimes(1)
+      await injector[Symbol.asyncDispose]()
     })
 
     it('Should not throw when fatal entry fails to persist', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      const loggers = new LoggerCollection()
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const injector = createInjector()
+      const loggers = injector.get(LoggerCollection)
       loggers.attachLogger(
-        new TestLogger(async () => {
+        createTestLogger(async () => {
           throw new Error('persistence failure')
         }),
       )
@@ -174,14 +200,14 @@ describe('Loggers', () => {
         }) as object,
       )
       consoleErrorSpy.mockRestore()
+      await injector[Symbol.asyncDispose]()
     })
   })
 
   describe('Console Logger', () => {
     const scope = 'exampleScope'
 
-    const scopedConsoleLogger = new ConsoleLogger().withScope(scope)
-    const consoleMock = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const consoleMock = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
     afterAll(() => {
       consoleMock.mockRestore()
@@ -192,86 +218,145 @@ describe('Loggers', () => {
     })
 
     describe('With scope', () => {
+      const withConsoleLogger = async (cb: (scoped: ScopedLogger) => Promise<void>) => {
+        const injector = createInjector()
+        try {
+          const logger = injector.get(ConsoleLogger)
+          await cb(logger.withScope(scope))
+        } finally {
+          await injector[Symbol.asyncDispose]()
+        }
+      }
+
       it('Should print with addEntry', async () => {
-        const message = { message: 'Example Verbose Message', level: 'verbose' } as const
-        await scopedConsoleLogger.addEntry(message)
-        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, scope }))
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Verbose Message', level: 'verbose' } as const
+          await scoped.addEntry(message)
+          expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, scope }))
+        })
       })
 
       it('Should print Verbose', async () => {
-        const message = { message: 'Example Verbose Message' }
-        await scopedConsoleLogger.verbose(message)
-        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'verbose', scope }))
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Verbose Message' }
+          await scoped.verbose(message)
+          expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'verbose', scope }))
+        })
       })
+
       it('Should print Debug', async () => {
-        const message = { message: 'Example Debug Message' }
-        await scopedConsoleLogger.debug(message)
-        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'debug', scope }))
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Debug Message' }
+          await scoped.debug(message)
+          expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'debug', scope }))
+        })
       })
+
       it('Should print Information', async () => {
-        const message = { message: 'Example Information Message' }
-        await scopedConsoleLogger.information(message)
-        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'information', scope }))
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Information Message' }
+          await scoped.information(message)
+          expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'information', scope }))
+        })
       })
+
       it('Should print Warning', async () => {
-        const message = { message: 'Example Warning Message' }
-        await scopedConsoleLogger.warning(message)
-        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'warning', scope }))
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Warning Message' }
+          await scoped.warning(message)
+          expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'warning', scope }))
+        })
       })
+
       it('Should print Error', async () => {
-        const message = { message: 'Example Error Message' }
-        await scopedConsoleLogger.error(message)
-        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'error', scope }))
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Error Message' }
+          await scoped.error(message)
+          expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'error', scope }))
+        })
       })
+
       it('Should print Fatal', async () => {
-        const message = { message: 'Example Fatal Message' }
-        await scopedConsoleLogger.fatal(message)
-        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'fatal', scope }))
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Fatal Message' }
+          await scoped.fatal(message)
+          expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'fatal', scope }))
+        })
       })
+
       it('Should print additional data', async () => {
-        const message = { message: 'Example Fatal Message', data: { a: 1 } }
-        await scopedConsoleLogger.fatal(message)
-        expect(consoleMock).toHaveBeenCalledWith(
-          ...defaultFormat({ ...message, level: 'fatal', scope, data: { a: 1 } }),
-        )
+        await withConsoleLogger(async (scoped) => {
+          const message = { message: 'Example Fatal Message', data: { a: 1 } }
+          await scoped.fatal(message)
+          expect(consoleMock).toHaveBeenCalledWith(
+            ...defaultFormat({ ...message, level: 'fatal', scope, data: { a: 1 } }),
+          )
+        })
       })
     })
 
     describe('Without scope', () => {
-      const consoleLogger = new ConsoleLogger()
       it('Should print Verbose', async () => {
+        const injector = createInjector()
+        const logger = injector.get(ConsoleLogger)
         const message = { message: 'Example Verbose Message', scope }
-        await consoleLogger.verbose(message)
+        await logger.verbose(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'verbose' }))
+        await injector[Symbol.asyncDispose]()
       })
+
       it('Should print Debug', async () => {
+        const injector = createInjector()
+        const logger = injector.get(ConsoleLogger)
         const message = { message: 'Example Debug Message', scope }
-        await consoleLogger.debug(message)
+        await logger.debug(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'debug' }))
+        await injector[Symbol.asyncDispose]()
       })
+
       it('Should print Information', async () => {
+        const injector = createInjector()
+        const logger = injector.get(ConsoleLogger)
         const message = { message: 'Example Information Message', scope }
-        await consoleLogger.information(message)
+        await logger.information(message)
+        expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'information' }))
+        await injector[Symbol.asyncDispose]()
       })
+
       it('Should print Warning', async () => {
+        const injector = createInjector()
+        const logger = injector.get(ConsoleLogger)
         const message = { message: 'Example Warning Message', scope }
-        await consoleLogger.warning(message)
+        await logger.warning(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'warning' }))
+        await injector[Symbol.asyncDispose]()
       })
+
       it('Should print Error', async () => {
+        const injector = createInjector()
+        const logger = injector.get(ConsoleLogger)
         const message = { message: 'Example Error Message', scope }
-        await consoleLogger.error(message)
+        await logger.error(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'error' }))
+        await injector[Symbol.asyncDispose]()
       })
+
       it('Should print Fatal', async () => {
+        const injector = createInjector()
+        const logger = injector.get(ConsoleLogger)
         const message = { message: 'Example Fatal Message', scope }
-        await consoleLogger.fatal(message)
+        await logger.fatal(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'fatal' }))
+        await injector[Symbol.asyncDispose]()
       })
+
       it('Should print additional data', async () => {
+        const injector = createInjector()
+        const logger = injector.get(ConsoleLogger)
         const message = { message: 'Example Fatal Message', data: { a: 1 }, scope }
-        await consoleLogger.fatal(message)
+        await logger.fatal(message)
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'fatal' }))
+        await injector[Symbol.asyncDispose]()
       })
     })
   })
