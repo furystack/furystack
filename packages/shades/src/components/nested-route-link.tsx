@@ -1,31 +1,58 @@
-import { compileRoute } from '../compile-route.js'
 import type { ChildrenList } from '../models/children-list.js'
 import type { PartialElement } from '../models/partial-element.js'
 import { LocationService } from '../services/location-service.js'
 import { createComponent } from '../shade-component.js'
 import { Shade } from '../shade.js'
-import type { ExtractRouteParams, ExtractRoutePaths } from './nested-route-types.js'
+import { buildNestedNavigateUrl } from './nested-navigate.js'
+import type {
+  ExtractRouteHash,
+  ExtractRouteQuery,
+  ExtractRoutePaths,
+  RouteAt,
+  TypedHashArg,
+  TypedParamsArg,
+  TypedQueryArg,
+} from './nested-route-types.js'
 import type { NestedRoute } from './nested-router.js'
 
 /**
  * Props for the NestedRouteLink component.
- * Combines SPA navigation from RouteLink with parameter compilation from LinkToRoute.
+ * Combines SPA navigation with parameter compilation for nested routes,
+ * plus optional query string and hash fragment composition.
  */
 export type NestedRouteLinkProps = {
-  href: string
+  path: string
   params?: Record<string, string>
+  query?: Record<string, unknown>
+  hash?: string
 } & PartialElement<Omit<HTMLAnchorElement, 'onclick' | 'href'>>
 
 /**
  * Props for a type-safe nested route link.
  * When the path contains parameters (e.g. `:id`), the `params` prop becomes required.
+ * `query` and `hash` remain loose (untyped) on this variant; use
+ * {@link createNestedRouteLink} to narrow them against a specific route tree.
  * @typeParam TPath - A specific route path string
  */
 export type TypedNestedRouteLinkProps<TPath extends string> = {
-  href: TPath
-} & (string extends keyof ExtractRouteParams<TPath>
-  ? { params?: Record<string, string> }
-  : { params: ExtractRouteParams<TPath> }) &
+  path: TPath
+  query?: Record<string, unknown>
+  hash?: string
+} & TypedParamsArg<TPath> &
+  PartialElement<Omit<HTMLAnchorElement, 'onclick' | 'href'>>
+
+/**
+ * Props for a route-tree-aware nested route link. Narrows `query` and `hash`
+ * against the specific route at `TPath` in `TRoutes`.
+ * @typeParam TRoutes - The route tree
+ * @typeParam TPath - A composed route path within `TRoutes`
+ */
+export type TreeAwareNestedRouteLinkProps<
+  TRoutes extends Record<string, NestedRoute<any, any, any>>,
+  TPath extends string,
+> = { path: TPath } & TypedParamsArg<TPath> &
+  TypedQueryArg<ExtractRouteQuery<RouteAt<TRoutes, TPath>>> &
+  TypedHashArg<ExtractRouteHash<RouteAt<TRoutes, TPath>>> &
   PartialElement<Omit<HTMLAnchorElement, 'onclick' | 'href'>>
 
 const _NestedRouteLink = Shade<NestedRouteLinkProps>({
@@ -37,8 +64,8 @@ const _NestedRouteLink = Shade<NestedRouteLinkProps>({
     textDecoration: 'inherit',
   },
   render: ({ children, props, injector, useHostProps }) => {
-    const { href, params } = props
-    const resolvedUrl = params ? compileRoute(href, params) : href
+    const { path, params, query, hash } = props
+    const resolvedUrl = buildNestedNavigateUrl({ path, params, query, hash })
 
     useHostProps({
       href: resolvedUrl,
@@ -58,13 +85,15 @@ const _NestedRouteLink = Shade<NestedRouteLinkProps>({
  * type-safe route parameter compilation.
  *
  * Intercepts click events to use `history.pushState` for client-side navigation,
- * and compiles parameterized routes (e.g. `/users/:id`) when `params` is provided.
+ * compiles parameterized routes (e.g. `/users/:id`) when `params` is provided,
+ * serializes `query` to the URL search string and appends `hash` when set.
  *
- * Route parameters are automatically inferred from the `href` pattern:
- * - `href="/buttons"` — `params` is optional
- * - `href="/users/:id"` — `params: { id: string }` is required
+ * Route parameters are automatically inferred from the `path` pattern:
+ * - `path="/buttons"` — `params` is optional
+ * - `path="/users/:id"` — `params: { id: string }` is required
  *
- * For additional URL validation against a route tree, use {@link createNestedRouteLink}.
+ * For additional URL validation against a route tree (including `query` and
+ * `hash` narrowing), use {@link createNestedRouteLink}.
  */
 export const NestedRouteLink = _NestedRouteLink as unknown as <TPath extends string = string>(
   props: TypedNestedRouteLinkProps<TPath>,
@@ -72,9 +101,10 @@ export const NestedRouteLink = _NestedRouteLink as unknown as <TPath extends str
 ) => JSX.Element
 
 /**
- * Creates a type-safe wrapper around NestedRouteLink constrained to a specific route tree.
- * The returned component has the same runtime behavior but narrows `href` to only accept
- * valid route paths, and requires `params` when the route has parameters.
+ * Creates a type-safe wrapper around NestedRouteLink constrained to a specific
+ * route tree. The returned component has the same runtime behavior but narrows
+ * `path` to only accept valid route paths, requires `params` when the route
+ * has parameters, and enforces the route's declared `query` and `hash` schemas.
  *
  * @typeParam TRoutes - The route tree type (use `typeof yourRoutes`)
  * @returns A narrowed NestedRouteLink component
@@ -83,19 +113,14 @@ export const NestedRouteLink = _NestedRouteLink as unknown as <TPath extends str
  * ```typescript
  * const AppLink = createNestedRouteLink<typeof appRoutes>()
  *
- * // Type-safe: only valid paths accepted
- * <AppLink href="/buttons">Buttons</AppLink>
- *
- * // TypeScript error: invalid path
- * <AppLink href="/nonexistent">Error!</AppLink>
- *
- * // Params required for parameterized routes
- * <AppLink href="/users/:id" params={{ id: '123' }}>User</AppLink>
+ * <AppLink path="/buttons">Buttons</AppLink>
+ * <AppLink path="/users/:id" params={{ id: '123' }}>User</AppLink>
+ * <AppLink path="/users/:id" params={{ id: '1' }} query={{ tab: 'profile' }} hash="notes">User</AppLink>
  * ```
  */
-export const createNestedRouteLink = <TRoutes extends Record<string, NestedRoute<any>>>() => {
+export const createNestedRouteLink = <TRoutes extends Record<string, NestedRoute<any, any, any>>>() => {
   return _NestedRouteLink as unknown as <TPath extends ExtractRoutePaths<TRoutes>>(
-    props: TypedNestedRouteLinkProps<TPath>,
+    props: TreeAwareNestedRouteLinkProps<TRoutes, TPath>,
     children?: ChildrenList,
   ) => JSX.Element
 }

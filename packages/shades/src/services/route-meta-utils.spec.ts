@@ -1,7 +1,15 @@
 import { Injector } from '@furystack/inject'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import type { MatchChainEntry, NestedRoute } from '../components/nested-router.js'
-import { buildDocumentTitle, extractNavTree, resolveRouteTitle, resolveRouteTitles } from './route-meta-utils.js'
+import {
+  buildDocumentTitle,
+  extractNavTree,
+  type NavTreeNode,
+  resolveRouteTitle,
+  resolveRouteTitles,
+} from './route-meta-utils.js'
+
+type TestRoute = Pick<NestedRoute<unknown, any, any>, 'component'>
 
 describe('resolveRouteTitle', () => {
   const injector = new Injector()
@@ -10,6 +18,8 @@ describe('resolveRouteTitle', () => {
     const entry: MatchChainEntry = {
       route: { component: () => ({}) as JSX.Element },
       match: { path: '/about', params: {} },
+      query: null,
+      hash: undefined,
     }
     expect(await resolveRouteTitle(entry, injector)).toBeUndefined()
   })
@@ -18,6 +28,8 @@ describe('resolveRouteTitle', () => {
     const entry: MatchChainEntry = {
       route: { meta: {}, component: () => ({}) as JSX.Element },
       match: { path: '/about', params: {} },
+      query: null,
+      hash: undefined,
     }
     expect(await resolveRouteTitle(entry, injector)).toBeUndefined()
   })
@@ -26,6 +38,8 @@ describe('resolveRouteTitle', () => {
     const entry: MatchChainEntry = {
       route: { meta: { title: 'About' }, component: () => ({}) as JSX.Element },
       match: { path: '/about', params: {} },
+      query: null,
+      hash: undefined,
     }
     expect(await resolveRouteTitle(entry, injector)).toBe('About')
   })
@@ -37,6 +51,8 @@ describe('resolveRouteTitle', () => {
         component: () => ({}) as JSX.Element,
       },
       match: { path: '/users/42', params: { id: '42' } },
+      query: null,
+      hash: undefined,
     }
     expect(await resolveRouteTitle(entry, injector)).toBe('User 42')
   })
@@ -53,6 +69,8 @@ describe('resolveRouteTitle', () => {
         component: () => ({}) as JSX.Element,
       },
       match: { path: '/movies/7', params: { id: '7' } },
+      query: null,
+      hash: undefined,
     }
     expect(await resolveRouteTitle(entry, injector)).toBe('Movie 7')
   })
@@ -66,6 +84,8 @@ describe('resolveRouteTitle', () => {
         component: () => ({}) as JSX.Element,
       },
       match: { path: '/test', params: {} },
+      query: null,
+      hash: undefined,
     }
     expect(await resolveRouteTitle(entry, injector)).toBe('has-injector')
   })
@@ -79,10 +99,14 @@ describe('resolveRouteTitles', () => {
       {
         route: { meta: { title: 'Media' }, component: () => ({}) as JSX.Element },
         match: { path: '/media', params: {} },
+        query: null,
+        hash: undefined,
       },
       {
         route: { meta: { title: 'Movies' }, component: () => ({}) as JSX.Element },
         match: { path: '/movies', params: {} },
+        query: null,
+        hash: undefined,
       },
       {
         route: {
@@ -90,6 +114,8 @@ describe('resolveRouteTitles', () => {
           component: () => ({}) as JSX.Element,
         },
         match: { path: '/7', params: { id: '7' } },
+        query: null,
+        hash: undefined,
       },
     ]
     const titles = await resolveRouteTitles(chain, injector)
@@ -106,10 +132,14 @@ describe('resolveRouteTitles', () => {
       {
         route: { meta: { title: 'Root' }, component: () => ({}) as JSX.Element },
         match: { path: '/', params: {} },
+        query: null,
+        hash: undefined,
       },
       {
         route: { component: () => ({}) as JSX.Element },
         match: { path: '/child', params: {} },
+        query: null,
+        hash: undefined,
       },
     ]
     const titles = await resolveRouteTitles(chain, injector)
@@ -155,7 +185,7 @@ describe('buildDocumentTitle', () => {
 
 describe('extractNavTree', () => {
   it('should extract a flat route tree', () => {
-    const routes: Record<string, NestedRoute<unknown>> = {
+    const routes: Record<string, NestedRoute<any, any, any>> = {
       '/about': { meta: { title: 'About' }, component: () => ({}) as JSX.Element },
       '/contact': { meta: { title: 'Contact' }, component: () => ({}) as JSX.Element },
     }
@@ -167,7 +197,7 @@ describe('extractNavTree', () => {
   })
 
   it('should extract nested routes recursively', () => {
-    const routes: Record<string, NestedRoute<unknown>> = {
+    const routes: Record<string, NestedRoute<any, any, any>> = {
       '/media': {
         meta: { title: 'Media' },
         component: () => ({}) as JSX.Element,
@@ -197,7 +227,7 @@ describe('extractNavTree', () => {
   })
 
   it('should handle root "/" parent path correctly', () => {
-    const routes: Record<string, NestedRoute<unknown>> = {
+    const routes: Record<string, NestedRoute<any, any, any>> = {
       '/': {
         meta: { title: 'Home' },
         component: () => ({}) as JSX.Element,
@@ -212,7 +242,7 @@ describe('extractNavTree', () => {
   })
 
   it('should compute correct fullPath for deeply nested routes (3+ levels)', () => {
-    const routes: Record<string, NestedRoute<unknown>> = {
+    const routes: Record<string, NestedRoute<any, any, any>> = {
       '/a': {
         meta: { title: 'A' },
         component: () => ({}) as JSX.Element,
@@ -234,10 +264,48 @@ describe('extractNavTree', () => {
   })
 
   it('should include routes without meta', () => {
-    const routes: Record<string, NestedRoute<unknown>> = {
+    const routes: Record<string, NestedRoute<any, any, any>> = {
       '/hidden': { component: () => ({}) as JSX.Element },
     }
     const tree = extractNavTree(routes)
     expect(tree[0].meta).toBeUndefined()
+  })
+
+  describe('typed output', () => {
+    it('should narrow pattern and fullPath for a flat typed tree', () => {
+      const routes = {
+        '/about': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+        '/contact': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+      } satisfies Record<string, NestedRoute<any, any, any>>
+
+      const tree = extractNavTree(routes)
+      expectTypeOf(tree[0].pattern).toEqualTypeOf<'/about' | '/contact'>()
+      expectTypeOf(tree[0].fullPath).toEqualTypeOf<'/about' | '/contact'>()
+    })
+
+    it('should include nested composed paths in the fullPath union', () => {
+      const routes = {
+        '/media': {
+          component: () => ({}) as JSX.Element,
+          children: {
+            '/movies': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+            '/music': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+          },
+        },
+      } satisfies Record<string, NestedRoute<any, any, any>>
+
+      const tree = extractNavTree(routes)
+      expectTypeOf(tree[0].fullPath).toEqualTypeOf<'/media' | '/media/movies' | '/media/music'>()
+      expectTypeOf(tree[0].children).toEqualTypeOf<Array<NavTreeNode<typeof routes>> | undefined>()
+    })
+
+    it('should preserve backward compatibility with the widened default', () => {
+      const node: NavTreeNode = {
+        pattern: '/anything',
+        fullPath: '/anything',
+      }
+      expectTypeOf(node.pattern).toEqualTypeOf<string>()
+      expectTypeOf(node.fullPath).toEqualTypeOf<string>()
+    })
   })
 })

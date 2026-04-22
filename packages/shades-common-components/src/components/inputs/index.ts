@@ -1,4 +1,3 @@
-export * from './autocomplete.js'
 export * from './checkbox.js'
 export * from './input-number.js'
 export * from './input.js'

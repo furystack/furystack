@@ -9,6 +9,7 @@ import { createComponent, setRenderMode } from '../shade-component.js'
 import { Shade } from '../shade.js'
 import type { ViewTransitionConfig } from '../view-transition.js'
 import { maybeViewTransition } from '../view-transition.js'
+import type { HashLiterals, QueryValidator } from './nested-route-types.js'
 
 /**
  * Options passed to a dynamic title resolver function.
@@ -47,13 +48,27 @@ export interface NestedRouteMeta<TMatchResult = unknown> {
  * A single route entry in a NestedRouter configuration.
  * Unlike flat `Route`, the URL is the Record key (not a field), and the
  * `component` receives an `outlet` for rendering matched child content.
+ *
+ * Routes may additionally declare:
+ * - `query`: a validator that parses the deserialized query string into a
+ *   typed shape; `component` receives the parsed value (or `null` when
+ *   validation fails). The route still matches on path alone — an invalid
+ *   query never prevents navigation.
+ * - `hash`: a readonly tuple of allowed URL hash literals; `component`
+ *   receives the current hash when it matches one of the listed literals,
+ *   or `undefined` otherwise.
+ *
  * @typeParam TMatchResult - The type of matched URL parameters
+ * @typeParam TQuery - The typed query shape parsed from the URL search string (defaults to `never`)
+ * @typeParam THash - The readonly tuple of allowed hash literals (defaults to `never`)
  */
-export type NestedRoute<TMatchResult = unknown> = {
+export type NestedRoute<TMatchResult = unknown, TQuery = any, THash extends HashLiterals = readonly any[]> = {
   meta?: NestedRouteMeta<TMatchResult>
   component: (options: {
     currentUrl: string
     match: MatchResult<TMatchResult extends object ? TMatchResult : object>
+    query: TQuery | null
+    hash: THash[number] | undefined
     outlet?: JSX.Element
   }) => JSX.Element
   routingOptions?: MatchOptions
@@ -70,8 +85,21 @@ export type NestedRoute<TMatchResult = unknown> = {
    * View Transition API when `viewTransition` is enabled.
    */
   onLeave?: (options: RenderOptions<unknown> & { element: JSX.Element }) => Promise<void>
-  children?: Record<string, NestedRoute<any>>
+  children?: Record<string, NestedRoute<any, any, any>>
   viewTransition?: boolean | ViewTransitionConfig
+  /**
+   * Optional validator that narrows the deserialized URL query string into a
+   * typed shape. Return `null` when the URL's query does not satisfy the route's
+   * contract — the route still matches on path, but `component` receives `null`.
+   */
+  query?: QueryValidator<TQuery>
+  /**
+   * Optional readonly tuple of URL hash literals the route understands. Declare
+   * with `as const` to preserve literal types, e.g. `hash: ['tab1', 'tab2'] as const`.
+   * The router forwards the current hash to `component` only when it matches one
+   * of the listed literals; otherwise `component.hash` is `undefined`.
+   */
+  hash?: THash
 }
 
 /**
@@ -79,17 +107,21 @@ export type NestedRoute<TMatchResult = unknown> = {
  * Routes are defined as a Record where keys are URL patterns.
  */
 export type NestedRouterProps = {
-  routes: Record<string, NestedRoute<any>>
+  routes: Record<string, NestedRoute<any, any, any>>
   notFound?: JSX.Element
   viewTransition?: boolean | ViewTransitionConfig
 }
 
 /**
- * A single entry in a match chain, pairing a matched route with its match result.
+ * A single entry in a match chain, pairing a matched route with its match
+ * result and the typed `query` / `hash` values derived from the URL for that
+ * route's declared schema.
  */
 export type MatchChainEntry = {
-  route: NestedRoute<unknown>
+  route: NestedRoute<unknown, any, any>
   match: MatchResult<object>
+  query: unknown
+  hash: string | undefined
 }
 
 /**
@@ -112,12 +144,15 @@ export type NestedRouterState = {
  *
  * For leaf routes (no children), only exact matching is used.
  *
+ * The returned entries contain placeholder `query: null` / `hash: undefined`
+ * values; callers are expected to populate them via {@link enrichMatchChain}.
+ *
  * @param routes - The route definitions to match against
  * @param currentUrl - The URL path to match
  * @returns An array of matched chain entries from outermost to innermost, or null if no match
  */
 export const buildMatchChain = (
-  routes: Record<string, NestedRoute<any>>,
+  routes: Record<string, NestedRoute<any, any, any>>,
   currentUrl: string,
 ): MatchChainEntry[] | null => {
   for (const [pattern, route] of Object.entries(routes)) {
@@ -139,20 +174,20 @@ export const buildMatchChain = (
 
         const childChain = buildMatchChain(route.children, remainingUrl)
         if (childChain) {
-          return [{ route, match: prefixResult }, ...childChain]
+          return [{ route, match: prefixResult, query: null, hash: undefined }, ...childChain]
         }
       }
 
       const exactMatchFn = match(pattern, route.routingOptions)
       const exactResult = exactMatchFn(currentUrl)
       if (exactResult) {
-        return [{ route, match: exactResult }]
+        return [{ route, match: exactResult, query: null, hash: undefined }]
       }
     } else {
       const matchFn = match(pattern, route.routingOptions)
       const matchResult = matchFn(currentUrl)
       if (matchResult) {
-        return [{ route, match: matchResult }]
+        return [{ route, match: matchResult, query: null, hash: undefined }]
       }
     }
   }
@@ -161,7 +196,44 @@ export const buildMatchChain = (
 }
 
 /**
- * Finds the first index where two match chains diverge.
+ * Populates each chain entry's `query` and `hash` fields by running the route's
+ * declared validator against the URL's deserialized query string, and matching
+ * the current URL hash against the route's declared literal tuple.
+ *
+ * Entries whose route declares neither `query` nor `hash` are returned with
+ * `query: null` / `hash: undefined`.
+ *
+ * When no entry in the chain declares either `query` or `hash`, the input
+ * array is returned unchanged to avoid a per-navigation allocation on the
+ * common path-only case.
+ *
+ * @param chain - The chain produced by {@link buildMatchChain}
+ * @param deserializedSearch - The deserialized URL query string
+ * @param currentHash - The current URL hash (without the leading `#`)
+ */
+export const enrichMatchChain = (
+  chain: MatchChainEntry[],
+  deserializedSearch: Record<string, unknown>,
+  currentHash: string,
+): MatchChainEntry[] => {
+  const hasAnyDeclaration = chain.some((entry) => entry.route.query || entry.route.hash)
+  if (!hasAnyDeclaration) return chain
+
+  return chain.map((entry) => {
+    const validator = entry.route.query as QueryValidator<unknown> | undefined
+    const query: unknown = validator ? validator(deserializedSearch) : null
+    const declaredHash = entry.route.hash as readonly string[] | undefined
+    const hash = declaredHash?.includes(currentHash) ? currentHash : undefined
+    return { ...entry, query, hash }
+  })
+}
+
+/**
+ * Finds the first index where two match chains diverge, considering route
+ * identity and matched path parameters only. Used to scope lifecycle hooks
+ * (`onLeave` / `onVisit`) so that a query string or hash change does not
+ * fire spurious mount / unmount callbacks.
+ *
  * Returns the length of the shorter chain if one is a prefix of the other.
  */
 export const findDivergenceIndex = (oldChain: MatchChainEntry[], newChain: MatchChainEntry[]): number => {
@@ -175,6 +247,56 @@ export const findDivergenceIndex = (oldChain: MatchChainEntry[], newChain: Match
     }
   }
   return minLength
+}
+
+/**
+ * Shallow structural equality for query values. Handles the shapes produced by
+ * route-declared query validators: primitives, plain objects (by own enumerable
+ * string keys, recursively shallow-compared), and arrays (by index).
+ *
+ * Nested objects / arrays are compared shallowly one level deep, then fall back
+ * to `Object.is` — sufficient for the typed-query shapes the router surfaces,
+ * and order-independent unlike `JSON.stringify`.
+ */
+const isShallowEqual = (a: unknown, b: unknown): boolean => {
+  if (Object.is(a, b)) return true
+  if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') return false
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false
+    for (let i = 0; i < a.length; i++) {
+      if (!Object.is(a[i], b[i])) return false
+    }
+    return true
+  }
+  if (Array.isArray(b)) return false
+
+  const aKeys = Object.keys(a as Record<string, unknown>)
+  const bKeys = Object.keys(b as Record<string, unknown>)
+  if (aKeys.length !== bKeys.length) return false
+  for (const key of aKeys) {
+    if (!Object.prototype.hasOwnProperty.call(b, key)) return false
+    if (!Object.is((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) return false
+  }
+  return true
+}
+
+/**
+ * Returns true when any chain entry differs in its `query` value or `hash`
+ * segment, ignoring path-level fields (route identity and params). Used to
+ * force a re-render when the URL's query string or hash changes without the
+ * matched route chain itself changing.
+ *
+ * Query values are compared with a key-order-independent shallow equality —
+ * sufficient for the typed shapes a route's `query` validator surfaces.
+ */
+export const hasQueryOrHashChanged = (oldChain: MatchChainEntry[], newChain: MatchChainEntry[]): boolean => {
+  const minLength = Math.min(oldChain.length, newChain.length)
+  for (let i = 0; i < minLength; i++) {
+    if (oldChain[i].hash !== newChain[i].hash) return true
+    if (!isShallowEqual(oldChain[i].query, newChain[i].query)) return true
+  }
+  return false
 }
 
 /**
@@ -207,6 +329,8 @@ export const renderMatchChain = (chain: MatchChainEntry[], currentUrl: string): 
     outlet = entry.route.component({
       currentUrl,
       match: entry.match,
+      query: entry.query,
+      hash: entry.hash,
       outlet,
     })
     chainElements[i] = outlet
@@ -246,6 +370,10 @@ export const resolveViewTransition = (
  * Routes are defined as a Record where keys are URL patterns (following the
  * RestApi pattern). The matching algorithm builds a chain from outermost to
  * innermost route, then renders inside-out so each parent wraps its child.
+ *
+ * The router subscribes to path, query string and hash changes; path-level
+ * changes drive `onLeave` / `onVisit` lifecycle hooks while query / hash
+ * changes re-render the chain without firing lifecycle callbacks.
  */
 export const NestedRouter = Shade<NestedRouterProps>({
   customElementName: 'shade-nested-router',
@@ -258,19 +386,26 @@ export const NestedRouter = Shade<NestedRouterProps>({
       chainElements: [],
     })
 
+    const locationService = injector.getInstance(LocationService)
+
     const updateUrl = async (currentUrl: string) => {
       const [lastState] = useState<NestedRouterState>('routerState', state)
       const { matchChain: lastChain, chainElements: lastChainElements } = lastState
       try {
-        const newChain = buildMatchChain(options.props.routes, currentUrl)
+        const rawChain = buildMatchChain(options.props.routes, currentUrl)
 
-        if (newChain) {
+        if (rawChain) {
+          const deserializedSearch = locationService.onDeserializedLocationSearchChanged.getValue()
+          const currentHash = locationService.onLocationHashChanged.getValue()
+          const newChain = enrichMatchChain(rawChain, deserializedSearch, currentHash)
+
           const lastChainEntries = lastChain ?? []
           const divergeIndex = findDivergenceIndex(lastChainEntries, newChain)
-          const hasChanged =
+          const hasPathChanged =
             divergeIndex < lastChainEntries.length ||
             divergeIndex < newChain.length ||
             lastChainEntries.length !== newChain.length
+          const hasChanged = hasPathChanged || hasQueryOrHashChanged(lastChainEntries, newChain)
 
           if (hasChanged) {
             const version = ++versionRef.current
@@ -328,15 +463,40 @@ export const NestedRouter = Shade<NestedRouterProps>({
       }
     }
 
-    const [locationPath] = useObservable(
-      'locationPathChanged',
-      injector.getInstance(LocationService).onLocationPathChanged,
-      {
-        onChange: (newValue) => {
-          void updateUrl(newValue)
-        },
-      },
-    )
+    /**
+     * A single `LocationService.navigate` call synchronously fires three
+     * observables (path, search, hash). Without coalescing, each would kick
+     * off its own `updateUrl` and rely on `versionRef` to cancel the two
+     * that lose the race.
+     *
+     * We dedupe by the composed URL key: each observer fires after the
+     * browser's location has already been updated, so the key read at fire
+     * time is the final target URL. The first observer in the burst kicks
+     * off `updateUrl`; the remaining two see the same key and short-circuit.
+     */
+    const getUrlKey = () =>
+      `${locationService.onLocationPathChanged.getValue()}?${locationService.onLocationSearchChanged.getValue()}#${locationService.onLocationHashChanged.getValue()}`
+
+    const [lastKeyRef] = useState('navLastKey', { current: getUrlKey() })
+    const scheduleUpdate = () => {
+      const key = getUrlKey()
+      if (key === lastKeyRef.current) return
+      lastKeyRef.current = key
+      void updateUrl(locationService.onLocationPathChanged.getValue())
+    }
+
+    const [locationPath] = useObservable('locationPathChanged', locationService.onLocationPathChanged, {
+      onChange: scheduleUpdate,
+    })
+
+    useObservable('locationSearchChanged', locationService.onDeserializedLocationSearchChanged, {
+      onChange: scheduleUpdate,
+    })
+
+    useObservable('locationHashChanged', locationService.onLocationHashChanged, {
+      onChange: scheduleUpdate,
+    })
+
     void updateUrl(locationPath)
     return state.jsx
   },

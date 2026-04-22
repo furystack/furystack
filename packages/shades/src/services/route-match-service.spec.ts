@@ -14,6 +14,8 @@ describe('RouteMatchService', () => {
       {
         route: { component: () => ({}) as JSX.Element },
         match: { path: '/about', params: {} },
+        query: null,
+        hash: undefined,
       },
     ]
     service.currentMatchChain.setValue(chain)
@@ -29,6 +31,8 @@ describe('RouteMatchService', () => {
       {
         route: { meta: { title: 'Home' }, component: () => ({}) as JSX.Element },
         match: { path: '/', params: {} },
+        query: null,
+        hash: undefined,
       },
     ]
     service.currentMatchChain.setValue(chain)

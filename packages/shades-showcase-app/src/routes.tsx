@@ -1,10 +1,9 @@
-import type { NestedRoute } from '@furystack/shades'
-import { createComponent, LazyLoad } from '@furystack/shades'
+import { createComponent, defineNestedRoutes, LazyLoad } from '@furystack/shades'
 import { icons } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 import './route-meta-augmentation.js'
-import { Navigate } from './components/navigate.js'
+import { ShowcaseReplaceRoute } from './app-routing.js'
 import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
 
@@ -14,7 +13,7 @@ import { ShowcaseLayout } from './components/showcase-layout.js'
  * `/layout-tests` and its children render standalone (no PageLayout wrapper).
  * `/` wraps its children in the main app layout with AppBar + Sidebar navigation.
  */
-export const appRoutes = {
+export const appRoutes = defineNestedRoutes({
   '/layout-tests': {
     meta: { title: 'Layout Tests', icon: icons.ruler },
     component: ({ outlet }) => {
@@ -157,7 +156,7 @@ export const appRoutes = {
     children: {
       '/inputs-and-forms': {
         meta: { title: 'Inputs & Forms', icon: icons.fileText },
-        component: ({ outlet }) => outlet ?? <Navigate to="/inputs-and-forms/buttons" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/inputs-and-forms/buttons" />,
         children: {
           '/buttons': {
             meta: { title: 'Buttons' },
@@ -319,7 +318,7 @@ export const appRoutes = {
       },
       '/data-display': {
         meta: { title: 'Data Display', icon: icons.barChart },
-        component: ({ outlet }) => outlet ?? <Navigate to="/data-display/grid" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/data-display/grid" />,
         children: {
           '/accordion': {
             meta: { title: 'Accordion' },
@@ -535,11 +534,17 @@ export const appRoutes = {
       },
       '/navigation': {
         meta: { title: 'Navigation', icon: icons.compass },
-        component: ({ outlet }) => outlet ?? <Navigate to="/navigation/tabs" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/navigation/tabs" />,
         children: {
           '/tabs': {
             meta: { title: 'Tabs' },
-
+            hash: ['ctrl-1', 'ctrl-2', 'ctrl-3'] as const,
+            query: (raw): { highlight?: string } | null => {
+              if ('highlight' in raw && typeof raw.highlight === 'string') {
+                return { highlight: raw.highlight }
+              }
+              return {}
+            },
             component: () => (
               <LazyLoad
                 viewTransition
@@ -667,7 +672,7 @@ export const appRoutes = {
       },
       '/feedback': {
         meta: { title: 'Feedback', icon: icons.bell },
-        component: ({ outlet }) => outlet ?? <Navigate to="/feedback/alert" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/feedback/alert" />,
         children: {
           '/alert': {
             meta: { title: 'Alert' },
@@ -729,7 +734,7 @@ export const appRoutes = {
       },
       '/layout': {
         meta: { title: 'Layout', icon: icons.ruler },
-        component: ({ outlet }) => outlet ?? <Navigate to="/layout/layout-showcase" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/layout/layout-showcase" />,
         children: {
           '/layout-showcase': {
             meta: { title: 'Layout Showcase' },
@@ -763,7 +768,7 @@ export const appRoutes = {
       },
       '/surfaces': {
         meta: { title: 'Surfaces', icon: icons.appWindow },
-        component: ({ outlet }) => outlet ?? <Navigate to="/surfaces/card" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/surfaces/card" />,
         children: {
           '/card': {
             meta: { title: 'Card' },
@@ -825,7 +830,7 @@ export const appRoutes = {
       },
       '/integrations': {
         meta: { title: 'Integrations', icon: icons.plug },
-        component: ({ outlet }) => outlet ?? <Navigate to="/integrations/monaco" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/integrations/monaco" />,
         children: {
           '/monaco': {
             meta: { title: 'Monaco' },
@@ -915,7 +920,7 @@ export const appRoutes = {
       },
       '/utilities': {
         meta: { title: 'Utilities', icon: icons.wrench },
-        component: ({ outlet }) => outlet ?? <Navigate to="/utilities/search-state" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/utilities/search-state" />,
         children: {
           '/search-state': {
             meta: { title: 'Search State' },
@@ -962,4 +967,4 @@ export const appRoutes = {
       },
     },
   },
-} satisfies Record<string, NestedRoute<any>>
+})

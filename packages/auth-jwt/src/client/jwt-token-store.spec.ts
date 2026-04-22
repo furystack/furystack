@@ -55,7 +55,7 @@ describe('createJwtTokenStore', () => {
       expect(store.getAccessToken()).toBe(tokens.accessToken)
     })
 
-    it('Should fire change callbacks on login', async () => {
+    it('Should emit change events on login', async () => {
       const tokens: TokenPair = {
         accessToken: createMockToken(futureExp()),
         refreshToken: 'rt-1',
@@ -64,7 +64,9 @@ describe('createJwtTokenStore', () => {
 
       const onAccessTokenChanged = vi.fn()
       const onRefreshTokenChanged = vi.fn()
-      const store = createTestStore({ onAccessTokenChanged, onRefreshTokenChanged })
+      const store = createTestStore()
+      store.addListener('onAccessTokenChanged', onAccessTokenChanged)
+      store.addListener('onRefreshTokenChanged', onRefreshTokenChanged)
 
       await store.login({ username: 'admin', password: 'secret' })
 
@@ -91,7 +93,7 @@ describe('createJwtTokenStore', () => {
       expect(store.getAccessToken()).toBeNull()
     })
 
-    it('Should fire change callbacks with null on logout', async () => {
+    it('Should emit change events with null on logout', async () => {
       const tokens: TokenPair = {
         accessToken: createMockToken(futureExp()),
         refreshToken: 'rt-1',
@@ -101,7 +103,9 @@ describe('createJwtTokenStore', () => {
 
       const onAccessTokenChanged = vi.fn()
       const onRefreshTokenChanged = vi.fn()
-      const store = createTestStore({ onAccessTokenChanged, onRefreshTokenChanged })
+      const store = createTestStore()
+      store.addListener('onAccessTokenChanged', onAccessTokenChanged)
+      store.addListener('onRefreshTokenChanged', onRefreshTokenChanged)
 
       await store.login({ username: 'admin', password: 'secret' })
       onAccessTokenChanged.mockClear()
@@ -187,10 +191,12 @@ describe('createJwtTokenStore', () => {
       expect(store.getAccessToken()).toBe(tokens.accessToken)
     })
 
-    it('Should fire change callbacks when setting tokens', () => {
+    it('Should emit change events when setting tokens', () => {
       const onAccessTokenChanged = vi.fn()
       const onRefreshTokenChanged = vi.fn()
-      const store = createTestStore({ onAccessTokenChanged, onRefreshTokenChanged })
+      const store = createTestStore()
+      store.addListener('onAccessTokenChanged', onAccessTokenChanged)
+      store.addListener('onRefreshTokenChanged', onRefreshTokenChanged)
 
       const tokens: TokenPair = {
         accessToken: createMockToken(futureExp()),
@@ -202,10 +208,12 @@ describe('createJwtTokenStore', () => {
       expect(onRefreshTokenChanged).toHaveBeenCalledWith(tokens.refreshToken)
     })
 
-    it('Should not fire change callbacks when tokens are unchanged', () => {
+    it('Should not emit change events when tokens are unchanged', () => {
       const onAccessTokenChanged = vi.fn()
       const onRefreshTokenChanged = vi.fn()
-      const store = createTestStore({ onAccessTokenChanged, onRefreshTokenChanged })
+      const store = createTestStore()
+      store.addListener('onAccessTokenChanged', onAccessTokenChanged)
+      store.addListener('onRefreshTokenChanged', onRefreshTokenChanged)
 
       const tokens: TokenPair = {
         accessToken: createMockToken(futureExp()),
@@ -231,7 +239,8 @@ describe('createJwtTokenStore', () => {
       refreshMock.mockResolvedValueOnce({ accessToken: freshToken, refreshToken: 'rt2' })
 
       const onAccessTokenChanged = vi.fn()
-      const store = createTestStore({ refreshThresholdSeconds: 120, onAccessTokenChanged })
+      const store = createTestStore({ refreshThresholdSeconds: 120 })
+      store.addListener('onAccessTokenChanged', onAccessTokenChanged)
 
       await store.login({ username: 'admin', password: 'secret' })
       onAccessTokenChanged.mockClear()
@@ -271,7 +280,7 @@ describe('createJwtTokenStore', () => {
       expect(refreshMock).toHaveBeenCalledTimes(1)
     })
 
-    it('Should call onRefreshFailed and clear tokens on refresh error', async () => {
+    it('Should emit onRefreshFailed and clear tokens on refresh error', async () => {
       const soonExpiringToken = createMockToken(soonExp())
       const refreshError = new Error('Refresh failed')
 
@@ -280,14 +289,16 @@ describe('createJwtTokenStore', () => {
 
       const onRefreshFailed = vi.fn()
       const onAccessTokenChanged = vi.fn()
-      const store = createTestStore({ refreshThresholdSeconds: 120, onRefreshFailed, onAccessTokenChanged })
+      const store = createTestStore({ refreshThresholdSeconds: 120 })
+      store.addListener('onRefreshFailed', onRefreshFailed)
+      store.addListener('onAccessTokenChanged', onAccessTokenChanged)
 
       await store.login({ username: 'admin', password: 'secret' })
       onAccessTokenChanged.mockClear()
 
       await expect(store.ensureValidToken()).rejects.toThrow('Refresh failed')
 
-      expect(onRefreshFailed).toHaveBeenCalledWith(refreshError)
+      expect(onRefreshFailed).toHaveBeenCalledWith({ error: refreshError })
       expect(store.getAccessToken()).toBeNull()
       expect(onAccessTokenChanged).toHaveBeenCalledWith(null)
     })
@@ -337,7 +348,7 @@ describe('createJwtTokenStore', () => {
       expect(refreshMock).toHaveBeenCalledTimes(1)
     })
 
-    it('Should call onRefreshFailed and clear tokens on forceRefresh error', async () => {
+    it('Should emit onRefreshFailed and clear tokens on forceRefresh error', async () => {
       const validToken = createMockToken(futureExp())
       const refreshError = new Error('Refresh failed')
 
@@ -345,12 +356,13 @@ describe('createJwtTokenStore', () => {
       refreshMock.mockRejectedValueOnce(refreshError)
 
       const onRefreshFailed = vi.fn()
-      const store = createTestStore({ onRefreshFailed })
+      const store = createTestStore()
+      store.addListener('onRefreshFailed', onRefreshFailed)
 
       await store.login({ username: 'admin', password: 'secret' })
       await expect(store.forceRefresh()).rejects.toThrow('Refresh failed')
 
-      expect(onRefreshFailed).toHaveBeenCalledWith(refreshError)
+      expect(onRefreshFailed).toHaveBeenCalledWith({ error: refreshError })
       expect(store.getAccessToken()).toBeNull()
     })
   })
@@ -449,21 +461,6 @@ describe('createJwtTokenStore', () => {
 
       expect(handler1).toHaveBeenCalledTimes(1)
       expect(handler2).toHaveBeenCalledTimes(1)
-    })
-
-    it('should still support legacy option callbacks alongside EventHub', async () => {
-      const legacyHandler = vi.fn()
-      const eventHandler = vi.fn()
-      const token: TokenPair = { accessToken: createMockToken(futureExp()), refreshToken: 'rt1' }
-      loginMock.mockResolvedValueOnce(token)
-
-      const store = createTestStore({ onAccessTokenChanged: legacyHandler })
-      store.addListener('onAccessTokenChanged', eventHandler)
-
-      await store.login({ username: 'test', password: 'pass' })
-
-      expect(legacyHandler).toHaveBeenCalledWith(token.accessToken)
-      expect(eventHandler).toHaveBeenCalledWith(token.accessToken)
     })
 
     it('should dispose the internal EventHub', () => {

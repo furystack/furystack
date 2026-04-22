@@ -24,21 +24,6 @@ export type JwtTokenStoreOptions = {
   logout?: (refreshToken: string) => Promise<void>
   /** Refresh when the access token expires within this many seconds. Default: 60. */
   refreshThresholdSeconds?: number
-  /**
-   * Called whenever the access token changes (including to `null` on logout or refresh failure).
-   * @deprecated Use `subscribe('onAccessTokenChanged', ...)` on the returned store instead.
-   */
-  onAccessTokenChanged?: (accessToken: string | null) => void
-  /**
-   * Called whenever the refresh token changes (including to `null` on logout or refresh failure).
-   * @deprecated Use `subscribe('onRefreshTokenChanged', ...)` on the returned store instead.
-   */
-  onRefreshTokenChanged?: (refreshToken: string | null) => void
-  /**
-   * Called when a token refresh attempt fails.
-   * @deprecated Use `subscribe('onRefreshFailed', ...)` on the returned store instead.
-   */
-  onRefreshFailed?: (error: unknown) => void
 }
 
 const decodeTokenExp = (token: string): number | null => {
@@ -69,23 +54,12 @@ const decodeTokenExp = (token: string): number | null => {
  * requests. This allows multiple API clients to share a single token store.
  *
  * Token change and refresh failure events are emitted via EventHub. Use
- * `subscribe('onAccessTokenChanged', ...)` etc. to observe them. The legacy
- * option callbacks are still supported for backward compatibility.
+ * `subscribe('onAccessTokenChanged', ...)` etc. to observe them.
  *
- * @param options Configuration including operation callbacks and change listeners
+ * @param options Configuration including operation callbacks
  */
 export const createJwtTokenStore = (options: JwtTokenStoreOptions) => {
   const hub = new EventHub<JwtTokenStoreEvents>()
-
-  if (options.onAccessTokenChanged) {
-    hub.addListener('onAccessTokenChanged', options.onAccessTokenChanged)
-  }
-  if (options.onRefreshTokenChanged) {
-    hub.addListener('onRefreshTokenChanged', options.onRefreshTokenChanged)
-  }
-  if (options.onRefreshFailed) {
-    hub.addListener('onRefreshFailed', ({ error }) => options.onRefreshFailed!(error))
-  }
 
   const refreshThresholdSeconds = options.refreshThresholdSeconds ?? 60
   let tokens: TokenPair | null = null

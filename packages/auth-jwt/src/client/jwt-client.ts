@@ -64,10 +64,11 @@ export const createJwtClient = <TApi extends RestApi>(options: JwtClientOptions)
             }
           : (callOptions as unknown as { headers?: Record<string, string> }).headers
 
-        return innerClient({
+        const finalOptions: Parameters<typeof innerClient>[0] = {
           ...callOptions,
           ...(headersWithAuth ? { headers: headersWithAuth } : {}),
-        } as Parameters<typeof innerClient>[0])
+        }
+        return innerClient(finalOptions)
       }
 
       try {

@@ -1,5 +1,13 @@
-import { createComponent, Shade } from '@furystack/shades'
 import {
+  createComponent,
+  createNestedHooks,
+  createNestedNavigate,
+  createNestedRouteLink,
+  LocationService,
+  Shade,
+} from '@furystack/shades'
+import {
+  Button,
   Icon,
   icons,
   PageContainer,
@@ -9,6 +17,55 @@ import {
   Typography,
   type Tab,
 } from '@furystack/shades-common-components'
+
+import { appRoutes } from '../../routes.js'
+
+const AppLink = createNestedRouteLink<typeof appRoutes>()
+const appNavigate = createNestedNavigate<typeof appRoutes>()
+const { getTypedQuery, getTypedHash } = createNestedHooks(appRoutes)
+
+const TypedRouteDemo = Shade({
+  customElementName: 'typed-route-demo',
+  render: ({ injector, useObservable }) => {
+    const locationService = injector.getInstance(LocationService)
+    useObservable('tabsHash', locationService.onLocationHashChanged)
+    useObservable('tabsSearch', locationService.onDeserializedLocationSearchChanged)
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <Typography variant="body1">
+          The <code>/navigation/tabs</code> route declares a readonly literal tuple of allowed hash values and a query
+          validator. The links and navigate helpers below are constrained to those declarations at compile time.
+        </Typography>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <AppLink path="/navigation/tabs" hash="ctrl-1">
+            <Button variant="outlined">#ctrl-1</Button>
+          </AppLink>
+          <AppLink path="/navigation/tabs" hash="ctrl-2">
+            <Button variant="outlined">#ctrl-2</Button>
+          </AppLink>
+          <AppLink path="/navigation/tabs" hash="ctrl-3" query={{ highlight: 'api-keys' }}>
+            <Button variant="outlined">#ctrl-3 with highlight</Button>
+          </AppLink>
+          <Button
+            variant="outlined"
+            onclick={() => appNavigate(injector, { path: '/navigation/tabs', hash: 'ctrl-2' })}
+          >
+            Navigate programmatically
+          </Button>
+        </div>
+        <Paper elevation={1} style={{ padding: '12px', fontFamily: 'Source Code Pro, monospace', fontSize: '13px' }}>
+          <div>
+            <strong>getTypedHash:</strong> {JSON.stringify(getTypedHash(injector, '/navigation/tabs'))}
+          </div>
+          <div>
+            <strong>getTypedQuery:</strong> {JSON.stringify(getTypedQuery(injector, '/navigation/tabs'))}
+          </div>
+        </Paper>
+      </div>
+    )
+  },
+})
 
 const ControlledTabsDemo = Shade({
   customElementName: 'controlled-tabs-demo',
@@ -326,6 +383,13 @@ export const TabsPage = Shade({
         </Typography>
         <Paper elevation={3} style={{ padding: '32px' }}>
           <ClosableTabsDemo />
+        </Paper>
+
+        <Typography variant="h3" style={{ marginTop: '32px', marginBottom: '12px' }}>
+          Route-level hash &amp; query (type-safe)
+        </Typography>
+        <Paper elevation={3} style={{ padding: '32px' }}>
+          <TypedRouteDemo />
         </Paper>
       </PageContainer>
     )

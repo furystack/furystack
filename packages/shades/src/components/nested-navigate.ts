@@ -1,36 +1,85 @@
 import type { Injector } from '@furystack/inject'
+import { serializeToQueryString } from '@furystack/rest'
 import { compileRoute } from '../compile-route.js'
 import { LocationService } from '../services/location-service.js'
-import type { ExtractRouteParams, ExtractRoutePaths } from './nested-route-types.js'
+import type {
+  ExtractRouteHash,
+  ExtractRouteQuery,
+  ExtractRoutePaths,
+  RouteAt,
+  TypedHashArg,
+  TypedParamsArg,
+  TypedQueryArg,
+} from './nested-route-types.js'
 import type { NestedRoute } from './nested-router.js'
 
 /**
- * Arguments for a type-safe nested navigate call.
- * When the path contains parameters (e.g. `:id`), the `params` argument becomes required.
- * @typeParam TPath - A specific route path string
+ * Untyped runtime arguments for a nested navigate call.
+ * Used by the base {@link nestedNavigate} implementation; the typed variants
+ * returned by {@link createNestedNavigate} narrow each field against the route
+ * tree at compile time.
  */
-export type TypedNavigateArgs<TPath extends string> = string extends keyof ExtractRouteParams<TPath>
-  ? [path: TPath, params?: Record<string, string>]
-  : [path: TPath, params: ExtractRouteParams<TPath>]
+export type NestedNavigateArgs = {
+  path: string
+  params?: Record<string, string>
+  query?: Record<string, unknown>
+  hash?: string
+}
 
 /**
- * Navigates to a route path using the LocationService from the given injector.
- * Compiles parameterized routes (e.g. `/users/:id`) when `params` is provided.
+ * Typed arguments for a nested navigate call, derived from the route tree and
+ * the specific target path.
+ *
+ * - `params` is required when the path contains `:param` segments.
+ * - `query` is required when the route's declared query shape has any required
+ *   key, optional when all keys are optional, and forbidden when the route
+ *   declares no `query` validator.
+ * - `hash` is always optional and restricted to the route's declared literal
+ *   tuple; forbidden when the route declares no `hash`.
+ *
+ * @typeParam TRoutes - The route tree
+ * @typeParam TPath - A composed route path within `TRoutes`
+ */
+export type TypedNestedNavigateArgs<
+  TRoutes extends Record<string, NestedRoute<any, any, any>>,
+  TPath extends string,
+> = { path: TPath } & TypedParamsArg<TPath> &
+  TypedQueryArg<ExtractRouteQuery<RouteAt<TRoutes, TPath>>> &
+  TypedHashArg<ExtractRouteHash<RouteAt<TRoutes, TPath>>>
+
+/**
+ * Builds the resolved URL for a nested navigate call, including path parameters,
+ * serialized query string and hash segment. Exported for callers that need the
+ * URL without side effects (e.g. link rendering helpers).
+ */
+export const buildNestedNavigateUrl = (args: NestedNavigateArgs): string => {
+  const { path, params, query, hash } = args
+  const resolvedPath = params && Object.keys(params).length > 0 ? compileRoute(path, params) : path
+  const hasQuery = query && Object.keys(query).length > 0
+  const search = hasQuery ? `?${serializeToQueryString(query)}` : ''
+  const hashPart = hash ? `#${hash}` : ''
+  return `${resolvedPath}${search}${hashPart}`
+}
+
+/**
+ * Navigates to a route using the LocationService resolved from the given injector.
+ * Compiles parameterized routes (e.g. `/users/:id`), serializes the optional
+ * `query` record with the default `@furystack/rest` serializer, and appends the
+ * optional `hash` segment.
  *
  * @param injector - The injector instance to resolve LocationService from
- * @param path - The route path to navigate to
- * @param params - Optional route parameters to compile into the path
+ * @param args - The navigation arguments
  */
-export const nestedNavigate = (injector: Injector, path: string, params?: Record<string, string>): void => {
-  const resolvedUrl = params ? compileRoute(path, params) : path
-  injector.getInstance(LocationService).navigate(resolvedUrl)
+export const nestedNavigate = (injector: Injector, args: NestedNavigateArgs): void => {
+  injector.getInstance(LocationService).navigate(buildNestedNavigateUrl(args))
 }
 
 /**
  * Creates a type-safe navigate function constrained to a specific route tree.
  * The returned function has the same runtime behavior as {@link nestedNavigate}
- * but narrows `path` to only accept valid route paths, and requires `params`
- * when the route has parameters.
+ * but narrows `path` to only accept valid route paths, requires `params` when
+ * the route has parameters, and enforces the route's declared `query` and
+ * `hash` schemas.
  *
  * Unlike {@link createNestedRouteLink}, the injector is passed at call time,
  * not at creation time.
@@ -42,19 +91,19 @@ export const nestedNavigate = (injector: Injector, path: string, params?: Record
  * ```typescript
  * const appNavigate = createNestedNavigate<typeof appRoutes>()
  *
- * // Type-safe: only valid paths accepted
- * appNavigate(injector, '/buttons')
- *
- * // TypeScript error: invalid path
- * appNavigate(injector, '/nonexistent')
- *
- * // Params required for parameterized routes
- * appNavigate(injector, '/users/:id', { id: '123' })
+ * appNavigate(injector, { path: '/buttons' })
+ * appNavigate(injector, { path: '/users/:id', params: { id: '123' } })
+ * appNavigate(injector, {
+ *   path: '/users/:id',
+ *   params: { id: '123' },
+ *   query: { tab: 'profile' },
+ *   hash: 'settings',
+ * })
  * ```
  */
-export const createNestedNavigate = <TRoutes extends Record<string, NestedRoute<any>>>() => {
+export const createNestedNavigate = <TRoutes extends Record<string, NestedRoute<any, any, any>>>() => {
   return nestedNavigate as <TPath extends ExtractRoutePaths<TRoutes>>(
     injector: Injector,
-    ...args: TypedNavigateArgs<TPath>
+    args: TypedNestedNavigateArgs<TRoutes, TPath>,
   ) => void
 }

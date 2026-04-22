@@ -12,6 +12,8 @@ const createMatchChainEntry = (
   ({
     route: { meta: title != null ? { title } : undefined, component: () => <div /> },
     match: { path, params: {} },
+    query: null,
+    hash: undefined,
   }) as MatchChainEntry
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0))

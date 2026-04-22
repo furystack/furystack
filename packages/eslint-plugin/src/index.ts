@@ -19,6 +19,8 @@ import { requireTabindexWithSpatialNavTarget } from './rules/require-tabindex-wi
 import { requireUseObservableForRender } from './rules/require-use-observable-for-render.js'
 import { restActionUseRequestError } from './rules/rest-action-use-request-error.js'
 import { restActionValidateWrapper } from './rules/rest-action-validate-wrapper.js'
+import { restNoTypeCast } from './rules/rest-no-type-cast.js'
+import { routerNoTypeCast } from './rules/router-no-type-cast.js'
 import { validCustomElementName } from './rules/valid-custom-element-name.js'
 
 const rules = {
@@ -39,6 +41,8 @@ const rules = {
   'require-use-observable-for-render': requireUseObservableForRender,
   'rest-action-use-request-error': restActionUseRequestError,
   'rest-action-validate-wrapper': restActionValidateWrapper,
+  'rest-no-type-cast': restNoTypeCast,
+  'router-no-type-cast': routerNoTypeCast,
   'valid-custom-element-name': validCustomElementName,
 } satisfies Record<string, TSESLint.RuleModule<string, unknown[]>>
 

@@ -21,7 +21,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
+          jsxElement: <AppBarLink path="/test">Link</AppBarLink>,
         })
 
         await flushUpdates()
@@ -39,7 +39,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/test">Test Link Text</AppBarLink>,
+          jsxElement: <AppBarLink path="/test">Test Link Text</AppBarLink>,
         })
 
         await flushUpdates()
@@ -55,7 +55,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/my-route">Link</AppBarLink>,
+          jsxElement: <AppBarLink path="/my-route">Link</AppBarLink>,
         })
 
         await flushUpdates()
@@ -75,7 +75,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
+          jsxElement: <AppBarLink path="/dashboard">Dashboard</AppBarLink>,
         })
 
         await flushUpdates()
@@ -94,7 +94,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
+          jsxElement: <AppBarLink path="/dashboard">Dashboard</AppBarLink>,
         })
 
         await flushUpdates()
@@ -113,7 +113,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
+          jsxElement: <AppBarLink path="/dashboard">Dashboard</AppBarLink>,
         })
 
         await flushUpdates()
@@ -140,7 +140,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/dashboard">Dashboard</AppBarLink>,
+          jsxElement: <AppBarLink path="/dashboard">Dashboard</AppBarLink>,
         })
 
         await flushUpdates()
@@ -167,7 +167,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/users/:id">Users</AppBarLink>,
+          jsxElement: <AppBarLink path="/users/:id">Users</AppBarLink>,
         })
 
         await flushUpdates()
@@ -187,7 +187,7 @@ describe('AppBarLink component', () => {
           injector,
           rootElement,
           jsxElement: (
-            <AppBarLink href="/admin" routingOptions={{ end: false }}>
+            <AppBarLink path="/admin" routingOptions={{ end: false }}>
               Admin
             </AppBarLink>
           ),
@@ -209,7 +209,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/admin">Admin</AppBarLink>,
+          jsxElement: <AppBarLink path="/admin">Admin</AppBarLink>,
         })
 
         await flushUpdates()
@@ -232,9 +232,9 @@ describe('AppBarLink component', () => {
           rootElement,
           jsxElement: (
             <div>
-              <AppBarLink href="/home">Home</AppBarLink>
-              <AppBarLink href="/settings">Settings</AppBarLink>
-              <AppBarLink href="/about">About</AppBarLink>
+              <AppBarLink path="/home">Home</AppBarLink>
+              <AppBarLink path="/settings">Settings</AppBarLink>
+              <AppBarLink path="/about">About</AppBarLink>
             </div>
           ),
         })
@@ -259,8 +259,8 @@ describe('AppBarLink component', () => {
           rootElement,
           jsxElement: (
             <div>
-              <AppBarLink href="/home">Home</AppBarLink>
-              <AppBarLink href="/settings">Settings</AppBarLink>
+              <AppBarLink path="/home">Home</AppBarLink>
+              <AppBarLink path="/settings">Settings</AppBarLink>
             </div>
           ),
         })
@@ -291,7 +291,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
+          jsxElement: <AppBarLink path="/test">Link</AppBarLink>,
         })
 
         await flushUpdates()
@@ -309,7 +309,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
+          jsxElement: <AppBarLink path="/test">Link</AppBarLink>,
         })
 
         await flushUpdates()
@@ -327,7 +327,7 @@ describe('AppBarLink component', () => {
         initializeShadeRoot({
           injector,
           rootElement,
-          jsxElement: <AppBarLink href="/test">Link</AppBarLink>,
+          jsxElement: <AppBarLink path="/test">Link</AppBarLink>,
         })
 
         await flushUpdates()

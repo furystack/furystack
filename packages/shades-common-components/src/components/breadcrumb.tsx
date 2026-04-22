@@ -29,7 +29,7 @@ export type BreadcrumbProps = {
  * Type-safe props constrained to a specific route tree.
  * @typeParam TRoutes - The route tree type (use `typeof yourRoutes`)
  */
-export type TypedBreadcrumbProps<TRoutes extends Record<string, NestedRoute<unknown>>> = {
+export type TypedBreadcrumbProps<TRoutes extends Record<string, NestedRoute<any, any, any>>> = {
   items: Array<BreadcrumbItem<ExtractRoutePaths<TRoutes>>>
   separator?: string | JSX.Element
   homeItem?: BreadcrumbItem<ExtractRoutePaths<TRoutes>>
@@ -130,7 +130,7 @@ export const Breadcrumb = Shade<BreadcrumbProps>({
       }
 
       return (
-        <NestedRouteLink href={compiledPath} data-active={isActive}>
+        <NestedRouteLink path={compiledPath} data-active={isActive}>
           {item.label}
         </NestedRouteLink>
       )
@@ -182,7 +182,7 @@ export const Breadcrumb = Shade<BreadcrumbProps>({
  * />
  * ```
  */
-export const createBreadcrumb = <TRoutes extends Record<string, NestedRoute<unknown>>>() => {
+export const createBreadcrumb = <TRoutes extends Record<string, NestedRoute<any, any, any>>>() => {
   return Breadcrumb as typeof Breadcrumb & {
     (props: TypedBreadcrumbProps<TRoutes>): JSX.Element
   }

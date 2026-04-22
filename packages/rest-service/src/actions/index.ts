@@ -1,7 +1,6 @@
 export * from './error-action.js'
 export * from './get-current-user.js'
 export * from './is-authenticated.js'
-export * from './login.js'
 export * from './logout.js'
 export * from './not-found-action.js'
 export * from './password-login-action.js'

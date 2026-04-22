@@ -134,8 +134,7 @@ describe('createJwtClient', () => {
         json: async () => ({ data: 'result' }),
       })
 
-      const onAccessTokenChanged = vi.fn()
-      const { tokenStore, client } = createTestSetup({ refreshThresholdSeconds: 120, onAccessTokenChanged })
+      const { tokenStore, client } = createTestSetup({ refreshThresholdSeconds: 120 })
 
       await tokenStore.login({ username: 'admin', password: 'secret' })
       await client.call({ method: 'GET', action: '/test' } as Parameters<typeof client.call>[0])

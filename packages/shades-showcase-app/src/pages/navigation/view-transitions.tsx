@@ -60,19 +60,19 @@ export const ViewTransitionsPage = Shade({
             Click any of these links to navigate and observe the cross-fade transition between pages:
           </Typography>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <NestedRouteLink href="/navigation/tabs">
+            <NestedRouteLink path="/navigation/tabs">
               <Button variant="outlined">Tabs</Button>
             </NestedRouteLink>
-            <NestedRouteLink href="/data-display/grid">
+            <NestedRouteLink path="/data-display/grid">
               <Button variant="outlined">Grid</Button>
             </NestedRouteLink>
-            <NestedRouteLink href="/surfaces/card">
+            <NestedRouteLink path="/surfaces/card">
               <Button variant="outlined">Card</Button>
             </NestedRouteLink>
-            <NestedRouteLink href="/feedback/alert">
+            <NestedRouteLink path="/feedback/alert">
               <Button variant="outlined">Alert</Button>
             </NestedRouteLink>
-            <NestedRouteLink href="/themes">
+            <NestedRouteLink path="/themes">
               <Button variant="outlined">Themes</Button>
             </NestedRouteLink>
           </div>

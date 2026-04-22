@@ -1,9 +1,10 @@
-import { createComponent, LocationService, NestedRouteLink, Shade, type NavTreeNode } from '@furystack/shades'
+import { createComponent, LocationService, Shade } from '@furystack/shades'
 import { cssVariableTheme, Icon, icons } from '@furystack/shades-common-components'
 
-import { getCategoryNodes } from '../nav-tree.js'
+import { ShowcaseNestedRouteLink, showcaseNavigate } from '../app-routing.js'
+import { type AppNavTreeNode, getCategoryNodes } from '../nav-tree.js'
 
-const SidebarPageLink = Shade<{ node: NavTreeNode; categoryPath: string }>({
+const SidebarPageLink = Shade<{ node: AppNavTreeNode }>({
   customElementName: 'sidebar-page-link',
   css: {
     display: 'block',
@@ -32,25 +33,17 @@ const SidebarPageLink = Shade<{ node: NavTreeNode; categoryPath: string }>({
     const locationService = injector.getInstance(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
 
-    const href = `${props.categoryPath}${props.node.pattern}`
-    const isActive = currentPath === href
+    const isActive = currentPath === props.node.fullPath
 
     return (
-      <a
-        href={href}
-        className={isActive ? 'active' : ''}
-        onclick={(ev: MouseEvent) => {
-          ev.preventDefault()
-          locationService.navigate(href)
-        }}
-      >
+      <ShowcaseNestedRouteLink path={props.node.fullPath} className={isActive ? 'active' : ''}>
         {props.node.meta?.title ?? props.node.pattern}
-      </a>
+      </ShowcaseNestedRouteLink>
     )
   },
 })
 
-const SidebarCategory = Shade<{ node: NavTreeNode }>({
+const SidebarCategory = Shade<{ node: AppNavTreeNode }>({
   customElementName: 'sidebar-category',
   css: {
     display: 'block',
@@ -111,7 +104,7 @@ const SidebarCategory = Shade<{ node: NavTreeNode }>({
       if (hasChildren) {
         setIsExpanded(!isExpanded)
       } else {
-        locationService.navigate(categoryPath)
+        showcaseNavigate(injector, { path: categoryPath })
       }
     }
 
@@ -136,7 +129,7 @@ const SidebarCategory = Shade<{ node: NavTreeNode }>({
         {hasChildren && isExpanded && (
           <div className="category-children">
             {children.map((child) => (
-              <SidebarPageLink node={child} categoryPath={categoryPath} />
+              <SidebarPageLink node={child} />
             ))}
           </div>
         )}
@@ -206,10 +199,10 @@ export const SidebarNavigation = Shade({
   render: () => {
     return (
       <nav style={{ padding: '4px 0 8px' }} data-nav-section="sidebar">
-        <NestedRouteLink className="sidebar-header" href="/">
+        <ShowcaseNestedRouteLink className="sidebar-header" path="/">
           <Icon icon={icons.flame} size={18} />
           <span>FuryStack Shades</span>
-        </NestedRouteLink>
+        </ShowcaseNestedRouteLink>
         <div className="sidebar-divider" />
         <div className="sidebar-section-label">Components</div>
         {getCategoryNodes().map((node) => (

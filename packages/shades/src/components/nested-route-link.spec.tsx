@@ -11,9 +11,9 @@ import type { ConcatPaths, ExtractRouteParams, ExtractRoutePaths, UrlTree } from
 import type { NestedRoute } from './nested-router.js'
 
 // Minimal route type for type-level tests. Using Pick avoids the
-// `children?: Record<string, NestedRoute<any>>` from NestedRoute<unknown>
+// `children?: Record<string, NestedRoute<any, any, any>>` from NestedRoute<unknown>
 // which would widen literal keys in intersections.
-type TestRoute = Pick<NestedRoute<unknown>, 'component'>
+type TestRoute = Pick<NestedRoute<unknown, any, any>, 'component'>
 
 describe('NestedRouteLink', () => {
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('NestedRouteLink', () => {
         injector,
         rootElement,
         jsxElement: (
-          <NestedRouteLink id="link" href="/buttons">
+          <NestedRouteLink id="link" path="/buttons">
             Buttons
           </NestedRouteLink>
         ),
@@ -54,7 +54,7 @@ describe('NestedRouteLink', () => {
         injector,
         rootElement,
         jsxElement: (
-          <NestedRouteLink id="link" href="/buttons">
+          <NestedRouteLink id="link" path="/buttons">
             Buttons
           </NestedRouteLink>
         ),
@@ -75,7 +75,7 @@ describe('NestedRouteLink', () => {
         injector,
         rootElement,
         jsxElement: (
-          <NestedRouteLink id="link" href="/users/:id" params={{ id: '42' }}>
+          <NestedRouteLink id="link" path="/users/:id" params={{ id: '42' }}>
             User 42
           </NestedRouteLink>
         ),
@@ -95,7 +95,7 @@ describe('NestedRouteLink', () => {
         injector,
         rootElement,
         jsxElement: (
-          <NestedRouteLink id="link" href="/users/:userId/posts/:postId" params={{ userId: '1', postId: '99' }}>
+          <NestedRouteLink id="link" path="/users/:userId/posts/:postId" params={{ userId: '1', postId: '99' }}>
             Post
           </NestedRouteLink>
         ),
@@ -104,6 +104,46 @@ describe('NestedRouteLink', () => {
       expect(document.body.innerHTML).toBe(
         '<div id="root"><a is="nested-route-link" id="link" href="/users/1/posts/99">Post</a></div>',
       )
+    })
+  })
+
+  it('Should append a serialized query string to the rendered href', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <NestedRouteLink id="link" path="/buttons" query={{ page: 2 }}>
+            Buttons
+          </NestedRouteLink>
+        ),
+      })
+      await flushUpdates()
+
+      const link = document.getElementById('link') as HTMLAnchorElement
+      expect(link.getAttribute('href')?.startsWith('/buttons?')).toBe(true)
+    })
+  })
+
+  it('Should append the hash segment to the rendered href', async () => {
+    await usingAsync(new Injector(), async (injector) => {
+      const rootElement = document.getElementById('root') as HTMLDivElement
+
+      initializeShadeRoot({
+        injector,
+        rootElement,
+        jsxElement: (
+          <NestedRouteLink id="link" path="/buttons" hash="overview">
+            Buttons
+          </NestedRouteLink>
+        ),
+      })
+      await flushUpdates()
+
+      const link = document.getElementById('link') as HTMLAnchorElement
+      expect(link.getAttribute('href')).toBe('/buttons#overview')
     })
   })
 })
@@ -219,13 +259,13 @@ describe('Type utilities', () => {
   describe('TypedNestedRouteLinkProps', () => {
     it('Should make params optional for paths without parameters', () => {
       type Props = TypedNestedRouteLinkProps<'/buttons'>
-      expectTypeOf<Props['href']>().toEqualTypeOf<'/buttons'>()
+      expectTypeOf<Props['path']>().toEqualTypeOf<'/buttons'>()
       expectTypeOf<Props>().toExtend<{ params?: Record<string, string> }>()
     })
 
     it('Should require params for parameterized paths', () => {
       type Props = TypedNestedRouteLinkProps<'/users/:id'>
-      expectTypeOf<Props['href']>().toEqualTypeOf<'/users/:id'>()
+      expectTypeOf<Props['path']>().toEqualTypeOf<'/users/:id'>()
       expectTypeOf<Props>().toExtend<{ params: { id: string } }>()
     })
 
@@ -236,20 +276,20 @@ describe('Type utilities', () => {
   })
 
   describe('NestedRouteLink param inference', () => {
-    it('Should infer params as optional when href has no parameters', () => {
+    it('Should infer params as optional when path has no parameters', () => {
       expectTypeOf(NestedRouteLink).parameter(0).toHaveProperty('params')
       expectTypeOf(NestedRouteLink<'/buttons'>)
         .parameter(0)
         .toExtend<{ params?: Record<string, string> }>()
     })
 
-    it('Should infer params as required when href has a parameter', () => {
+    it('Should infer params as required when path has a parameter', () => {
       expectTypeOf(NestedRouteLink<'/users/:id'>)
         .parameter(0)
         .toExtend<{ params: { id: string } }>()
     })
 
-    it('Should infer multiple params from href', () => {
+    it('Should infer multiple params from path', () => {
       expectTypeOf(NestedRouteLink<'/users/:userId/posts/:postId'>)
         .parameter(0)
         .toExtend<{ params: { userId: string; postId: string } }>()
@@ -257,7 +297,7 @@ describe('Type utilities', () => {
   })
 
   describe('createNestedRouteLink', () => {
-    it('Should constrain href to valid route paths', () => {
+    it('Should constrain path to valid route paths', () => {
       type Routes = {
         '/': TestRoute & {
           children: {
@@ -267,7 +307,7 @@ describe('Type utilities', () => {
       }
 
       const AppLink = createNestedRouteLink<Routes>()
-      expectTypeOf(AppLink).parameter(0).toHaveProperty('href')
+      expectTypeOf(AppLink).parameter(0).toHaveProperty('path')
     })
 
     it('Should reject invalid paths', () => {
@@ -281,7 +321,7 @@ describe('Type utilities', () => {
 
       const AppLink = createNestedRouteLink<Routes>()
       // @ts-expect-error -- '/nonexistent' is not a valid route path
-      AppLink({ href: '/nonexistent' })
+      AppLink({ path: '/nonexistent' })
     })
 
     it('Should require params for parameterized routes in the tree', () => {
@@ -343,13 +383,41 @@ describe('Type utilities', () => {
             '/users/:userId': usersRoute,
           },
         },
-      } satisfies Record<string, NestedRoute<any>>
+      } satisfies Record<string, NestedRoute<any, any, any>>
 
       const AppLink = createNestedRouteLink<typeof routes>()
-      expectTypeOf(AppLink).parameter(0).toHaveProperty('href')
+      expectTypeOf(AppLink).parameter(0).toHaveProperty('path')
       expectTypeOf(AppLink<'/users/:userId'>)
         .parameter(0)
         .toExtend<{ params: { userId: string } }>()
+    })
+
+    it('Should enforce a declared required query shape on the link', () => {
+      const routes = {
+        '/list': {
+          component: () => null as unknown as JSX.Element,
+          query: (raw): { page: number } | null => (typeof raw.page === 'number' ? { page: raw.page } : null),
+        },
+      } satisfies Record<string, NestedRoute<any, any, any>>
+
+      const AppLink = createNestedRouteLink<typeof routes>()
+      expectTypeOf(AppLink<'/list'>)
+        .parameter(0)
+        .toExtend<{ query: { page: number } }>()
+    })
+
+    it('Should narrow hash on the link to the declared literal tuple', () => {
+      const routes = {
+        '/tabs': {
+          component: () => null as unknown as JSX.Element,
+          hash: ['overview', 'details'] as const,
+        },
+      } satisfies Record<string, NestedRoute<any, any, any>>
+
+      const AppLink = createNestedRouteLink<typeof routes>()
+      expectTypeOf(AppLink<'/tabs'>)
+        .parameter(0)
+        .toExtend<{ hash?: 'overview' | 'details' }>()
     })
   })
 })

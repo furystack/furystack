@@ -65,7 +65,7 @@ export const LayoutTestsIndex = Shade({
           component: (
             <AppBar>
               <NestedRouteLink
-                href="/"
+                path="/"
                 style={{
                   color: cssVariableTheme.text.primary,
                   textDecoration: 'none',
@@ -95,7 +95,7 @@ export const LayoutTestsIndex = Shade({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {testPages.map((page) => (
               <NestedRouteLink
-                href={page.url}
+                path={page.url}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

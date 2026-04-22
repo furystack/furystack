@@ -542,18 +542,6 @@ describe('CollectionService', () => {
   })
 
   describe('handleRowClick', () => {
-    it('Should call onRowClick callback', () => {
-      const testEntries = createTestEntries()
-      const onRowClick = vi.fn()
-      using(new CollectionService<TestEntry>({ onRowClick }), (service) => {
-        service.data.setValue({ count: 3, entries: testEntries })
-
-        service.handleRowClick(testEntries[0], createMouseEvent())
-
-        expect(onRowClick).toHaveBeenCalledWith(testEntries[0])
-      })
-    })
-
     it('Should update focusedEntry on click', () => {
       const testEntries = createTestEntries()
       using(new CollectionService<TestEntry>({}), (service) => {
@@ -640,19 +628,7 @@ describe('CollectionService', () => {
   })
 
   describe('handleRowDoubleClick', () => {
-    it('Should call onRowDoubleClick callback', () => {
-      const testEntries = createTestEntries()
-      const onRowDoubleClick = vi.fn()
-      using(new CollectionService<TestEntry>({ onRowDoubleClick }), (service) => {
-        service.data.setValue({ count: 3, entries: testEntries })
-
-        service.handleRowDoubleClick(testEntries[0])
-
-        expect(onRowDoubleClick).toHaveBeenCalledWith(testEntries[0])
-      })
-    })
-
-    it('Should not throw when onRowDoubleClick is not configured', () => {
+    it('Should not throw when no subscriber is configured', () => {
       const testEntries = createTestEntries()
       using(new CollectionService<TestEntry>({}), (service) => {
         service.data.setValue({ count: 3, entries: testEntries })
