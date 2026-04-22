@@ -1,7 +1,15 @@
 import { Injector } from '@furystack/inject'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import type { MatchChainEntry, NestedRoute } from '../components/nested-router.js'
-import { buildDocumentTitle, extractNavTree, resolveRouteTitle, resolveRouteTitles } from './route-meta-utils.js'
+import {
+  buildDocumentTitle,
+  extractNavTree,
+  type NavTreeNode,
+  resolveRouteTitle,
+  resolveRouteTitles,
+} from './route-meta-utils.js'
+
+type TestRoute = Pick<NestedRoute<unknown, any, any>, 'component'>
 
 describe('resolveRouteTitle', () => {
   const injector = new Injector()
@@ -261,5 +269,43 @@ describe('extractNavTree', () => {
     }
     const tree = extractNavTree(routes)
     expect(tree[0].meta).toBeUndefined()
+  })
+
+  describe('typed output', () => {
+    it('should narrow pattern and fullPath for a flat typed tree', () => {
+      const routes = {
+        '/about': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+        '/contact': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+      } satisfies Record<string, NestedRoute<any, any, any>>
+
+      const tree = extractNavTree(routes)
+      expectTypeOf(tree[0].pattern).toEqualTypeOf<'/about' | '/contact'>()
+      expectTypeOf(tree[0].fullPath).toEqualTypeOf<'/about' | '/contact'>()
+    })
+
+    it('should include nested composed paths in the fullPath union', () => {
+      const routes = {
+        '/media': {
+          component: () => ({}) as JSX.Element,
+          children: {
+            '/movies': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+            '/music': { component: () => ({}) as JSX.Element } satisfies TestRoute,
+          },
+        },
+      } satisfies Record<string, NestedRoute<any, any, any>>
+
+      const tree = extractNavTree(routes)
+      expectTypeOf(tree[0].fullPath).toEqualTypeOf<'/media' | '/media/movies' | '/media/music'>()
+      expectTypeOf(tree[0].children).toEqualTypeOf<Array<NavTreeNode<typeof routes>> | undefined>()
+    })
+
+    it('should preserve backward compatibility with the widened default', () => {
+      const node: NavTreeNode = {
+        pattern: '/anything',
+        fullPath: '/anything',
+      }
+      expectTypeOf(node.pattern).toEqualTypeOf<string>()
+      expectTypeOf(node.fullPath).toEqualTypeOf<string>()
+    })
   })
 })

@@ -1,5 +1,6 @@
 import type { Injector } from '@furystack/inject'
 
+import type { ExtractRoutePaths } from '../components/nested-route-types.js'
 import type { MatchChainEntry, NestedRoute, NestedRouteMeta } from '../components/nested-router.js'
 
 /**
@@ -57,32 +58,57 @@ export const buildDocumentTitle = (
 
 /**
  * A node in a navigation tree extracted from route definitions.
+ *
+ * When {@link extractNavTree} is called with an explicit route tree type
+ * parameter (e.g. `extractNavTree<typeof appRoutes>(...)`), `pattern` narrows
+ * to the declared route keys and `fullPath` narrows to the union of all
+ * composed paths in the subtree. Without a type parameter the generic falls
+ * back to a widened shape so ad-hoc consumers keep compiling.
+ *
+ * @typeParam TRoutes - The route tree the node was extracted from
  */
-export type NavTreeNode = {
-  pattern: string
-  fullPath: string
+export type NavTreeNode<
+  TRoutes extends Record<string, NestedRoute<any, any, any>> = Record<string, NestedRoute<any, any, any>>,
+> = {
+  pattern: keyof TRoutes & string
+  fullPath: ExtractRoutePaths<TRoutes> & string
   meta?: NestedRouteMeta
-  children?: NavTreeNode[]
+  children?: Array<NavTreeNode<TRoutes>>
 }
 
 /**
  * Extracts a navigation tree from route definitions.
- * Useful for rendering sidebar navigation or sitemap-like structures.
+ *
+ * The returned nodes preserve the route tree's static typing: `pattern` is
+ * narrowed to the declared keys of `TRoutes` and `fullPath` is narrowed to
+ * the union of composed paths reachable from `TRoutes` (as produced by
+ * {@link ExtractRoutePaths}). This makes the output a single, typed source
+ * of truth for sidebar navigation, breadcrumbs and other route-tree-aware
+ * UIs — without requiring `as` casts at the call site.
+ *
+ * Child nodes share their parent's `TRoutes` type parameter; the resulting
+ * union is a safe upper bound of the actual paths at any depth, which keeps
+ * the helper simple while still accepted by `createNestedRouteLink`,
+ * `createNestedNavigate` and `createNestedReplace` factories bound to the
+ * same route tree.
+ *
  * @param routes - The route definitions to extract from
  * @param parentPath - The parent path prefix (used internally for recursion)
  * @returns An array of navigation tree nodes
  */
-export const extractNavTree = (
-  routes: Record<string, NestedRoute<any, any, any>>,
+export const extractNavTree = <TRoutes extends Record<string, NestedRoute<any, any, any>>>(
+  routes: TRoutes,
   parentPath?: string,
-): NavTreeNode[] => {
-  return Object.entries(routes).map(([pattern, route]) => {
-    const fullPath = parentPath ? `${parentPath === '/' ? '' : parentPath}${pattern}` : pattern
-    return {
-      pattern,
-      fullPath,
-      meta: route.meta,
-      children: route.children ? extractNavTree(route.children, fullPath) : undefined,
-    }
-  })
+): Array<NavTreeNode<TRoutes>> => {
+  const build = (rs: Record<string, NestedRoute<any, any, any>>, pp?: string): Array<NavTreeNode<TRoutes>> =>
+    Object.entries(rs).map(([pattern, route]) => {
+      const fullPath = pp ? `${pp === '/' ? '' : pp}${pattern}` : pattern
+      return {
+        pattern,
+        fullPath,
+        meta: route.meta,
+        children: route.children ? build(route.children, fullPath) : undefined,
+      } as NavTreeNode<TRoutes>
+    })
+  return build(routes, parentPath)
 }

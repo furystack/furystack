@@ -3,7 +3,7 @@ import { icons } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
 import './route-meta-augmentation.js'
-import { Navigate } from './components/navigate.js'
+import { ShowcaseReplaceRoute } from './app-routing.js'
 import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
 
@@ -156,7 +156,7 @@ export const appRoutes = defineNestedRoutes({
     children: {
       '/inputs-and-forms': {
         meta: { title: 'Inputs & Forms', icon: icons.fileText },
-        component: ({ outlet }) => outlet ?? <Navigate to="/inputs-and-forms/buttons" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/inputs-and-forms/buttons" />,
         children: {
           '/buttons': {
             meta: { title: 'Buttons' },
@@ -318,7 +318,7 @@ export const appRoutes = defineNestedRoutes({
       },
       '/data-display': {
         meta: { title: 'Data Display', icon: icons.barChart },
-        component: ({ outlet }) => outlet ?? <Navigate to="/data-display/grid" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/data-display/grid" />,
         children: {
           '/accordion': {
             meta: { title: 'Accordion' },
@@ -534,7 +534,7 @@ export const appRoutes = defineNestedRoutes({
       },
       '/navigation': {
         meta: { title: 'Navigation', icon: icons.compass },
-        component: ({ outlet }) => outlet ?? <Navigate to="/navigation/tabs" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/navigation/tabs" />,
         children: {
           '/tabs': {
             meta: { title: 'Tabs' },
@@ -672,7 +672,7 @@ export const appRoutes = defineNestedRoutes({
       },
       '/feedback': {
         meta: { title: 'Feedback', icon: icons.bell },
-        component: ({ outlet }) => outlet ?? <Navigate to="/feedback/alert" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/feedback/alert" />,
         children: {
           '/alert': {
             meta: { title: 'Alert' },
@@ -734,7 +734,7 @@ export const appRoutes = defineNestedRoutes({
       },
       '/layout': {
         meta: { title: 'Layout', icon: icons.ruler },
-        component: ({ outlet }) => outlet ?? <Navigate to="/layout/layout-showcase" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/layout/layout-showcase" />,
         children: {
           '/layout-showcase': {
             meta: { title: 'Layout Showcase' },
@@ -768,7 +768,7 @@ export const appRoutes = defineNestedRoutes({
       },
       '/surfaces': {
         meta: { title: 'Surfaces', icon: icons.appWindow },
-        component: ({ outlet }) => outlet ?? <Navigate to="/surfaces/card" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/surfaces/card" />,
         children: {
           '/card': {
             meta: { title: 'Card' },
@@ -830,7 +830,7 @@ export const appRoutes = defineNestedRoutes({
       },
       '/integrations': {
         meta: { title: 'Integrations', icon: icons.plug },
-        component: ({ outlet }) => outlet ?? <Navigate to="/integrations/monaco" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/integrations/monaco" />,
         children: {
           '/monaco': {
             meta: { title: 'Monaco' },
@@ -920,7 +920,7 @@ export const appRoutes = defineNestedRoutes({
       },
       '/utilities': {
         meta: { title: 'Utilities', icon: icons.wrench },
-        component: ({ outlet }) => outlet ?? <Navigate to="/utilities/search-state" />,
+        component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/utilities/search-state" />,
         children: {
           '/search-state': {
             meta: { title: 'Search State' },

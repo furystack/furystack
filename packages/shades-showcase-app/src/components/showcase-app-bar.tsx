@@ -1,4 +1,4 @@
-import { createComponent, Shade, type ExtractRoutePaths } from '@furystack/shades'
+import { createComponent, Shade } from '@furystack/shades'
 import { AppBar, createAppBarLink, cssVariableTheme, Divider } from '@furystack/shades-common-components'
 
 import { getCategoryNodes } from '../nav-tree.js'
@@ -6,7 +6,6 @@ import { type appRoutes as AppRoutes } from '../routes.js'
 import { ShowcaseBreadcrumbComponent } from './showcase-breadcrumbs.tsx'
 import { ThemeSwitch } from './theme-switch.js'
 
-type AppRoutePath = ExtractRoutePaths<typeof AppRoutes>
 const ShowcaseAppBarLinks = createAppBarLink<typeof AppRoutes>()
 
 /**
@@ -59,7 +58,7 @@ export const ShowcaseAppBar = Shade({
         >
           <ShowcaseAppBarLinks path="/">Home</ShowcaseAppBarLinks>
           {getCategoryNodes().map((node) => (
-            <ShowcaseAppBarLinks path={node.fullPath as AppRoutePath} routingOptions={{ end: false }}>
+            <ShowcaseAppBarLinks path={node.fullPath} routingOptions={{ end: false }}>
               {node.meta?.title ?? node.pattern}
             </ShowcaseAppBarLinks>
           ))}
