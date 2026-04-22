@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.13] - 2026-04-22
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/rest-service` to the new major version (no API changes required in this package).
+
 ## [1.0.12] - 2026-04-17
 
 ### ⬆️ Dependencies

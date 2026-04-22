@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.1.8] - 2026-04-22
+
+### ⬆️ Dependencies
+
+- Updated `@furystack/rest` to the new major version (no API changes required in this package).
+
 ## [8.1.7] - 2026-04-17
 
 ### ⬆️ Dependencies

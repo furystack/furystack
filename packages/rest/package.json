@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest",
-  "version": "8.1.5",
+  "version": "9.0.0",
   "description": "Generic REST package",
   "type": "module",
   "scripts": {
