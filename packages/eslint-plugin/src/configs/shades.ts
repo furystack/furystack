@@ -29,5 +29,6 @@ export const shadesStrict: Linter.Config = {
     'furystack/prefer-location-service': 'error',
     'furystack/prefer-nested-route-link': 'error',
     'furystack/require-tabindex-with-spatial-nav-target': 'error',
+    'furystack/router-no-type-cast': 'error',
   },
 }

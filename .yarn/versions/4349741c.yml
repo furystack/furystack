@@ -1,5 +1,6 @@
 releases:
-  "@furystack/eslint-plugin": patch
+  "@furystack/auth-jwt": patch
+  "@furystack/eslint-plugin": minor
   "@furystack/shades": major
   "@furystack/shades-common-components": major
   "@furystack/shades-i18n": major

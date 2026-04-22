@@ -21,5 +21,6 @@ export const recommendedStrict: Linter.Config = {
     'furystack/injectable-consistent-inject': 'error',
     'furystack/rest-action-use-request-error': 'error',
     'furystack/rest-action-validate-wrapper': 'error',
+    'furystack/rest-no-type-cast': 'error',
   },
 }
