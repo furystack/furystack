@@ -1,55 +1,68 @@
-import { Injectable } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import type { User } from './models/user.js'
 
 /**
- * Provides authentication and authorization context for the current request/session.
- * This is a base implementation that should be extended or replaced with a concrete
- * implementation that connects to your authentication system.
+ * Provides authentication and authorization context for the current
+ * request/session.
  *
- * The IdentityContext uses `explicit` lifetime, meaning it must be provided via
- * `setExplicitInstance` or a setup helper (e.g. {@link useSystemIdentityContext})
- * before it can be resolved with `getInstance`. Child injectors automatically
- * inherit the instance from their parent, so you only need to set it once on the
- * root (or request-scoped) injector.
+ * The default implementation exposed by the {@link IdentityContext} token is
+ * intentionally minimal: `isAuthenticated` and `isAuthorized` both resolve to
+ * `false`, and `getCurrentUser` rejects. Applications override this by
+ * rebinding the token on the request-scoped injector — typically from an
+ * authentication provider.
  *
  * @example
  * ```ts
- * // Set up the context on your root or request injector
- * injector.setExplicitInstance(myIdentityContextImpl, IdentityContext)
+ * requestScope.bind(IdentityContext, () => myAuthenticatedContext)
  *
- * // Then use the helper functions from any injector in the hierarchy
- * import { isAuthenticated, isAuthorized, getCurrentUser } from '@furystack/core'
- *
- * const authenticated = await isAuthenticated(childInjector)
- * const authorized = await isAuthorized(childInjector, 'admin')
- * const user = await getCurrentUser(childInjector)
+ * const authenticated = await isAuthenticated(requestScope)
+ * const authorized = await isAuthorized(requestScope, 'admin')
+ * const user = await getCurrentUser(requestScope)
  * ```
  */
-@Injectable({ lifetime: 'explicit' })
-export class IdentityContext {
+export interface IdentityContext {
   /**
    * Checks if the current user is authenticated.
-   * @returns Promise resolving to true if authenticated, false otherwise
+   *
+   * @returns Promise resolving to `true` if authenticated, `false` otherwise.
    */
-  public isAuthenticated() {
-    return Promise.resolve(false)
-  }
+  isAuthenticated(): Promise<boolean>
 
   /**
-   * Checks if the current user has the specified roles.
-   * @param _roles - The roles to check
-   * @returns Promise resolving to true if authorized, false otherwise
+   * Checks if the current user has **all** of the specified roles.
+   *
+   * @param roles - The roles to check.
+   * @returns Promise resolving to `true` if authorized, `false` otherwise.
    */
-  public isAuthorized(..._roles: string[]) {
-    return Promise.resolve(false)
-  }
+  isAuthorized(...roles: string[]): Promise<boolean>
 
   /**
-   * Gets the current authenticated user.
-   * @returns Promise resolving to the current user
-   * @throws Error if no user is authenticated
+   * Returns the currently authenticated user.
+   *
+   * @typeParam TUser - Concrete user type expected by the caller. The default
+   *   implementation rejects because it has no user to return.
+   * @returns Promise that resolves to the current user or rejects when no
+   *   user is available.
    */
-  public getCurrentUser<TUser extends User>(): Promise<TUser> {
-    throw new Error('No IdentityContext')
-  }
+  getCurrentUser<TUser extends User>(): Promise<TUser>
 }
+
+/**
+ * DI token for the current {@link IdentityContext}. Scoped by design: each
+ * injector scope resolves the token once and caches the value for the
+ * lifetime of that scope.
+ *
+ * The default factory returns an unauthenticated context. Call
+ * `injector.bind(IdentityContext, () => customContext)` on the request scope
+ * to inject an authenticated identity for that scope only.
+ */
+export const IdentityContext: Token<IdentityContext, 'scoped'> = defineService({
+  name: '@furystack/core/IdentityContext',
+  lifetime: 'scoped',
+  factory: () => ({
+    isAuthenticated: () => Promise.resolve(false),
+    isAuthorized: () => Promise.resolve(false),
+    getCurrentUser: <TUser extends User>() => Promise.reject<TUser>(new Error('No IdentityContext')),
+  }),
+})
