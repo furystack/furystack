@@ -1,11 +1,13 @@
 import type {
+  AnyToken,
   AsyncServiceFactory,
+  AsyncToken,
   CreateScopeOptions,
   DisposeCallback,
-  Injector as InjectorContract,
   Lifetime,
   ServiceContext,
   ServiceFactory,
+  SyncToken,
   Token,
 } from './types.js'
 
@@ -50,7 +52,9 @@ export class InvalidLifetimeDependencyError extends Error {
 
 /**
  * Thrown when attempting to resolve an async token via the synchronous
- * {@link Injector.get} method.
+ * {@link Injector.get} method. In well-typed call sites this case is caught at
+ * compile time by {@link Injector.get}'s signature; the runtime check exists
+ * as a defense for dynamically-constructed tokens.
  */
 export class AsyncTokenInSyncContextError extends Error {
   constructor(public readonly tokenName: string) {
@@ -59,21 +63,12 @@ export class AsyncTokenInSyncContextError extends Error {
   }
 }
 
-/**
- * Thrown when attempting to {@link Injector.provide} a transient-lifetime token.
- * Transients are, by definition, not cached — providing them is meaningless.
- */
-export class CannotProvideTransientError extends Error {
-  constructor(public readonly tokenName: string) {
-    super(`Cannot provide an instance for transient token '${tokenName}'. Transients are not cached.`)
-    this.name = 'CannotProvideTransientError'
-  }
-}
-
 type CacheEntry =
   | { status: 'resolved'; value: unknown }
   | { status: 'pending'; promise: Promise<unknown> }
   | { status: 'failed'; error: unknown }
+
+type AnyFactory<TService> = ServiceFactory<TService> | AsyncServiceFactory<TService>
 
 const isParentCompatible = (parent: Lifetime, child: Lifetime): boolean => {
   switch (parent) {
@@ -93,12 +88,12 @@ const isParentCompatible = (parent: Lifetime, child: Lifetime): boolean => {
  * {@link Injector.createScope}. Manages service resolution, caching, and
  * disposal across a hierarchical scope tree.
  */
-export class Injector implements InjectorContract, AsyncDisposable {
+export class Injector implements AsyncDisposable {
   public readonly parent: Injector | null
   public readonly owner: unknown
   private readonly cache = new Map<symbol, CacheEntry>()
+  private readonly bindings = new Map<symbol, AnyFactory<unknown>>()
   private readonly disposeCallbacks: DisposeCallback[] = []
-  private readonly resolutionStack: symbol[] = []
   private isDisposed = false
 
   constructor(options?: { parent?: Injector; owner?: unknown }) {
@@ -146,20 +141,32 @@ export class Injector implements InjectorContract, AsyncDisposable {
     return null
   }
 
-  private buildContext(token: Token<unknown>, owningInjector: Injector): ServiceContext {
-    const parentName = token.name
-    const parentLifetime = token.lifetime
-    const inject = <TService>(depToken: Token<TService>): TService => {
-      if (!isParentCompatible(parentLifetime, depToken.lifetime)) {
-        throw new InvalidLifetimeDependencyError(parentName, parentLifetime, depToken.name, depToken.lifetime)
+  private findFactory<TService>(token: Token<TService>): AnyFactory<TService> {
+    const owning = this.ownerForLifetime(token.lifetime)
+    const bound = owning.bindings.get(token.id)
+    if (bound) {
+      return bound as AnyFactory<TService>
+    }
+    return token.factory as AnyFactory<TService>
+  }
+
+  private buildContext(
+    lifetime: Lifetime,
+    owningInjector: Injector,
+    parentName: string,
+    resolving: Set<symbol>,
+  ): ServiceContext {
+    const inject = <TService>(depToken: SyncToken<TService>): TService => {
+      if (!isParentCompatible(lifetime, depToken.lifetime)) {
+        throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
       }
-      return owningInjector.get(depToken)
+      return owningInjector.resolveSync<TService>(depToken, resolving)
     }
     const injectAsync = <TService>(depToken: Token<TService>): Promise<TService> => {
-      if (!isParentCompatible(parentLifetime, depToken.lifetime)) {
-        throw new InvalidLifetimeDependencyError(parentName, parentLifetime, depToken.name, depToken.lifetime)
+      if (!isParentCompatible(lifetime, depToken.lifetime)) {
+        throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
       }
-      return owningInjector.getAsync(depToken)
+      return owningInjector.resolveAsync<TService>(depToken, resolving)
     }
     const onDispose = (cb: DisposeCallback): void => {
       owningInjector.disposeCallbacks.push(cb)
@@ -169,66 +176,51 @@ export class Injector implements InjectorContract, AsyncDisposable {
       injectAsync: injectAsync as ServiceContext['injectAsync'],
       injector: owningInjector,
       onDispose,
-      token,
     }
   }
 
-  private pushResolving(token: Token<unknown>): void {
-    if (this.resolutionStack.includes(token.id)) {
-      const path = [...this.resolutionStack.map((id) => this.symbolDescription(id)), token.name]
-      throw new CircularDependencyError(path)
-    }
-    this.resolutionStack.push(token.id)
-  }
-
-  private popResolving(): void {
-    this.resolutionStack.pop()
-  }
-
-  private symbolDescription(id: symbol): string {
-    return id.description ?? '<anonymous>'
-  }
-
-  public get<TService>(token: Token<TService>): TService {
+  public get<TService>(token: SyncToken<TService>): TService {
     this.ensureLive()
-
     if (token.isAsync) {
       throw new AsyncTokenInSyncContextError(token.name)
     }
+    return this.resolveSync<TService>(token, new Set<symbol>())
+  }
 
+  public getAsync<TService>(token: AnyToken<TService>): Promise<TService> {
+    this.ensureLive()
+    if (!token.isAsync) {
+      return Promise.resolve(this.resolveSync<TService>(token as SyncToken<TService>, new Set<symbol>()))
+    }
+    return this.resolveAsync<TService>(token, new Set<symbol>())
+  }
+
+  private resolveSync<TService>(token: Token<TService>, resolving: Set<symbol>): TService {
     const existing = this.findCached(token)
     if (existing) {
       return this.consumeCached<TService>(existing.entry, token)
     }
 
     const owning = this.ownerForLifetime(token.lifetime)
-
     if (token.lifetime !== 'transient' && owning !== this) {
-      return owning.get(token)
+      return owning.resolveSync<TService>(token, resolving)
     }
 
-    return owning.instantiateSync(token)
+    return owning.instantiateSync<TService>(token, resolving)
   }
 
-  public async getAsync<TService>(token: Token<TService>): Promise<TService> {
-    this.ensureLive()
-
-    if (!token.isAsync) {
-      return this.get(token)
-    }
-
+  private resolveAsync<TService>(token: Token<TService>, resolving: Set<symbol>): Promise<TService> {
     const existing = this.findCached(token)
     if (existing) {
       return this.consumeCachedAsync<TService>(existing.entry, token)
     }
 
     const owning = this.ownerForLifetime(token.lifetime)
-
     if (token.lifetime !== 'transient' && owning !== this) {
-      return owning.getAsync(token)
+      return owning.resolveAsync<TService>(token, resolving)
     }
 
-    return owning.instantiateAsync(token)
+    return owning.instantiateAsync<TService>(token, resolving)
   }
 
   private consumeCached<TService>(entry: CacheEntry, token: Token<TService>): TService {
@@ -251,11 +243,24 @@ export class Injector implements InjectorContract, AsyncDisposable {
     return entry.promise as Promise<TService>
   }
 
-  private instantiateSync<TService>(token: Token<TService>): TService {
-    this.pushResolving(token)
-    const ctx = this.buildContext(token, this)
+  private pushResolving(resolving: Set<symbol>, token: Token<unknown>): void {
+    if (resolving.has(token.id)) {
+      const path = [...Array.from(resolving).map((id) => id.description ?? '<anonymous>'), token.name]
+      throw new CircularDependencyError(path)
+    }
+    resolving.add(token.id)
+  }
+
+  private popResolving(resolving: Set<symbol>, token: Token<unknown>): void {
+    resolving.delete(token.id)
+  }
+
+  private instantiateSync<TService>(token: Token<TService>, resolving: Set<symbol>): TService {
+    this.pushResolving(resolving, token)
+    const ctx = this.buildContext(token.lifetime, this, token.name, resolving)
+    const factory = this.findFactory<TService>(token) as ServiceFactory<TService>
     try {
-      const value = (token.factory as ServiceFactory<TService>)(ctx)
+      const value = factory(ctx)
       if (token.lifetime !== 'transient') {
         this.cache.set(token.id, { status: 'resolved', value })
       }
@@ -266,24 +271,25 @@ export class Injector implements InjectorContract, AsyncDisposable {
       }
       throw error
     } finally {
-      this.popResolving()
+      this.popResolving(resolving, token)
     }
   }
 
-  private instantiateAsync<TService>(token: Token<TService>): Promise<TService> {
-    this.pushResolving(token)
-    const ctx = this.buildContext(token, this)
+  private instantiateAsync<TService>(token: Token<TService>, resolving: Set<symbol>): Promise<TService> {
+    this.pushResolving(resolving, token)
+    const ctx = this.buildContext(token.lifetime, this, token.name, resolving)
+    const factory = this.findFactory<TService>(token) as AsyncServiceFactory<TService>
     let promise: Promise<TService>
     try {
-      promise = (token.factory as AsyncServiceFactory<TService>)(ctx)
+      promise = factory(ctx)
     } catch (error) {
-      this.popResolving()
+      this.popResolving(resolving, token)
       if (token.lifetime !== 'transient') {
         this.cache.set(token.id, { status: 'failed', error })
       }
       throw error
     }
-    this.popResolving()
+    this.popResolving(resolving, token)
 
     if (token.lifetime !== 'transient') {
       this.cache.set(token.id, { status: 'pending', promise })
@@ -305,12 +311,36 @@ export class Injector implements InjectorContract, AsyncDisposable {
     )
   }
 
-  public provide<TService>(token: Token<TService>, value: TService): void {
+  /**
+   * Installs a factory override for `token` on the injector that would own its
+   * cached instance (root for singleton, this injector for scoped/transient).
+   * Any cached entry for the token on that injector is dropped so the next
+   * resolution uses the new factory.
+   */
+  public bind<TService, TLifetime extends Lifetime>(
+    token: SyncToken<TService, TLifetime>,
+    factory: ServiceFactory<TService>,
+  ): void
+  public bind<TService, TLifetime extends Lifetime>(
+    token: AsyncToken<TService, TLifetime>,
+    factory: AsyncServiceFactory<TService>,
+  ): void
+  public bind<TService>(token: Token<TService>, factory: AnyFactory<TService>): void {
     this.ensureLive()
-    if (token.lifetime === 'transient') {
-      throw new CannotProvideTransientError(token.name)
-    }
-    this.cache.set(token.id, { status: 'resolved', value })
+    const owning = this.ownerForLifetime(token.lifetime)
+    owning.bindings.set(token.id, factory as AnyFactory<unknown>)
+    owning.cache.delete(token.id)
+  }
+
+  /**
+   * Drops any cached entry for `token` on the injector that owns its cached
+   * instance. The next resolution will run the factory again. Useful for
+   * recovering from cached factory failures or resetting state between tests.
+   */
+  public invalidate<TService>(token: Token<TService>): void {
+    this.ensureLive()
+    const owning = this.ownerForLifetime(token.lifetime)
+    owning.cache.delete(token.id)
   }
 
   public createScope(options?: CreateScopeOptions): Injector {
@@ -334,6 +364,7 @@ export class Injector implements InjectorContract, AsyncDisposable {
       }
     }
     this.cache.clear()
+    this.bindings.clear()
     if (errors.length > 0) {
       throw new AggregateError(errors, `Errors thrown during injector disposal (${errors.length})`)
     }

@@ -53,7 +53,7 @@ const createTokenId = (name: string): symbol => Symbol(name)
  */
 export const defineService = <TService, TLifetime extends Lifetime>(
   options: DefineServiceOptions<TService, TLifetime>,
-): Token<TService, TLifetime> => {
+): Token<TService, TLifetime, false> => {
   return {
     id: createTokenId(options.name),
     name: options.name,
@@ -69,11 +69,12 @@ export const defineService = <TService, TLifetime extends Lifetime>(
  * promise.
  *
  * Async tokens cannot be resolved via {@link Injector.get} — use
- * {@link Injector.getAsync} instead.
+ * {@link Injector.getAsync} instead. This constraint is enforced at the type
+ * level by the `true` literal in the returned {@link Token}.
  */
 export const defineServiceAsync = <TService, TLifetime extends Lifetime>(
   options: DefineServiceAsyncOptions<TService, TLifetime>,
-): Token<TService, TLifetime> => {
+): Token<TService, TLifetime, true> => {
   return {
     id: createTokenId(options.name),
     name: options.name,

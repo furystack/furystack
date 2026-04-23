@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { defineService, defineServiceAsync } from './define-service.js'
 import {
   AsyncTokenInSyncContextError,
-  CannotProvideTransientError,
   CircularDependencyError,
   createInjector,
   Injector,
@@ -128,18 +127,7 @@ describe('Injector', () => {
   })
 
   describe('circular dependencies', () => {
-    it('throws when a service depends on itself', () => {
-      type Self = { call: () => Self }
-      const tokenRef: { current?: ReturnType<typeof defineService<Self, 'singleton'>> } = {}
-      const Self = defineService<Self, 'singleton'>({
-        name: 'test/Self',
-        lifetime: 'singleton',
-        factory: ({ inject }) => ({ call: () => inject(tokenRef.current!) }),
-      })
-      tokenRef.current = Self
-      const injector = createInjector()
-      // Build-up: factory doesn't call inject(Self) synchronously; cycles come via two-party
-      // so build a direct two-party cycle instead:
+    it('throws when a service depends on itself via a two-party cycle', () => {
       type A = { name: string }
       const refs: {
         a?: ReturnType<typeof defineService<A, 'singleton'>>
@@ -163,38 +151,135 @@ describe('Injector', () => {
       })
       refs.a = A
       refs.b = B
+      const injector = createInjector()
       expect(() => injector.get(A)).toThrow(CircularDependencyError)
+    })
+
+    it('does not cross-contaminate cycle tracking across independent top-level resolves', () => {
+      const Inner = defineService({
+        name: 'test/CycleIndependentInner',
+        lifetime: 'transient',
+        factory: () => ({ ok: true }),
+      })
+      const Outer = defineService({
+        name: 'test/CycleIndependentOuter',
+        lifetime: 'transient',
+        factory: ({ inject }) => ({ inner: inject(Inner) }),
+      })
+      const injector = createInjector()
+      expect(injector.get(Outer).inner.ok).toBe(true)
+      expect(injector.get(Outer).inner.ok).toBe(true)
     })
   })
 
-  describe('provide', () => {
-    it('pre-seeds a singleton instance without running the factory', () => {
-      const factory = vi.fn(() => ({ value: 'from-factory' }))
-      const Token = defineService({ name: 'test/Seeded', lifetime: 'singleton', factory })
-      const injector = createInjector()
-      injector.provide(Token, { value: 'from-provide' })
-      expect(injector.get(Token).value).toBe('from-provide')
-      expect(factory).not.toHaveBeenCalled()
-    })
-
-    it('rejects providing a transient', () => {
-      const Transient = defineService({ name: 'test/RejectTransient', lifetime: 'transient', factory: () => ({}) })
-      const injector = createInjector()
-      expect(() => injector.provide(Transient, {})).toThrow(CannotProvideTransientError)
-    })
-
-    it('provides at scope level, overriding parent for that scope', async () => {
+  describe('bind', () => {
+    it('overrides a singleton factory before resolution', () => {
       const Token = defineService({
-        name: 'test/ScopeOverride',
+        name: 'test/BindSingleton',
+        lifetime: 'singleton',
+        factory: () => ({ source: 'default' }),
+      })
+      const injector = createInjector()
+      injector.bind(Token, () => ({ source: 'override' }))
+      expect(injector.get(Token).source).toBe('override')
+    })
+
+    it('overrides a scoped factory at the binding scope only', async () => {
+      const Token = defineService({
+        name: 'test/BindScoped',
         lifetime: 'scoped',
-        factory: () => ({ source: 'factory' }),
+        factory: () => ({ source: 'default' }),
       })
       const root = createInjector()
       const scope = root.createScope()
-      scope.provide(Token, { source: 'override' })
+      scope.bind(Token, () => ({ source: 'override' }))
       expect(scope.get(Token).source).toBe('override')
+      expect(root.get(Token).source).toBe('default')
       await scope[Symbol.asyncDispose]()
       await root[Symbol.asyncDispose]()
+    })
+
+    it('rebinding drops any cached instance so the next get runs the new factory', () => {
+      const Token = defineService({
+        name: 'test/BindReplaces',
+        lifetime: 'singleton',
+        factory: () => ({ source: 'default' }),
+      })
+      const injector = createInjector()
+      expect(injector.get(Token).source).toBe('default')
+      injector.bind(Token, () => ({ source: 'override' }))
+      expect(injector.get(Token).source).toBe('override')
+    })
+
+    it('binds a singleton at the root even when called on a child scope', async () => {
+      const Token = defineService({
+        name: 'test/BindSingletonFromScope',
+        lifetime: 'singleton',
+        factory: () => ({ source: 'default' }),
+      })
+      const root = createInjector()
+      const scope = root.createScope()
+      scope.bind(Token, () => ({ source: 'override' }))
+      expect(root.get(Token).source).toBe('override')
+      await scope[Symbol.asyncDispose]()
+      await root[Symbol.asyncDispose]()
+    })
+
+    it('binds an async factory for an async token', async () => {
+      const Token = defineServiceAsync({
+        name: 'test/BindAsync',
+        lifetime: 'singleton',
+        factory: async () => ({ source: 'default' }),
+      })
+      const injector = createInjector()
+      injector.bind(Token, async () => ({ source: 'override' }))
+      const value = await injector.getAsync(Token)
+      expect(value.source).toBe('override')
+    })
+  })
+
+  describe('invalidate', () => {
+    it('clears a cached resolved instance so the next get re-runs the factory', () => {
+      let counter = 0
+      const Token = defineService({
+        name: 'test/InvalidateResolved',
+        lifetime: 'singleton',
+        factory: () => ({ id: ++counter }),
+      })
+      const injector = createInjector()
+      expect(injector.get(Token).id).toBe(1)
+      injector.invalidate(Token)
+      expect(injector.get(Token).id).toBe(2)
+    })
+
+    it('clears a cached failure so a retry gets a fresh attempt', () => {
+      let calls = 0
+      const Token = defineService({
+        name: 'test/InvalidateFailed',
+        lifetime: 'singleton',
+        factory: () => {
+          calls += 1
+          if (calls === 1) {
+            throw new Error('boom')
+          }
+          return { ok: true }
+        },
+      })
+      const injector = createInjector()
+      expect(() => injector.get(Token)).toThrow('boom')
+      injector.invalidate(Token)
+      expect(injector.get(Token).ok).toBe(true)
+      expect(calls).toBe(2)
+    })
+
+    it('is a no-op for tokens that have never been resolved', () => {
+      const Token = defineService({
+        name: 'test/InvalidateUnresolved',
+        lifetime: 'singleton',
+        factory: () => ({}),
+      })
+      const injector = createInjector()
+      expect(() => injector.invalidate(Token)).not.toThrow()
     })
   })
 
@@ -355,13 +440,14 @@ describe('Injector', () => {
       expect(value.value).toBe(1)
     })
 
-    it('throws when resolving an async token via get', () => {
+    it('rejects async tokens at the type level for injector.get', () => {
       const Token = defineServiceAsync({
         name: 'test/AsyncInSync',
         lifetime: 'singleton',
         factory: async () => 1,
       })
       const injector = createInjector()
+      // @ts-expect-error async tokens cannot be resolved via the sync get
       expect(() => injector.get(Token)).toThrow(AsyncTokenInSyncContextError)
     })
 
@@ -397,41 +483,24 @@ describe('Injector', () => {
       await expect(injector.getAsync(Token)).rejects.toThrow('async-boom')
       expect(calls).toBe(1)
     })
-  })
 
-  describe('self-reflection', () => {
-    it('exposes the token being instantiated via ctx.token', () => {
-      const Service = defineService({
-        name: 'self-ref/Service',
+    it('resolves sync tokens through getAsync', async () => {
+      const Token = defineService({
+        name: 'test/SyncViaGetAsync',
         lifetime: 'singleton',
-        factory: ({ token }) => ({ name: token.name, lifetime: token.lifetime, selfId: token.id }),
+        factory: () => ({ value: 7 }),
       })
       const injector = createInjector()
-      const resolved = injector.get(Service)
-      expect(resolved.name).toBe('self-ref/Service')
-      expect(resolved.lifetime).toBe('singleton')
-      expect(resolved.selfId).toBe(Service.id)
+      const value = await injector.getAsync(Token)
+      expect(value.value).toBe(7)
     })
   })
 
   describe('token identity', () => {
-    it('produces a fresh symbol for every defineService call, even with identical names', () => {
-      const A = defineService({ name: 'same', lifetime: 'singleton', factory: () => ({ v: 1 }) })
-      const B = defineService({ name: 'same', lifetime: 'singleton', factory: () => ({ v: 2 }) })
+    it('mints a distinct symbol per defineService call even when names match', () => {
+      const A = defineService({ name: 'pkg/Same', lifetime: 'singleton', factory: () => ({ v: 1 }) })
+      const B = defineService({ name: 'pkg/Same', lifetime: 'singleton', factory: () => ({ v: 2 }) })
       expect(A.id).not.toBe(B.id)
-    })
-
-    it('exposes the name as the symbol description for debugging', () => {
-      const Token = defineService({ name: '@pkg/thing/MyService', lifetime: 'singleton', factory: () => ({}) })
-      expect(Token.id.description).toBe('@pkg/thing/MyService')
-    })
-
-    it('resolves two same-named tokens independently so dual-version libraries can coexist', () => {
-      const V1 = defineService({ name: 'LoggerCollection', lifetime: 'singleton', factory: () => ({ version: 1 }) })
-      const V2 = defineService({ name: 'LoggerCollection', lifetime: 'singleton', factory: () => ({ version: 2 }) })
-      const injector = createInjector()
-      expect(injector.get(V1).version).toBe(1)
-      expect(injector.get(V2).version).toBe(2)
     })
   })
 

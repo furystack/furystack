@@ -1,5 +1,7 @@
 export type {
+  AnyToken,
   AsyncServiceFactory,
+  AsyncToken,
   CreateScopeOptions,
   DefineServiceAsyncOptions,
   DefineServiceOptions,
@@ -10,12 +12,12 @@ export type {
   ServiceContext,
   ServiceFactory,
   ServiceOf,
+  SyncToken,
   Token,
 } from './types.js'
 export { defineService, defineServiceAsync, isToken } from './define-service.js'
 export {
   AsyncTokenInSyncContextError,
-  CannotProvideTransientError,
   CircularDependencyError,
   createInjector,
   InjectorDisposedError,

@@ -9,31 +9,37 @@ import type { Logger } from './logger.js'
  * concrete sinks (console, file, etc.) via {@link LoggerCollection.attachLogger}.
  */
 export type LoggerCollection = Logger & {
-  /** Attaches one or more loggers to the collection. */
+  /**
+   * Attaches one or more loggers to the collection. Attach is idempotent:
+   * re-attaching an already-registered logger is a no-op and does not cause
+   * duplicate fan-out.
+   */
   attachLogger: (...loggers: Logger[]) => void
   /** Removes a logger from the collection. */
   detach: (logger: Logger) => void
-  /** Snapshot of currently attached loggers. */
+  /** Snapshot copy of currently attached loggers. Safe to mutate. */
   getLoggers: () => readonly Logger[]
 }
 
 export const LoggerCollection: Token<LoggerCollection, 'singleton'> = defineService({
-  name: '@furystack/logging/LoggerCollection',
+  name: 'furystack/logging/LoggerCollection',
   lifetime: 'singleton',
   factory: () => {
-    let loggers: Logger[] = []
+    const loggers = new Set<Logger>()
     const base = createLogger(async (entry) => {
-      await Promise.all(loggers.map((logger) => logger.addEntry(entry)))
+      await Promise.all(Array.from(loggers).map((logger) => logger.addEntry(entry)))
     })
     return {
       ...base,
       attachLogger: (...toAttach: Logger[]) => {
-        loggers.push(...toAttach)
+        for (const logger of toAttach) {
+          loggers.add(logger)
+        }
       },
       detach: (logger: Logger) => {
-        loggers = loggers.filter((candidate) => candidate !== logger)
+        loggers.delete(logger)
       },
-      getLoggers: () => loggers,
+      getLoggers: () => Array.from(loggers),
     }
   },
 })

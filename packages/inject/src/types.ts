@@ -1,3 +1,5 @@
+import type { Injector } from './injector.js'
+
 /**
  * The lifetime of an injectable service. Determines how and where instances
  * are cached inside an {@link Injector}.
@@ -17,20 +19,45 @@ export type Lifetime = 'transient' | 'singleton' | 'scoped'
  *
  * @typeParam TService - The type returned by the factory when the service is resolved
  * @typeParam TLifetime - The lifetime category of the service
+ * @typeParam TIsAsync - `true` for tokens produced by {@link defineServiceAsync},
+ *   `false` for tokens produced by {@link defineService}. Encoded as a literal so
+ *   {@link Injector.get} can reject async tokens at compile time.
  */
-export type Token<TService, TLifetime extends Lifetime = Lifetime> = {
+export type Token<TService, TLifetime extends Lifetime = Lifetime, TIsAsync extends boolean = false> = {
   readonly id: symbol
   readonly name: string
   readonly lifetime: TLifetime
-  readonly isAsync: boolean
+  readonly isAsync: TIsAsync
   readonly factory: ServiceFactory<TService> | AsyncServiceFactory<TService>
   readonly __type?: TService
 }
 
 /**
+ * A token whose factory is synchronous. This is the default specialisation of
+ * {@link Token}. Can be resolved via both {@link Injector.get} and
+ * {@link Injector.getAsync}.
+ */
+export type SyncToken<TService, TLifetime extends Lifetime = Lifetime> = Token<TService, TLifetime, false>
+
+/**
+ * A token whose factory is asynchronous. Can only be resolved via
+ * {@link Injector.getAsync}. Use this type alias when annotating a token
+ * variable that comes from {@link defineServiceAsync}.
+ */
+export type AsyncToken<TService, TLifetime extends Lifetime = Lifetime> = Token<TService, TLifetime, true>
+
+/**
+ * A token of either sync or async variety. Use this type when a generic
+ * consumer needs to accept both.
+ */
+export type AnyToken<TService, TLifetime extends Lifetime = Lifetime> =
+  | SyncToken<TService, TLifetime>
+  | AsyncToken<TService, TLifetime>
+
+/**
  * Extracts the resolved service type from a {@link Token}.
  */
-export type ServiceOf<TToken> = TToken extends Token<infer T, Lifetime> ? T : never
+export type ServiceOf<TToken> = TToken extends Token<infer T, Lifetime, boolean> ? T : never
 
 /**
  * Callback registered via {@link ServiceContext.onDispose}, invoked when the
@@ -40,47 +67,36 @@ export type ServiceOf<TToken> = TToken extends Token<infer T, Lifetime> ? T : ne
 export type DisposeCallback = () => void | Promise<void>
 
 /**
- * Resolves a dependency service by its {@link Token}.
+ * Synchronous resolver passed to sync factories. Accepts sync tokens only —
+ * async dependencies must be resolved via {@link InjectAsyncFn}.
  *
- * The signature is refined per-factory so that singleton factories can only
- * depend on singleton services. See {@link defineService} for how the correct
- * overload is selected.
+ * The signature is refined per-factory lifetime so that singleton factories
+ * can only depend on singleton services.
  */
 export type InjectFn<TParentLifetime extends Lifetime = Lifetime> = TParentLifetime extends 'singleton'
-  ? <TService>(token: Token<TService, 'singleton'>) => TService
-  : <TService>(token: Token<TService>) => TService
+  ? <TService>(token: SyncToken<TService, 'singleton'>) => TService
+  : <TService>(token: SyncToken<TService>) => TService
 
 /**
- * Asynchronous counterpart of {@link InjectFn}. Used inside async factories to
- * resolve services whose factories return promises. Sync tokens are also
- * accepted and resolved synchronously (wrapped in a resolved promise).
+ * Asynchronous resolver. Accepts both sync and async tokens; sync tokens are
+ * wrapped in a resolved promise.
  */
 export type InjectAsyncFn<TParentLifetime extends Lifetime = Lifetime> = TParentLifetime extends 'singleton'
-  ? <TService>(token: Token<TService, 'singleton'>) => Promise<TService>
-  : <TService>(token: Token<TService>) => Promise<TService>
+  ? <TService>(token: AnyToken<TService, 'singleton'>) => Promise<TService>
+  : <TService>(token: AnyToken<TService>) => Promise<TService>
 
 /**
- * Context object passed to a service factory while it is instantiating.
- *
- * @typeParam TLifetime - Lifetime of the service being instantiated. Controls
- *   which dependencies are compile-time reachable via {@link inject}.
+ * Context object passed to a sync service factory.
  */
 export type ServiceContext<TLifetime extends Lifetime = Lifetime> = {
-  /** Resolves a dependency by token. */
+  /** Resolves a sync dependency by token. */
   inject: InjectFn<TLifetime>
-  /** Resolves an async dependency. Available inside sync factories but returns a promise. */
+  /** Resolves an async (or sync) dependency. Returns a promise. */
   injectAsync: InjectAsyncFn<TLifetime>
   /** The injector that owns this service's cached instance. */
   injector: Injector
   /** Registers a disposal callback to run (LIFO) when the owning scope is disposed. */
   onDispose: (cb: DisposeCallback) => void
-  /**
-   * The token being instantiated. Its {@link Token.name}, {@link Token.lifetime}
-   * and {@link Token.id} are useful for self-reflection (e.g. scoping a logger
-   * by service name). The service type itself is intentionally erased to
-   * `unknown` so inference of the factory's return type stays unambiguous.
-   */
-  token: Token<unknown, TLifetime>
 }
 
 /**
@@ -101,10 +117,8 @@ export type AsyncServiceFactory<TService> = (ctx: ServiceContext) => Promise<TSe
  */
 export type DefineServiceOptions<TService, TLifetime extends Lifetime> = {
   /**
-   * Human-readable label for the service. Used in error messages and debug
-   * output — it carries no load-bearing role in identity. Two services may
-   * share the same `name` without conflict; each {@link defineService} call
-   * produces a fresh, unique {@link Symbol} as the registry key.
+   * Human-readable identifier used purely for debug/readability. Identity is
+   * established by the {@link Token} object reference.
    */
   name: string
   /** The lifetime category of the service. */
@@ -128,29 +142,4 @@ export type DefineServiceAsyncOptions<TService, TLifetime extends Lifetime> = {
 export type CreateScopeOptions = {
   /** Optional opaque owner reference (e.g. a request, session, element). */
   owner?: unknown
-}
-
-/**
- * Minimal public contract of the {@link Injector} primitive. Kept separate so
- * the context types above can reference it without importing the class.
- */
-export type Injector = {
-  /** Synchronously resolves a service by token. */
-  get: <TService>(token: Token<TService>) => TService
-  /** Asynchronously resolves a service by token. */
-  getAsync: <TService>(token: Token<TService>) => Promise<TService>
-  /**
-   * Pre-seeds an instance for a singleton or scoped token on this injector.
-   * Subsequent {@link Injector.get} calls return the provided value without
-   * running the factory.
-   */
-  provide: <TService>(token: Token<TService>, value: TService) => void
-  /** Creates a child scope whose parent is this injector. */
-  createScope: (options?: CreateScopeOptions) => Injector
-  /** The parent injector, if any. */
-  readonly parent: Injector | null
-  /** Opaque owner reference captured via {@link CreateScopeOptions.owner}. */
-  readonly owner: unknown
-  /** Disposes this injector, running registered {@link DisposeCallback}s in LIFO order. */
-  [Symbol.asyncDispose]: () => Promise<void>
 }

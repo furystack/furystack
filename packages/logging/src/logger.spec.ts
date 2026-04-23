@@ -4,7 +4,7 @@ import { ConsoleLogger, defaultFormat, verboseFormat } from './console-logger.js
 import { getLogger, useLogging, useScopedLogger } from './helpers.js'
 import { LoggerCollection } from './logger-collection.js'
 import type { LeveledLogEntry } from './log-entries.js'
-import type { ScopedLogger } from './logger.js'
+import type { Logger, ScopedLogger } from './logger.js'
 import { createTestLogger } from './test-logger.js'
 
 describe('Loggers', () => {
@@ -52,6 +52,37 @@ describe('Loggers', () => {
         expect(loggers.getLoggers()).toContain(probe)
         loggers.detach(probe)
         expect(loggers.getLoggers()).not.toContain(probe)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
+    })
+
+    it('attachLogger is idempotent: re-attaching the same logger does not duplicate fan-out', async () => {
+      const injector = createInjector()
+      try {
+        const loggers = injector.get(LoggerCollection)
+        const onAdd = vi.fn(async () => undefined)
+        const probe = createTestLogger(onAdd)
+        loggers.attachLogger(probe)
+        loggers.attachLogger(probe)
+        loggers.attachLogger(probe, probe)
+        expect(loggers.getLoggers()).toEqual([probe])
+        await loggers.information({ message: 'm', scope: 's' })
+        expect(onAdd).toHaveBeenCalledTimes(1)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
+    })
+
+    it('getLoggers returns a defensive copy that cannot mutate the internal set', async () => {
+      const injector = createInjector()
+      try {
+        const loggers = injector.get(LoggerCollection)
+        const probe = createTestLogger(async () => undefined)
+        loggers.attachLogger(probe)
+        const snapshot = loggers.getLoggers() as Logger[]
+        snapshot.pop()
+        expect(loggers.getLoggers()).toContain(probe)
       } finally {
         await injector[Symbol.asyncDispose]()
       }
