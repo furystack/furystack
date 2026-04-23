@@ -46,7 +46,6 @@ Each package should have:
 
 The `@furystack/eslint-plugin` enforces many FuryStack-specific patterns automatically. Key rule categories:
 
-- **DI consistency** -- `@Injected()` must use `declare`, and the injected type must match the decorator argument (`injectable-consistent-inject`)
 - **Observable disposal** -- classes owning `ObservableValue` or `Cache` must implement `[Symbol.dispose]()` and dispose every field (`require-disposable-for-observable-owner`, `require-observable-disposal`)
 - **Disposable safety** -- prefer `using()` / `usingAsync()` over manual create-then-dispose (`prefer-using-wrapper`)
 - **Shades rendering** -- no module-level JSX, no removed APIs, no manual `.subscribe()` in render, no `.getValue()` without `useObservable`, prefer `useState` over manual `ObservableValue`, no `useState` for CSS-representable states, valid `customElementName`, prefer `LocationService` and `NestedRouteLink` for navigation

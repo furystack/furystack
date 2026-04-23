@@ -2,7 +2,6 @@ import type { ESLint } from 'eslint'
 import type { TSESLint } from '@typescript-eslint/utils'
 import { recommended, recommendedStrict } from './configs/recommended.js'
 import { shades, shadesStrict } from './configs/shades.js'
-import { injectableConsistentInject } from './rules/injectable-consistent-inject.js'
 import { noCssStateHooks } from './rules/no-css-state-hooks.js'
 import { noDirectGetValueInRender } from './rules/no-direct-get-value-in-render.js'
 import { noDirectPhysicalStore } from './rules/no-direct-physical-store.js'
@@ -24,7 +23,6 @@ import { routerNoTypeCast } from './rules/router-no-type-cast.js'
 import { validCustomElementName } from './rules/valid-custom-element-name.js'
 
 const rules = {
-  'injectable-consistent-inject': injectableConsistentInject,
   'no-css-state-hooks': noCssStateHooks,
   'no-direct-get-value-in-render': noDirectGetValueInRender,
   'no-direct-physical-store': noDirectPhysicalStore,

@@ -285,6 +285,40 @@ describe('HttpUserContext', () => {
         expect(second).toBe(testUser)
       })
     })
+
+    it('does not leak a cached user between distinct requests on the same instance', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        const otherUser: User = { username: 'otherUser', roles: [] }
+        const requestA = { headers: {} } as IncomingMessage
+        const requestB = { headers: {} } as IncomingMessage
+        const authenticateRequest = vi
+          .fn<(req: Pick<IncomingMessage, 'headers'>) => Promise<User>>()
+          .mockResolvedValueOnce(testUser)
+          .mockResolvedValueOnce(otherUser)
+        ctx.authenticateRequest = authenticateRequest
+        expect(await ctx.getCurrentUser(requestA)).toBe(testUser)
+        expect(await ctx.getCurrentUser(requestB)).toBe(otherUser)
+        expect(await ctx.getCurrentUser(requestA)).toBe(testUser)
+        expect(authenticateRequest).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    it('re-walks providers after a failed authenticateRequest', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        const authenticateRequest = vi
+          .fn<(req: Pick<IncomingMessage, 'headers'>) => Promise<User>>()
+          .mockRejectedValueOnce(new UnauthenticatedError())
+          .mockResolvedValueOnce(testUser)
+        ctx.authenticateRequest = authenticateRequest
+        await expect(ctx.getCurrentUser(request)).rejects.toBeInstanceOf(UnauthenticatedError)
+        expect(await ctx.getCurrentUser(request)).toBe(testUser)
+        expect(authenticateRequest).toHaveBeenCalledTimes(2)
+      })
+    })
   })
 
   describe('cookieLogin / cookieLogout', () => {

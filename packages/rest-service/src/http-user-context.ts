@@ -24,9 +24,11 @@ export type HttpUserContextEvents = {
  * Request-scoped authentication/authorization facade.
  *
  * `HttpUserContext` consolidates identity lookup, authentication-provider
- * walk-through and cookie session helpers behind a single object. The
- * `user` cache lives on the per-request scope, so repeated calls within
- * the same request skip re-authentication.
+ * walk-through and cookie session helpers behind a single object. Resolved
+ * users are memoized per `request.headers` via a {@link WeakMap} so repeated
+ * calls within the same request skip re-authentication — and so ancestor
+ * scopes caching the same `HttpUserContext` instance cannot leak an
+ * authenticated user into sibling requests.
  */
 export interface HttpUserContext extends EventHub<HttpUserContextEvents> {
   /** The active {@link HttpAuthenticationSettings} captured at resolve time. */
@@ -57,7 +59,15 @@ export interface HttpUserContext extends EventHub<HttpUserContextEvents> {
  * the {@link HttpUserContextToken} token; constructed by its factory.
  */
 class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements HttpUserContext {
-  private user: User | undefined
+  /**
+   * Per-request user cache keyed by the request's `headers` object identity.
+   * Each incoming HTTP/WS message allocates its own `headers` object, so
+   * entries here never leak between requests — even when this
+   * `HttpUserContext` instance happens to be cached by an ancestor scope
+   * (e.g. because setup code resolved it on the root injector before any
+   * per-request child scope existed).
+   */
+  private readonly userCache = new WeakMap<object, Promise<User>>()
 
   /**
    * `authenticator` is resolved lazily so that tests (and applications) that
@@ -104,10 +114,19 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
   }
 
   public async getCurrentUser(request: Pick<IncomingMessage, 'headers'>): Promise<User> {
-    if (!this.user) {
-      this.user = await this.authenticateRequest(request)
+    const key = request.headers
+    const cached = this.userCache.get(key)
+    if (cached) {
+      return cached
     }
-    return this.user
+    const pending = this.authenticateRequest(request)
+    this.userCache.set(key, pending)
+    try {
+      return await pending
+    } catch (error) {
+      this.userCache.delete(key)
+      throw error
+    }
   }
 
   public getSessionIdFromRequest(request: Pick<IncomingMessage, 'headers'>): string | null {
@@ -130,7 +149,6 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     const sessionDataSet = this.systemInjector.get(this.authentication.sessionDataSet)
     await sessionDataSet.add(this.systemInjector, { sessionId, username: user.username })
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
-    this.user = user
     this.emit('onLogin', { user })
     return user
   }
@@ -139,7 +157,7 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     request: Pick<IncomingMessage, 'headers'>,
     response: { setHeader: (header: string, value: string) => void },
   ): Promise<void> {
-    this.user = undefined
+    this.userCache.delete(request.headers)
     const sessionId = this.getSessionIdFromRequest(request)
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
 
