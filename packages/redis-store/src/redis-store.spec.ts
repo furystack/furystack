@@ -1,10 +1,9 @@
-import { StoreManager } from '@furystack/core'
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { createClient } from 'redis'
 import { describe, expect, it } from 'vitest'
+import { defineRedisStore } from './define-redis-store.js'
 import { RedisStore } from './redis-store.js'
-import { useRedis } from './store-manager-helpers.js'
 
 const redisUrl = process?.env?.REDIS_URL || 'redis://localhost:6379'
 
@@ -16,15 +15,19 @@ describe('Redis Store', () => {
 
   const setupRedisStore = async () => {
     const client = createClient({ url: redisUrl })
-    const injector = new Injector()
-    useRedis({ injector, model: ExampleClass, primaryKey: 'id', client })
-    const store = injector.getInstance(StoreManager).getStoreFor(ExampleClass, 'id')
+    const injector = createInjector()
+    const token = defineRedisStore<ExampleClass, 'id'>({
+      name: 'redis-store/ExampleClass',
+      model: ExampleClass,
+      primaryKey: 'id',
+      client,
+    })
+    const store = injector.get(token)
     await client.connect()
     return {
       store,
       [Symbol.asyncDispose]: async () => {
         await client.quit()
-        store[Symbol.dispose]()
         await injector[Symbol.asyncDispose]()
       },
     }

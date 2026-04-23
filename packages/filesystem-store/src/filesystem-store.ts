@@ -1,6 +1,5 @@
-import type { FilterType, FindOptions, PhysicalStore } from '@furystack/core'
+import type { Constructable, FilterType, FindOptions, PhysicalStore } from '@furystack/core'
 import { InMemoryStore } from '@furystack/core'
-import type { Constructable } from '@furystack/inject'
 import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { FSWatcher } from 'fs'
 import { promises, watch } from 'fs'

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { using } from '../../utils/src/using.js'
 import { createLanguage } from './create-language.js'
-import { I18NService } from './i18n-service.js'
+import { I18NServiceImpl } from './i18n-service.js'
 
 const en = createLanguage({
   code: 'en',
@@ -20,19 +20,19 @@ const de = createLanguage({
 
 describe('I18nService', () => {
   it('Should be constructed', () => {
-    using(new I18NService(en), (service) => {
-      expect(service).toBeInstanceOf(I18NService)
+    using(new I18NServiceImpl(en), (service) => {
+      expect(service).toBeInstanceOf(I18NServiceImpl)
     })
   })
 
   it('Should return the available language codes', () => {
-    using(new I18NService(en, de), (service) => {
+    using(new I18NServiceImpl(en, de), (service) => {
       expect(service.getAvailableLanguageCodes()).toEqual(['en', 'de'])
     })
   })
 
   it('Should register a language', () => {
-    using(new I18NService(en), (service) => {
+    using(new I18NServiceImpl(en), (service) => {
       expect(service.getAvailableLanguageCodes()).toEqual(['en'])
       service.registerLanguage(de)
       expect(service.getAvailableLanguageCodes()).toEqual(['en', 'de'])
@@ -41,25 +41,25 @@ describe('I18nService', () => {
 
   describe('translate', () => {
     it('Should return the default language value', () => {
-      using(new I18NService(en), (service) => {
+      using(new I18NServiceImpl(en), (service) => {
         expect(service.translate('hello', 'en')).toBe('Hello')
       })
     })
 
     it('Should return the default language value if the language is not found', () => {
-      using(new I18NService(en), (service) => {
+      using(new I18NServiceImpl(en), (service) => {
         expect(service.translate('hello', 'de')).toBe('Hello')
       })
     })
 
     it('Should return the default value if the language is found but the key is not', () => {
-      using(new I18NService(en, de), (service) => {
+      using(new I18NServiceImpl(en, de), (service) => {
         expect(service.translate('bye', 'de')).toBe('Bye')
       })
     })
 
     it('Should return the language value', () => {
-      using(new I18NService(en, de), (service) => {
+      using(new I18NServiceImpl(en, de), (service) => {
         expect(service.translate('hello', 'de')).toBe('Hallo')
       })
     })
@@ -67,13 +67,13 @@ describe('I18nService', () => {
 
   describe('currentLanguage', () => {
     it('Should set to the default language', () => {
-      using(new I18NService(en), (service) => {
+      using(new I18NServiceImpl(en), (service) => {
         expect(service.currentLanguage).toBe('en')
       })
     })
 
     it('Should not emit change if the new language is the same as the current', () => {
-      using(new I18NService(en), (service) => {
+      using(new I18NServiceImpl(en), (service) => {
         const subscription = vi.fn()
         service.addListener('languageChange', subscription)
 
@@ -84,7 +84,7 @@ describe('I18nService', () => {
     })
 
     it('Should throw error and keep language if the language is not available', () => {
-      using(new I18NService(en), (service) => {
+      using(new I18NServiceImpl(en), (service) => {
         const subscription = vi.fn()
         service.addListener('languageChange', subscription)
 
@@ -99,7 +99,7 @@ describe('I18nService', () => {
     })
 
     it('Should update the language and emit languageChange event', () => {
-      using(new I18NService(en, de), (service) => {
+      using(new I18NServiceImpl(en, de), (service) => {
         const subscription = vi.fn()
         service.addListener('languageChange', subscription)
 

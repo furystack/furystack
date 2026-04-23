@@ -1,4 +1,5 @@
 import type {
+  Constructable,
   CreateResult,
   FilterType,
   FindOptions,
@@ -6,7 +7,6 @@ import type {
   PhysicalStore,
   WithOptionalId,
 } from '@furystack/core'
-import type { Constructable } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 import type { FindAttributeOptions, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
 

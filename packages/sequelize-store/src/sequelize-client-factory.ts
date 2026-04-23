@@ -1,4 +1,5 @@
-import { Injectable } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import type { Options } from 'sequelize'
 import { Op, Sequelize } from 'sequelize'
 
@@ -44,26 +45,37 @@ const operatorsAliases = {
 }
 
 /**
- * Factory for instantiating Sequelize clients
+ * Pools {@link Sequelize} client instances keyed by the serialized options so
+ * multiple stores against the same connection string share one client.
  */
-@Injectable({ lifetime: 'singleton' })
-export class SequelizeClientFactory implements AsyncDisposable {
-  private connections: Map<string, Sequelize> = new Map()
-
-  public async [Symbol.asyncDispose]() {
-    await Promise.all([...this.connections.values()].map((c) => c.close()))
-    this.connections.clear()
-  }
-
-  public getSequelizeClient(options: Options) {
-    const key = JSON.stringify(options)
-    const existing = this.connections.get(key)
-    if (existing) {
-      return existing
-    }
-
-    const client = new Sequelize({ ...options, operatorsAliases })
-    this.connections.set(key, client)
-    return client
-  }
+export interface SequelizeClientFactory {
+  getSequelizeClient(options: Options): Sequelize
 }
+
+/**
+ * Singleton token for the {@link SequelizeClientFactory}. Closes every pooled
+ * client when the owning injector is disposed.
+ */
+export const SequelizeClientFactory: Token<SequelizeClientFactory, 'singleton'> = defineService({
+  name: '@furystack/sequelize-store/SequelizeClientFactory',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const connections = new Map<string, Sequelize>()
+    onDispose(async () => {
+      await Promise.all([...connections.values()].map((c) => c.close()))
+      connections.clear()
+    })
+    return {
+      getSequelizeClient(options: Options): Sequelize {
+        const key = JSON.stringify(options)
+        const existing = connections.get(key)
+        if (existing) {
+          return existing
+        }
+        const client = new Sequelize({ ...options, operatorsAliases })
+        connections.set(key, client)
+        return client
+      },
+    }
+  },
+})
