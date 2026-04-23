@@ -60,6 +60,8 @@ export const getLevelColor = (level: LogLevel): string => {
       return FgYellow
     case 'error':
       return FgRed
+    case 'fatal':
+      return FgMagenta
     default:
       return FgRed
   }

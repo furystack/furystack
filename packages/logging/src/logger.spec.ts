@@ -1,6 +1,6 @@
 import { createInjector, defineService, withScope } from '@furystack/inject'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ConsoleLogger, defaultFormat, verboseFormat } from './console-logger.js'
+import { ConsoleLogger, defaultFormat, FgMagenta, FgRed, getLevelColor, verboseFormat } from './console-logger.js'
 import { getLogger, useLogging, useScopedLogger } from './helpers.js'
 import { LoggerCollection, LoggerRegistry } from './logger-collection.js'
 import type { LeveledLogEntry } from './log-entries.js'
@@ -218,6 +218,44 @@ describe('Loggers', () => {
         await getLogger(injector).verbose({ message: 'alma', scope: 'alma' })
         expect(doneCallback).toBeCalledTimes(1)
       } finally {
+        await injector[Symbol.asyncDispose]()
+      }
+    })
+
+    it('aggregates rejections from multiple loggers into a single AggregateError', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const injector = createInjector()
+      try {
+        const succeedingEntries: Array<LeveledLogEntry<unknown>> = []
+        // Raw (un-wrapped) Logger-shaped objects: their addEntry rejects directly,
+        // bypassing createLogger's error isolation so the rejection reaches
+        // LoggerCollection's fan-out.
+        const rejectingA = {
+          addEntry: async () => {
+            throw new Error('A failed')
+          },
+        } as unknown as Logger
+        const rejectingB = {
+          addEntry: async () => {
+            throw new Error('B failed')
+          },
+        } as unknown as Logger
+        const succeeding = createTestLogger(async (entry) => {
+          succeedingEntries.push(entry)
+        })
+        useLogging(injector, rejectingA, succeeding, rejectingB)
+        await getLogger(injector).fatal({ message: 'multi', scope: 'test' })
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Failed to persist fatal log entry',
+          expect.objectContaining({
+            error: expect.any(AggregateError) as AggregateError,
+          }) as object,
+        )
+        const [, payload] = consoleErrorSpy.mock.calls[0] as [string, { error: AggregateError }]
+        expect(payload.error.errors).toHaveLength(2)
+        expect(succeedingEntries).toHaveLength(1)
+      } finally {
+        consoleErrorSpy.mockRestore()
         await injector[Symbol.asyncDispose]()
       }
     })
@@ -447,6 +485,14 @@ describe('Loggers', () => {
           data: {},
         }),
       ).toEqual(['\u001b[34m%s\u001b[0m', 'scope', 'message']))
+  })
+
+  describe('getLevelColor', () => {
+    it('returns a distinct color for fatal entries', () => {
+      expect(getLevelColor('fatal')).toBe(FgMagenta)
+      expect(getLevelColor('error')).toBe(FgRed)
+      expect(getLevelColor('fatal')).not.toBe(getLevelColor('error'))
+    })
   })
 
   describe('defaultFormat', () => {

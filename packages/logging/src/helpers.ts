@@ -18,6 +18,11 @@ export type LoggerEntry = Logger | Token<Logger, 'singleton'>
  * fan out to the new set. Each call replaces the previous registration
  * — this is configuration, not accumulation.
  *
+ * **Note:** because {@link LoggerRegistry} is a singleton token, `useLogging`
+ * always rebinds at the **root** injector, regardless of which injector you
+ * pass in. Calling it on a child scope still replaces the application-wide
+ * logging composition. Pass the root injector for clarity.
+ *
  * @example
  * ```ts
  * useLogging(injector, ConsoleLogger, FileLogger)

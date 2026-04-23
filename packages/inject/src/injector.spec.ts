@@ -378,6 +378,29 @@ describe('Injector', () => {
       const Token = defineService({ name: 'test/AfterDispose', lifetime: 'singleton', factory: () => ({}) })
       expect(() => injector.get(Token)).toThrow(InjectorDisposedError)
     })
+
+    it('is idempotent: disposing twice resolves silently', async () => {
+      const injector = createInjector()
+      await injector[Symbol.asyncDispose]()
+      await expect(injector[Symbol.asyncDispose]()).resolves.toBeUndefined()
+    })
+
+    it('only runs dispose callbacks once across multiple dispose calls', async () => {
+      const cb = vi.fn()
+      const Token = defineService({
+        name: 'test/DisposeOnce',
+        lifetime: 'singleton',
+        factory: ({ onDispose }) => {
+          onDispose(cb)
+          return {}
+        },
+      })
+      const injector = createInjector()
+      injector.get(Token)
+      await injector[Symbol.asyncDispose]()
+      await injector[Symbol.asyncDispose]()
+      expect(cb).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('withScope', () => {
@@ -493,6 +516,51 @@ describe('Injector', () => {
       const injector = createInjector()
       const value = await injector.getAsync(Token)
       expect(value.value).toBe(7)
+    })
+
+    it('caches a sync throw raised from inside an async factory and rethrows on subsequent getAsync', async () => {
+      const factory = vi.fn(() => {
+        throw new Error('async-sync-boom')
+      })
+      const Token = defineServiceAsync({
+        name: 'test/AsyncSyncThrow',
+        lifetime: 'singleton',
+        factory: factory as unknown as () => Promise<unknown>,
+      })
+      const injector = createInjector()
+      await expect(injector.getAsync(Token)).rejects.toThrow('async-sync-boom')
+      await expect(injector.getAsync(Token)).rejects.toThrow('async-sync-boom')
+      expect(factory).toHaveBeenCalledTimes(1)
+    })
+
+    it('detects cycles that form across async boundaries', async () => {
+      type Node = { name: string }
+      const refs: {
+        a?: ReturnType<typeof defineServiceAsync<Node, 'singleton'>>
+        b?: ReturnType<typeof defineServiceAsync<Node, 'singleton'>>
+      } = {}
+      const A = defineServiceAsync<Node, 'singleton'>({
+        name: 'test/AsyncCycleA',
+        lifetime: 'singleton',
+        factory: async ({ injectAsync }) => {
+          await Promise.resolve()
+          await injectAsync(refs.b!)
+          return { name: 'a' }
+        },
+      })
+      const B = defineServiceAsync<Node, 'singleton'>({
+        name: 'test/AsyncCycleB',
+        lifetime: 'singleton',
+        factory: async ({ injectAsync }) => {
+          await Promise.resolve()
+          await injectAsync(refs.a!)
+          return { name: 'b' }
+        },
+      })
+      refs.a = A
+      refs.b = B
+      const injector = createInjector()
+      await expect(injector.getAsync(A)).rejects.toBeInstanceOf(CircularDependencyError)
     })
   })
 

@@ -184,11 +184,18 @@ export class Injector implements AsyncDisposable {
   }
 
   public getAsync<TService>(token: AnyToken<TService>): Promise<TService> {
-    this.ensureLive()
-    if (!token.isAsync) {
-      return Promise.resolve(this.resolveSync<TService>(token as SyncToken<TService>, new Set<symbol>()))
+    try {
+      this.ensureLive()
+      if (!token.isAsync) {
+        return Promise.resolve(this.resolveSync<TService>(token as SyncToken<TService>, new Set<symbol>()))
+      }
+      return this.resolveAsync<TService>(token, new Set<symbol>())
+    } catch (error) {
+      // Normalise synchronous errors (e.g. a disposed injector or an async
+      // factory that sync-throws before returning a promise) into a rejected
+      // promise so callers can always rely on `.rejects` / `.catch`.
+      return Promise.reject(error as Error)
     }
-    return this.resolveAsync<TService>(token, new Set<symbol>())
   }
 
   private resolveSync<TService>(token: SyncToken<TService>, resolving: Set<symbol>): TService {
@@ -206,6 +213,15 @@ export class Injector implements AsyncDisposable {
   }
 
   private resolveAsync<TService>(token: AnyToken<TService>, resolving: Set<symbol>): Promise<TService> {
+    // Cycle check BEFORE the cache lookup: if the current resolution chain
+    // is already waiting on this token, a cached `pending` entry would just
+    // return its own in-flight promise and deadlock. Raising the cycle
+    // error here surfaces the real problem instead.
+    if (resolving.has(token.id)) {
+      const path = [...Array.from(resolving).map((id) => id.description ?? '<anonymous>'), token.name]
+      return Promise.reject(new CircularDependencyError(path))
+    }
+
     const existing = this.findCached(token)
     if (existing) {
       return this.consumeCachedAsync<TService>(existing.entry, token)
@@ -285,20 +301,24 @@ export class Injector implements AsyncDisposable {
       }
       throw error
     }
-    this.popResolving(resolving, token)
 
     if (token.lifetime !== 'transient') {
       this.cache.set(token.id, { status: 'pending', promise })
     }
 
+    // Keep the token in `resolving` until the promise settles so that cycles
+    // formed across async boundaries (A awaits B awaits A) are caught by
+    // `pushResolving` on re-entry instead of deadlocking on a pending cache entry.
     return promise.then(
       (value) => {
+        this.popResolving(resolving, token)
         if (token.lifetime !== 'transient') {
           this.cache.set(token.id, { status: 'resolved', value })
         }
         return value
       },
       (error: unknown) => {
+        this.popResolving(resolving, token)
         if (token.lifetime !== 'transient') {
           this.cache.set(token.id, { status: 'failed', error })
         }
@@ -345,8 +365,10 @@ export class Injector implements AsyncDisposable {
   }
 
   public async [Symbol.asyncDispose](): Promise<void> {
+    // Idempotent: double-dispose is a no-op so `await using` / manual
+    // teardown paths don't have to guard.
     if (this.isDisposed) {
-      throw new InjectorDisposedError()
+      return
     }
     this.isDisposed = true
 

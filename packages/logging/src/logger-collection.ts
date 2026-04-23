@@ -38,7 +38,19 @@ export const LoggerCollection: Token<Logger, 'singleton'> = defineService({
   factory: ({ inject }) => {
     const { loggers } = inject(LoggerRegistry)
     return createLogger(async (entry) => {
-      await Promise.all(loggers.map((logger) => logger.addEntry(entry)))
+      // Fan out with allSettled so one failing logger does not prevent the
+      // others from persisting the entry. Failures are aggregated into a
+      // single AggregateError that createLogger's escalation path reports.
+      const results = await Promise.allSettled(loggers.map((logger) => logger.addEntry(entry)))
+      const rejections = results.flatMap((result, index) =>
+        result.status === 'rejected' ? [{ loggerIndex: index, error: result.reason as unknown }] : [],
+      )
+      if (rejections.length > 0) {
+        throw new AggregateError(
+          rejections.map((r) => r.error),
+          `LoggerCollection: ${rejections.length} of ${loggers.length} loggers failed to persist the entry`,
+        )
+      }
     })
   },
 })
