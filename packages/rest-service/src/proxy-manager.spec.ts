@@ -1,5 +1,5 @@
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { mkdirSync, writeFileSync } from 'fs'
 import type { IncomingMessage, OutgoingHttpHeaders, Server, ServerResponse } from 'http'
@@ -9,8 +9,9 @@ import { join } from 'path'
 import { beforeAll, describe, expect, it } from 'vitest'
 import type { RawData } from 'ws'
 import { WebSocket, WebSocketServer } from 'ws'
-import { ProxyManager } from './proxy-manager.js'
-import { StaticServerManager } from './static-server-manager.js'
+import { useProxy } from './helpers.js'
+import { ServerTelemetryToken } from './server-telemetry.js'
+import { useStaticFiles } from './helpers.js'
 
 describe('ProxyManager', () => {
   // Create a temporary directory for test files
@@ -64,10 +65,7 @@ describe('ProxyManager', () => {
 
   describe('Basic proxy functionality', () => {
     it('Should proxy requests from source URL to target URL', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
-        const staticServerManager = injector.getInstance(StaticServerManager)
-
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const targetPort = getPort()
 
@@ -83,14 +81,11 @@ describe('ProxyManager', () => {
         )
 
         // Set up target server (static file server) - serve files from testDir
-        await staticServerManager.addStaticSite({
-          baseUrl: '/',
-          path: testDir,
-          port: targetPort,
-        })
+        await useStaticFiles({ injector, baseUrl: '/', path: testDir, port: targetPort })
 
         // Set up proxy server
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/old',
           targetBaseUrl: `http://localhost:${targetPort}`,
           pathRewrite: (path) => path.replace('/path', ''),
@@ -109,8 +104,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should preserve query strings when proxying', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -125,7 +119,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -143,10 +138,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle header transformation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
-        const staticServerManager = injector.getInstance(StaticServerManager)
-
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const targetPort = getPort()
 
@@ -161,14 +153,11 @@ describe('ProxyManager', () => {
         )
 
         // Set up target server
-        await staticServerManager.addStaticSite({
-          baseUrl: '/',
-          path: testDir,
-          port: targetPort,
-        })
+        await useStaticFiles({ injector, baseUrl: '/', path: testDir, port: targetPort })
 
         // Set up proxy server with header transformation
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/old',
           targetBaseUrl: `http://localhost:${targetPort}`,
           pathRewrite: (path) => path.replace('/path', ''),
@@ -193,10 +182,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle cookie transformation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
-        const staticServerManager = injector.getInstance(StaticServerManager)
-
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const targetPort = getPort()
 
@@ -211,14 +197,11 @@ describe('ProxyManager', () => {
         )
 
         // Set up target server
-        await staticServerManager.addStaticSite({
-          baseUrl: '/',
-          path: testDir,
-          port: targetPort,
-        })
+        await useStaticFiles({ injector, baseUrl: '/', path: testDir, port: targetPort })
 
         // Set up proxy server with cookie transformation
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/old',
           targetBaseUrl: `http://localhost:${targetPort}`,
           pathRewrite: (path) => path.replace('/path', ''),
@@ -239,8 +222,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle POST requests with JSON body', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -262,7 +244,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -286,8 +269,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle response cookies transformation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -305,7 +287,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -328,10 +311,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should not match requests outside source base URL', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
-        const staticServerManager = injector.getInstance(StaticServerManager)
-
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const targetPort = getPort()
 
@@ -340,14 +320,11 @@ describe('ProxyManager', () => {
         writeFileSync(testFile, JSON.stringify({ message: 'test' }))
 
         // Set up target server
-        await staticServerManager.addStaticSite({
-          baseUrl: '/',
-          path: testDir,
-          port: targetPort,
-        })
+        await useStaticFiles({ injector, baseUrl: '/', path: testDir, port: targetPort })
 
         // Set up proxy server
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/old',
           targetBaseUrl: `http://localhost:${targetPort}`,
           pathRewrite: (path) => path.replace('/path', ''),
@@ -367,10 +344,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle exact URL matches', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
-        const staticServerManager = injector.getInstance(StaticServerManager)
-
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const targetPort = getPort()
 
@@ -385,14 +359,11 @@ describe('ProxyManager', () => {
         )
 
         // Set up target server
-        await staticServerManager.addStaticSite({
-          baseUrl: '/',
-          path: testDir,
-          port: targetPort,
-        })
+        await useStaticFiles({ injector, baseUrl: '/', path: testDir, port: targetPort })
 
         // Set up proxy server
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/exact',
           targetBaseUrl: `http://localhost:${targetPort}`,
           pathRewrite: (path) => path, // Keep the path as-is
@@ -409,13 +380,13 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle server errors gracefully', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const unavailablePort = getPort() // Get a valid port number that doesn't have a server
 
         // Set up proxy to non-existent target
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/api',
           targetBaseUrl: `http://localhost:${unavailablePort}`,
           sourcePort: proxyPort,
@@ -428,19 +399,19 @@ describe('ProxyManager', () => {
     })
 
     it('Should emit onProxyFailed event on error', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const unavailablePort = getPort()
 
         let failedEvent: { from: string; to: string; error: unknown } | undefined
 
-        proxyManager.subscribe('onProxyFailed', (event) => {
+        injector.get(ServerTelemetryToken).subscribe('onProxyFailed', (event) => {
           failedEvent = event
         })
 
         // Set up proxy to non-existent target
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/api',
           targetBaseUrl: `http://localhost:${unavailablePort}`,
           sourcePort: proxyPort,
@@ -455,11 +426,10 @@ describe('ProxyManager', () => {
     })
 
     it('Should validate targetBaseUrl on addProxy', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
-
+      await usingAsync(createInjector(), async (injector) => {
         await expect(
-          proxyManager.addProxy({
+          useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: 'not-a-valid-url',
             sourcePort: getPort(),
@@ -469,8 +439,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should filter hop-by-hop headers', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -488,7 +457,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -518,8 +488,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should preserve multiple Set-Cookie headers from target', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -536,7 +505,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -565,8 +535,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should add X-Forwarded headers to target request', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -582,7 +551,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -600,8 +570,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should abort upstream when client disconnects', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -629,7 +598,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -663,14 +633,13 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle request timeout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
         let failedEvent: { from: string; to: string; error: unknown } | undefined
 
-        proxyManager.subscribe('onProxyFailed', (event) => {
+        injector.get(ServerTelemetryToken).subscribe('onProxyFailed', (event) => {
           failedEvent = event
         })
 
@@ -688,7 +657,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -712,8 +682,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should complete successfully when response is faster than timeout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -728,7 +697,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -748,8 +718,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should use default timeout when not specified', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -767,7 +736,8 @@ describe('ProxyManager', () => {
 
         try {
           // No timeout specified - should use default 30000ms
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -789,12 +759,12 @@ describe('ProxyManager', () => {
 
   describe('Edge cases and error handling', () => {
     it('Should validate invalid protocol (non-HTTP/HTTPS)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
 
         await expect(
-          proxyManager.addProxy({
+          useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: 'ftp://example.com',
             sourcePort: proxyPort,
@@ -804,14 +774,13 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle invalid target URL created by pathRewrite', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
         let failedEvent: { from: string; to: string; error: unknown } | undefined
 
-        proxyManager.subscribe('onProxyFailed', (event) => {
+        injector.get(ServerTelemetryToken).subscribe('onProxyFailed', (event) => {
           failedEvent = event
         })
 
@@ -826,7 +795,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -853,8 +823,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle number-type header values', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -872,7 +841,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -904,8 +874,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle array-type header values', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -922,7 +891,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -941,8 +911,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle undefined header values', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -959,7 +928,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -982,8 +952,7 @@ describe('ProxyManager', () => {
 
   describe('WebSocket proxy functionality', () => {
     it('Should proxy WebSocket connections when enabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -996,7 +965,8 @@ describe('ProxyManager', () => {
 
         try {
           // Set up proxy with WebSocket support
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1030,8 +1000,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle bidirectional WebSocket communication', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1059,7 +1028,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1107,8 +1077,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should not proxy WebSocket when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1122,7 +1091,8 @@ describe('ProxyManager', () => {
 
         try {
           // Set up proxy WITHOUT WebSocket support
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1154,8 +1124,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should preserve WebSocket subprotocols', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1175,7 +1144,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1214,8 +1184,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle WebSocket path rewriting', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1235,7 +1204,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/old/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1271,8 +1241,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle WebSocket connection closure from client', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1293,7 +1262,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1328,8 +1298,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle WebSocket connection closure from server', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1348,7 +1317,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1388,18 +1358,18 @@ describe('ProxyManager', () => {
     })
 
     it('Should emit onWebSocketProxyFailed event on error', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const proxyPort = getPort()
         const unavailablePort = getPort()
 
         let failedEvent: { from: string; to: string; error: unknown } | undefined
 
-        proxyManager.subscribe('onWebSocketProxyFailed', (event) => {
+        injector.get(ServerTelemetryToken).subscribe('onWebSocketProxyFailed', (event) => {
           failedEvent = event
         })
 
-        await proxyManager.addProxy({
+        await useProxy({
+          injector,
           sourceBaseUrl: '/ws',
           targetBaseUrl: `http://localhost:${unavailablePort}`,
           sourcePort: proxyPort,
@@ -1427,8 +1397,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle large WebSocket messages', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1448,7 +1417,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1490,8 +1460,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle binary WebSocket messages', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1511,7 +1480,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1548,8 +1518,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should apply header transformations to WebSocket upgrade', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1569,7 +1538,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1609,8 +1579,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle WebSocket upgrade timeout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1626,7 +1595,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1663,14 +1633,13 @@ describe('ProxyManager', () => {
     }, 10000)
 
     it('Should handle unusual path in WebSocket upgrade with PathHelper', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
         let failedEvent: { from: string; to: string; error: unknown } | undefined
 
-        proxyManager.subscribe('onWebSocketProxyFailed', (event) => {
+        injector.get(ServerTelemetryToken).subscribe('onWebSocketProxyFailed', (event) => {
           failedEvent = event
         })
 
@@ -1688,7 +1657,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1724,8 +1694,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle WebSocket header value types (number, array, undefined)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1738,7 +1707,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1777,8 +1747,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle WebSocket connections with query parameters', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1790,7 +1759,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1820,8 +1790,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle WebSocket close with code and reason', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1830,7 +1799,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/ws',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1856,8 +1826,7 @@ describe('ProxyManager', () => {
 
   describe('HTTP Methods and Status Codes', () => {
     it('Should handle PUT requests with body', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1872,7 +1841,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1896,8 +1866,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle PATCH requests with body', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1912,7 +1881,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1936,8 +1906,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle DELETE requests', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1947,7 +1916,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -1965,8 +1935,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle OPTIONS requests (CORS preflight)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -1980,7 +1949,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -2000,8 +1970,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle HEAD requests', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -2014,7 +1983,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -2034,8 +2004,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle 4xx client error responses', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -2045,7 +2014,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
@@ -2063,8 +2033,7 @@ describe('ProxyManager', () => {
     })
 
     it('Should handle 5xx server error responses', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const proxyManager = injector.getInstance(ProxyManager)
+      await usingAsync(createInjector(), async (injector) => {
         const targetPort = getPort()
         const proxyPort = getPort()
 
@@ -2074,7 +2043,8 @@ describe('ProxyManager', () => {
         })
 
         try {
-          await proxyManager.addProxy({
+          await useProxy({
+            injector,
             sourceBaseUrl: '/api',
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,

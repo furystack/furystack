@@ -1,55 +1,138 @@
-import type { User } from '@furystack/core'
-import { useSystemIdentityContext } from '@furystack/core'
+import { useSystemIdentityContext, type User } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
-import type { RestApi } from '@furystack/rest'
 import type { DataSet } from '@furystack/repository'
+import type { RestApi } from '@furystack/rest'
 import { PasswordAuthenticator } from '@furystack/security'
-
-import type { ImplementApiOptions } from './api-manager.js'
-import { ApiManager } from './api-manager.js'
+import { PathHelper } from '@furystack/utils'
 import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { createBasicAuthProvider } from './authentication-providers/basic-auth-provider.js'
 import { createCookieAuthProvider } from './authentication-providers/cookie-auth-provider.js'
 import { authenticateUserWithDataSet, findSessionById, findUserByName } from './authentication-providers/helpers.js'
-import { HttpAuthenticationSettings } from './http-authentication-settings.js'
-import type { DefaultSession } from './models/default-session.js'
-import type { ProxyOptions } from './proxy-manager.js'
-import { ProxyManager } from './proxy-manager.js'
-import type { StaticServerOptions } from './static-server-manager.js'
-import { StaticServerManager } from './static-server-manager.js'
+import { CreateGetOpenApiDocumentAction } from './endpoint-generators/create-get-openapi-document-action.js'
+import { CreateGetSchemaAction } from './endpoint-generators/create-get-schema-action.js'
+import { defaultHttpAuthenticationSettings, HttpAuthenticationSettings } from './http-authentication-settings.js'
+import { HttpServerPoolToken, type ServerApi } from './http-server-pool.js'
+import { HttpUserContext } from './http-user-context.js'
+import type { CorsOptions } from './models/cors-options.js'
+import { buildProxyServerApi, type ProxyOptions } from './proxy-runtime.js'
+import { compileApi, onRestApiMessage, type RestApiImplementation, shouldExecRequest } from './rest-api-runtime.js'
+import { ServerTelemetryToken } from './server-telemetry.js'
+import { buildStaticSiteServerApi, type StaticServerOptions } from './static-site-runtime.js'
 
 /**
- * Sets up the @furystack/rest-service with the provided settings
- * @param api The API implementation details
- * @returns a promise that resolves when the API is added to the server
+ * Options accepted by {@link useRestService}. Mirrors the pre-migration
+ * shape, minus fields that have moved to tokens.
  */
-export const useRestService = async <T extends RestApi>(api: ImplementApiOptions<T>) =>
-  await api.injector.getInstance(ApiManager).addApi({ ...api })
+export interface ImplementApiOptions<T extends RestApi> {
+  /** The structure of the implemented API. */
+  api: RestApiImplementation<T>
+  /** Injector used to resolve request-scoped services and to acquire the HTTP server. */
+  injector: Injector
+  /** Optional host name; defaults to `localhost`. */
+  hostName?: string
+  /** Root path prepended to every API route. */
+  root: string
+  /** Port the API should listen on. */
+  port: number
+  /** Optional CORS configuration applied to every matched request. */
+  cors?: CorsOptions
+  /** Optional query-string deserialiser override. */
+  deserializeQueryParams?: (param: string) => Record<string, unknown>
+  /** When `true`, adds `GET /schema` and `GET /openapi.json` endpoints. */
+  enableGetSchema?: boolean
+  /** OpenAPI display name. */
+  name?: string
+  /** OpenAPI description. */
+  description?: string
+  /** OpenAPI version. */
+  version?: string
+}
 
 /**
- * Sets up the HTTP Authentication with pluggable providers.
+ * Acquires a pooled HTTP server, compiles the user-supplied API definition
+ * and attaches a {@link ServerApi} that dispatches matching requests.
  *
- * Registers Basic Auth (if enabled) and Cookie Auth as built-in providers,
- * then appends any custom providers passed via settings.
- *
- * @param injector  The Injector instance
- * @param settings Settings for HTTP Authentication
+ * Public contract is unchanged from the pre-migration release; internally
+ * everything goes through the functional tokens.
  */
-export const useHttpAuthentication = <TUser extends User, TSession extends DefaultSession>(
-  injector: Injector,
-  settings?: Partial<HttpAuthenticationSettings<TUser, TSession>>,
-) => {
-  const mergedSettings = Object.assign(new HttpAuthenticationSettings<TUser, TSession>(), settings)
+export const useRestService = async <T extends RestApi>(options: ImplementApiOptions<T>): Promise<ServerApi> => {
+  const {
+    injector,
+    api,
+    hostName,
+    port,
+    root,
+    cors,
+    deserializeQueryParams,
+    enableGetSchema,
+    name,
+    description,
+    version,
+  } = options
+
+  const extendedApi: typeof api = enableGetSchema
+    ? ({
+        ...api,
+        GET: {
+          ...api.GET,
+          '/schema': CreateGetSchemaAction(api, name, description, version),
+          '/openapi.json': CreateGetOpenApiDocumentAction(api, name, description, version),
+        },
+      } as typeof api)
+    : api
+
+  const supportedMethods = Object.keys(extendedApi)
+  const rootApiPath = PathHelper.normalize(root)
+  const compiledApi = compileApi(extendedApi, root)
+
+  const serverApi: ServerApi = {
+    shouldExec: ({ req }) =>
+      shouldExecRequest({
+        method: req.method?.toUpperCase() as never,
+        url: PathHelper.normalize(req.url || ''),
+        rootApiPath,
+        supportedMethods,
+      }),
+    onRequest: (msg) =>
+      onRestApiMessage({
+        ...msg,
+        compiledApi,
+        rootApiPath,
+        port,
+        supportedMethods,
+        cors,
+        injector,
+        hostName,
+        deserializeQueryParams,
+      }),
+  }
+
+  const pool = injector.get(HttpServerPoolToken)
+  const record = await pool.acquire({ port, hostName })
+  record.apis.push(serverApi)
+  return serverApi
+}
+
+/**
+ * Installs HTTP authentication on the given injector: builds the provider
+ * chain (Basic + Cookie by default), appends any caller-provided providers
+ * and rebinds {@link HttpAuthenticationSettings}.
+ *
+ * Prerequisite: {@link UserStore} and {@link SessionStore} must be bound to
+ * persistent implementations before calling this helper, since the Basic
+ * and Cookie providers need to read users and sessions immediately.
+ */
+export const useHttpAuthentication = (injector: Injector, overrides?: Partial<HttpAuthenticationSettings>): void => {
+  const mergedSettings: HttpAuthenticationSettings = {
+    ...defaultHttpAuthenticationSettings(),
+    ...overrides,
+  }
   const systemInjector = useSystemIdentityContext({ injector, username: 'useHttpAuthentication' })
-  const passwordAuthenticator = injector.getInstance(PasswordAuthenticator)
-  const userDataSet = mergedSettings.getUserDataSet(systemInjector) as unknown as DataSet<User, 'username'>
-  const sessionDataSet = mergedSettings.getSessionDataSet(systemInjector) as unknown as DataSet<
-    DefaultSession,
-    'sessionId'
-  >
+  const passwordAuthenticator = injector.get(PasswordAuthenticator)
+  const userDataSet = systemInjector.get(mergedSettings.userDataSet) as unknown as DataSet<User, 'username'>
+  const sessionDataSet = systemInjector.get(mergedSettings.sessionDataSet)
 
   const providers: AuthenticationProvider[] = []
-
   if (mergedSettings.enableBasicAuth) {
     providers.push(
       createBasicAuthProvider((username, password) =>
@@ -57,7 +140,6 @@ export const useHttpAuthentication = <TUser extends User, TSession extends Defau
       ),
     )
   }
-
   providers.push(
     createCookieAuthProvider(
       mergedSettings.cookieName,
@@ -65,90 +147,39 @@ export const useHttpAuthentication = <TUser extends User, TSession extends Defau
       (username) => findUserByName(userDataSet, systemInjector, username),
     ),
   )
-
-  providers.push(...(settings?.authenticationProviders ?? []))
+  providers.push(...(overrides?.authenticationProviders ?? []))
   mergedSettings.authenticationProviders = providers
 
-  injector.setExplicitInstance(mergedSettings, HttpAuthenticationSettings)
+  injector.bind(HttpAuthenticationSettings, () => mergedSettings)
+  injector.invalidate(HttpAuthenticationSettings)
+  injector.invalidate(HttpUserContext)
 }
 
 /**
- * Sets up a static file server
- * @param options The settings for the static file server
- * @param options.injector The Injector instance
- * @param options.settings Settings for the static file server
- * @returns a promise that resolves when the server is ready
+ * Attaches a static-file {@link ServerApi} to the pooled HTTP server
+ * identified by `options.port`/`options.hostName`.
  */
-export const useStaticFiles = (options: { injector: Injector } & StaticServerOptions) => {
+export const useStaticFiles = async (options: { injector: Injector } & StaticServerOptions): Promise<ServerApi> => {
   const { injector, ...settings } = options
-  return injector.getInstance(StaticServerManager).addStaticSite(settings)
+  const pool = injector.get(HttpServerPoolToken)
+  const record = await pool.acquire({ port: settings.port, hostName: settings.hostName })
+  const serverApi = buildStaticSiteServerApi(settings)
+  record.apis.push(serverApi)
+  return serverApi
 }
 
 /**
- * Sets up a proxy server that forwards HTTP requests from a source URL to a target URL.
- *
- * The proxy acts as an intermediary, forwarding requests and responses while allowing
- * transformation of headers, cookies, and paths. It returns 502 Bad Gateway on errors
- * and emits 'onProxyFailed' events for monitoring.
- *
- * WebSocket connections can also be proxied by setting `enableWebsockets: true`, allowing
- * bidirectional real-time communication through the proxy.
- *
- * @param options The settings for the proxy server
- * @param options.injector The Injector instance
- * @param options.sourceBaseUrl The base URL path to match for proxying (e.g., '/api', '/old').
- *                               Can be specified with or without a trailing slash.
- * @param options.targetBaseUrl The target server URL (must be a valid HTTP/HTTPS URL)
- * @param options.pathRewrite Optional function to rewrite the path before forwarding.
- *                            Receives the path after sourceBaseUrl, including leading slash and query string.
- *                            Example: for 'GET /api/users?active=true' with sourceBaseUrl='/api',
- *                            pathRewrite receives '/users?active=true'
- * @param options.sourceHostName The hostname for the source server (optional, defaults to all interfaces)
- * @param options.sourcePort The port for the source server
- * @param options.headers Optional function to transform request headers.
- *                        **Note**: Receives headers AFTER filtering hop-by-hop headers
- *                        (Connection, Keep-Alive, Transfer-Encoding, Upgrade, etc.) for security
- *                        and protocol compliance. The proxy automatically adds X-Forwarded-* headers.
- *                        This transformation applies to both HTTP and WebSocket requests.
- * @param options.cookies Optional function to transform request cookies (array of cookie strings)
- * @param options.responseCookies Optional function to transform response Set-Cookie headers
- * @param options.timeout Optional timeout in milliseconds for proxy requests (default: 30000).
- *                        If exceeded, the request is aborted and 502 is returned.
- *                        Applies to both HTTP and WebSocket upgrade requests.
- * @param options.enableWebsockets Optional flag to enable WebSocket proxying (default: false).
- *                                 When enabled, WebSocket upgrade requests will be forwarded to the target.
- * @returns a promise that resolves when the proxy is set up
- * @example
- * ```ts
- * // Basic HTTP proxy with timeout
- * await useProxy({
- *   injector,
- *   sourceBaseUrl: '/api',
- *   targetBaseUrl: 'https://api.example.com',
- *   sourcePort: 3000,
- *   timeout: 5000,
- * })
- *
- * // Proxy with WebSocket support
- * await useProxy({
- *   injector,
- *   sourceBaseUrl: '/ws',
- *   targetBaseUrl: 'https://ws.example.com',
- *   sourcePort: 3000,
- *   enableWebsockets: true,
- * })
- *
- * // Proxy with error monitoring (HTTP and WebSocket)
- * const proxyManager = injector.getInstance(ProxyManager)
- * proxyManager.subscribe('onProxyFailed', ({ from, to, error }) => {
- *   console.error(`HTTP Proxy failed: ${from} -> ${to}`, error)
- * })
- * proxyManager.subscribe('onWebSocketProxyFailed', ({ from, to, error }) => {
- *   console.error(`WebSocket Proxy failed: ${from} -> ${to}`, error)
- * })
- * ```
+ * Attaches a proxy {@link ServerApi} that forwards HTTP (and optionally
+ * WebSocket) traffic from `options.sourceBaseUrl` to `options.targetBaseUrl`.
+ * Emits `onProxyFailed` and `onWebSocketProxyFailed` events into the shared
+ * {@link ServerTelemetryToken} — subscribe there for observability.
  */
-export const useProxy = (options: { injector: Injector } & ProxyOptions) => {
+export const useProxy = async (options: { injector: Injector } & ProxyOptions): Promise<ServerApi> => {
   const { injector, ...settings } = options
-  return injector.getInstance(ProxyManager).addProxy(settings)
+  const telemetry = injector.get(ServerTelemetryToken)
+  const pool = injector.get(HttpServerPoolToken)
+  const record = await pool.acquire({ port: settings.sourcePort, hostName: settings.sourceHostName })
+  const serverApi = buildProxyServerApi(settings, telemetry)
+  record.apis.push(serverApi)
+  return serverApi
 }

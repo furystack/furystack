@@ -1,83 +1,67 @@
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
-import { getDataSetFor } from '@furystack/repository'
+import { createInjector } from '@furystack/inject'
 import type { GetEntityEndpoint } from '@furystack/rest'
 import { serializeToQueryString } from '@furystack/rest'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { useRestService } from '../helpers.js'
 import { createGetEntityEndpoint } from './create-get-entity-endpoint.js'
-import { MockClass, setupContext } from './utils.js'
+import type { MockClass } from './utils.js'
+import { MockDataSet, setupContext } from './utils.js'
 
 describe('createGetEntityEndpoint', () => {
-  it('Should return the entity', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('returns the entity by id', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupContext(i)
       const port = getPort()
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
         port,
-        api: {
-          GET: {
-            '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
-          },
-        },
+        api: { GET: { '/:id': createGetEntityEndpoint(MockDataSet) } },
       })
       const mockEntity: MockClass = { id: 'mock', value: 'mock' }
-      await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
+      await i.get(MockDataSet).add(i, mockEntity)
 
       const response = await fetch(`http://127.0.0.1:${port}/api/mock`, { method: 'GET' })
       expect(response.status).toBe(200)
-      const body = (await response.json()) as MockClass
-      expect(body).toEqual(mockEntity)
+      expect(await response.json()).toEqual(mockEntity)
     })
   })
 
-  it('Should return the entity with the selected fields', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('honours a select query parameter', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupContext(i)
       const port = getPort()
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
         port,
-        api: {
-          GET: {
-            '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
-          },
-        },
+        api: { GET: { '/:id': createGetEntityEndpoint(MockDataSet) } },
       })
-      const mockEntity: MockClass = { id: 'mock', value: 'mock' }
-      await getDataSetFor(i, MockClass, 'id').add(i, mockEntity)
+      await i.get(MockDataSet).add(i, { id: 'mock', value: 'mock' })
 
       const response = await fetch(`http://127.0.0.1:${port}/api/mock?${serializeToQueryString({ select: ['id'] })}`, {
         method: 'GET',
       })
       expect(response.status).toBe(200)
-      const body = (await response.json()) as { id: string }
-      expect(body).toEqual({ id: mockEntity.id })
+      expect(await response.json()).toEqual({ id: 'mock' })
     })
   })
 
-  it('Should return 404 if no entity has been found', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('responds with 404 when the entity does not exist', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupContext(i)
       const port = getPort()
       await useRestService<{ GET: { '/:id': GetEntityEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
         port,
-        api: {
-          GET: {
-            '/:id': createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
-          },
-        },
+        api: { GET: { '/:id': createGetEntityEndpoint(MockDataSet) } },
       })
       const result = await fetch(`http://127.0.0.1:${port}/api/mock`, { method: 'GET' })
       expect(result.status).toBe(404)
-      const body = (await result.json()) as { message: string }
-      expect(body).toEqual({ message: 'Entity not found' })
+      expect(await result.json()).toEqual({ message: 'Entity not found' })
     })
   })
 })

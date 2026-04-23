@@ -1,25 +1,25 @@
-import { InMemoryStore, User, addStore } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
-import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
+import type { User } from '@furystack/core'
+import { InMemoryStore, User as UserModel, useSystemIdentityContext } from '@furystack/core'
+import { createInjector, type Injector } from '@furystack/inject'
+import {
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  usePasswordPolicy,
+} from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
-
 import { useHttpAuthentication } from './helpers.js'
 import { createCookieLoginStrategy } from './login-response-strategy.js'
 import { DefaultSession } from './models/default-session.js'
+import { SessionDataSet, SessionStore, UserStore } from './user-store.js'
 
 const setupInjector = (i: Injector) => {
-  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-
-  const repo = getRepository(i)
-  repo.createDataSet(User, 'username')
-  repo.createDataSet(DefaultSession, 'sessionId')
-  repo.createDataSet(PasswordCredential, 'userName')
-  repo.createDataSet(PasswordResetToken, 'token')
+  i.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  i.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  i.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  i.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
 
   usePasswordPolicy(i)
   useHttpAuthentication(i)
@@ -28,8 +28,8 @@ const setupInjector = (i: Injector) => {
 describe('createCookieLoginStrategy', () => {
   const testUser: User = { username: 'testuser', roles: ['admin'] }
 
-  it('Should return the user as the response body', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('returns the user as the response body', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupInjector(i)
       const strategy = createCookieLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
@@ -37,8 +37,8 @@ describe('createCookieLoginStrategy', () => {
     })
   })
 
-  it('Should return status code 200', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('returns status code 200', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupInjector(i)
       const strategy = createCookieLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
@@ -46,8 +46,8 @@ describe('createCookieLoginStrategy', () => {
     })
   })
 
-  it('Should include a Set-Cookie header with the session ID', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('emits a Set-Cookie header with the generated session id', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupInjector(i)
       const strategy = createCookieLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
@@ -59,23 +59,24 @@ describe('createCookieLoginStrategy', () => {
     })
   })
 
-  it('Should persist the session in the DataSet', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('persists the session via SessionDataSet', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupInjector(i)
       const strategy = createCookieLoginStrategy(i)
       await strategy.createLoginResponse(testUser, i)
 
-      const repo = getRepository(i)
-      const sessionDataSet = repo.getDataSetFor(DefaultSession, 'sessionId')
-      const sessions = await sessionDataSet.find(i, { filter: { username: { $eq: 'testuser' } } })
-      expect(sessions).toHaveLength(1)
-      expect(sessions[0].username).toBe('testuser')
-      expect(sessions[0].sessionId).toBeTruthy()
+      await usingAsync(useSystemIdentityContext({ injector: i, username: 'spec' }), async (systemScope) => {
+        const sessionDataSet = systemScope.get(SessionDataSet)
+        const sessions = await sessionDataSet.find(systemScope, { filter: { username: { $eq: 'testuser' } } })
+        expect(sessions).toHaveLength(1)
+        expect(sessions[0].username).toBe('testuser')
+        expect(sessions[0].sessionId).toBeTruthy()
+      })
     })
   })
 
-  it('Should create unique session IDs for each call', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('creates unique session ids for each call', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupInjector(i)
       const strategy = createCookieLoginStrategy(i)
 

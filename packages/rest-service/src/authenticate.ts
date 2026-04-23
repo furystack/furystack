@@ -32,7 +32,7 @@ export const Authenticate =
       if (!authenticated) {
         await sleepAsync(Math.random() * 1000)
         const hasBasicAuth = injector
-          .getInstance(HttpUserContext)
+          .get(HttpUserContext)
           .authentication.authenticationProviders.some((p) => p.name === 'basic-auth')
         return JsonResult(
           { error: 'unauthorized' },

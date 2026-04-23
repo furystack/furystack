@@ -11,6 +11,6 @@ import { EmptyResult } from '../request-action-implementation.js'
  * @returns An empty result that indicates the success
  */
 export const LogoutAction: RequestAction<{ result: unknown }> = async ({ injector, request, response }) => {
-  await injector.getInstance(HttpUserContext).cookieLogout(request, response)
+  await injector.get(HttpUserContext).cookieLogout(request, response)
   return EmptyResult()
 }

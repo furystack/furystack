@@ -1,25 +1,19 @@
-import type { Constructable } from '@furystack/inject'
+import type { DataSetToken } from '@furystack/repository'
 import type { DeleteEndpoint } from '@furystack/rest'
-import type { RequestAction } from '../request-action-implementation.js'
-import { JsonResult } from '../request-action-implementation.js'
-import { getRepository } from '@furystack/repository'
+import { JsonResult, type RequestAction } from '../request-action-implementation.js'
 
 /**
- * Creates a DELETE endpoint for removing entities
- * @param options The options for endpoint creation
- * @param options.model The Model class
- * @param options.primaryKey The field used as primary key on the model
- * @returns a boolean that indicates the success
+ * Creates a DELETE endpoint that removes the entity identified by the URL's
+ * `:id` parameter. Returns `204 No Content` once the removal has been
+ * persisted to the underlying store.
  */
-export const createDeleteEndpoint = <T extends object, TPrimaryKey extends keyof T>(options: {
-  model: Constructable<T>
-  primaryKey: TPrimaryKey
-}) => {
-  const endpoint: RequestAction<DeleteEndpoint<T, TPrimaryKey>> = async ({ injector, getUrlParams }) => {
+export const createDeleteEndpoint = <T extends object, TPrimaryKey extends keyof T>(
+  dataSet: DataSetToken<T, TPrimaryKey>,
+): RequestAction<DeleteEndpoint<T, TPrimaryKey>> => {
+  return async ({ injector, getUrlParams }) => {
     const { id } = getUrlParams()
-    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
-    await dataSet.remove(injector, id)
+    const ds = injector.get(dataSet)
+    await ds.remove(injector, id)
     return JsonResult({}, 204)
   }
-  return endpoint
 }

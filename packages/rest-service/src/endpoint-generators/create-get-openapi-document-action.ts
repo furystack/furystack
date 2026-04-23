@@ -1,16 +1,16 @@
 import type { Injector } from '@furystack/inject'
 import type { ApiDocumentMetadata, OpenApiDocument, RestApi, SecuritySchemeObject } from '@furystack/rest'
 
-import type { RestApiImplementation } from '../api-manager.js'
 import { getSchemaFromApi } from '../get-schema-from-api.js'
 import { HttpAuthenticationSettings } from '../http-authentication-settings.js'
 import { mapProvidersToSecuritySchemes } from '../openapi/auth-provider-to-security-scheme.js'
 import { generateOpenApiDocument } from '../openapi/generate-openapi-document.js'
 import { JsonResult, type RequestAction } from '../request-action-implementation.js'
+import type { RestApiImplementation } from '../rest-api-runtime.js'
 
 const getSecuritySchemesFromInjector = (injector: Injector): Record<string, SecuritySchemeObject> | undefined => {
   try {
-    const settings = injector.getInstance(HttpAuthenticationSettings)
+    const settings = injector.get(HttpAuthenticationSettings)
     if (settings.authenticationProviders.length > 0) {
       return mapProvidersToSecuritySchemes(settings.authenticationProviders)
     }

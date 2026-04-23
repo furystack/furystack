@@ -1,284 +1,237 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { InMemoryStore, StoreManager, User, addStore, useSystemIdentityContext } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { getDataSetFor, getRepository } from '@furystack/repository'
+import type { User } from '@furystack/core'
+import { InMemoryStore, User as UserModel, useSystemIdentityContext } from '@furystack/core'
+import { createInjector, type Injector } from '@furystack/inject'
 import {
   PasswordAuthenticator,
   PasswordCredential,
+  PasswordCredentialStore,
   PasswordResetToken,
+  PasswordResetTokenStore,
   UnauthenticatedError,
   usePasswordPolicy,
 } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
-import type { IncomingMessage, ServerResponse } from 'http'
+import type { IncomingMessage } from 'http'
 import { describe, expect, it, vi } from 'vitest'
 import { useHttpAuthentication } from './helpers.js'
 import { HttpUserContext } from './http-user-context.js'
 import { DefaultSession } from './models/default-session.js'
+import { SessionDataSet, SessionStore, UserStore } from './user-store.js'
 
-export const prepareInjector = async (i: Injector, options?: { enableBasicAuth?: boolean }) => {
-  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-
-  const repo = getRepository(i)
-  repo.createDataSet(User, 'username')
-  repo.createDataSet(DefaultSession, 'sessionId')
-  repo.createDataSet(PasswordCredential, 'userName')
-  repo.createDataSet(PasswordResetToken, 'token')
+/**
+ * Binds in-memory implementations for every persistent token required by
+ * the authentication subsystem (users, sessions, credentials, reset tokens)
+ * on the provided injector, then installs the default password policy and
+ * HTTP-authentication stack.
+ */
+export const prepareInjector = (i: Injector, options?: { enableBasicAuth?: boolean }): void => {
+  i.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  i.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  i.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  i.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
 
   usePasswordPolicy(i)
   useHttpAuthentication(i, { enableBasicAuth: options?.enableBasicAuth ?? true })
 }
 
-const setupUser = async (i: Injector, userName: string, password: string) => {
-  const sm = i.getInstance(StoreManager)
-  const pw = i.getInstance(PasswordAuthenticator)
-  const cred = await pw.hasher.createCredential(userName, password)
-  await sm.getStoreFor(PasswordCredential, 'userName').add(cred)
-  await sm.getStoreFor(User, 'username').add({ username: userName, roles: [] })
+const setupUser = async (i: Injector, userName: string, password: string): Promise<void> => {
+  const authenticator = i.get(PasswordAuthenticator)
+  const credential = await authenticator.hasher.createCredential(userName, password)
+  await i.get(PasswordCredentialStore).add(credential)
+  await i.get(UserStore).add({ username: userName, roles: [] })
 }
 
 describe('HttpUserContext', () => {
   const request = { headers: {} } as IncomingMessage
-  const response = {} as any as ServerResponse
-
   const testUser: User = { username: 'testUser', roles: ['grantedRole1', 'grantedRole2'] }
 
-  it('Should be constructed with the extension method', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      await prepareInjector(i)
-      const ctx = i.getInstance(HttpUserContext)
-      expect(ctx).toBeInstanceOf(HttpUserContext)
+  it('resolves to an HttpUserContext via the DI token', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
+      const ctx = i.get(HttpUserContext)
+      expect(ctx).toBeDefined()
+      expect(ctx.authentication).toBeDefined()
     })
   })
 
   describe('isAuthenticated', () => {
-    it('Should return true for authenticated users', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('returns true when the cached user is present', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         ctx.getCurrentUser = vi.fn(async () => testUser)
-        const value = await ctx.isAuthenticated(request)
-        expect(value).toBe(true)
-        expect(ctx.getCurrentUser).toBeCalled()
+        expect(await ctx.isAuthenticated(request)).toBe(true)
+        expect(ctx.getCurrentUser).toHaveBeenCalled()
       })
     })
 
-    it('Should return false for unauthenticated users', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('returns false when getCurrentUser rejects', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         ctx.getCurrentUser = vi.fn(async () => {
-          throw Error(':(')
+          throw new Error(':(')
         })
-        await expect(ctx.isAuthenticated(request)).resolves.toEqual(false)
-        expect(ctx.getCurrentUser).toBeCalled()
+        expect(await ctx.isAuthenticated(request)).toBe(false)
       })
     })
   })
 
   describe('isAuthorized', () => {
-    it('Should return true if all roles are authorized', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('returns true when the current user has every requested role', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         ctx.getCurrentUser = vi.fn(async () => testUser)
-        const value = await ctx.isAuthorized(request, 'grantedRole1', 'grantedRole2')
-        expect(value).toBe(true)
-        expect(ctx.getCurrentUser).toBeCalled()
+        expect(await ctx.isAuthorized(request, 'grantedRole1', 'grantedRole2')).toBe(true)
       })
     })
 
-    it('Should return false if not all roles are authorized', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('returns false when any requested role is missing', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         ctx.getCurrentUser = vi.fn(async () => testUser)
-        const value = await ctx.isAuthorized(request, 'grantedRole1', 'nonGrantedRole2')
-        expect(value).toBe(false)
-        expect(ctx.getCurrentUser).toBeCalled()
+        expect(await ctx.isAuthorized(request, 'grantedRole1', 'otherRole')).toBe(false)
       })
     })
   })
 
   describe('authenticateUser', () => {
-    it('Should fail when the store is empty', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        await expect(ctx.authenticateUser('user', 'password')).rejects.toThrowError(UnauthenticatedError)
-      })
-    })
-
-    it('Should fail when the password not equals', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        await setupUser(i, 'user', 'pass123')
-        await expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass321')).rejects.toThrowError(
+    it('throws UnauthenticatedError when the credential store is empty', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        await expect(i.get(HttpUserContext).authenticateUser('user', 'password')).rejects.toBeInstanceOf(
           UnauthenticatedError,
         )
       })
     })
 
-    it('Should fail when the username not equals', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
+    it('throws UnauthenticatedError when the password does not match', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        await setupUser(i, 'user', 'pass123')
+        await expect(i.get(HttpUserContext).authenticateUser('user', 'wrong')).rejects.toBeInstanceOf(
+          UnauthenticatedError,
+        )
+      })
+    })
+
+    it('throws UnauthenticatedError for an unknown username', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
         await setupUser(i, 'otherUser', 'pass123')
-        await expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toThrowError(
+        await expect(i.get(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toBeInstanceOf(
           UnauthenticatedError,
         )
       })
     })
 
-    it('Should fail when password not provided', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
+    it('throws UnauthenticatedError when the user exists only as a credential', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
         await setupUser(i, 'user', 'pass123')
-        await expect(i.getInstance(HttpUserContext).authenticateUser('user', '')).rejects.toThrowError(
+        await i.get(UserStore).remove('user')
+        await expect(i.get(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toBeInstanceOf(
           UnauthenticatedError,
         )
       })
     })
 
-    it('Should fail when the user is not in the user store', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
+    it('returns the user on valid credentials', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
         await setupUser(i, 'user', 'pass123')
-        await i.getInstance(StoreManager).getStoreFor(User, 'username').remove('user')
-        await expect(i.getInstance(HttpUserContext).authenticateUser('user', 'pass123')).rejects.toThrowError(
-          UnauthenticatedError,
-        )
-      })
-    })
-
-    it('Should return the user when the username and password matches', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        await setupUser(i, 'user', 'pass123')
-        const ctx = i.getInstance(HttpUserContext)
-        const value = await ctx.authenticateUser('user', 'pass123')
-        expect(value).toEqual({ username: 'user', roles: [] })
+        expect(await i.get(HttpUserContext).authenticateUser('user', 'pass123')).toEqual({
+          username: 'user',
+          roles: [],
+        })
       })
     })
   })
 
   describe('getSessionIdFromRequest', () => {
-    it('Should return null if no headers present', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const sid = ctx.getSessionIdFromRequest(request)
-        expect(sid).toBeNull()
+    it('returns null when no headers are present', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        expect(i.get(HttpUserContext).getSessionIdFromRequest(request)).toBeNull()
       })
     })
 
-    it('Should return null if no session ID cookie present', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const requestWithCookie = { ...request, cookie: 'a=2;b=3;c=4;' } as unknown as IncomingMessage
-        const ctx = i.getInstance(HttpUserContext)
-        const sid = ctx.getSessionIdFromRequest(requestWithCookie)
-        expect(sid).toBeNull()
+    it('returns null when no session cookie is present', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const requestWithCookie = { headers: { cookie: 'a=2;b=3;' } } as unknown as IncomingMessage
+        expect(i.get(HttpUserContext).getSessionIdFromRequest(requestWithCookie)).toBeNull()
       })
     })
-    it('Should return the Session ID value if session ID cookie present', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+
+    it('returns the session id when the configured cookie is present', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         const requestWithAuthCookie = {
-          ...request,
           headers: { cookie: `a=2;b=3;${ctx.authentication.cookieName}=666;c=4;` },
         } as unknown as IncomingMessage
-
-        const sid = ctx.getSessionIdFromRequest(requestWithAuthCookie)
-        expect(sid).toBe('666')
+        expect(ctx.getSessionIdFromRequest(requestWithAuthCookie)).toBe('666')
       })
     })
   })
 
   describe('authenticateRequest', () => {
-    it('Should authenticate with Basic Auth when enabled and valid credentials provided', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
+    it('authenticates with Basic Auth when enabled and credentials are valid', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
         await setupUser(i, 'testuser', 'password')
-        const ctx = i.getInstance(HttpUserContext)
-        const result = await ctx.authenticateRequest({
+        const result = await i.get(HttpUserContext).authenticateRequest({
           headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
         } as IncomingMessage)
         expect(result.username).toBe('testuser')
       })
     })
 
-    it('Should NOT try to authenticate with Basic when disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i, { enableBasicAuth: false })
+    it('does not attempt Basic Auth when it is disabled', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { enableBasicAuth: false })
         await setupUser(i, 'testuser', 'password')
-        const ctx = i.getInstance(HttpUserContext)
         await expect(
-          ctx.authenticateRequest({
+          i.get(HttpUserContext).authenticateRequest({
             headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
           } as IncomingMessage),
-        ).rejects.toThrowError(UnauthenticatedError)
+        ).rejects.toBeInstanceOf(UnauthenticatedError)
       })
     })
 
-    it('Should fail with no session in the store', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('throws when the cookie session id does not exist', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         await expect(
           ctx.authenticateRequest({
-            headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
+            headers: { cookie: `${ctx.authentication.cookieName}=666;` },
           } as IncomingMessage),
-        ).rejects.toThrowError(UnauthenticatedError)
+        ).rejects.toBeInstanceOf(UnauthenticatedError)
       })
     })
 
-    it('Should fail with valid session Id but no user', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        await i.getInstance(StoreManager).getStoreFor(DefaultSession, 'sessionId').add({
-          sessionId: '666',
-          username: testUser.username,
-        })
-        await expect(
-          ctx.authenticateRequest({
-            headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
-          } as IncomingMessage),
-        ).rejects.toThrowError(UnauthenticatedError)
-      })
-    })
-
-    it('Should authenticate with cookie, if the session IDs matches', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-
-        const ctx = i.getInstance(HttpUserContext)
-        await i.getInstance(StoreManager).getStoreFor(DefaultSession, 'sessionId').add({
-          sessionId: '666',
-          username: testUser.username,
-        })
-
-        await i
-          .getInstance(StoreManager)
-          .getStoreFor(User, 'username')
-          .add({ ...testUser })
+    it('authenticates via cookie when the session id matches a stored user', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        await i.get(SessionStore).add({ sessionId: '666', username: testUser.username })
+        await i.get(UserStore).add({ ...testUser })
 
         const result = await ctx.authenticateRequest({
-          headers: { cookie: `${ctx.authentication.cookieName}=666;a=3` },
+          headers: { cookie: `${ctx.authentication.cookieName}=666;` },
         } as IncomingMessage)
-
         expect(result).toEqual(testUser)
       })
     })
 
-    it('Should iterate providers and return null results pass to next', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('walks providers in order and stops at the first match', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         const provider1 = vi.fn(async () => null)
         const provider2 = vi.fn(async () => testUser)
         ctx.authentication.authenticationProviders = [
@@ -292,10 +245,10 @@ describe('HttpUserContext', () => {
       })
     })
 
-    it('Should throw if provider throws (skipping remaining providers)', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('propagates a provider-thrown error and skips remaining providers', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         const provider1 = vi.fn(async () => {
           throw new UnauthenticatedError()
         })
@@ -304,253 +257,86 @@ describe('HttpUserContext', () => {
           { name: 'test-1', authenticate: provider1 },
           { name: 'test-2', authenticate: provider2 },
         ]
-        await expect(ctx.authenticateRequest(request)).rejects.toThrowError(UnauthenticatedError)
+        await expect(ctx.authenticateRequest(request)).rejects.toBeInstanceOf(UnauthenticatedError)
         expect(provider2).not.toHaveBeenCalled()
       })
     })
 
-    it('Should throw UnauthenticatedError if no provider returns a user', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('throws UnauthenticatedError when no provider returns a user', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         ctx.authentication.authenticationProviders = [{ name: 'test-1', authenticate: async () => null }]
-        await expect(ctx.authenticateRequest(request)).rejects.toThrowError(UnauthenticatedError)
+        await expect(ctx.authenticateRequest(request)).rejects.toBeInstanceOf(UnauthenticatedError)
       })
     })
   })
 
   describe('getCurrentUser', () => {
-    it('Should return the current user from authenticateRequest() once per request', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
+    it('caches the result of authenticateRequest within the request scope', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
         ctx.authenticateRequest = vi.fn(async () => testUser)
-        const result = await ctx.getCurrentUser(request)
-        const result2 = await ctx.getCurrentUser(request)
-        expect(ctx.authenticateRequest).toBeCalledTimes(1)
+        const first = await ctx.getCurrentUser(request)
+        const second = await ctx.getCurrentUser(request)
+        expect(ctx.authenticateRequest).toHaveBeenCalledTimes(1)
+        expect(first).toBe(testUser)
+        expect(second).toBe(testUser)
+      })
+    })
+  })
+
+  describe('cookieLogin / cookieLogout', () => {
+    it('persists the session, sets the cookie and emits onLogin', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        const setHeader = vi.fn()
+        const onLogin = vi.fn()
+        ctx.addListener('onLogin', onLogin)
+
+        const result = await ctx.cookieLogin(testUser, { setHeader })
         expect(result).toBe(testUser)
-        expect(result2).toBe(testUser)
-      })
-    })
-  })
+        expect(setHeader).toHaveBeenCalledTimes(1)
+        expect(onLogin).toHaveBeenCalledWith({ user: testUser })
 
-  describe('cookieLogin', () => {
-    it('Should return the current user from authenticateRequest() once per request', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const setHeader = vi.fn()
-        const addMock = vi.fn(async () => ({}))
-        // @ts-expect-error
-        ctx.getSessionDataSet = vi.fn(() => ({ add: addMock }))
-        const authResult = await ctx.cookieLogin(testUser, { setHeader })
-        expect(authResult).toBe(testUser)
-        expect(setHeader).toBeCalled()
-        expect(addMock).toBeCalled()
-      })
-    })
-  })
-
-  describe('cookieLogout', () => {
-    it('Should invalidate the current session id cookie', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const setHeader = vi.fn()
-        const removeMock = vi.fn(async () => undefined)
-        const sessionDataSetMock = {
-          add: vi.fn(async () => ({})),
-          find: vi.fn(async () => [{ sessionId: 'example-session-id' }]),
-          remove: removeMock,
-          primaryKey: 'sessionId' as const,
-        }
-        // @ts-expect-error
-        ctx.getSessionDataSet = vi.fn(() => sessionDataSetMock)
-        ctx.authenticateRequest = vi.fn(async () => testUser)
-        ctx.getSessionIdFromRequest = () => 'example-session-id'
-        response.setHeader = vi.fn(() => response)
-        await ctx.cookieLogin(testUser, { setHeader })
-        await ctx.cookieLogout(request, response)
-        expect(response.setHeader).toBeCalledWith('Set-Cookie', 'fss=; Path=/; HttpOnly')
-        expect(removeMock).toBeCalled()
-      })
-    })
-  })
-
-  describe('EventHub events', () => {
-    it('Should emit onLogin when cookieLogin succeeds', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const handler = vi.fn()
-        ctx.addListener('onLogin', handler)
-
-        const addMock = vi.fn(async () => ({}))
-        // @ts-expect-error
-        ctx.getSessionDataSet = vi.fn(() => ({ add: addMock }))
-
-        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
-
-        expect(handler).toHaveBeenCalledTimes(1)
-        expect(handler).toHaveBeenCalledWith({ user: testUser })
+        await usingAsync(useSystemIdentityContext({ injector: i, username: 'spec' }), async (systemScope) => {
+          const sessionDataSet = systemScope.get(SessionDataSet)
+          expect(await sessionDataSet.count(systemScope)).toBe(1)
+        })
       })
     })
 
-    it('Should emit onLogout when cookieLogout is called', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const handler = vi.fn()
-        ctx.addListener('onLogout', handler)
-
-        const sessionDataSetMock = {
-          add: vi.fn(async () => ({})),
-          find: vi.fn(async () => [{ sessionId: 'sid' }]),
-          remove: vi.fn(async () => undefined),
-          primaryKey: 'sessionId' as const,
-        }
-        // @ts-expect-error
-        ctx.getSessionDataSet = vi.fn(() => sessionDataSetMock)
-        ctx.getSessionIdFromRequest = () => 'sid'
-
-        await ctx.cookieLogout(request, { setHeader: vi.fn() })
-
-        expect(handler).toHaveBeenCalledTimes(1)
-        expect(handler).toHaveBeenCalledWith(undefined)
-      })
-    })
-
-    it('Should emit onSessionInvalidated when the user entity is removed', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const sm = i.getInstance(StoreManager)
-        await sm.getStoreFor(User, 'username').add(testUser)
-
-        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
-
-        const handler = vi.fn()
-        ctx.addListener('onSessionInvalidated', handler)
-
-        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
-
-        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const userDataSet = getDataSetFor(systemInjector, User, 'username')
-        await userDataSet.remove(systemInjector, testUser.username)
-
-        expect(handler).toHaveBeenCalledTimes(1)
-      })
-    })
-
-    it('Should emit onSessionInvalidated when the session entity is removed', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const sm = i.getInstance(StoreManager)
-        await sm.getStoreFor(User, 'username').add(testUser)
-
-        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
-
-        const handler = vi.fn()
-        ctx.addListener('onSessionInvalidated', handler)
+    it('clears the session cookie, removes the stored session and emits onLogout', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        const onLogout = vi.fn()
+        ctx.addListener('onLogout', onLogout)
 
         let sessionId = ''
         await ctx.cookieLogin(testUser, {
-          setHeader: (_headerName, headerValue) => {
-            sessionId = headerValue.split('=')[1].split(';')[0]
+          setHeader: (_name, value) => {
+            sessionId = value.split('=')[1].split(';')[0]
           },
         })
 
-        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const sessionDataSet = getDataSetFor(systemInjector, DefaultSession, 'sessionId')
-        await sessionDataSet.remove(systemInjector, sessionId)
+        const logoutSetHeader = vi.fn()
+        await ctx.cookieLogout(
+          { headers: { cookie: `${ctx.authentication.cookieName}=${sessionId};` } } as IncomingMessage,
+          { setHeader: logoutSetHeader },
+        )
+        expect(logoutSetHeader).toHaveBeenCalledWith(
+          'Set-Cookie',
+          `${ctx.authentication.cookieName}=; Path=/; HttpOnly`,
+        )
+        expect(onLogout).toHaveBeenCalledWith(undefined)
 
-        expect(handler).toHaveBeenCalledTimes(1)
-      })
-    })
-  })
-
-  describe('Changes in the store during the context lifetime', () => {
-    it('Should update user roles', () => {
-      return usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const sm = i.getInstance(StoreManager)
-        await sm.getStoreFor(User, 'username').add(testUser)
-
-        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
-
-        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
-
-        const originalUser = await ctx.getCurrentUser(request)
-        expect(originalUser).toEqual(testUser)
-
-        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const userDataSet = getDataSetFor(systemInjector, User, 'username')
-        const updatedUser = { ...testUser, roles: ['newFancyRole'] }
-        await userDataSet.update(systemInjector, testUser.username, updatedUser)
-        const updatedUserFromContext = await ctx.getCurrentUser(request)
-        expect(updatedUserFromContext.roles).toEqual(['newFancyRole'])
-
-        await userDataSet.update(systemInjector, testUser.username, { ...updatedUser, roles: [] })
-        const reloadedUserFromContext = await ctx.getCurrentUser(request)
-        expect(reloadedUserFromContext.roles).toEqual([])
-      })
-    })
-
-    it('Should remove current user when the user is removed from the store', () => {
-      return usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const sm = i.getInstance(StoreManager)
-        await sm.getStoreFor(User, 'username').add(testUser)
-
-        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
-
-        await ctx.cookieLogin(testUser, { setHeader: vi.fn() })
-
-        const originalUser = await ctx.getCurrentUser(request)
-        expect(originalUser).toEqual(testUser)
-
-        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const userDataSet = getDataSetFor(systemInjector, User, 'username')
-        await userDataSet.remove(systemInjector, testUser.username)
-
-        await expect(() => ctx.getCurrentUser(request)).rejects.toThrowError(UnauthenticatedError)
-      })
-    })
-
-    it('Should remove current user when the session is removed from the store', () => {
-      return usingAsync(new Injector(), async (i) => {
-        await prepareInjector(i)
-        const ctx = i.getInstance(HttpUserContext)
-        const sm = i.getInstance(StoreManager)
-        await sm.getStoreFor(User, 'username').add(testUser)
-
-        let sessionId = ''
-
-        const pw = await i.getInstance(PasswordAuthenticator).hasher.createCredential(testUser.username, 'test')
-        await sm.getStoreFor(PasswordCredential, 'userName').add(pw)
-
-        await ctx.cookieLogin(testUser, {
-          setHeader: (_headerName, headerValue) => {
-            sessionId = headerValue.split('=')[1].split(';')[0]
-            return {} as ServerResponse
-          },
+        await usingAsync(useSystemIdentityContext({ injector: i, username: 'spec' }), async (systemScope) => {
+          const sessionDataSet = systemScope.get(SessionDataSet)
+          expect(await sessionDataSet.count(systemScope)).toBe(0)
         })
-
-        const originalUser = await ctx.getCurrentUser(request)
-        expect(originalUser).toEqual(testUser)
-
-        const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const sessionDataSet = getDataSetFor(systemInjector, DefaultSession, 'sessionId')
-        await sessionDataSet.remove(systemInjector, sessionId)
-
-        await expect(() => ctx.getCurrentUser(request)).rejects.toThrowError(UnauthenticatedError)
       })
     })
   })

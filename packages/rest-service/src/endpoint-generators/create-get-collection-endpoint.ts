@@ -1,28 +1,26 @@
-import type { Constructable } from '@furystack/inject'
+import type { DataSetToken } from '@furystack/repository'
 import type { GetCollectionEndpoint } from '@furystack/rest'
-import type { RequestAction } from '../request-action-implementation.js'
-import { JsonResult } from '../request-action-implementation.js'
-import { getRepository } from '@furystack/repository'
+import { JsonResult, type RequestAction } from '../request-action-implementation.js'
 
 /**
- * Creates a GetCollection endpoint for the given model. The model should have a Repository DataSet
- * @param options The options for endpoint creation
- * @param options.model The Model class
- * @param options.primaryKey The field used as primary key on the model
- * @returns The created endpoint
+ * Creates a GetCollection endpoint backed by the DataSet resolved from the
+ * provided {@link DataSetToken}. The token carries the entity model and
+ * primary key, so callers no longer need to pass them separately.
+ *
+ * @example
+ * ```ts
+ * const endpoint = createGetCollectionEndpoint(UserDataSet)
+ * ```
  */
-export const createGetCollectionEndpoint = <T, TPrimaryKey extends keyof T>(options: {
-  model: Constructable<T>
-  primaryKey: TPrimaryKey
-}) => {
-  const endpoint: RequestAction<GetCollectionEndpoint<T>> = async ({ injector, getQuery }) => {
+export const createGetCollectionEndpoint = <T, TPrimaryKey extends keyof T>(
+  dataSet: DataSetToken<T, TPrimaryKey>,
+): RequestAction<GetCollectionEndpoint<T>> => {
+  return async ({ injector, getQuery }) => {
     const { findOptions } = getQuery()
-    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
-    const entriesPromise = dataSet.find(injector, findOptions || {})
-    const countPromise = dataSet.count(injector, findOptions?.filter)
+    const ds = injector.get(dataSet)
+    const entriesPromise = ds.find(injector, findOptions || {})
+    const countPromise = ds.count(injector, findOptions?.filter)
     const [entries, count] = await Promise.all([entriesPromise, countPromise])
-
     return JsonResult({ entries, count })
   }
-  return endpoint
 }
