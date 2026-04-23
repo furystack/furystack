@@ -1,33 +1,23 @@
-import { Injectable, Injected } from '@furystack/inject'
 import { HttpUserContext } from '@furystack/rest-service'
-import type { IncomingMessage } from 'http'
-import type { Data, WebSocket } from 'ws'
 import type { WebSocketAction } from '../models/websocket-action.js'
 
 /**
- * Example action that returns the current user instance
+ * Example action that replies with the current user resolved from the
+ * per-connection `HttpUserContext`. Handles `whoami` and `whoami /claims`.
  */
-@Injectable({ lifetime: 'transient' })
-export class WhoAmI implements WebSocketAction {
-  public [Symbol.dispose]() {
-    /** */
-  }
-  public static canExecute(options: { data: Data; request: IncomingMessage }): boolean {
+export const WhoAmI: WebSocketAction = {
+  canExecute: ({ data }) => {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    const stringifiedValue: string = options.data.toString()
-
+    const stringifiedValue: string = data.toString()
     return stringifiedValue === 'whoami' || stringifiedValue === 'whoami /claims'
-  }
-
-  public async execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }) {
+  },
+  execute: async ({ request, socket, injector }) => {
+    const httpUserContext = injector.get(HttpUserContext)
     try {
-      const currentUser = await this.httpUserContext.getCurrentUser(options.request)
-      options.socket.send(JSON.stringify({ currentUser }))
-    } catch (error) {
-      options.socket.send(JSON.stringify({ currentUser: null }))
+      const currentUser = await httpUserContext.getCurrentUser(request)
+      socket.send(JSON.stringify({ currentUser }))
+    } catch {
+      socket.send(JSON.stringify({ currentUser: null }))
     }
-  }
-
-  @Injected(HttpUserContext)
-  declare private readonly httpUserContext: HttpUserContext
+  },
 }

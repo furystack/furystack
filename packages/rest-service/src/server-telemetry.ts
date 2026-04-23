@@ -1,6 +1,7 @@
 import { defineService, type Token } from '@furystack/inject'
 import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { IncomingMessage, ServerResponse } from 'http'
+import type { Data, WebSocket } from 'ws'
 
 /**
  * Union of every server-lifecycle event the rest-service runtime emits. Replaces
@@ -19,6 +20,8 @@ export type ServerTelemetryEvents = {
   onProxyFailed: { from: string; to: string; error: unknown }
   /** Emitted when a WebSocket proxy upgrade fails. */
   onWebSocketProxyFailed: { from: string; to: string; error: unknown }
+  /** Emitted when a WebSocket API action fails during lookup or execution. */
+  onWebSocketActionFailed: { error: unknown; data?: Data; socket?: WebSocket }
   /** Emitted when a listener registered on this telemetry hub throws. */
   onListenerError: ListenerErrorPayload
 }

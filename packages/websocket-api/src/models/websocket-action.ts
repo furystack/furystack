@@ -1,16 +1,35 @@
+import type { Injector } from '@furystack/inject'
 import type { IncomingMessage } from 'http'
 import type { Data, WebSocket } from 'ws'
 
 /**
- * Static methods of a WebSocket Action
+ * Context passed to a {@link WebSocketAction}'s `canExecute` hook. Kept
+ * intentionally minimal — the match step runs against every incoming
+ * message, so it must stay side-effect free and cheap.
  */
-export interface WebSocketActionStatic {
-  canExecute(options: { data: Data; request: IncomingMessage; socket: WebSocket }): boolean
+export interface WebSocketActionMatchContext {
+  data: Data
+  request: IncomingMessage
+  socket: WebSocket
 }
 
 /**
- * A WebSocket action implementaion
+ * Context passed to a {@link WebSocketAction}'s `execute` implementation.
+ * `injector` is the per-connection scope created by `useWebSocketApi` and
+ * carries a bound `IdentityContext` for the requesting client.
  */
-export interface WebSocketAction extends Disposable {
-  execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }): Promise<void>
+export interface WebSocketActionContext extends WebSocketActionMatchContext {
+  injector: Injector
+}
+
+/**
+ * A WebSocket action descriptor. Plain objects replace the former
+ * class-based contract: no decorators, no static members, no per-request
+ * instances — deps are resolved from `context.injector` on demand.
+ */
+export interface WebSocketAction {
+  /** Synchronous predicate used to match an incoming message. */
+  canExecute: (context: WebSocketActionMatchContext) => boolean
+  /** Handles a matched message. Errors are routed to `ServerTelemetryToken#onWebSocketActionFailed`. */
+  execute: (context: WebSocketActionContext) => Promise<void>
 }

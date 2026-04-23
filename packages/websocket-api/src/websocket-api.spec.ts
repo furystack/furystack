@@ -1,54 +1,38 @@
-import { InMemoryStore, User, addStore } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
-import { Injectable, Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
-import { DefaultSession } from '@furystack/rest-service'
-import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
+import { createInjector } from '@furystack/inject'
+import { ServerTelemetryToken } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
+import type { IncomingMessage, ServerResponse } from 'http'
 import { describe, expect, it, vi } from 'vitest'
-import { WebSocket, type Data } from 'ws'
-import { useWebsockets } from './helpers.js'
+import { WebSocket } from 'ws'
 import type { WebSocketAction } from './models/websocket-action.js'
-import { WebSocketApi } from './websocket-api.js'
+import { useWebSocketApi } from './websocket-api.js'
 
-const setupStoresAndDataSets = (injector: Injector) => {
-  addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-
-  const repo = getRepository(injector)
-  repo.createDataSet(User, 'username')
-  repo.createDataSet(DefaultSession, 'sessionId')
-  repo.createDataSet(PasswordCredential, 'userName')
-  repo.createDataSet(PasswordResetToken, 'token')
-
-  usePasswordPolicy(injector)
-}
-
-describe('WebSocketApi', () => {
-  it('Should be built', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupStoresAndDataSets(i)
-      await useWebsockets(i, { port: getPort() })
-      expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
-    })
-  })
-  it('Should be built with settings', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupStoresAndDataSets(i)
-      await useWebsockets(i, { path: '/web-socket', port: getPort() })
-      expect(i.getInstance(WebSocketApi)).toBeInstanceOf(WebSocketApi)
+describe('useWebSocketApi', () => {
+  it('returns a handle exposing the underlying WebSocketServer', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const api = await useWebSocketApi({ injector: i, port: getPort() })
+      expect(api.socket).toBeDefined()
+      expect(typeof api.broadcast).toBe('function')
+      expect(api.serverApi.shouldExec).toBeTypeOf('function')
     })
   })
 
-  it('Should broadcast messages', async () => {
+  it('matches the configured path on the serverApi', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const api = await useWebSocketApi({ injector: i, port: getPort(), path: '/web-socket' })
+      const req = { url: '/web-socket', headers: { host: 'localhost' } } as unknown as IncomingMessage
+      const noMatch = { url: '/other', headers: { host: 'localhost' } } as unknown as IncomingMessage
+      const res = {} as ServerResponse
+      expect(api.serverApi.shouldExec({ req, res })).toBe(true)
+      expect(api.serverApi.shouldExec({ req: noMatch, res })).toBe(false)
+    })
+  })
+
+  it('broadcasts messages to every connected client', async () => {
     const port = getPort()
-    await usingAsync(new Injector(), async (i) => {
-      setupStoresAndDataSets(i)
-
-      await useWebsockets(i, { path: '/web-socket', port })
-      const api = i.getInstance(WebSocketApi)
+    await usingAsync(createInjector(), async (i) => {
+      const api = await useWebSocketApi({ injector: i, port, path: '/web-socket' })
 
       const clients = await Promise.all(
         [1, 2, 3, 4, 5].map(async () => {
@@ -65,8 +49,8 @@ describe('WebSocketApi', () => {
           }),
       )
 
-      await api.broadcast(({ ws }) => {
-        ws.send('alma')
+      await api.broadcast(({ ws: socket }) => {
+        socket.send('alma')
       })
 
       const messages = await Promise.all(messagePromises)
@@ -83,23 +67,21 @@ describe('WebSocketApi', () => {
     })
   })
 
-  it('Should emit onClientConnected and onClientDisconnected events', async () => {
+  it('emits onClientConnected and onClientDisconnected', async () => {
     const port = getPort()
-    await usingAsync(new Injector(), async (i) => {
-      setupStoresAndDataSets(i)
-      await useWebsockets(i, { path: '/ws-events', port })
-      const api = i.getInstance(WebSocketApi)
+    await usingAsync(createInjector(), async (i) => {
+      const api = await useWebSocketApi({ injector: i, port, path: '/ws-events' })
 
-      const connectedHandler = vi.fn()
-      const disconnectedHandler = vi.fn()
-      api.addListener('onClientConnected', connectedHandler)
-      api.addListener('onClientDisconnected', disconnectedHandler)
+      const connected = vi.fn()
+      const disconnected = vi.fn()
+      api.addListener('onClientConnected', connected)
+      api.addListener('onClientDisconnected', disconnected)
 
       const client = new WebSocket(`ws://localhost:${port}/ws-events`)
       await new Promise<void>((resolve) => client.once('open', () => resolve()))
 
-      expect(connectedHandler).toHaveBeenCalled()
-      expect(connectedHandler).toHaveBeenCalledWith(
+      expect(connected).toHaveBeenCalled()
+      expect(connected).toHaveBeenCalledWith(
         expect.objectContaining({ ws: expect.any(Object) as object, message: expect.any(Object) as object }),
       )
 
@@ -107,39 +89,28 @@ describe('WebSocketApi', () => {
       await new Promise<void>((resolve) => client.once('close', () => resolve()))
       await new Promise((resolve) => setTimeout(resolve, 50))
 
-      expect(disconnectedHandler).toHaveBeenCalled()
+      expect(disconnected).toHaveBeenCalled()
     })
   })
 
-  it('Should emit onError when action execution throws', async () => {
+  it('forwards action execution errors to ServerTelemetry#onWebSocketActionFailed', async () => {
     const port = getPort()
-    await usingAsync(new Injector(), async (i) => {
-      setupStoresAndDataSets(i)
-
-      @Injectable()
-      class FailingAction implements WebSocketAction {
-        public [Symbol.dispose]() {
-          /** */
-        }
-        public static canExecute() {
-          return true
-        }
-        public async execute(): Promise<void> {
+    await usingAsync(createInjector(), async (i) => {
+      const failingAction: WebSocketAction = {
+        canExecute: () => true,
+        execute: async () => {
           throw new Error('action failed')
-        }
+        },
       }
+      await useWebSocketApi({ injector: i, port, path: '/ws-error-test', actions: [failingAction] })
 
-      await useWebsockets(i, { path: '/ws-error-test', port, actions: [FailingAction] })
-      const api = i.getInstance(WebSocketApi)
-
+      const telemetry = i.get(ServerTelemetryToken)
       const errorHandler = vi.fn()
-      api.addListener('onError', errorHandler)
+      telemetry.addListener('onWebSocketActionFailed', errorHandler)
 
       const client = new WebSocket(`ws://localhost:${port}/ws-error-test`)
       await new Promise<void>((resolve) => client.once('open', () => resolve()))
-
       await new Promise<void>((resolve, reject) => client.send('trigger', (err) => (err ? reject(err) : resolve())))
-
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(errorHandler).toHaveBeenCalled()
@@ -150,20 +121,15 @@ describe('WebSocketApi', () => {
     })
   })
 
-  it('Should receive client messages', async () => {
+  it('invokes the matched action with a per-connection injector', async () => {
     const port = getPort()
-    await usingAsync(new Injector(), async (i) => {
-      setupStoresAndDataSets(i)
-
-      const data = { value: 'test-message-unique' }
-      @Injectable()
-      class ExampleWsAction implements WebSocketAction {
-        public [Symbol.dispose]() {
-          /** */
-        }
-        public static canExecute(incomingData: { data: Data }) {
+    await usingAsync(createInjector(), async (i) => {
+      const executed = vi.fn()
+      const action: WebSocketAction = {
+        canExecute: ({ data }) => {
           try {
-            const parsed = JSON.parse((incomingData.data as Buffer).toString()) as unknown
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
+            const parsed = JSON.parse(data.toString()) as unknown
             return (
               typeof parsed === 'object' &&
               parsed !== null &&
@@ -173,29 +139,25 @@ describe('WebSocketApi', () => {
           } catch {
             return false
           }
-        }
-
-        public async execute(options: { data: Data; socket: WebSocket }) {
-          expect(JSON.parse((options.data as Buffer).toString())).toEqual(data)
-          options.socket.send('done')
-        }
+        },
+        execute: async ({ socket, injector }) => {
+          executed(injector !== i)
+          socket.send('done')
+        },
       }
 
-      await useWebsockets(i, { path: '/web-socket-test', port, actions: [ExampleWsAction] })
+      await useWebSocketApi({ injector: i, port, path: '/web-socket-test', actions: [action] })
       const client = new WebSocket(`ws://localhost:${port}/web-socket-test`)
       await new Promise<void>((resolve) => client.once('open', () => resolve()))
 
-      const responsePromise = new Promise<void>((resolve) => {
-        client.once('message', () => {
-          resolve()
-        })
-      })
-
+      const reply = new Promise<void>((resolve) => client.once('message', () => resolve()))
       await new Promise<void>((resolve, reject) =>
-        client.send(JSON.stringify(data), (err) => (err ? reject(err) : resolve())),
+        client.send(JSON.stringify({ value: 'test-message-unique' }), (err) => (err ? reject(err) : resolve())),
       )
+      await reply
 
-      await responsePromise
+      expect(executed).toHaveBeenCalledWith(true)
+
       client.close()
       await new Promise<void>((resolve) => client.once('close', () => resolve()))
     })
