@@ -2,6 +2,8 @@ type ListenerFunction<EventTypeMap extends object, T extends keyof EventTypeMap>
   arg: EventTypeMap[T],
 ) => void | PromiseLike<void>
 
+type AnyListener = (arg: unknown) => void | PromiseLike<void>
+
 /**
  * Payload emitted when a listener throws or rejects during {@link EventHub.emit}.
  * Subscribe to the `onListenerError` event to receive these.
@@ -51,24 +53,24 @@ export type ListenerErrorPayload = {
  * ```
  */
 export class EventHub<EventTypeMap extends object> implements Disposable {
-  private listeners = new Map<keyof EventTypeMap, Set<ListenerFunction<EventTypeMap, keyof EventTypeMap>>>()
+  #listeners: Map<PropertyKey, Set<AnyListener>> = new Map()
 
   public addListener<TEvent extends keyof EventTypeMap>(
     event: TEvent,
     listener: ListenerFunction<EventTypeMap, TEvent>,
   ) {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Set())
+    if (!this.#listeners.has(event)) {
+      this.#listeners.set(event, new Set())
     }
-    this.listeners.get(event)!.add(listener as ListenerFunction<EventTypeMap, keyof EventTypeMap>)
+    this.#listeners.get(event)!.add(listener as AnyListener)
   }
 
   public removeListener<TEvent extends keyof EventTypeMap>(
     event: TEvent,
     listener: ListenerFunction<EventTypeMap, TEvent>,
   ) {
-    if (this.listeners.has(event)) {
-      this.listeners.get(event)!.delete(listener as ListenerFunction<EventTypeMap, keyof EventTypeMap>)
+    if (this.#listeners.has(event)) {
+      this.#listeners.get(event)!.delete(listener as AnyListener)
     }
   }
 
@@ -80,16 +82,16 @@ export class EventHub<EventTypeMap extends object> implements Disposable {
     return { [Symbol.dispose]: () => this.removeListener(event, listener) }
   }
 
-  private handleListenerError(event: keyof EventTypeMap, error: unknown) {
+  #handleListenerError(event: PropertyKey, error: unknown) {
     if (event === 'onListenerError') {
       console.error('Error in onListenerError handler', error)
       return
     }
-    const errorListeners = this.listeners.get('onListenerError' as keyof EventTypeMap)
+    const errorListeners = this.#listeners.get('onListenerError')
     if (errorListeners?.size) {
       for (const errorListener of errorListeners) {
         try {
-          const result = errorListener({ event, error } as EventTypeMap[keyof EventTypeMap])
+          const result = errorListener({ event, error })
           if (result && typeof result.then === 'function') {
             result.then(undefined, (err: unknown) => {
               console.error('Error in onListenerError handler', err)
@@ -105,23 +107,23 @@ export class EventHub<EventTypeMap extends object> implements Disposable {
   }
 
   public emit<TEvent extends keyof EventTypeMap>(event: TEvent, arg: EventTypeMap[TEvent]) {
-    if (this.listeners.has(event)) {
-      this.listeners.get(event)!.forEach((listener) => {
+    if (this.#listeners.has(event)) {
+      this.#listeners.get(event)!.forEach((listener) => {
         try {
           const result = listener(arg)
           if (result && typeof result.then === 'function') {
             result.then(undefined, (error: unknown) => {
-              this.handleListenerError(event, error)
+              this.#handleListenerError(event, error)
             })
           }
         } catch (error) {
-          this.handleListenerError(event, error)
+          this.#handleListenerError(event, error)
         }
       })
     }
   }
 
   public [Symbol.dispose]() {
-    this.listeners.clear()
+    this.#listeners.clear()
   }
 }
