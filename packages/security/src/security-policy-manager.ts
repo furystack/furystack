@@ -1,51 +1,100 @@
-import { Injectable, Injected } from '@furystack/inject'
+import { defineService, type Token } from '@furystack/inject'
 import type { PasswordCredential, PasswordResetToken } from './models/index.js'
 import { SecurityPolicy } from './security-policy.js'
 
-@Injectable({ lifetime: 'singleton' })
-export class SecurityPolicyManager {
-  /**
-   * @param password The Plain password string
-   * @returns whether the password matches the complexity rules
-   */
-  public async matchPasswordComplexityRules(password: string) {
-    const result = await Promise.all(this.policy.passwordComplexityRules.map((rule) => rule.check(password)))
-    const failed = result.filter((r) => r.success === false)
-    if (failed.length) {
-      return {
-        match: false as const,
-        errors: failed.map((f) => f.success === false && { message: f.message, rule: f.rule }) as Array<{
-          message: string
-          rule: string
-        }>,
-      }
-    }
+/**
+ * Result of a successful password complexity check — no rule reported a
+ * failure.
+ */
+export type PasswordComplexityMatch = { match: true }
 
-    return {
-      match: true as const,
-    }
-  }
-
-  public hasPasswordExpired(credential: PasswordCredential) {
-    if (!this.policy.passwordExpirationDays) {
-      return false
-    }
-    const credentialExpiration = new Date(credential.creationDate)
-    credentialExpiration.setDate(credentialExpiration.getDate() + this.policy.passwordExpirationDays)
-    const now = new Date()
-    return now > credentialExpiration
-  }
-
-  public hasTokenExpired(token: PasswordResetToken) {
-    if (!this.policy.resetTokenExpirationSeconds) {
-      return false
-    }
-    const tokenExpiration = new Date(token.createdAt)
-    tokenExpiration.setSeconds(tokenExpiration.getSeconds() + this.policy.resetTokenExpirationSeconds)
-    const now = new Date()
-    return now > tokenExpiration
-  }
-
-  @Injected(SecurityPolicy)
-  declare public readonly policy: SecurityPolicy
+/**
+ * Result of a failed password complexity check along with the individual
+ * rule failures for user-facing reporting.
+ */
+export type PasswordComplexityMismatch = {
+  match: false
+  errors: Array<{ message: string; rule: string }>
 }
+
+/**
+ * Runtime checker for the active {@link SecurityPolicy}. Applies complexity
+ * rules to candidate passwords and determines whether stored credentials
+ * and reset tokens have expired.
+ */
+export interface SecurityPolicyManager {
+  /** The active {@link SecurityPolicy} snapshot captured at resolve time. */
+  readonly policy: SecurityPolicy
+  /**
+   * Evaluates every complexity rule against `password` and aggregates the
+   * result. `match: true` means the password is acceptable.
+   */
+  matchPasswordComplexityRules(password: string): Promise<PasswordComplexityMatch | PasswordComplexityMismatch>
+  /**
+   * Returns `true` when `credential.creationDate` plus
+   * `policy.passwordExpirationDays` is in the past. Always `false` when the
+   * policy sets `passwordExpirationDays` to `0`.
+   */
+  hasPasswordExpired(credential: PasswordCredential): boolean
+  /**
+   * Returns `true` when `token.createdAt` plus
+   * `policy.resetTokenExpirationSeconds` is in the past. Always `false`
+   * when the policy sets `resetTokenExpirationSeconds` to `0`.
+   */
+  hasTokenExpired(token: PasswordResetToken): boolean
+}
+
+const addDays = (base: Date, days: number): Date => {
+  const result = new Date(base)
+  result.setDate(result.getDate() + days)
+  return result
+}
+
+const addSeconds = (base: Date, seconds: number): Date => {
+  const result = new Date(base)
+  result.setSeconds(result.getSeconds() + seconds)
+  return result
+}
+
+/**
+ * DI token for the singleton {@link SecurityPolicyManager}. Resolves the
+ * current {@link SecurityPolicy} once and closes over it for the lifetime
+ * of the owning injector.
+ */
+export const SecurityPolicyManager: Token<SecurityPolicyManager, 'singleton'> = defineService({
+  name: 'furystack/security/SecurityPolicyManager',
+  lifetime: 'singleton',
+  factory: ({ inject }): SecurityPolicyManager => {
+    const policy = inject(SecurityPolicy)
+    return {
+      policy,
+      matchPasswordComplexityRules: async (password) => {
+        const outcomes = await Promise.all(policy.passwordComplexityRules.map((rule) => rule.check(password)))
+        const failed = outcomes.filter((outcome) => outcome.success === false)
+        if (failed.length === 0) {
+          return { match: true }
+        }
+        return {
+          match: false,
+          errors: failed.map((outcome) =>
+            outcome.success === false ? { message: outcome.message, rule: outcome.rule } : { message: '', rule: '' },
+          ),
+        }
+      },
+      hasPasswordExpired: (credential) => {
+        if (!policy.passwordExpirationDays) {
+          return false
+        }
+        const expiration = addDays(new Date(credential.creationDate), policy.passwordExpirationDays)
+        return new Date() > expiration
+      },
+      hasTokenExpired: (token) => {
+        if (!policy.resetTokenExpirationSeconds) {
+          return false
+        }
+        const expiration = addSeconds(new Date(token.createdAt), policy.resetTokenExpirationSeconds)
+        return new Date() > expiration
+      },
+    }
+  },
+})

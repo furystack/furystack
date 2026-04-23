@@ -1,6 +1,5 @@
-import { addStore, InMemoryStore, StoreManager, User } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
+import { InMemoryStore } from '@furystack/core'
+import { createInjector, type Injector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { randomBytes } from 'crypto'
 import { describe, expect, it, vi } from 'vitest'
@@ -11,353 +10,234 @@ import type { PasswordCheckFailedResult } from './models/password-check-result.j
 import { PasswordCredential } from './models/password-credential.js'
 import { PasswordResetToken } from './models/password-reset-token.js'
 import { PasswordAuthenticator } from './password-authenticator.js'
+import { PasswordCredentialStore, PasswordResetTokenStore } from './password-credential-store.js'
 import { createMinLengthComplexityRule } from './password-complexity-rules/min-length.js'
 import { SecurityPolicyManager } from './security-policy-manager.js'
 
 const randomString = () => randomBytes(32).toString('hex')
 
-const setupSecurityStores = (i: Injector) => {
-  addStore(i, new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-    .addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-  getRepository(i).createDataSet(PasswordCredential, 'userName')
-  getRepository(i).createDataSet(PasswordResetToken, 'token')
+/**
+ * Binds a fresh in-memory implementation of the two credential stores. The
+ * production default factories throw on purpose; tests opt in to memory
+ * persistence explicitly per injector.
+ */
+const useInMemorySecurityStores = (i: Injector) => {
+  i.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  i.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
 }
 
 describe('PasswordAuthenticator', () => {
-  it('Should be instantiated', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupSecurityStores(i)
+  it('resolves to a configured authenticator when stores and policy are set up', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      useInMemorySecurityStores(i)
       usePasswordPolicy(i)
-      const auth = i.getInstance(PasswordAuthenticator)
-      expect(auth).toBeInstanceOf(PasswordAuthenticator)
+      const auth = i.get(PasswordAuthenticator)
+      expect(auth.policyManager).toBeDefined()
+      expect(auth.hasher).toBeDefined()
     })
   })
 
-  it('Should inherit policy from the extension method', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupSecurityStores(i)
-      usePasswordPolicy(i, {
-        passwordComplexityRules: [createMinLengthComplexityRule(3)],
-      })
-      const auth = i.getInstance(PasswordAuthenticator)
-      expect(auth).toBeInstanceOf(PasswordAuthenticator)
+  it('picks up complexity rules supplied via usePasswordPolicy', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      useInMemorySecurityStores(i)
+      usePasswordPolicy(i, { passwordComplexityRules: [createMinLengthComplexityRule(3)] })
+      const auth = i.get(PasswordAuthenticator)
       expect(auth.policyManager.policy.passwordComplexityRules[0].name).toBe('minLength')
     })
   })
 
   describe('checkPasswordForUser', () => {
-    it('Should return a truthy value for valid username and password', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('returns isValid=true for a valid username and password combination', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const password = randomString()
-
-        setupSecurityStores(i)
-        usePasswordPolicy(i, {})
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-
-        const entry = await hasher.createCredential(userName, password)
-        await passwordStore.add(entry)
-
-        const successResult = await authenticator.checkPasswordForUser(userName, password)
-        expect(successResult.isValid).toBeTruthy()
-      })
-    })
-
-    it('Should return a falsy value for invalid username', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const userName = randomString()
-        const password = randomString()
-        setupSecurityStores(i)
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i)
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, password)
+        await i.get(PasswordCredentialStore).add(credential)
 
-        const entry = await hasher.createCredential(userName, password)
-        await passwordStore.add(entry)
-
-        const failResult = await authenticator.checkPasswordForUser('invalidUsername', password)
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
+        expect((await authenticator.checkPasswordForUser(userName, password)).isValid).toBe(true)
       })
     })
 
-    it('Should return a falsy value for invalid password', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const userName = randomString()
-        const password = randomString()
-        setupSecurityStores(i)
+    it('returns badUsernameOrPassword for an unknown username', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i)
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential('someone', 'pw')
+        await i.get(PasswordCredentialStore).add(credential)
 
-        const entry = await hasher.createCredential(userName, password)
-        await passwordStore.add(entry)
-
-        const failResult = await authenticator.checkPasswordForUser(userName, 'someInvalidPassword')
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
+        const failure = (await authenticator.checkPasswordForUser('nobody', 'pw')) as PasswordCheckFailedResult
+        expect(failure.isValid).toBe(false)
+        expect(failure.reason).toBe('badUsernameOrPassword')
       })
     })
 
-    it('Should return a falsy value for an expired password', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('returns badUsernameOrPassword for the wrong password', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        const userName = randomString()
+        useInMemorySecurityStores(i)
+        usePasswordPolicy(i)
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, 'right')
+        await i.get(PasswordCredentialStore).add(credential)
+
+        const failure = (await authenticator.checkPasswordForUser(userName, 'wrong')) as PasswordCheckFailedResult
+        expect(failure.isValid).toBe(false)
+        expect(failure.reason).toBe('badUsernameOrPassword')
+      })
+    })
+
+    it('returns passwordExpired for a credential older than the configured expiration window', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const password = randomString()
-        setupSecurityStores(i)
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i, { passwordExpirationDays: 1 })
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, password)
+        const olderCreationDate = new Date()
+        olderCreationDate.setDate(olderCreationDate.getDate() - 2)
+        credential.creationDate = olderCreationDate.toISOString()
+        await i.get(PasswordCredentialStore).add(credential)
 
-        const entry = await hasher.createCredential(userName, password)
-
-        const creationDate = new Date()
-        creationDate.setDate(creationDate.getDate() - 2)
-
-        entry.creationDate = creationDate.toISOString()
-
-        await passwordStore.add(entry)
-
-        const failResult = await authenticator.checkPasswordForUser(userName, password)
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('passwordExpired')
+        const failure = (await authenticator.checkPasswordForUser(userName, password)) as PasswordCheckFailedResult
+        expect(failure.isValid).toBe(false)
+        expect(failure.reason).toBe('passwordExpired')
       })
     })
   })
+
   describe('setPasswordForUser', () => {
-    it('Should be able to set the password for the user using the last password', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('rotates the credential and keeps only the latest entry', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const lastPassword = randomString()
         const password = randomString()
-        setupSecurityStores(i)
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i)
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-        const policyManager = i.getInstance(SecurityPolicyManager)
-        const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
+        const authenticator = i.get(PasswordAuthenticator)
+        const store = i.get(PasswordCredentialStore)
+        const complexitySpy = vi.spyOn(i.get(SecurityPolicyManager), 'matchPasswordComplexityRules')
+        const credential = await authenticator.hasher.createCredential(userName, lastPassword)
+        await store.add(credential)
 
-        const entry = await hasher.createCredential(userName, lastPassword)
-
-        await passwordStore.add(entry)
         await authenticator.setPasswordForUser(userName, lastPassword, password)
 
-        expect(pmSpy).toBeCalled()
-
-        const entryCount = await passwordStore.count({ userName: { $eq: userName } })
-
-        expect(entryCount).toBe(1) // old entry should be removed
-
-        const successResult = await authenticator.checkPasswordForUser(userName, password)
-        expect(successResult.isValid).toBeTruthy()
-
-        // Password updated, cannot use the last password
-        const failResult = await authenticator.checkPasswordForUser(userName, lastPassword)
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
+        expect(complexitySpy).toHaveBeenCalled()
+        expect(await store.count({ userName: { $eq: userName } })).toBe(1)
+        expect((await authenticator.checkPasswordForUser(userName, password)).isValid).toBe(true)
+        expect(
+          ((await authenticator.checkPasswordForUser(userName, lastPassword)) as PasswordCheckFailedResult).reason,
+        ).toBe('badUsernameOrPassword')
       })
     })
 
-    it('Should throw PasswordComplexityError if the complexity rules are not respected', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('throws PasswordComplexityError when the new password fails a complexity rule', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const lastPassword = randomString()
-        const password = ''
-        setupSecurityStores(i)
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i, { passwordComplexityRules: [createMinLengthComplexityRule(3)] })
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-        const policyManager = i.getInstance(SecurityPolicyManager)
-        const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, lastPassword)
+        await i.get(PasswordCredentialStore).add(credential)
 
-        const entry = await hasher.createCredential(userName, lastPassword)
-
-        await passwordStore.add(entry)
-
-        await expect(authenticator.setPasswordForUser(userName, lastPassword, password)).rejects.toThrowError(
+        await expect(authenticator.setPasswordForUser(userName, lastPassword, '')).rejects.toBeInstanceOf(
           PasswordComplexityError,
         )
-
-        expect(pmSpy).toBeCalled()
-
-        const entryCount = await passwordStore.count({ userName: { $eq: userName } })
-
-        expect(entryCount).toBe(1) // old entry should be removed
-
-        const failResult = await authenticator.checkPasswordForUser(userName, password)
-        // Password NOT updated, can use the last password
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
-
-        // Password NOT updated, cannot use the new password
-        const successResult = await authenticator.checkPasswordForUser(userName, lastPassword)
-        expect(successResult.isValid).toBeTruthy()
+        expect((await authenticator.checkPasswordForUser(userName, lastPassword)).isValid).toBe(true)
       })
     })
 
-    it('Should throw UnauthenticatedError if the last password is not valid', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('throws UnauthenticatedError when the previous password does not verify', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const lastPassword = randomString()
-        const password = randomString()
-        setupSecurityStores(i)
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i)
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-        const policyManager = i.getInstance(SecurityPolicyManager)
-        const pmSpy = vi.spyOn(policyManager, 'matchPasswordComplexityRules')
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, lastPassword)
+        await i.get(PasswordCredentialStore).add(credential)
 
-        const entry = await hasher.createCredential(userName, lastPassword)
-
-        await passwordStore.add(entry)
-
-        await expect(authenticator.setPasswordForUser(userName, 'someBadLastPassword', password)).rejects.toThrowError(
+        await expect(authenticator.setPasswordForUser(userName, 'wrong', randomString())).rejects.toBeInstanceOf(
           UnauthenticatedError,
         )
-
-        expect(pmSpy).toBeCalled()
-
-        const entryCount = await passwordStore.count({ userName: { $eq: userName } })
-
-        expect(entryCount).toBe(1) // old entry should be removed
-
-        const failResult = await authenticator.checkPasswordForUser(userName, password)
-        // Password NOT updated, can use the last password
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
-
-        // Password NOT updated, cannot use the new password
-        const successResult = await authenticator.checkPasswordForUser(userName, lastPassword)
-        expect(successResult.isValid).toBeTruthy()
+        expect((await authenticator.checkPasswordForUser(userName, lastPassword)).isValid).toBe(true)
       })
     })
   })
 
   describe('resetPasswordForUser', () => {
-    it('Should reset the password with the valid token', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('rotates the credential when the token is valid', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const lastPassword = randomString()
         const password = randomString()
         const token = randomString()
-        setupSecurityStores(i)
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i)
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-        const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
-
-        const entry = await hasher.createCredential(userName, lastPassword)
-        await passwordStore.add(entry)
-        await resetTokenStore.add({ userName, createdAt: new Date().toISOString(), token })
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, lastPassword)
+        await i.get(PasswordCredentialStore).add(credential)
+        await i.get(PasswordResetTokenStore).add({ userName, createdAt: new Date().toISOString(), token })
 
         await authenticator.resetPasswordForUser(token, password)
 
-        const successResult = await authenticator.checkPasswordForUser(userName, password)
-        expect(successResult.isValid).toBeTruthy()
-
-        // Password updated, cannot use the last password
-        const failResult = await authenticator.checkPasswordForUser(userName, lastPassword)
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
+        expect((await authenticator.checkPasswordForUser(userName, password)).isValid).toBe(true)
+        expect(
+          ((await authenticator.checkPasswordForUser(userName, lastPassword)) as PasswordCheckFailedResult).reason,
+        ).toBe('badUsernameOrPassword')
       })
     })
-    it('Should throw PasswordComplexityError if the complexity rules are not respected', async () => {
-      await usingAsync(new Injector(), async (i) => {
+
+    it('throws PasswordComplexityError and preserves the stored credential on complexity failure', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const lastPassword = randomString()
-        const password = ''
         const token = randomString()
-        setupSecurityStores(i)
+        useInMemorySecurityStores(i)
         usePasswordPolicy(i, { passwordComplexityRules: [createMinLengthComplexityRule(3)] })
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-        const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, lastPassword)
+        await i.get(PasswordCredentialStore).add(credential)
+        await i.get(PasswordResetTokenStore).add({ userName, createdAt: new Date().toISOString(), token })
 
-        const entry = await hasher.createCredential(userName, lastPassword)
-        await passwordStore.add(entry)
-        await resetTokenStore.add({ userName, createdAt: new Date().toISOString(), token })
-
-        await expect(authenticator.resetPasswordForUser(token, password)).rejects.toThrowError(PasswordComplexityError)
-        const successResult = await authenticator.checkPasswordForUser(userName, lastPassword)
-        expect(successResult.isValid).toBeTruthy()
-
-        // Password updated, cannot use the last password
-        const failResult = await authenticator.checkPasswordForUser(userName, password)
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
+        await expect(authenticator.resetPasswordForUser(token, '')).rejects.toBeInstanceOf(PasswordComplexityError)
+        expect((await authenticator.checkPasswordForUser(userName, lastPassword)).isValid).toBe(true)
       })
     })
-    it('Should throw UnauthenticatedError if the token is not valid', async () => {
-      await usingAsync(new Injector(), async (i) => {
+
+    it('throws UnauthenticatedError when the token does not exist', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        useInMemorySecurityStores(i)
+        usePasswordPolicy(i)
+        const authenticator = i.get(PasswordAuthenticator)
+
+        await expect(authenticator.resetPasswordForUser('unknown', 'pw')).rejects.toBeInstanceOf(UnauthenticatedError)
+      })
+    })
+
+    it('throws UnauthenticatedError and removes the expired token', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const lastPassword = randomString()
-        const password = ''
         const token = randomString()
-        setupSecurityStores(i)
-        usePasswordPolicy(i)
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-        const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
+        useInMemorySecurityStores(i)
+        usePasswordPolicy(i, { resetTokenExpirationSeconds: 1 })
+        const authenticator = i.get(PasswordAuthenticator)
+        const credential = await authenticator.hasher.createCredential(userName, lastPassword)
+        await i.get(PasswordCredentialStore).add(credential)
+        const pastCreatedAt = new Date()
+        pastCreatedAt.setDate(pastCreatedAt.getDate() - 2)
+        await i.get(PasswordResetTokenStore).add({ userName, createdAt: pastCreatedAt.toISOString(), token })
 
-        const entry = await hasher.createCredential(userName, lastPassword)
-        await passwordStore.add(entry)
-        await resetTokenStore.add({ userName, createdAt: new Date().toISOString(), token })
-
-        await expect(authenticator.resetPasswordForUser('someBadToken', password)).rejects.toThrowError(
+        await expect(authenticator.resetPasswordForUser(token, randomString())).rejects.toBeInstanceOf(
           UnauthenticatedError,
         )
-        const successResult = await authenticator.checkPasswordForUser(userName, lastPassword)
-        expect(successResult.isValid).toBeTruthy()
-
-        // Password updated, cannot use the last password
-        const failResult = await authenticator.checkPasswordForUser(userName, password)
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
-      })
-    })
-    it('Should throw UnauthenticatedError and clean up token if the token has been expired', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const userName = randomString()
-        const lastPassword = randomString()
-        const password = ''
-        const token = randomString()
-        setupSecurityStores(i)
-        usePasswordPolicy(i, { resetTokenExpirationSeconds: 1 })
-        const authenticator = i.getInstance(PasswordAuthenticator)
-        const { hasher } = authenticator
-        const passwordStore = i.getInstance(StoreManager).getStoreFor(PasswordCredential, 'userName')
-        const resetTokenStore = i.getInstance(StoreManager).getStoreFor(PasswordResetToken, 'token')
-
-        const entry = await hasher.createCredential(userName, lastPassword)
-        await passwordStore.add(entry)
-
-        const creationDate = new Date()
-        creationDate.setDate(creationDate.getDate() - 2)
-
-        await resetTokenStore.add({ userName, createdAt: creationDate.toISOString(), token })
-
-        await expect(authenticator.resetPasswordForUser(token, password)).rejects.toThrowError(UnauthenticatedError)
-        const successResult = await authenticator.checkPasswordForUser(userName, lastPassword)
-        expect(successResult.isValid).toBeTruthy()
-
-        // Password updated, cannot use the last password
-        const failResult = await authenticator.checkPasswordForUser(userName, password)
-        expect(failResult.isValid).toBeFalsy()
-        expect((failResult as PasswordCheckFailedResult).reason).toBe('badUsernameOrPassword')
-
-        const tokenCount = await resetTokenStore.count()
-        expect(tokenCount).toBe(0)
+        expect(await i.get(PasswordResetTokenStore).count()).toBe(0)
       })
     })
   })

@@ -1,44 +1,51 @@
-import { Injectable } from '@furystack/inject'
+import { defineService, type Token } from '@furystack/inject'
+import { pbkdf2, randomBytes } from 'crypto'
+import type { PasswordCheckResult } from './models/index.js'
 import type { PasswordHasher } from './password-hasher.js'
-import { randomBytes, pbkdf2 } from 'crypto'
-import type { PasswordCheckResult, PasswordCredential } from './models/index.js'
 
-@Injectable({ lifetime: 'singleton' })
-export class CryptoPasswordHasher implements PasswordHasher {
-  private readonly iterations = 1000
-  private readonly keylen = 64
+const ITERATIONS = 1000
+const KEY_LENGTH = 64
+const SALT_BYTES = 16
 
-  public async verifyCredential(
-    password: string,
-    { passwordHash, salt }: PasswordCredential,
-  ): Promise<PasswordCheckResult> {
-    const newHash = await new Promise((resolve, reject) =>
-      pbkdf2(password, salt, this.iterations, this.keylen, 'sha512', (err, key) =>
-        err ? reject(err) : resolve(key.toString('hex')),
-      ),
-    )
-    if (newHash === passwordHash) {
-      return {
-        isValid: true,
+const deriveHash = (password: string, salt: string): Promise<string> =>
+  new Promise<string>((resolve, reject) => {
+    pbkdf2(password, salt, ITERATIONS, KEY_LENGTH, 'sha512', (err, key) => {
+      if (err) {
+        reject(err)
+        return
       }
-    }
-    return {
-      isValid: false,
-      reason: 'badUsernameOrPassword',
-    }
-  }
-  public async createCredential(userName: string, password: string) {
-    const salt = randomBytes(16).toString('hex')
-    const passwordHash = await new Promise<string>((resolve, reject) =>
-      pbkdf2(password, salt, this.iterations, this.keylen, 'sha512', (err, key) =>
-        err ? reject(err) : resolve(key.toString('hex')),
-      ),
-    )
-    return {
-      userName,
-      salt,
-      passwordHash,
-      creationDate: new Date().toISOString(),
-    }
-  }
-}
+      resolve(key.toString('hex'))
+    })
+  })
+
+/**
+ * Default PBKDF2-based {@link PasswordHasher} implementation. Uses SHA-512
+ * with 1000 iterations and a 64-byte derived key length.
+ *
+ * Swap this token in {@link SecurityPolicy.hasher} to replace the hashing
+ * algorithm — for example with a stronger Argon2 implementation or a
+ * delegated hashing service.
+ */
+export const CryptoPasswordHasher: Token<PasswordHasher, 'singleton'> = defineService({
+  name: 'furystack/security/CryptoPasswordHasher',
+  lifetime: 'singleton',
+  factory: (): PasswordHasher => ({
+    verifyCredential: async (password, { passwordHash, salt }): Promise<PasswordCheckResult> => {
+      const candidate = await deriveHash(password, salt)
+      if (candidate === passwordHash) {
+        return { isValid: true }
+      }
+      return { isValid: false, reason: 'badUsernameOrPassword' }
+    },
+    createCredential: async (userName, password) => {
+      const salt = randomBytes(SALT_BYTES).toString('hex')
+      const passwordHash = await deriveHash(password, salt)
+      return {
+        userName,
+        salt,
+        passwordHash,
+        creationDate: new Date().toISOString(),
+      }
+    },
+  }),
+})
