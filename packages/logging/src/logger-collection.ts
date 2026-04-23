@@ -18,7 +18,7 @@ export type LoggerCollection = Logger & {
 }
 
 export const LoggerCollection: Token<LoggerCollection, 'singleton'> = defineService({
-  name: 'furystack/logging/LoggerCollection',
+  name: '@furystack/logging/LoggerCollection',
   lifetime: 'singleton',
   factory: () => {
     let loggers: Logger[] = []

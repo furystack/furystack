@@ -146,16 +146,18 @@ export class Injector implements InjectorContract, AsyncDisposable {
     return null
   }
 
-  private buildContext(lifetime: Lifetime, owningInjector: Injector, parentName: string): ServiceContext {
+  private buildContext(token: Token<unknown>, owningInjector: Injector): ServiceContext {
+    const parentName = token.name
+    const parentLifetime = token.lifetime
     const inject = <TService>(depToken: Token<TService>): TService => {
-      if (!isParentCompatible(lifetime, depToken.lifetime)) {
-        throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
+      if (!isParentCompatible(parentLifetime, depToken.lifetime)) {
+        throw new InvalidLifetimeDependencyError(parentName, parentLifetime, depToken.name, depToken.lifetime)
       }
       return owningInjector.get(depToken)
     }
     const injectAsync = <TService>(depToken: Token<TService>): Promise<TService> => {
-      if (!isParentCompatible(lifetime, depToken.lifetime)) {
-        throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
+      if (!isParentCompatible(parentLifetime, depToken.lifetime)) {
+        throw new InvalidLifetimeDependencyError(parentName, parentLifetime, depToken.name, depToken.lifetime)
       }
       return owningInjector.getAsync(depToken)
     }
@@ -167,6 +169,7 @@ export class Injector implements InjectorContract, AsyncDisposable {
       injectAsync: injectAsync as ServiceContext['injectAsync'],
       injector: owningInjector,
       onDispose,
+      token,
     }
   }
 
@@ -250,7 +253,7 @@ export class Injector implements InjectorContract, AsyncDisposable {
 
   private instantiateSync<TService>(token: Token<TService>): TService {
     this.pushResolving(token)
-    const ctx = this.buildContext(token.lifetime, this, token.name)
+    const ctx = this.buildContext(token, this)
     try {
       const value = (token.factory as ServiceFactory<TService>)(ctx)
       if (token.lifetime !== 'transient') {
@@ -269,7 +272,7 @@ export class Injector implements InjectorContract, AsyncDisposable {
 
   private instantiateAsync<TService>(token: Token<TService>): Promise<TService> {
     this.pushResolving(token)
-    const ctx = this.buildContext(token.lifetime, this, token.name)
+    const ctx = this.buildContext(token, this)
     let promise: Promise<TService>
     try {
       promise = (token.factory as AsyncServiceFactory<TService>)(ctx)

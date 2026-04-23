@@ -399,17 +399,39 @@ describe('Injector', () => {
     })
   })
 
+  describe('self-reflection', () => {
+    it('exposes the token being instantiated via ctx.token', () => {
+      const Service = defineService({
+        name: 'self-ref/Service',
+        lifetime: 'singleton',
+        factory: ({ token }) => ({ name: token.name, lifetime: token.lifetime, selfId: token.id }),
+      })
+      const injector = createInjector()
+      const resolved = injector.get(Service)
+      expect(resolved.name).toBe('self-ref/Service')
+      expect(resolved.lifetime).toBe('singleton')
+      expect(resolved.selfId).toBe(Service.id)
+    })
+  })
+
   describe('token identity', () => {
-    it('uses Symbol.for for namespaced names so same name across modules collides intentionally', () => {
-      const A = defineService({ name: 'pkg/Same', lifetime: 'singleton', factory: () => ({ v: 1 }) })
-      const B = defineService({ name: 'pkg/Same', lifetime: 'singleton', factory: () => ({ v: 2 }) })
-      expect(A.id).toBe(B.id)
+    it('produces a fresh symbol for every defineService call, even with identical names', () => {
+      const A = defineService({ name: 'same', lifetime: 'singleton', factory: () => ({ v: 1 }) })
+      const B = defineService({ name: 'same', lifetime: 'singleton', factory: () => ({ v: 2 }) })
+      expect(A.id).not.toBe(B.id)
     })
 
-    it('uses a local symbol for anonymous names', () => {
-      const A = defineService({ name: 'anon', lifetime: 'singleton', factory: () => ({}) })
-      const B = defineService({ name: 'anon', lifetime: 'singleton', factory: () => ({}) })
-      expect(A.id).not.toBe(B.id)
+    it('exposes the name as the symbol description for debugging', () => {
+      const Token = defineService({ name: '@pkg/thing/MyService', lifetime: 'singleton', factory: () => ({}) })
+      expect(Token.id.description).toBe('@pkg/thing/MyService')
+    })
+
+    it('resolves two same-named tokens independently so dual-version libraries can coexist', () => {
+      const V1 = defineService({ name: 'LoggerCollection', lifetime: 'singleton', factory: () => ({ version: 1 }) })
+      const V2 = defineService({ name: 'LoggerCollection', lifetime: 'singleton', factory: () => ({ version: 2 }) })
+      const injector = createInjector()
+      expect(injector.get(V1).version).toBe(1)
+      expect(injector.get(V2).version).toBe(2)
     })
   })
 

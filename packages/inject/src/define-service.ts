@@ -7,12 +7,29 @@ import type {
   Token,
 } from './types.js'
 
-const createTokenId = (name: string): symbol => {
-  if (name.includes('/')) {
-    return Symbol.for(`furystack.di/${name}`)
-  }
-  return Symbol(name)
-}
+/**
+ * Each {@link defineService} call mints a fresh {@link Symbol} as the token's
+ * identity. The symbol's description uses `name` purely for debug/readability;
+ * uniqueness comes from the `Symbol` constructor itself and is independent of
+ * the description.
+ *
+ * Using a plain `Symbol` (not `Symbol.for`) gives two important properties:
+ *
+ * - **Cross-author collision is structurally impossible.** Two packages can
+ *   choose the same `name` and still get distinct tokens because each module
+ *   evaluation produces its own symbol.
+ * - **Intentional dual-version usage works.** If an application deliberately
+ *   depends on two versions of the same library, each version's
+ *   `defineService` call runs independently and yields its own token, so both
+ *   versions coexist with separate caches.
+ *
+ * The trade-off is that duplicate module instances of a single library version
+ * (a misconfigured `peerDependency`, `npm link`, etc.) produce two tokens and
+ * therefore two cached singletons for what was meant to be one. That failure
+ * mode is rare, obvious in symptoms, and user-fixable — strictly preferable to
+ * the silent cross-author collision that `Symbol.for` would enable.
+ */
+const createTokenId = (name: string): symbol => Symbol(name)
 
 /**
  * Defines a synchronous service and returns a {@link Token} that can be used

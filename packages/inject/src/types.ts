@@ -60,7 +60,10 @@ export type InjectAsyncFn<TParentLifetime extends Lifetime = Lifetime> = TParent
   : <TService>(token: Token<TService>) => Promise<TService>
 
 /**
- * Context object passed to a sync service factory.
+ * Context object passed to a service factory while it is instantiating.
+ *
+ * @typeParam TLifetime - Lifetime of the service being instantiated. Controls
+ *   which dependencies are compile-time reachable via {@link inject}.
  */
 export type ServiceContext<TLifetime extends Lifetime = Lifetime> = {
   /** Resolves a dependency by token. */
@@ -71,6 +74,13 @@ export type ServiceContext<TLifetime extends Lifetime = Lifetime> = {
   injector: Injector
   /** Registers a disposal callback to run (LIFO) when the owning scope is disposed. */
   onDispose: (cb: DisposeCallback) => void
+  /**
+   * The token being instantiated. Its {@link Token.name}, {@link Token.lifetime}
+   * and {@link Token.id} are useful for self-reflection (e.g. scoping a logger
+   * by service name). The service type itself is intentionally erased to
+   * `unknown` so inference of the factory's return type stays unambiguous.
+   */
+  token: Token<unknown, TLifetime>
 }
 
 /**
@@ -91,10 +101,10 @@ export type AsyncServiceFactory<TService> = (ctx: ServiceContext) => Promise<TSe
  */
 export type DefineServiceOptions<TService, TLifetime extends Lifetime> = {
   /**
-   * Human-readable, stable identifier for the service. Used for error messages,
-   * debugging, and — when it contains a namespace segment like `furystack/core/Foo`
-   * — as the basis for a globally stable {@link Symbol.for} key. Otherwise a
-   * plain anonymous symbol is used.
+   * Human-readable label for the service. Used in error messages and debug
+   * output — it carries no load-bearing role in identity. Two services may
+   * share the same `name` without conflict; each {@link defineService} call
+   * produces a fresh, unique {@link Symbol} as the registry key.
    */
   name: string
   /** The lifetime category of the service. */

@@ -1,8 +1,9 @@
-import { createInjector, withScope } from '@furystack/inject'
+import { createInjector, defineService, withScope } from '@furystack/inject'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConsoleLogger, defaultFormat, verboseFormat } from './console-logger.js'
-import { getLogger, useLogging } from './helpers.js'
+import { getLogger, useLogging, useScopedLogger } from './helpers.js'
 import { LoggerCollection } from './logger-collection.js'
+import type { LeveledLogEntry } from './log-entries.js'
 import type { ScopedLogger } from './logger.js'
 import { createTestLogger } from './test-logger.js'
 
@@ -358,6 +359,37 @@ describe('Loggers', () => {
         expect(consoleMock).toHaveBeenCalledWith(...defaultFormat({ ...message, level: 'fatal' }))
         await injector[Symbol.asyncDispose]()
       })
+    })
+  })
+
+  describe('useScopedLogger', () => {
+    it('scopes the logger entries by the defining service name', async () => {
+      const entries: Array<LeveledLogEntry<unknown>> = []
+      const injector = createInjector()
+      try {
+        const probe = createTestLogger(async (entry) => {
+          entries.push(entry)
+        })
+        injector.get(LoggerCollection).attachLogger(probe)
+
+        const MyService = defineService({
+          name: '@test/pkg/MyService',
+          lifetime: 'singleton',
+          factory: (ctx) => {
+            const log = useScopedLogger(ctx)
+            return {
+              run: async () => log.information({ message: 'hi' }),
+            }
+          },
+        })
+
+        await injector.get(MyService).run()
+        expect(entries).toHaveLength(1)
+        expect(entries[0].scope).toBe('@test/pkg/MyService')
+        expect(entries[0].message).toBe('hi')
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
     })
   })
 

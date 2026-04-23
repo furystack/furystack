@@ -90,7 +90,7 @@ export const verboseFormat = <T>(entry: LeveledLogEntry<T>): unknown[] => {
  * {@link defaultFormat}. Stateless and therefore registered as a singleton.
  */
 export const ConsoleLogger: Token<Logger, 'singleton'> = defineService({
-  name: 'furystack/logging/ConsoleLogger',
+  name: '@furystack/logging/ConsoleLogger',
   lifetime: 'singleton',
   factory: () =>
     createLogger(async (entry) => {
@@ -104,7 +104,7 @@ export const ConsoleLogger: Token<Logger, 'singleton'> = defineService({
  * Like {@link ConsoleLogger} but prints additional entry data when present.
  */
 export const VerboseConsoleLogger: Token<Logger, 'singleton'> = defineService({
-  name: 'furystack/logging/VerboseConsoleLogger',
+  name: '@furystack/logging/VerboseConsoleLogger',
   lifetime: 'singleton',
   factory: () =>
     createLogger(async (entry) => {
