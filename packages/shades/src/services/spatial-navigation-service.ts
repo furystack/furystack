@@ -1,4 +1,5 @@
-import { Injectable, type Injector } from '@furystack/inject'
+import type { Injector, Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 
 /**
@@ -233,6 +234,16 @@ const shouldPassthroughArrowKeys = (element: Element, key: string): boolean => {
 }
 
 /**
+ * Configuration token for {@link SpatialNavigationService}. Override via
+ * {@link configureSpatialNavigation} before the service is first resolved.
+ */
+export const SpatialNavigationSettings: Token<SpatialNavigationOptions, 'singleton'> = defineService({
+  name: '@furystack/shades/SpatialNavigationSettings',
+  lifetime: 'singleton',
+  factory: () => ({}),
+})
+
+/**
  * Service for D-pad / arrow-key spatial navigation across interactive elements.
  *
  * Intercepts arrow key events and moves focus spatially based on element geometry.
@@ -242,356 +253,357 @@ const shouldPassthroughArrowKeys = (element: Element, key: string): boolean => {
  * @example
  * ```typescript
  * // Opt in to spatial navigation
- * const spatialNav = injector.getInstance(SpatialNavigationService)
+ * const spatialNav = injector.get(SpatialNavigationService)
  *
  * // Disable during video playback
  * spatialNav.enabled.setValue(false)
- *
- * // Re-enable
- * spatialNav.enabled.setValue(true)
  * ```
  */
-@Injectable({ lifetime: 'singleton' })
-export class SpatialNavigationService implements Disposable {
-  /** Toggle spatial navigation on/off at runtime */
-  public readonly enabled: ObservableValue<boolean>
-
-  /** The currently active section name (from data-nav-section), or null if none */
-  public readonly activeSection = new ObservableValue<string | null>(null)
-
-  /** Remembered last-focused element per section for focus restoration */
-  private readonly focusMemory = new Map<string, WeakRef<Element>>()
-
-  private readonly focusTrapStack: string[] = []
-
-  private readonly focusableSelector: string
-  private readonly crossSectionNavigation: boolean
-  private readonly backspaceGoesBack: boolean
-  private readonly escapeGoesToParentSection: boolean
-
-  constructor(options: SpatialNavigationOptions = {}) {
-    this.enabled = new ObservableValue<boolean>(options.initiallyEnabled ?? true)
-    this.focusableSelector = options.focusableSelector ?? DEFAULT_FOCUSABLE_SELECTOR
-    this.crossSectionNavigation = options.crossSectionNavigation ?? true
-    this.backspaceGoesBack = options.backspaceGoesBack ?? false
-    this.escapeGoesToParentSection = options.escapeGoesToParentSection ?? false
-
-    window.addEventListener('keydown', this.handleKeyDown)
-  }
-
-  public [Symbol.dispose](): void {
-    window.removeEventListener('keydown', this.handleKeyDown)
-    this.enabled[Symbol.dispose]()
-    this.activeSection[Symbol.dispose]()
-    this.focusMemory.clear()
-    this.focusTrapStack.length = 0
-  }
-
-  /**
-   * Push a focus trap onto the stack. While the trap is active, cross-section
-   * navigation is blocked and `activeSection` is locked to `sectionName`.
-   * Supports nesting — only the topmost trap is enforced.
-   */
-  public pushFocusTrap(sectionName: string): void {
-    this.focusTrapStack.push(sectionName)
-    this.activeSection.setValue(sectionName)
-  }
-
-  /**
-   * Remove a focus trap from the stack. If other traps remain, the topmost
-   * one becomes active. Otherwise `activeSection` reverts to `previousSection`.
-   */
-  public popFocusTrap(sectionName: string, previousSection?: string | null): void {
-    const idx = this.focusTrapStack.lastIndexOf(sectionName)
-    if (idx !== -1) {
-      this.focusTrapStack.splice(idx, 1)
-    }
-    const top = this.focusTrapStack[this.focusTrapStack.length - 1]
-    this.activeSection.setValue(top ?? previousSection ?? null)
-  }
-
-  private get activeTrap(): string | null {
-    return this.focusTrapStack[this.focusTrapStack.length - 1] ?? null
-  }
-
+export interface SpatialNavigationService {
+  readonly enabled: ObservableValue<boolean>
+  readonly activeSection: ObservableValue<string | null>
+  /** Push a focus trap onto the stack. Nesting is supported — only the topmost trap is enforced. */
+  pushFocusTrap(sectionName: string): void
+  /** Remove a focus trap from the stack. */
+  popFocusTrap(sectionName: string, previousSection?: string | null): void
   /** Programmatically move focus in a direction */
-  public moveFocus(direction: SpatialDirection): void {
-    const activeElement = document.activeElement as HTMLElement | null
-
-    if (!activeElement || activeElement === document.body) {
-      this.focusFirstElement()
-      return
-    }
-
-    const currentSection = this.findContainingSection(activeElement)
-    const currentSectionName = currentSection?.getAttribute('data-nav-section') ?? null
-    this.activeSection.setValue(currentSectionName)
-
-    const searchRoot = currentSection ?? document
-    const candidates = this.getFocusableCandidates(searchRoot, activeElement)
-
-    const currentRect = activeElement.getBoundingClientRect()
-    let target = this.findNearestInDirection(currentRect, candidates, direction)
-
-    if (!target) {
-      const relaxedCandidates = this.getFocusableCandidates(searchRoot, activeElement, {
-        skipScrollVisibility: true,
-      })
-      target = this.findNearestInDirection(currentRect, relaxedCandidates, direction)
-    }
-
-    if (target) {
-      this.storeFocusMemory(currentSectionName, activeElement)
-      target.focus()
-      target.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-      const targetSection = this.findContainingSection(target)
-      this.activeSection.setValue(targetSection?.getAttribute('data-nav-section') ?? null)
-      return
-    }
-
-    if (this.crossSectionNavigation && currentSection && !this.activeTrap) {
-      this.navigateCrossSection(activeElement, currentSection, direction)
-    }
-  }
-
+  moveFocus(direction: SpatialDirection): void
   /** Programmatically activate (click) the currently focused element */
-  public activateFocused(): void {
-    const { activeElement } = document
-    if (activeElement && activeElement !== document.body) {
-      ;(activeElement as HTMLElement).click()
+  activateFocused(): void
+}
+
+export const SpatialNavigationService: Token<SpatialNavigationService, 'singleton'> = defineService({
+  name: '@furystack/shades/SpatialNavigationService',
+  lifetime: 'singleton',
+  factory: ({ inject, onDispose }) => {
+    const options = inject(SpatialNavigationSettings)
+
+    const enabled = new ObservableValue<boolean>(options.initiallyEnabled ?? true)
+    const activeSection = new ObservableValue<string | null>(null)
+    const focusMemory = new Map<string, WeakRef<Element>>()
+    const focusTrapStack: string[] = []
+
+    const focusableSelector = options.focusableSelector ?? DEFAULT_FOCUSABLE_SELECTOR
+    const crossSectionNavigation = options.crossSectionNavigation ?? true
+    const backspaceGoesBack = options.backspaceGoesBack ?? false
+    const escapeGoesToParentSection = options.escapeGoesToParentSection ?? false
+
+    const getActiveTrap = (): string | null => focusTrapStack[focusTrapStack.length - 1] ?? null
+
+    const pushFocusTrap = (sectionName: string): void => {
+      focusTrapStack.push(sectionName)
+      activeSection.setValue(sectionName)
     }
-  }
 
-  private handleKeyDown = (ev: KeyboardEvent): void => {
-    if (!this.enabled.getValue()) return
-    if (ev.defaultPrevented) return
-
-    const { activeElement } = document
-    if (activeElement && isInsidePassthrough(activeElement)) return
-    if (activeElement && shouldPassthroughArrowKeys(activeElement, ev.key)) {
-      return
+    const popFocusTrap = (sectionName: string, previousSection?: string | null): void => {
+      const idx = focusTrapStack.lastIndexOf(sectionName)
+      if (idx !== -1) {
+        focusTrapStack.splice(idx, 1)
+      }
+      const top = focusTrapStack[focusTrapStack.length - 1]
+      activeSection.setValue(top ?? previousSection ?? null)
     }
 
-    switch (ev.key) {
-      case 'ArrowUp':
-        ev.preventDefault()
-        this.moveFocus('up')
-        break
-      case 'ArrowDown':
-        ev.preventDefault()
-        this.moveFocus('down')
-        break
-      case 'ArrowLeft':
-        ev.preventDefault()
-        this.moveFocus('left')
-        break
-      case 'ArrowRight':
-        ev.preventDefault()
-        this.moveFocus('right')
-        break
-      case 'Enter':
-        if (activeElement && isTextInput(activeElement)) break
-        ev.preventDefault()
-        this.activateFocused()
-        break
-      case 'Backspace':
-        if (this.backspaceGoesBack && !(activeElement && isTextInput(activeElement))) {
-          ev.preventDefault()
-          history.back()
-        }
-        break
-      case 'Escape':
-        if (activeElement && activeElement !== document.body && shouldEscapeBlurElement(activeElement)) {
-          ev.preventDefault()
-          ;(activeElement as HTMLElement).blur()
-          break
-        }
-        if (this.escapeGoesToParentSection) {
-          this.moveToParentSection()
-        }
-        break
-      default:
-        break
-    }
-  }
+    const findContainingSection = (element: Element): Element | null => element.closest('[data-nav-section]')
 
-  private focusFirstElement(): void {
-    const trap = this.activeTrap
-    if (trap) {
-      const trapSection = document.querySelector(`[data-nav-section="${escapeCssString(trap)}"]`)
-      if (trapSection) {
-        const firstFocusable = trapSection.querySelector(this.focusableSelector)
+    const isVisibleInScrollContainers = (el: Element, rect: DOMRect): boolean => {
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      const hasOverflow = (val: string) => val !== '' && val !== 'visible'
+      let ancestor = el.parentElement
+      while (ancestor) {
+        const style = getComputedStyle(ancestor)
+        if (hasOverflow(style.overflow) || hasOverflow(style.overflowX) || hasOverflow(style.overflowY)) {
+          const containerRect = ancestor.getBoundingClientRect()
+          if (
+            centerX < containerRect.left ||
+            centerX > containerRect.right ||
+            centerY < containerRect.top ||
+            centerY > containerRect.bottom
+          ) {
+            return false
+          }
+        }
+        ancestor = ancestor.parentElement
+      }
+      return true
+    }
+
+    const getFocusableCandidates = (
+      root: Element | Document,
+      exclude: Element,
+      candidateOptions?: { skipScrollVisibility?: boolean },
+    ): Element[] => {
+      return Array.from(root.querySelectorAll(focusableSelector)).filter((el) => {
+        if (el === exclude) return false
+        if (!el.hasAttribute('data-spatial-nav-target') && el.closest('[data-spatial-nav-target]')) return false
+        const rect = el.getBoundingClientRect()
+        if (rect.width <= 0 || rect.height <= 0) return false
+        if (candidateOptions?.skipScrollVisibility) return true
+        return isVisibleInScrollContainers(el, rect)
+      })
+    }
+
+    const findNearestInDirection = (
+      currentRect: DOMRect,
+      candidates: Element[],
+      direction: SpatialDirection,
+    ): HTMLElement | null => {
+      const currentCenter = getElementCenter(currentRect)
+      let nearest: HTMLElement | null = null
+      let nearestDistance = Infinity
+
+      for (const candidate of candidates) {
+        const candidateRect = candidate.getBoundingClientRect()
+        if (!isInDirection(currentRect, candidateRect, direction)) continue
+
+        const candidateCenter = getElementCenter(candidateRect)
+        const distance = spatialDistance(currentCenter, candidateCenter, direction)
+        if (distance < nearestDistance) {
+          nearestDistance = distance
+          nearest = candidate as HTMLElement
+        }
+      }
+
+      return nearest
+    }
+
+    const storeFocusMemory = (sectionName: string | null, element: Element): void => {
+      if (sectionName) {
+        focusMemory.set(sectionName, new WeakRef(element))
+      }
+    }
+
+    const navigateCrossSection = (
+      activeElement: Element,
+      currentSection: Element,
+      direction: SpatialDirection,
+    ): void => {
+      const currentSectionName = currentSection.getAttribute('data-nav-section')
+
+      const allFocusable = Array.from(document.querySelectorAll(focusableSelector)).filter((el) => {
+        if (el === activeElement) return false
+        if (currentSection.contains(el)) return false
+        if (!el.hasAttribute('data-spatial-nav-target') && el.closest('[data-spatial-nav-target]')) return false
+        const rect = el.getBoundingClientRect()
+        return rect.width > 0 && rect.height > 0 && isVisibleInScrollContainers(el, rect)
+      })
+
+      const currentRect = activeElement.getBoundingClientRect()
+      const nearest = findNearestInDirection(currentRect, allFocusable, direction)
+
+      if (nearest) {
+        storeFocusMemory(currentSectionName, activeElement)
+
+        const targetSection = findContainingSection(nearest)
+        const targetSectionName = targetSection?.getAttribute('data-nav-section') ?? null
+
+        const remembered = targetSectionName ? focusMemory.get(targetSectionName)?.deref() : null
+        if (
+          remembered &&
+          remembered !== activeElement &&
+          targetSection?.contains(remembered) &&
+          remembered.matches(focusableSelector)
+        ) {
+          const rememberedRect = remembered.getBoundingClientRect()
+          if (
+            rememberedRect.width > 0 &&
+            rememberedRect.height > 0 &&
+            isVisibleInScrollContainers(remembered, rememberedRect)
+          ) {
+            ;(remembered as HTMLElement).focus()
+            remembered.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+            activeSection.setValue(targetSectionName)
+            return
+          }
+        }
+
+        nearest.focus()
+        nearest.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+        activeSection.setValue(targetSectionName)
+      }
+    }
+
+    const focusFirstElement = (): void => {
+      const trap = getActiveTrap()
+      if (trap) {
+        const trapSection = document.querySelector(`[data-nav-section="${escapeCssString(trap)}"]`)
+        if (trapSection) {
+          const firstFocusable = trapSection.querySelector(focusableSelector)
+          if (firstFocusable) {
+            ;(firstFocusable as HTMLElement).focus()
+            activeSection.setValue(trap)
+            return
+          }
+        }
+      }
+
+      const sections = document.querySelectorAll('[data-nav-section]')
+      if (sections.length > 0) {
+        const firstFocusable = sections[0].querySelector(focusableSelector)
         if (firstFocusable) {
           ;(firstFocusable as HTMLElement).focus()
-          this.activeSection.setValue(trap)
+          activeSection.setValue(sections[0].getAttribute('data-nav-section'))
           return
         }
       }
-    }
 
-    const sections = document.querySelectorAll('[data-nav-section]')
-    if (sections.length > 0) {
-      const firstFocusable = sections[0].querySelector(this.focusableSelector)
+      const firstFocusable = document.querySelector(focusableSelector)
       if (firstFocusable) {
         ;(firstFocusable as HTMLElement).focus()
-        this.activeSection.setValue(sections[0].getAttribute('data-nav-section'))
+      }
+    }
+
+    const moveFocus = (direction: SpatialDirection): void => {
+      const activeElement = document.activeElement as HTMLElement | null
+
+      if (!activeElement || activeElement === document.body) {
+        focusFirstElement()
         return
       }
-    }
 
-    const firstFocusable = document.querySelector(this.focusableSelector)
-    if (firstFocusable) {
-      ;(firstFocusable as HTMLElement).focus()
-    }
-  }
+      const currentSection = findContainingSection(activeElement)
+      const currentSectionName = currentSection?.getAttribute('data-nav-section') ?? null
+      activeSection.setValue(currentSectionName)
 
-  private findContainingSection(element: Element): Element | null {
-    return element.closest('[data-nav-section]')
-  }
+      const searchRoot = currentSection ?? document
+      const candidates = getFocusableCandidates(searchRoot, activeElement)
 
-  private isVisibleInScrollContainers(el: Element, rect: DOMRect): boolean {
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
-    const hasOverflow = (val: string) => val !== '' && val !== 'visible'
-    let ancestor = el.parentElement
-    while (ancestor) {
-      const style = getComputedStyle(ancestor)
-      if (hasOverflow(style.overflow) || hasOverflow(style.overflowX) || hasOverflow(style.overflowY)) {
-        const containerRect = ancestor.getBoundingClientRect()
-        if (
-          centerX < containerRect.left ||
-          centerX > containerRect.right ||
-          centerY < containerRect.top ||
-          centerY > containerRect.bottom
-        ) {
-          return false
-        }
+      const currentRect = activeElement.getBoundingClientRect()
+      let target = findNearestInDirection(currentRect, candidates, direction)
+
+      if (!target) {
+        const relaxedCandidates = getFocusableCandidates(searchRoot, activeElement, {
+          skipScrollVisibility: true,
+        })
+        target = findNearestInDirection(currentRect, relaxedCandidates, direction)
       }
-      ancestor = ancestor.parentElement
-    }
-    return true
-  }
 
-  private getFocusableCandidates(
-    root: Element | Document,
-    exclude: Element,
-    options?: { skipScrollVisibility?: boolean },
-  ): Element[] {
-    return Array.from(root.querySelectorAll(this.focusableSelector)).filter((el) => {
-      if (el === exclude) return false
-      if (!el.hasAttribute('data-spatial-nav-target') && el.closest('[data-spatial-nav-target]')) return false
-      const rect = el.getBoundingClientRect()
-      if (rect.width <= 0 || rect.height <= 0) return false
-      if (options?.skipScrollVisibility) return true
-      return this.isVisibleInScrollContainers(el, rect)
+      if (target) {
+        storeFocusMemory(currentSectionName, activeElement)
+        target.focus()
+        target.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+        const targetSection = findContainingSection(target)
+        activeSection.setValue(targetSection?.getAttribute('data-nav-section') ?? null)
+        return
+      }
+
+      if (crossSectionNavigation && currentSection && !getActiveTrap()) {
+        navigateCrossSection(activeElement, currentSection, direction)
+      }
+    }
+
+    const activateFocused = (): void => {
+      const { activeElement } = document
+      if (activeElement && activeElement !== document.body) {
+        ;(activeElement as HTMLElement).click()
+      }
+    }
+
+    const moveToParentSection = (): void => {
+      const { activeElement } = document
+      if (!activeElement || activeElement === document.body) return
+
+      const currentSection = findContainingSection(activeElement)
+      if (!currentSection) return
+
+      const parentSection = currentSection.parentElement?.closest('[data-nav-section]')
+      if (!parentSection) return
+
+      const firstFocusable = parentSection.querySelector(focusableSelector)
+      if (firstFocusable) {
+        ;(firstFocusable as HTMLElement).focus()
+        activeSection.setValue(parentSection.getAttribute('data-nav-section'))
+      }
+    }
+
+    const handleKeyDown = (ev: KeyboardEvent): void => {
+      if (!enabled.getValue()) return
+      if (ev.defaultPrevented) return
+
+      const { activeElement } = document
+      if (activeElement && isInsidePassthrough(activeElement)) return
+      if (activeElement && shouldPassthroughArrowKeys(activeElement, ev.key)) {
+        return
+      }
+
+      switch (ev.key) {
+        case 'ArrowUp':
+          ev.preventDefault()
+          moveFocus('up')
+          break
+        case 'ArrowDown':
+          ev.preventDefault()
+          moveFocus('down')
+          break
+        case 'ArrowLeft':
+          ev.preventDefault()
+          moveFocus('left')
+          break
+        case 'ArrowRight':
+          ev.preventDefault()
+          moveFocus('right')
+          break
+        case 'Enter':
+          if (activeElement && isTextInput(activeElement)) break
+          ev.preventDefault()
+          activateFocused()
+          break
+        case 'Backspace':
+          if (backspaceGoesBack && !(activeElement && isTextInput(activeElement))) {
+            ev.preventDefault()
+            history.back()
+          }
+          break
+        case 'Escape':
+          if (activeElement && activeElement !== document.body && shouldEscapeBlurElement(activeElement)) {
+            ev.preventDefault()
+            ;(activeElement as HTMLElement).blur()
+            break
+          }
+          if (escapeGoesToParentSection) {
+            moveToParentSection()
+          }
+          break
+        default:
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    onDispose(() => {
+      window.removeEventListener('keydown', handleKeyDown)
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is deferred to the injector's onDispose hook.
+      enabled[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is deferred to the injector's onDispose hook.
+      activeSection[Symbol.dispose]()
+      focusMemory.clear()
+      focusTrapStack.length = 0
     })
-  }
 
-  private findNearestInDirection(
-    currentRect: DOMRect,
-    candidates: Element[],
-    direction: SpatialDirection,
-  ): HTMLElement | null {
-    const currentCenter = getElementCenter(currentRect)
-    let nearest: HTMLElement | null = null
-    let nearestDistance = Infinity
-
-    for (const candidate of candidates) {
-      const candidateRect = candidate.getBoundingClientRect()
-      if (!isInDirection(currentRect, candidateRect, direction)) continue
-
-      const candidateCenter = getElementCenter(candidateRect)
-      const distance = spatialDistance(currentCenter, candidateCenter, direction)
-      if (distance < nearestDistance) {
-        nearestDistance = distance
-        nearest = candidate as HTMLElement
-      }
+    return {
+      enabled,
+      activeSection,
+      pushFocusTrap,
+      popFocusTrap,
+      moveFocus,
+      activateFocused,
     }
-
-    return nearest
-  }
-
-  private navigateCrossSection(activeElement: Element, currentSection: Element, direction: SpatialDirection): void {
-    const currentSectionName = currentSection.getAttribute('data-nav-section')
-
-    const allFocusable = Array.from(document.querySelectorAll(this.focusableSelector)).filter((el) => {
-      if (el === activeElement) return false
-      if (currentSection.contains(el)) return false
-      if (!el.hasAttribute('data-spatial-nav-target') && el.closest('[data-spatial-nav-target]')) return false
-      const rect = el.getBoundingClientRect()
-      return rect.width > 0 && rect.height > 0 && this.isVisibleInScrollContainers(el, rect)
-    })
-
-    const currentRect = activeElement.getBoundingClientRect()
-    const nearest = this.findNearestInDirection(currentRect, allFocusable, direction)
-
-    if (nearest) {
-      this.storeFocusMemory(currentSectionName, activeElement)
-
-      const targetSection = this.findContainingSection(nearest)
-      const targetSectionName = targetSection?.getAttribute('data-nav-section') ?? null
-
-      const remembered = targetSectionName ? this.focusMemory.get(targetSectionName)?.deref() : null
-      if (
-        remembered &&
-        remembered !== activeElement &&
-        targetSection?.contains(remembered) &&
-        remembered.matches(this.focusableSelector)
-      ) {
-        const rememberedRect = remembered.getBoundingClientRect()
-        if (
-          rememberedRect.width > 0 &&
-          rememberedRect.height > 0 &&
-          this.isVisibleInScrollContainers(remembered, rememberedRect)
-        ) {
-          ;(remembered as HTMLElement).focus()
-          remembered.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-          this.activeSection.setValue(targetSectionName)
-          return
-        }
-      }
-
-      nearest.focus()
-      nearest.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-      this.activeSection.setValue(targetSectionName)
-    }
-  }
-
-  private storeFocusMemory(sectionName: string | null, element: Element): void {
-    if (sectionName) {
-      this.focusMemory.set(sectionName, new WeakRef(element))
-    }
-  }
-
-  private moveToParentSection(): void {
-    const { activeElement } = document
-    if (!activeElement || activeElement === document.body) return
-
-    const currentSection = this.findContainingSection(activeElement)
-    if (!currentSection) return
-
-    const parentSection = currentSection.parentElement?.closest('[data-nav-section]')
-    if (!parentSection) return
-
-    const firstFocusable = parentSection.querySelector(this.focusableSelector)
-    if (firstFocusable) {
-      ;(firstFocusable as HTMLElement).focus()
-      this.activeSection.setValue(parentSection.getAttribute('data-nav-section'))
-    }
-  }
-}
+  },
+})
 
 /**
  * Configures spatial navigation options before the service is first instantiated.
- * Must be called **before** `SpatialNavigationService` is first resolved from the injector.
- * @param injector The root injector
- * @param options Configuration options for spatial navigation
+ * Rebinds {@link SpatialNavigationSettings} and invalidates the cached
+ * {@link SpatialNavigationService}. Must be called **before** the service is
+ * first resolved — calling afterwards drops the cached instance without
+ * disposing it (listeners leak until the injector is disposed).
+ * @param injector The root injector.
+ * @param options Configuration options for spatial navigation.
  */
 export const configureSpatialNavigation = (injector: Injector, options: SpatialNavigationOptions): void => {
-  if (injector.cachedSingletons.has(SpatialNavigationService)) {
-    throw new Error('configureSpatialNavigation must be called before the SpatialNavigationService is instantiated')
-  }
-
-  const service = new SpatialNavigationService(options)
-  injector.setExplicitInstance(service, SpatialNavigationService)
+  injector.bind(SpatialNavigationSettings, () => options)
+  injector.invalidate(SpatialNavigationSettings)
+  injector.invalidate(SpatialNavigationService)
 }

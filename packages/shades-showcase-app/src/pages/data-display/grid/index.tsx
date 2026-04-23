@@ -32,7 +32,7 @@ export const GridPage = Shade({
   },
 
   render: ({ injector, useObservable }) => {
-    const gridPageService = injector.getInstance(GridPageService)
+    const gridPageService = injector.get(GridPageService)
     const [findOptions, setFindOptions] = useObservable('findOptions', gridPageService.findOptions)
 
     return (

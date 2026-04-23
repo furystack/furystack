@@ -4,7 +4,7 @@ import { buildTransition, cssVariableTheme } from '../../services/css-variable-t
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { ComponentSize } from '../component-size.js'
-import { FormService } from '../form.js'
+import { FormContextToken } from '../form.js'
 
 export type InputNumberProps = {
   /**
@@ -290,7 +290,7 @@ export const InputNumber = Shade<InputNumberProps>({
     const inputRef = useRef<HTMLInputElement>('formInput')
 
     useDisposable('form-registration', () => {
-      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      const formService = injector.get(FormContextToken)
       if (formService) {
         queueMicrotask(() => {
           if (inputRef.current) formService.inputs.add(inputRef.current)
@@ -303,7 +303,7 @@ export const InputNumber = Shade<InputNumberProps>({
       }
     })
 
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
 
     const primaryColor = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({

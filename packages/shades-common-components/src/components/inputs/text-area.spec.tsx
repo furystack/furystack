@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ describe('TextArea', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -31,7 +31,7 @@ describe('TextArea', () => {
   })
 
   it('should render label with labelTitle', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -54,7 +54,7 @@ describe('TextArea', () => {
   })
 
   it('should apply labelProps to label element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -73,7 +73,7 @@ describe('TextArea', () => {
   })
 
   it('should set data-variant attribute for outlined variant', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -91,7 +91,7 @@ describe('TextArea', () => {
   })
 
   it('should set data-variant attribute for contained variant', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -109,7 +109,7 @@ describe('TextArea', () => {
   })
 
   it('should not set data-variant attribute when no variant is provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -127,7 +127,7 @@ describe('TextArea', () => {
   })
 
   it('should set data-disabled attribute when disabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -145,7 +145,7 @@ describe('TextArea', () => {
   })
 
   it('should not set data-disabled attribute when not disabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -163,7 +163,7 @@ describe('TextArea', () => {
   })
 
   it('should render value in contentEditable div', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -183,7 +183,7 @@ describe('TextArea', () => {
   })
 
   it('should have contentEditable true when not readOnly or disabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -202,7 +202,7 @@ describe('TextArea', () => {
   })
 
   it('should have contentEditable inherit when readOnly is true', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -221,7 +221,7 @@ describe('TextArea', () => {
   })
 
   it('should have contentEditable inherit when disabled is true', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -240,7 +240,7 @@ describe('TextArea', () => {
   })
 
   it('should apply custom style to content div', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -259,7 +259,7 @@ describe('TextArea', () => {
   })
 
   it('should apply custom style to label element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -278,7 +278,7 @@ describe('TextArea', () => {
   })
 
   it('should have correct CSS styles applied', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -300,7 +300,7 @@ describe('TextArea', () => {
 
   describe('size', () => {
     it('should not set data-size when size is not specified', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <TextArea /> })
         await flushUpdates()
@@ -310,7 +310,7 @@ describe('TextArea', () => {
     })
 
     it('should not set data-size for medium size (default)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <TextArea size="medium" /> })
         await flushUpdates()
@@ -320,7 +320,7 @@ describe('TextArea', () => {
     })
 
     it('should set data-size="small" for small size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <TextArea size="small" /> })
         await flushUpdates()
@@ -330,7 +330,7 @@ describe('TextArea', () => {
     })
 
     it('should set data-size="large" for large size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <TextArea size="large" /> })
         await flushUpdates()

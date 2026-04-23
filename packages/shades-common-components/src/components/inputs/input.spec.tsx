@@ -1,9 +1,10 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
-import { Form, FormService } from '../form.js'
+import { Form, FormContextToken } from '../form.js'
 import { Input } from './input.js'
 
 describe('Input', () => {
@@ -17,7 +18,7 @@ describe('Input', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -34,7 +35,7 @@ describe('Input', () => {
   })
 
   it('should render the inner input element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -52,7 +53,7 @@ describe('Input', () => {
   })
 
   it('should render the label title', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -71,7 +72,7 @@ describe('Input', () => {
 
   describe('variants', () => {
     it('should set data-variant attribute for outlined variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -89,7 +90,7 @@ describe('Input', () => {
     })
 
     it('should set data-variant attribute for contained variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -107,7 +108,7 @@ describe('Input', () => {
     })
 
     it('should not have data-variant when variant is not specified', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -127,7 +128,7 @@ describe('Input', () => {
 
   describe('disabled state', () => {
     it('should set data-disabled attribute when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -145,7 +146,7 @@ describe('Input', () => {
     })
 
     it('should not have data-disabled attribute when not disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -165,7 +166,7 @@ describe('Input', () => {
 
   describe('validation', () => {
     it('should call custom validation callback', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const getValidationResult = vi.fn().mockReturnValue({ isValid: true })
 
@@ -188,7 +189,7 @@ describe('Input', () => {
     })
 
     it('should set data-invalid when validation fails', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -217,7 +218,7 @@ describe('Input', () => {
     })
 
     it('should not have data-invalid when validation passes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -240,7 +241,7 @@ describe('Input', () => {
     })
 
     it('should display validation message in helper text when validation fails', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -266,7 +267,7 @@ describe('Input', () => {
     })
 
     it('should show default validation message for required field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -293,7 +294,7 @@ describe('Input', () => {
 
   describe('helper text', () => {
     it('should render custom helper text', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -312,7 +313,7 @@ describe('Input', () => {
     })
 
     it('should call getHelperText with state and validation result when validation passes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const getHelperText = vi.fn().mockReturnValue('Helper text')
 
@@ -347,7 +348,7 @@ describe('Input', () => {
     })
 
     it('should use validation message instead of getHelperText when validation fails with message', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const getHelperText = vi.fn().mockReturnValue('Fallback helper')
 
@@ -381,7 +382,7 @@ describe('Input', () => {
 
   describe('icons', () => {
     it('should render start icon when getStartIcon is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -401,7 +402,7 @@ describe('Input', () => {
     })
 
     it('should render end icon when getEndIcon is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -421,7 +422,7 @@ describe('Input', () => {
     })
 
     it('should not render icon container when getStartIcon is not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -440,7 +441,7 @@ describe('Input', () => {
     })
 
     it('should update icons on state change', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -467,7 +468,7 @@ describe('Input', () => {
 
   describe('theme integration', () => {
     it('should set CSS color variables from theme', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -480,7 +481,7 @@ describe('Input', () => {
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
 
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(inputWrapper.style.getPropertyValue('--input-primary-color')).toBe(
           themeService.theme.palette.primary.main,
         )
@@ -489,7 +490,7 @@ describe('Input', () => {
     })
 
     it('should use custom color from defaultColor prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -502,7 +503,7 @@ describe('Input', () => {
 
         const inputWrapper = document.querySelector('shade-input') as HTMLElement
 
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(inputWrapper.style.getPropertyValue('--input-primary-color')).toBe(
           themeService.theme.palette.secondary.main,
         )
@@ -512,7 +513,7 @@ describe('Input', () => {
 
   describe('callbacks', () => {
     it('should call onTextChange when input value changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onTextChange = vi.fn()
 
@@ -535,7 +536,7 @@ describe('Input', () => {
     })
 
     it('should call onchange when input value changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -560,7 +561,7 @@ describe('Input', () => {
 
   describe('focus and blur', () => {
     it('should update state on focus', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const getEndIcon = vi.fn().mockReturnValue('icon')
 
@@ -588,7 +589,7 @@ describe('Input', () => {
     })
 
     it('should update state on blur', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const getEndIcon = vi.fn().mockReturnValue('icon')
 
@@ -621,7 +622,7 @@ describe('Input', () => {
 
   describe('autofocus', () => {
     it('should set initial focused state based on autofocus prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const getEndIcon = vi.fn().mockReturnValue('icon')
 
@@ -646,7 +647,7 @@ describe('Input', () => {
 
   describe('FormService integration', () => {
     it('should register input with FormService when inside a Form', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         type TestFormData = { email: string }
@@ -665,14 +666,14 @@ describe('Input', () => {
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
-        const formService = formInjector.getInstance(FormService)
+        const formService = formInjector.get(FormContextToken)!
 
         expect(formService.inputs.size).toBe(1)
       })
     })
 
     it('should update FormService field state on validation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         type TestFormData = { email: string }
@@ -708,7 +709,7 @@ describe('Input', () => {
         await flushUpdates()
 
         const formInjector = (form as unknown as { injector: Injector }).injector
-        const formService = formInjector.getInstance(FormService)
+        const formService = formInjector.get(FormContextToken)!
         const fieldErrors = formService.fieldErrors.getValue()
 
         expect(fieldErrors.email).toBeDefined()
@@ -720,7 +721,7 @@ describe('Input', () => {
     })
 
     it('should unregister input from FormService on cleanup', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         type TestFormData = { email: string }
@@ -739,7 +740,7 @@ describe('Input', () => {
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
-        const formService = formInjector.getInstance(FormService)
+        const formService = formInjector.get(FormContextToken)!
 
         expect(formService.inputs.size).toBe(1)
 
@@ -752,7 +753,7 @@ describe('Input', () => {
 
   describe('default validation messages', () => {
     it('should show message for typeMismatch', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -778,7 +779,7 @@ describe('Input', () => {
     })
 
     it('should handle pattern mismatch validation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -806,7 +807,7 @@ describe('Input', () => {
 
   describe('value handling', () => {
     it('should use initial value prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -825,7 +826,7 @@ describe('Input', () => {
 
   describe('labelProps', () => {
     it('should pass labelProps to the label element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -844,7 +845,7 @@ describe('Input', () => {
 
   describe('size', () => {
     it('should not set data-size when size is not specified', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Input /> })
         await flushUpdates()
@@ -854,7 +855,7 @@ describe('Input', () => {
     })
 
     it('should not set data-size for medium size (default)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Input size="medium" /> })
         await flushUpdates()
@@ -864,7 +865,7 @@ describe('Input', () => {
     })
 
     it('should set data-size="small" for small size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Input size="small" /> })
         await flushUpdates()
@@ -874,7 +875,7 @@ describe('Input', () => {
     })
 
     it('should set data-size="large" for large size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Input size="large" /> })
         await flushUpdates()

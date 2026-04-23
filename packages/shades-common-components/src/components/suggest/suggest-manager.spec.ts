@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SuggestManager } from './suggest-manager.js'
@@ -201,7 +201,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
 
@@ -226,7 +226,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockReturnValue(entriesPromise)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -246,7 +246,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'a' })
           await vi.advanceTimersByTimeAsync(100)
@@ -268,7 +268,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -288,7 +288,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -310,7 +310,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -334,7 +334,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -359,7 +359,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -380,7 +380,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -402,7 +402,7 @@ describe('SuggestManager', () => {
       const getEntries = vi.fn().mockResolvedValue(testEntries)
       const getSuggestionEntry = vi.fn().mockImplementation(createSuggestionResult)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new SuggestManager(getEntries, getSuggestionEntry), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)

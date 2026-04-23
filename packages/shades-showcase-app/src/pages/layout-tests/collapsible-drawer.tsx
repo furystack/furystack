@@ -15,7 +15,7 @@ import {
 const ToggleDrawerButton = Shade({
   customElementName: 'toggle-drawer-button-collapsible',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.toggleDrawer('left')}>
         <Icon icon={icons.ruler} size="small" /> Toggle Drawer

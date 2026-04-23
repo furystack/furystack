@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -21,7 +21,7 @@ describe('ButtonGroup', () => {
   })
 
   const renderButtonGroup = async (props: Parameters<typeof ButtonGroup>[0] = {}, children?: JSX.Element[]) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
@@ -142,7 +142,7 @@ describe('ToggleButton', () => {
   })
 
   const renderToggleButton = async (props: Parameters<typeof ToggleButton>[0]) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
@@ -214,7 +214,7 @@ describe('ToggleButtonGroup', () => {
   })
 
   const renderToggleGroup = async (props: Parameters<typeof ToggleButtonGroup>[0] = {}, children?: JSX.Element[]) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
@@ -474,7 +474,7 @@ describe('SegmentedControl', () => {
   ]
 
   const renderSegmented = async (props: Partial<Parameters<typeof SegmentedControl>[0]> = {}) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
@@ -643,7 +643,7 @@ describe('ToggleButtonGroup edge cases', () => {
   })
 
   const renderToggleGroup = async (props: Parameters<typeof ToggleButtonGroup>[0] = {}, children?: JSX.Element[]) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,

@@ -1,9 +1,10 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
-import { Form, FormService } from '../form.js'
+import { Form, FormContextToken } from '../form.js'
 import { Switch } from './switch.js'
 
 describe('Switch', () => {
@@ -17,7 +18,7 @@ describe('Switch', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -34,7 +35,7 @@ describe('Switch', () => {
   })
 
   it('should render the hidden checkbox input', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -53,7 +54,7 @@ describe('Switch', () => {
   })
 
   it('should render the switch track and thumb', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -72,7 +73,7 @@ describe('Switch', () => {
   })
 
   it('should render the label title', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -90,7 +91,7 @@ describe('Switch', () => {
   })
 
   it('should not render label span when labelTitle is not provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -108,7 +109,7 @@ describe('Switch', () => {
 
   describe('checked state', () => {
     it('should render as checked when checked prop is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -125,7 +126,7 @@ describe('Switch', () => {
     })
 
     it('should render as unchecked when checked prop is false', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -144,7 +145,7 @@ describe('Switch', () => {
 
   describe('disabled state', () => {
     it('should set data-disabled attribute when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -161,7 +162,7 @@ describe('Switch', () => {
     })
 
     it('should not have data-disabled attribute when not disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -178,7 +179,7 @@ describe('Switch', () => {
     })
 
     it('should set the disabled attribute on the input element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -197,7 +198,7 @@ describe('Switch', () => {
 
   describe('size', () => {
     it('should set data-size="small" when size is small', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -214,7 +215,7 @@ describe('Switch', () => {
     })
 
     it('should not have data-size attribute when size is medium (default)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -233,7 +234,7 @@ describe('Switch', () => {
 
   describe('callbacks', () => {
     it('should call onchange when switch is toggled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -257,7 +258,7 @@ describe('Switch', () => {
 
   describe('theme integration', () => {
     it('should set CSS color variable from theme', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -269,13 +270,13 @@ describe('Switch', () => {
         await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(switchEl.style.getPropertyValue('--switch-color')).toBe(themeService.theme.palette.primary.main)
       })
     })
 
     it('should use custom color from color prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -287,7 +288,7 @@ describe('Switch', () => {
         await flushUpdates()
 
         const switchEl = document.querySelector('shade-switch') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(switchEl.style.getPropertyValue('--switch-color')).toBe(themeService.theme.palette.secondary.main)
       })
     })
@@ -295,7 +296,7 @@ describe('Switch', () => {
 
   describe('FormService integration', () => {
     it('should register input with FormService when inside a Form', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         type TestFormData = { notifications: string }
@@ -314,14 +315,14 @@ describe('Switch', () => {
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
-        const formService = formInjector.getInstance(FormService)
+        const formService = formInjector.get(FormContextToken)!
 
         expect(formService.inputs.size).toBe(1)
       })
     })
 
     it('should unregister input from FormService on cleanup', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         type TestFormData = { notifications: string }
@@ -340,7 +341,7 @@ describe('Switch', () => {
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
-        const formService = formInjector.getInstance(FormService)
+        const formService = formInjector.get(FormContextToken)!
 
         expect(formService.inputs.size).toBe(1)
 
@@ -353,7 +354,7 @@ describe('Switch', () => {
 
   describe('labelProps', () => {
     it('should pass labelProps to the label element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -372,7 +373,7 @@ describe('Switch', () => {
 
   describe('required', () => {
     it('should set the required attribute on the input element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -391,7 +392,7 @@ describe('Switch', () => {
 
   describe('value', () => {
     it('should set the value attribute on the input element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -410,7 +411,7 @@ describe('Switch', () => {
 
   describe('size', () => {
     it('should not set data-size when size is not specified', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Switch /> })
         await flushUpdates()
@@ -420,7 +421,7 @@ describe('Switch', () => {
     })
 
     it('should not set data-size for medium size (default)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Switch size="medium" /> })
         await flushUpdates()
@@ -430,7 +431,7 @@ describe('Switch', () => {
     })
 
     it('should set data-size="small" for small size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Switch size="small" /> })
         await flushUpdates()
@@ -440,7 +441,7 @@ describe('Switch', () => {
     })
 
     it('should set data-size="large" for large size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Switch size="large" /> })
         await flushUpdates()

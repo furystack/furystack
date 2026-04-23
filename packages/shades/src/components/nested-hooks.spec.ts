@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { LocationService } from '../services/location-service.js'
@@ -104,7 +104,7 @@ describe('createNestedHooks', () => {
 
       const { getTypedQuery } = createNestedHooks(routes)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         expect(getTypedQuery(injector, '/bare')).toBeNull()
       })
     })
@@ -119,8 +119,8 @@ describe('createNestedHooks', () => {
 
       const { getTypedQuery } = createNestedHooks(routes)
 
-      await usingAsync(new Injector(), async (injector) => {
-        const locationService = injector.getInstance(LocationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const locationService = injector.get(LocationService)
         locationService.onDeserializedLocationSearchChanged.setValue({ page: 3 })
         expect(getTypedQuery(injector, '/list')).toEqual({ page: 3 })
       })
@@ -136,8 +136,8 @@ describe('createNestedHooks', () => {
 
       const { getTypedQuery } = createNestedHooks(routes)
 
-      await usingAsync(new Injector(), async (injector) => {
-        const locationService = injector.getInstance(LocationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const locationService = injector.get(LocationService)
         locationService.onDeserializedLocationSearchChanged.setValue({ page: 'not-a-number' })
         expect(getTypedQuery(injector, '/list')).toBeNull()
       })
@@ -152,7 +152,7 @@ describe('createNestedHooks', () => {
 
       const { getTypedHash } = createNestedHooks(routes)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         expect(getTypedHash(injector, '/bare')).toBeUndefined()
       })
     })
@@ -167,8 +167,8 @@ describe('createNestedHooks', () => {
 
       const { getTypedHash } = createNestedHooks(routes)
 
-      await usingAsync(new Injector(), async (injector) => {
-        const locationService = injector.getInstance(LocationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const locationService = injector.get(LocationService)
         locationService.onLocationHashChanged.setValue('details')
         expect(getTypedHash(injector, '/tabs')).toBe('details')
       })
@@ -184,8 +184,8 @@ describe('createNestedHooks', () => {
 
       const { getTypedHash } = createNestedHooks(routes)
 
-      await usingAsync(new Injector(), async (injector) => {
-        const locationService = injector.getInstance(LocationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const locationService = injector.get(LocationService)
         locationService.onLocationHashChanged.setValue('something-else')
         expect(getTypedHash(injector, '/tabs')).toBeUndefined()
       })
@@ -206,8 +206,8 @@ describe('createNestedHooks', () => {
 
       const { getTypedHash } = createNestedHooks(routes)
 
-      await usingAsync(new Injector(), async (injector) => {
-        const locationService = injector.getInstance(LocationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const locationService = injector.get(LocationService)
         locationService.onLocationHashChanged.setValue('ctrl-1')
         expect(getTypedHash(injector, '/navigation/tabs')).toBe('ctrl-1')
       })
@@ -248,7 +248,7 @@ describe('createNestedHooks', () => {
 
       const { getTypedHash } = createNestedHooks(routes)
       // @ts-expect-error -- '/nonexistent' is not a valid route path
-      getTypedHash(new Injector(), '/nonexistent')
+      getTypedHash(createInjector(), '/nonexistent')
     })
   })
 })

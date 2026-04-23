@@ -14,7 +14,7 @@ import {
 const OpenLeftDrawerButton = Shade({
   customElementName: 'open-left-drawer-button',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.setDrawerOpen('left', true)}>
         <Icon icon={icons.chevronLeft} size="small" /> Open Left
@@ -26,7 +26,7 @@ const OpenLeftDrawerButton = Shade({
 const OpenRightDrawerButton = Shade({
   customElementName: 'open-right-drawer-button',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.setDrawerOpen('right', true)}>
         <Icon icon={icons.chevronRight} size="small" /> Open Right

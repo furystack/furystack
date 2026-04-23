@@ -95,7 +95,7 @@ export const DrawerToggleButton = Shade<DrawerToggleButtonProps>({
   },
 
   render: ({ props, injector, useObservable }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     const { position, ariaLabel = 'Toggle drawer' } = props
 
     // Subscribe to drawer state to update icon

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -56,7 +56,7 @@ describe('SuggestionList', () => {
   }
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -77,7 +77,7 @@ describe('SuggestionList', () => {
   })
 
   it('should render the suggestions container', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -98,7 +98,7 @@ describe('SuggestionList', () => {
   })
 
   it('should render suggestion items when suggestions are present', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -127,7 +127,7 @@ describe('SuggestionList', () => {
   })
 
   it('should apply selected class to the correct suggestion item', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -154,7 +154,7 @@ describe('SuggestionList', () => {
   })
 
   it('should update selected class when selectedIndex changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -191,7 +191,7 @@ describe('SuggestionList', () => {
   })
 
   it('should call selectSuggestion when a suggestion item is clicked', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
       const selectSpy = vi.spyOn(manager, 'selectSuggestion')
@@ -222,7 +222,7 @@ describe('SuggestionList', () => {
   })
 
   it('should not call selectSuggestion when list is not opened', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -253,7 +253,7 @@ describe('SuggestionList', () => {
   })
 
   it('should render empty container when no suggestions', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const getEntries = vi.fn().mockResolvedValue([])
@@ -278,7 +278,7 @@ describe('SuggestionList', () => {
 
   describe('animations', () => {
     it('should animate container when isOpened changes to true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const manager = createManager()
 
@@ -302,7 +302,7 @@ describe('SuggestionList', () => {
     })
 
     it('should animate container when isOpened changes to false', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const manager = createManager()
 
@@ -331,7 +331,7 @@ describe('SuggestionList', () => {
 
   describe('container width', () => {
     it('should set container width based on parent element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         rootElement.style.width = '400px'
 

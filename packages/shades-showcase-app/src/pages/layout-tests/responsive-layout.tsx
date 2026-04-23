@@ -13,7 +13,7 @@ import {
 const ToggleDrawerButton = Shade({
   customElementName: 'toggle-drawer-button-responsive',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.toggleDrawer('left')}>
         📱 Toggle Drawer
@@ -25,7 +25,7 @@ const ToggleDrawerButton = Shade({
 const DrawerState = Shade({
   customElementName: 'drawer-state',
   render: ({ injector, useObservable }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     const [drawerState] = useObservable('drawerState', layoutService.drawerState)
     return <>Drawer State: {drawerState.left?.open ? 'Open' : 'Closed'}</>
   },
@@ -38,7 +38,7 @@ const DrawerState = Shade({
 export const ResponsiveLayoutTest = Shade({
   customElementName: 'layout-test-responsive',
   render: ({ injector, useObservable }) => {
-    const screenService = injector.getInstance(ScreenService)
+    const screenService = injector.get(ScreenService)
 
     const [isAtLeastMd] = useObservable('atLeastMd', screenService.screenSize.atLeast.md)
 

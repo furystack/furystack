@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, RouteMatchService } from '@furystack/shades'
 import type { MatchChainEntry } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
@@ -33,9 +33,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should render items derived from the match chain', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([
         createMatchChainEntry('/', 'Home'),
@@ -59,9 +59,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should skip the root "/" segment by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([
         createMatchChainEntry('/', 'Home'),
@@ -83,9 +83,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should include root segment when skipRootPath is false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([
         createMatchChainEntry('/', 'Home'),
@@ -107,9 +107,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should resolve async titles', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([createMatchChainEntry('/settings', async () => 'Settings')])
 
@@ -127,9 +127,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should skip entries without a title', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([
         createMatchChainEntry('/layout'),
@@ -150,9 +150,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should pass through homeItem prop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([createMatchChainEntry('/users', 'Users')])
 
@@ -171,9 +171,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should pass through separator prop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([
         createMatchChainEntry('/users', 'Users'),
@@ -194,7 +194,7 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should handle empty match chain gracefully', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -211,9 +211,9 @@ describe('RouteBreadcrumb', () => {
   })
 
   it('Should accumulate paths from nested segments', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       routeMatchService.currentMatchChain.setValue([
         createMatchChainEntry('/', 'Home'),

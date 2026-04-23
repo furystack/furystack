@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -16,7 +16,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -33,7 +33,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should render a textarea with the given value', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -51,7 +51,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should render the label title', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -68,7 +68,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should set placeholder on textarea', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -85,7 +85,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should set data-disabled when disabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -105,7 +105,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should set readOnly on textarea', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -122,7 +122,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should call onValueChange on input event', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const onValueChange = vi.fn()
 
@@ -145,7 +145,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should use custom rows prop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -162,7 +162,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should set name attribute on textarea', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -179,7 +179,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should set required attribute on textarea', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -196,7 +196,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should set data-invalid when required and value is empty', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -213,7 +213,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should not set data-invalid when required and value is provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -230,7 +230,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should show validation error message from getValidationResult', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -255,7 +255,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should show helper text from getHelperText', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -273,7 +273,7 @@ describe('MarkdownInput', () => {
 
   describe('hideChrome', () => {
     it('should suppress the label when hideChrome is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -292,7 +292,7 @@ describe('MarkdownInput', () => {
     })
 
     it('should suppress the helper text when hideChrome is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -317,7 +317,7 @@ describe('MarkdownInput', () => {
     })
 
     it('should still set data-invalid when hideChrome is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -335,7 +335,7 @@ describe('MarkdownInput', () => {
   })
 
   it('should render with validation inside a Form', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -395,7 +395,7 @@ describe('MarkdownInput', () => {
           }
         } as unknown as typeof FileReader
 
-        await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(createInjector(), async (injector) => {
           const rootElement = document.getElementById('root') as HTMLDivElement
           const onValueChange = vi.fn()
 
@@ -428,7 +428,7 @@ describe('MarkdownInput', () => {
     })
 
     it('should ignore pasted images exceeding maxImageSizeBytes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -452,7 +452,7 @@ describe('MarkdownInput', () => {
     })
 
     it('should not interfere with non-image paste', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 

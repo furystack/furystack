@@ -71,7 +71,7 @@ export const buildNestedNavigateUrl = (args: NestedNavigateArgs): string => {
  * @param args - The navigation arguments
  */
 export const nestedNavigate = (injector: Injector, args: NestedNavigateArgs): void => {
-  injector.getInstance(LocationService).navigate(buildNestedNavigateUrl(args))
+  injector.get(LocationService).navigate(buildNestedNavigateUrl(args))
 }
 
 /**

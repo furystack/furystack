@@ -1,7 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { InputValidationResult } from '../inputs/input.js'
-import { FormService } from '../form.js'
+import { FormContextToken } from '../form.js'
 import { resolveValidationState } from './markdown-validation.js'
 
 const DEFAULT_MAX_IMAGE_SIZE = 256 * 1024
@@ -107,7 +107,7 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
     const textareaRef = useRef<HTMLTextAreaElement>('textarea')
 
     useDisposable('form-registration', () => {
-      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      const formService = injector.get(FormContextToken)
       if (formService) {
         queueMicrotask(() => {
           if (textareaRef.current) formService.inputs.add(textareaRef.current as unknown as HTMLInputElement)
@@ -123,13 +123,13 @@ export const MarkdownInput = Shade<MarkdownInputProps>({
 
     const { validationResult, isRequired, isInvalid, helperNode } = resolveValidationState(props)
 
-    if (injector.cachedSingletons.has(FormService) && props.name) {
-      const formService = injector.getInstance(FormService)
+    const formServiceForValidity = injector.get(FormContextToken)
+    if (formServiceForValidity && props.name) {
       const fieldResult: InputValidationResult = isRequired
         ? { isValid: false, message: 'Value is required' }
         : validationResult || { isValid: true }
       const validity = textareaRef.current?.validity ?? ({} as ValidityState)
-      formService.setFieldState(props.name as keyof unknown, fieldResult, validity)
+      formServiceForValidity.setFieldState(props.name as keyof unknown, fieldResult, validity)
     }
 
     useHostProps({

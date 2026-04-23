@@ -6,7 +6,7 @@ import { GridPageService } from './grid-page-service.js'
 export const GridStatus = Shade({
   customElementName: 'shades-grid-status',
   render: ({ useObservable, injector }) => {
-    const gridService = injector.getInstance(GridPageService)
+    const gridService = injector.get(GridPageService)
     const [focusedEntry] = useObservable('focusedEntry', gridService.collectionService.focusedEntry)
     const [selection] = useObservable('selection', gridService.collectionService.selection)
     return (

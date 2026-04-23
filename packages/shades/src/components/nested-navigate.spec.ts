@@ -1,4 +1,5 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { LocationService } from '../services/location-service.js'
@@ -10,8 +11,8 @@ type TestRoute = Pick<NestedRoute<unknown, any, any>, 'component'>
 
 describe('nestedNavigate', () => {
   it('Should navigate to a simple path', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const spy = vi.spyOn(locationService, 'navigate')
 
       nestedNavigate(injector, { path: '/buttons' })
@@ -21,8 +22,8 @@ describe('nestedNavigate', () => {
   })
 
   it('Should compile params into the path', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const spy = vi.spyOn(locationService, 'navigate')
 
       nestedNavigate(injector, { path: '/users/:id', params: { id: '42' } })
@@ -32,8 +33,8 @@ describe('nestedNavigate', () => {
   })
 
   it('Should compile multiple params into the path', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const spy = vi.spyOn(locationService, 'navigate')
 
       nestedNavigate(injector, {
@@ -46,8 +47,8 @@ describe('nestedNavigate', () => {
   })
 
   it('Should append serialized query string when provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const spy = vi.spyOn(locationService, 'navigate')
 
       nestedNavigate(injector, { path: '/buttons', query: { page: 2 } })
@@ -62,8 +63,8 @@ describe('nestedNavigate', () => {
   })
 
   it('Should omit the query string when no keys are provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const spy = vi.spyOn(locationService, 'navigate')
 
       nestedNavigate(injector, { path: '/buttons', query: {} })
@@ -73,8 +74,8 @@ describe('nestedNavigate', () => {
   })
 
   it('Should append the hash segment when provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const spy = vi.spyOn(locationService, 'navigate')
 
       nestedNavigate(injector, { path: '/buttons', hash: 'overview' })
@@ -84,8 +85,8 @@ describe('nestedNavigate', () => {
   })
 
   it('Should combine params, query and hash in the correct order', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const spy = vi.spyOn(locationService, 'navigate')
 
       nestedNavigate(injector, {
@@ -197,7 +198,7 @@ describe('Type utilities', () => {
 
       const appNavigate = createNestedNavigate<Routes>()
       // @ts-expect-error -- '/nonexistent' is not a valid route path
-      appNavigate(new Injector(), { path: '/nonexistent' })
+      appNavigate(createInjector(), { path: '/nonexistent' })
     })
 
     it('Should accept routes with typed match parameters (NestedRoute<T>)', () => {

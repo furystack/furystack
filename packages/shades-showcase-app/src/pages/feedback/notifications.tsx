@@ -4,7 +4,7 @@ import { Button, Icon, icons, NotyService, PageContainer, PageHeader, Paper } fr
 export const NotysPage = Shade({
   customElementName: 'shade-notys',
   render: ({ injector }) => {
-    const notyService = injector.getInstance(NotyService)
+    const notyService = injector.get(NotyService)
     return (
       <PageContainer centered>
         <PageHeader

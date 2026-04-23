@@ -12,8 +12,8 @@ import { applyTheme, themeDropdownItems, themeEntries } from '../theme-registry.
 export const ThemeSwitch = Shade({
   customElementName: 'theme-switch',
   render: ({ injector, useStoredState, useDisposable }) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
-    const notyService = injector.getInstance(NotyService)
+    const themeProvider = injector.get(ThemeProviderService)
+    const notyService = injector.get(NotyService)
     const [currentThemeKey, setCurrentThemeKey] = useStoredState<string>('theme', 'dark')
 
     useDisposable('initial-theme', () => {

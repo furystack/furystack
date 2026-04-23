@@ -1,4 +1,5 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, Shade } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -33,8 +34,8 @@ describe('createShadesMicroFrontend', () => {
       render: ({ props }) => <div>{props.value}</div>,
     })
 
-    await usingAsync(new Injector(), async (parentInjector) => {
-      const createChildSpy = vi.spyOn(parentInjector, 'createChild')
+    await usingAsync(createInjector(), async (parentInjector) => {
+      const createScopeSpy = vi.spyOn(parentInjector, 'createScope')
 
       const mfeService = createShadesMicroFrontend(TestComponent)
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -45,7 +46,7 @@ describe('createShadesMicroFrontend', () => {
         injector: parentInjector,
       })
 
-      expect(createChildSpy).toHaveBeenCalledWith({
+      expect(createScopeSpy).toHaveBeenCalledWith({
         owner: createShadesMicroFrontend,
       })
     })
@@ -59,7 +60,7 @@ describe('createShadesMicroFrontend', () => {
       render: ({ props }) => <div data-testid="content">Value: {props.value}</div>,
     })
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const mfeService = createShadesMicroFrontend(TestComponent)
@@ -81,7 +82,7 @@ describe('createShadesMicroFrontend', () => {
       render: () => <span>MFE Content</span>,
     })
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const mfeService = createShadesMicroFrontend(TestComponent)
@@ -118,7 +119,7 @@ describe('createShadesMicroFrontend', () => {
       ),
     })
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const mfeService = createShadesMicroFrontend(TestComponent)
@@ -155,7 +156,7 @@ describe('createShadesMicroFrontend', () => {
       },
     })
 
-    await usingAsync(new Injector(), async (parentInjector) => {
+    await usingAsync(createInjector(), async (parentInjector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const mfeService = createShadesMicroFrontend(TestComponent)

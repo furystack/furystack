@@ -1,11 +1,19 @@
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProviderService } from './theme-provider-service.js'
 
 describe('ThemeProviderService', () => {
+  let injector: Injector
   let service: ThemeProviderService
 
   beforeEach(() => {
-    service = new ThemeProviderService()
+    injector = createInjector()
+    service = injector.get(ThemeProviderService)
+  })
+
+  afterEach(async () => {
+    await injector[Symbol.asyncDispose]()
   })
 
   describe('theme management', () => {

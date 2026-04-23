@@ -1,8 +1,8 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, ScreenService } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LayoutService } from '../../services/layout-service.js'
+import { LayoutService, createLayoutService } from '../../services/layout-service.js'
 import { Drawer, type DrawerProps } from './index.js'
 
 /**
@@ -33,9 +33,9 @@ describe('Drawer component', () => {
   const renderDrawer = async (options: RenderOptions = {}) => {
     const { position = 'left', variant = 'collapsible', children = <div>Drawer Content</div>, ...restProps } = options
 
-    const injector = new Injector()
-    const layoutService = new LayoutService(createMockElement())
-    injector.setExplicitInstance(layoutService, LayoutService)
+    const injector = createInjector()
+    const layoutService = createLayoutService(createMockElement())
+    injector.bind(LayoutService, () => layoutService)
     const rootElement = document.getElementById('root') as HTMLDivElement
 
     initializeShadeRoot({
@@ -56,7 +56,7 @@ describe('Drawer component', () => {
       injector,
       drawer,
       layoutService,
-      screenService: injector.getInstance(ScreenService),
+      screenService: injector.get(ScreenService),
       [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }
@@ -70,9 +70,9 @@ describe('Drawer component', () => {
     })
 
     it('should render children in drawer content', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -91,9 +91,9 @@ describe('Drawer component', () => {
     })
 
     it('should render left drawer with correct positioning class', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -113,9 +113,9 @@ describe('Drawer component', () => {
     })
 
     it('should render right drawer with correct positioning class', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -149,9 +149,9 @@ describe('Drawer component', () => {
     })
 
     it('should not have closed class when open', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -171,9 +171,9 @@ describe('Drawer component', () => {
     })
 
     it('should set data-variant attribute to permanent', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -220,9 +220,9 @@ describe('Drawer component', () => {
     })
 
     it('should add closed class when drawer is closed', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -242,9 +242,9 @@ describe('Drawer component', () => {
     })
 
     it('should respond to LayoutService toggle', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -300,9 +300,9 @@ describe('Drawer component', () => {
     })
 
     it('should render backdrop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -321,9 +321,9 @@ describe('Drawer component', () => {
     })
 
     it('should show backdrop when drawer is open', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -346,9 +346,9 @@ describe('Drawer component', () => {
     })
 
     it('should close drawer when backdrop is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -374,9 +374,9 @@ describe('Drawer component', () => {
     })
 
     it('should use transform for temporary drawer animation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -433,9 +433,9 @@ describe('Drawer component', () => {
     })
 
     it('should update width in LayoutService when changed', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // First render with width
@@ -478,9 +478,9 @@ describe('Drawer component', () => {
     })
 
     it('should render right drawer backdrop for temporary variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -505,11 +505,11 @@ describe('Drawer component', () => {
 
   describe('responsive breakpoint', () => {
     it('should close collapsible drawer when screen becomes smaller than breakpoint', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const screenService = injector.getInstance(ScreenService)
+        const screenService = injector.get(ScreenService)
 
         // Start with large screen
         screenService.screenSize.atLeast.md.setValue(true)
@@ -539,11 +539,11 @@ describe('Drawer component', () => {
     })
 
     it('should open collapsible drawer when screen becomes larger than breakpoint', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const screenService = injector.getInstance(ScreenService)
+        const screenService = injector.get(ScreenService)
 
         // Start with large screen
         screenService.screenSize.atLeast.md.setValue(true)
@@ -580,11 +580,11 @@ describe('Drawer component', () => {
     })
 
     it('should close temporary drawer when screen becomes larger than breakpoint', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const screenService = injector.getInstance(ScreenService)
+        const screenService = injector.get(ScreenService)
 
         // Start with small screen and drawer open
         screenService.screenSize.atLeast.md.setValue(false)
@@ -612,11 +612,11 @@ describe('Drawer component', () => {
     })
 
     it('should not affect permanent drawers with collapseOnBreakpoint', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const screenService = injector.getInstance(ScreenService)
+        const screenService = injector.get(ScreenService)
 
         // Start with large screen
         screenService.screenSize.atLeast.md.setValue(true)
@@ -646,9 +646,9 @@ describe('Drawer component', () => {
 
   describe('data attributes', () => {
     it('should set data-variant attribute', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -668,9 +668,9 @@ describe('Drawer component', () => {
     })
 
     it('should set data-open attribute', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -696,9 +696,9 @@ describe('Drawer component', () => {
     })
 
     it('should set data-testid attribute', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -720,9 +720,9 @@ describe('Drawer component', () => {
 
   describe('cleanup on disposal', () => {
     it('should call removeDrawer on LayoutService when the component is removed from DOM', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -749,9 +749,9 @@ describe('Drawer component', () => {
     })
 
     it('should not re-add drawer state via ghost render during disposal', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -779,9 +779,9 @@ describe('Drawer component', () => {
     })
 
     it('should only clean up its own drawer position on disposal', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         layoutService.initDrawer('left', { open: true, width: '240px', variant: 'collapsible' })
@@ -814,9 +814,9 @@ describe('Drawer component', () => {
 
   describe('preserving user interactions', () => {
     it('should not reset drawer state if already initialized', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // Pre-initialize drawer as closed

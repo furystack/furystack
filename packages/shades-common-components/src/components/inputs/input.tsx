@@ -4,7 +4,7 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { ComponentSize } from '../component-size.js'
-import { FormService } from '../form.js'
+import { FormContextToken } from '../form.js'
 
 const emptyValidity = {} as ValidityState
 
@@ -259,7 +259,7 @@ export const Input = Shade<TextInputProps>({
     const inputRef = useRef<HTMLInputElement>('formInput')
 
     useDisposable('form-registration', () => {
-      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      const formService = injector.get(FormContextToken)
       if (formService) {
         queueMicrotask(() => {
           if (inputRef.current) formService.inputs.add(inputRef.current)
@@ -272,7 +272,7 @@ export const Input = Shade<TextInputProps>({
       }
     })
 
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
 
     // We want to use the CSS state hooks for the focused and validity states, so we need to disable the rule
     // eslint-disable-next-line furystack/no-css-state-hooks
@@ -317,9 +317,9 @@ export const Input = Shade<TextInputProps>({
       },
     })
 
-    if (injector.cachedSingletons.has(FormService)) {
-      const formService = injector.getInstance(FormService)
-      formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, validity)
+    const formServiceForValidity = injector.get(FormContextToken)
+    if (formServiceForValidity) {
+      formServiceForValidity.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, validity)
     }
 
     const helperNode =

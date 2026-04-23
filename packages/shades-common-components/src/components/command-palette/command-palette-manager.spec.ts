@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { using, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { CommandPaletteManager } from './command-palette-manager.js'
@@ -174,7 +174,7 @@ describe('CommandPaletteManager', () => {
       const suggestions = [createMockSuggestion('test', 1)]
       const provider = createCommandProvider(suggestions)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
 
@@ -196,7 +196,7 @@ describe('CommandPaletteManager', () => {
       })
       const provider = vi.fn().mockReturnValue(providerPromise)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -215,7 +215,7 @@ describe('CommandPaletteManager', () => {
       const suggestions = [createMockSuggestion('test', 1)]
       const provider = createCommandProvider(suggestions)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'a' })
           await vi.advanceTimersByTimeAsync(100)
@@ -236,7 +236,7 @@ describe('CommandPaletteManager', () => {
       const suggestions = [createMockSuggestion('test', 1)]
       const provider = createCommandProvider(suggestions)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -255,7 +255,7 @@ describe('CommandPaletteManager', () => {
       const suggestions = [createMockSuggestion('test', 1)]
       const provider = createCommandProvider(suggestions)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           manager.selectedIndex.setValue(5)
 
@@ -271,7 +271,7 @@ describe('CommandPaletteManager', () => {
       const suggestions = [createMockSuggestion('test', 1)]
       const provider = createCommandProvider(suggestions)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -301,7 +301,7 @@ describe('CommandPaletteManager', () => {
       process.on('unhandledRejection', errorHandler)
 
       try {
-        await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(createInjector(), async (injector) => {
           await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
             void manager.getSuggestion({ injector, term: 'test' })
             await vi.advanceTimersByTimeAsync(250)
@@ -323,7 +323,7 @@ describe('CommandPaletteManager', () => {
       const provider2 = createCommandProvider([createMockSuggestion('cmd2', 2)])
       const provider3 = createCommandProvider([createMockSuggestion('cmd3', 3)])
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider1, provider2, provider3]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -339,7 +339,7 @@ describe('CommandPaletteManager', () => {
       const provider1 = createCommandProvider([createMockSuggestion('cmd1', 1)])
       const provider2 = createCommandProvider([createMockSuggestion('cmd2', 2), createMockSuggestion('cmd3', 3)])
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider1, provider2]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -354,7 +354,7 @@ describe('CommandPaletteManager', () => {
       const provider2 = createCommandProvider([createMockSuggestion('high', 10)])
       const provider3 = createCommandProvider([createMockSuggestion('medium', 5)])
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider1, provider2, provider3]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -371,7 +371,7 @@ describe('CommandPaletteManager', () => {
       const provider1 = createCommandProvider([createMockSuggestion('cmd1', 1)])
       const provider2 = createCommandProvider([])
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider1, provider2]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -382,7 +382,7 @@ describe('CommandPaletteManager', () => {
     })
 
     it('Should work with no providers', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -409,7 +409,7 @@ describe('CommandPaletteManager', () => {
       process.on('unhandledRejection', errorHandler)
 
       try {
-        await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(createInjector(), async (injector) => {
           await usingAsync(new CommandPaletteManager([provider1, provider2]), async (manager) => {
             void manager.getSuggestion({ injector, term: 'test' })
             await vi.advanceTimersByTimeAsync(250)
@@ -430,7 +430,7 @@ describe('CommandPaletteManager', () => {
       const suggestion = createMockSuggestion('cmd', 1)
       const provider = createCommandProvider([suggestion])
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -450,7 +450,7 @@ describe('CommandPaletteManager', () => {
       ]
       const provider = createCommandProvider(suggestions)
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)
@@ -467,7 +467,7 @@ describe('CommandPaletteManager', () => {
       const suggestion = createMockSuggestion('cmd', 1)
       const provider = createCommandProvider([suggestion])
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         await usingAsync(new CommandPaletteManager([provider]), async (manager) => {
           void manager.getSuggestion({ injector, term: 'test' })
           await vi.advanceTimersByTimeAsync(250)

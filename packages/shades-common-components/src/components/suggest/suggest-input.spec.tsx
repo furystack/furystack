@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -48,7 +48,7 @@ describe('SuggestInput', () => {
   }
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -68,7 +68,7 @@ describe('SuggestInput', () => {
   })
 
   it('should render the inner input element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -90,7 +90,7 @@ describe('SuggestInput', () => {
   })
 
   it('should focus input when isOpened becomes true', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -115,7 +115,7 @@ describe('SuggestInput', () => {
   })
 
   it('should clear input value when isOpened becomes false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -143,7 +143,7 @@ describe('SuggestInput', () => {
   })
 
   it('should not clear input when first mounted with isOpened false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 
@@ -165,7 +165,7 @@ describe('SuggestInput', () => {
   })
 
   it('should have correct CSS styling applied', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const manager = createManager()
 

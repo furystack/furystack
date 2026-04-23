@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, LocationService } from '@furystack/shades'
 import type { ExtractRouteParams, NestedRoute } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
@@ -19,7 +19,7 @@ describe('Breadcrumb', () => {
 
   describe('Runtime behavior', () => {
     it('Should render basic breadcrumb trail with static routes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -45,7 +45,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should compile dynamic route parameters correctly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -71,9 +71,9 @@ describe('Breadcrumb', () => {
     })
 
     it('Should highlight active breadcrumb based on current URL', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
-        const locationService = injector.getInstance(LocationService)
+        const locationService = injector.get(LocationService)
 
         history.pushState('', '', '/users')
         locationService.updateState()
@@ -103,7 +103,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should render custom separator as string', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -128,7 +128,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should render optional home item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -148,7 +148,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should make last item non-clickable when lastItemClickable is false', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -176,7 +176,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should make last item clickable when lastItemClickable is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -201,11 +201,11 @@ describe('Breadcrumb', () => {
     })
 
     it('Should trigger SPA navigation on click', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onRouteChange = vi.fn()
 
-        injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
+        injector.get(LocationService).onLocationPathChanged.subscribe(onRouteChange)
 
         initializeShadeRoot({
           injector,
@@ -232,7 +232,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should apply custom className and style props', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -256,7 +256,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should handle empty items array gracefully', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -271,7 +271,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should render home item when items array is empty', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -287,7 +287,7 @@ describe('Breadcrumb', () => {
     })
 
     it('Should compile multiple parameters correctly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({

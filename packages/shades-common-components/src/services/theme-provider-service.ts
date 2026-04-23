@@ -1,4 +1,5 @@
-import { Injectable } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import { EventHub, type DeepPartial } from '@furystack/utils'
 
 import { cssVariableTheme, useThemeCssVariables } from './css-variable-theme.js'
@@ -365,30 +366,45 @@ export interface Theme {
   effects: Effects
 }
 
+export type ThemeProviderServiceEvents = { themeChanged: DeepPartial<Theme> }
+
 /**
- * Service class for theme-related operations
+ * Service for theme-related operations.
  */
-@Injectable({ lifetime: 'singleton' })
-export class ThemeProviderService extends EventHub<{ themeChanged: DeepPartial<Theme> }> {
-  public readonly theme = cssVariableTheme
-
-  private _assignedTheme: DeepPartial<Theme> = cssVariableTheme
-
+export interface ThemeProviderService extends EventHub<ThemeProviderServiceEvents> {
+  readonly theme: typeof cssVariableTheme
+  /** Returns the last assigned theme object. */
+  getAssignedTheme(): DeepPartial<Theme>
   /**
-   * Returns the last assigned theme object
-   */
-  public getAssignedTheme(): DeepPartial<Theme> {
-    return this._assignedTheme
-  }
-
-  /**
-   * Assigns a new theme, updates the CSS variables and emits a themeChanged event
-   * @param theme The Theme instance
+   * Assigns a new theme, updates the CSS variables and emits a themeChanged event.
+   * @param theme The Theme instance.
    * @param root Optional HTML element to scope CSS variables to. Defaults to `:root`.
    */
-  public setAssignedTheme(theme: DeepPartial<Theme>, root?: HTMLElement) {
-    this._assignedTheme = theme
-    useThemeCssVariables(theme, root)
-    this.emit('themeChanged', theme)
-  }
+  setAssignedTheme(theme: DeepPartial<Theme>, root?: HTMLElement): void
 }
+
+export const ThemeProviderService: Token<ThemeProviderService, 'singleton'> = defineService({
+  name: '@furystack/shades-common-components/ThemeProviderService',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const hub = new EventHub<ThemeProviderServiceEvents>()
+    let assignedTheme: DeepPartial<Theme> = cssVariableTheme
+
+    const setAssignedTheme = (theme: DeepPartial<Theme>, root?: HTMLElement): void => {
+      assignedTheme = theme
+      useThemeCssVariables(theme, root)
+      hub.emit('themeChanged', theme)
+    }
+
+    onDispose(() => {
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is deferred to the injector's onDispose hook.
+      hub[Symbol.dispose]?.()
+    })
+
+    return Object.assign(hub, {
+      theme: cssVariableTheme,
+      getAssignedTheme: () => assignedTheme,
+      setAssignedTheme,
+    }) as ThemeProviderService
+  },
+})

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, SpatialNavigationService } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -67,8 +67,8 @@ describe('Dialog', () => {
   })
 
   it('should forward trapFocus to the underlying Modal', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const spatialNav = injector.getInstance(SpatialNavigationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const spatialNav = injector.get(SpatialNavigationService)
       const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
       const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -89,7 +89,7 @@ describe('Dialog', () => {
   })
 
   it('should forward navSection to the underlying Modal', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -110,8 +110,8 @@ describe('Dialog', () => {
   })
 
   it('should not push focus trap when trapFocus is false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const spatialNav = injector.getInstance(SpatialNavigationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const spatialNav = injector.get(SpatialNavigationService)
       const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
       const rootElement = document.getElementById('root') as HTMLDivElement
 

@@ -5,7 +5,7 @@ import { CreateMicroFrontendService } from './create-microfrontend-service.js'
 
 export const createShadesMicroFrontend = <TApi extends object>(Component: ShadeComponent<TApi>) => {
   const create: CreateMfeCallback<TApi> = ({ api, rootElement, injector }) => {
-    const childInjector = injector.createChild({
+    const childInjector = injector.createScope({
       owner: createShadesMicroFrontend,
     })
     initializeShadeRoot({

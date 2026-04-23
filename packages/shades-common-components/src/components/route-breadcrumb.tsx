@@ -38,7 +38,7 @@ export const RouteBreadcrumb = Shade<RouteBreadcrumbProps>({
   render: ({ props, injector, useObservable, useState }) => {
     const { skipRootPath = true, ...breadcrumbProps } = props
 
-    const routeMatchService = injector.getInstance(RouteMatchService)
+    const routeMatchService = injector.get(RouteMatchService)
 
     const [resolvedItems, setResolvedItems] = useState<BreadcrumbItem[]>('resolvedItems', [])
     const [initializedRef] = useState<{ current: boolean }>('initialized', { current: false })

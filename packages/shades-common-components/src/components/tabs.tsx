@@ -41,7 +41,7 @@ const TabHeader = Shade<{ hash: string }>({
   elementBase: HTMLAnchorElement,
   elementBaseName: 'a',
   render: ({ children, injector, props, useObservable, useHostProps }) => {
-    const locationService = injector.getInstance(LocationService)
+    const locationService = injector.get(LocationService)
 
     const [hash] = useObservable('updateLocation', locationService.onLocationHashChanged)
     const isActive = hash === props.hash
@@ -227,7 +227,7 @@ export const Tabs = Shade<{
 
     const isControlled = props.activeKey !== undefined
 
-    const [hash] = useObservable('updateLocation', injector.getInstance(LocationService).onLocationHashChanged)
+    const [hash] = useObservable('updateLocation', injector.get(LocationService).onLocationHashChanged)
 
     const activeKey = isControlled ? props.activeKey! : hash.replace('#', '')
 

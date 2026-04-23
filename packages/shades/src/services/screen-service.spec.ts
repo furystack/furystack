@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ScreenService, ScreenSizes } from './screen-service.js'
@@ -13,16 +13,17 @@ describe('ScreenService', () => {
   })
 
   it('Should be constructed', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const s = i.getInstance(ScreenService)
-      expect(s).toBeInstanceOf(ScreenService)
+    await usingAsync(createInjector(), async (i) => {
+      const s = i.get(ScreenService)
+      expect(s).toBeDefined()
+      expect(s.breakpoints).toBeDefined()
     })
   })
 
   describe('breakpoints', () => {
     it('Should have correct breakpoint definitions', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(ScreenService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(ScreenService)
 
         expect(s.breakpoints.xs.minSize).toBe(0)
         expect(s.breakpoints.sm.minSize).toBe(600)
@@ -35,8 +36,8 @@ describe('ScreenService', () => {
 
   describe('screenSize.atLeast', () => {
     it('Should have observable for each screen size', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(ScreenService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(ScreenService)
 
         for (const size of ScreenSizes) {
           expect(s.screenSize.atLeast[size]).toBeDefined()
@@ -46,16 +47,16 @@ describe('ScreenService', () => {
     })
 
     it('Should return true for xs on any screen size', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(ScreenService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(ScreenService)
         // xs has minSize 0, so it should always be true
         expect(s.screenSize.atLeast.xs.getValue()).toBe(true)
       })
     })
 
     it('Should update screenSize observables on window resize', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(ScreenService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(ScreenService)
 
         // Mock window.innerWidth to simulate a large screen
         vi.spyOn(window, 'innerWidth', 'get').mockReturnValue(1920)
@@ -86,8 +87,8 @@ describe('ScreenService', () => {
 
   describe('orientation', () => {
     it('Should have an orientation observable', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(ScreenService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(ScreenService)
         const orientation = s.orientation.getValue()
         expect(['landscape', 'portrait']).toContain(orientation)
       })
@@ -98,10 +99,10 @@ describe('ScreenService', () => {
       const matchMediaMock = vi.fn()
       window.matchMedia = matchMediaMock
 
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         // Set initial orientation to landscape
         matchMediaMock.mockReturnValue({ matches: true } as MediaQueryList)
-        const s = i.getInstance(ScreenService)
+        const s = i.get(ScreenService)
 
         // Verify initial landscape
         window.dispatchEvent(new Event('resize'))
@@ -119,8 +120,8 @@ describe('ScreenService', () => {
     it('Should remove resize event listener on dispose', async () => {
       const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
-      await usingAsync(new Injector(), async (i) => {
-        i.getInstance(ScreenService)
+      await usingAsync(createInjector(), async (i) => {
+        i.get(ScreenService)
       })
 
       expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function))

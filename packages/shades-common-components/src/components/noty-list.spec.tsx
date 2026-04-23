@@ -1,4 +1,5 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -35,7 +36,7 @@ describe('NotyComponent', () => {
   let animateCalls: Array<{ keyframes: unknown; options: unknown }>
 
   const setupTheme = (injector: Injector) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     themeProvider.setAssignedTheme(defaultDarkTheme)
   }
 
@@ -69,7 +70,7 @@ describe('NotyComponent', () => {
   })
 
   it('should render the shade-noty custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'info', title: 'Test', body: 'Test body' }
@@ -89,7 +90,7 @@ describe('NotyComponent', () => {
   })
 
   it('should render title and body content', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'success', title: 'Success Title', body: 'Success message body' }
@@ -108,7 +109,7 @@ describe('NotyComponent', () => {
   })
 
   it('should apply noty class with type on the element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'error', title: 'Error', body: 'Error occurred' }
@@ -128,7 +129,7 @@ describe('NotyComponent', () => {
   })
 
   it('should render dismiss button', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'warning', title: 'Warning', body: 'Warning message' }
@@ -171,7 +172,7 @@ describe('NotyComponent', () => {
       },
     ) as typeof Element.prototype.animate
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'info', title: 'Info', body: 'Info message' }
@@ -198,7 +199,7 @@ describe('NotyComponent', () => {
   it('should start fade-in animation on mount', async () => {
     vi.useFakeTimers()
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'success', title: 'Success', body: 'Success message' }
@@ -252,7 +253,7 @@ describe('NotyComponent', () => {
       },
     ) as typeof Element.prototype.animate
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'success', title: 'Success', body: 'Success message' }
@@ -300,7 +301,7 @@ describe('NotyComponent', () => {
       },
     ) as typeof Element.prototype.animate
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       // Info default timeout is 20000, but we set custom 1000
@@ -328,7 +329,7 @@ describe('NotyComponent', () => {
     vi.useFakeTimers()
     const onDismiss = vi.fn()
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'error', title: 'Error', body: 'Error message' }
@@ -354,7 +355,7 @@ describe('NotyComponent', () => {
     for (const type of types) {
       document.body.innerHTML = '<div id="root"></div>'
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         setupTheme(injector)
         const rootElement = document.getElementById('root') as HTMLDivElement
         const model: NotyModel = { type, title: `${type} Title`, body: `${type} body` }
@@ -375,7 +376,7 @@ describe('NotyComponent', () => {
   })
 
   it('should apply background color from theme', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
       const rootElement = document.getElementById('root') as HTMLDivElement
       const model: NotyModel = { type: 'success', title: 'Success', body: 'Message' }
@@ -402,7 +403,7 @@ describe('NotyList', () => {
   let animateCalls: Array<{ keyframes: unknown; options: unknown }>
 
   const setupTheme = (injector: Injector) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     themeProvider.setAssignedTheme(defaultDarkTheme)
   }
 
@@ -436,7 +437,7 @@ describe('NotyList', () => {
   })
 
   it('should render the shade-noty-list custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -454,7 +455,7 @@ describe('NotyList', () => {
   })
 
   it('should have fixed positioning styles', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -476,9 +477,9 @@ describe('NotyList', () => {
   })
 
   it('should render existing notys from NotyService', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
-      const notyService = injector.getInstance(NotyService)
+      const notyService = injector.get(NotyService)
       const noty1: NotyModel = { type: 'info', title: 'Info 1', body: 'Info body 1' }
       const noty2: NotyModel = { type: 'success', title: 'Success 1', body: 'Success body 1' }
 
@@ -501,9 +502,9 @@ describe('NotyList', () => {
   })
 
   it('should add new noty when NotyService emits onNotyAdded', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
-      const notyService = injector.getInstance(NotyService)
+      const notyService = injector.get(NotyService)
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -528,9 +529,9 @@ describe('NotyList', () => {
   })
 
   it('should remove noty when NotyService emits onNotyRemoved', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
-      const notyService = injector.getInstance(NotyService)
+      const notyService = injector.get(NotyService)
       const noty: NotyModel = { type: 'error', title: 'Error', body: 'Error message' }
 
       notyService.emit('onNotyAdded', noty)
@@ -558,9 +559,9 @@ describe('NotyList', () => {
   })
 
   it('should handle multiple notys being added and removed', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
-      const notyService = injector.getInstance(NotyService)
+      const notyService = injector.get(NotyService)
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -602,9 +603,9 @@ describe('NotyList', () => {
   })
 
   it('should only remove the specific noty that was requested', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
-      const notyService = injector.getInstance(NotyService)
+      const notyService = injector.get(NotyService)
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       const noty1: NotyModel = { type: 'info', title: 'Keep this', body: 'Body 1' }

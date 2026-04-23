@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +15,7 @@ describe('FilterDropdown', () => {
 
   it('should render children inside panel', async () => {
     const onClose = vi.fn()
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root')!
       initializeShadeRoot({
         injector,
@@ -42,7 +42,7 @@ describe('FilterDropdown', () => {
 
   it('should add visible class after animation frame', async () => {
     const onClose = vi.fn()
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root')!
       initializeShadeRoot({
         injector,
@@ -64,7 +64,7 @@ describe('FilterDropdown', () => {
   it('should stop click propagation on panel', async () => {
     const onClose = vi.fn()
     const outerClick = vi.fn()
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root')!
       initializeShadeRoot({
         injector,

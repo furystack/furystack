@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -16,7 +16,7 @@ describe('Rating', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -33,7 +33,7 @@ describe('Rating', () => {
   })
 
   it('should render 5 stars by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -50,7 +50,7 @@ describe('Rating', () => {
   })
 
   it('should render custom number of stars with max prop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -68,7 +68,7 @@ describe('Rating', () => {
 
   describe('value display', () => {
     it('should show filled stars based on value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -89,7 +89,7 @@ describe('Rating', () => {
     })
 
     it('should show half-filled stars with precision=0.5', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -110,7 +110,7 @@ describe('Rating', () => {
     })
 
     it('should show no filled stars when value is 0', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -132,7 +132,7 @@ describe('Rating', () => {
 
   describe('interaction', () => {
     it('should call onchange when a star is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -154,7 +154,7 @@ describe('Rating', () => {
     })
 
     it('should not call onchange when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -176,7 +176,7 @@ describe('Rating', () => {
     })
 
     it('should not call onchange when readOnly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -200,7 +200,7 @@ describe('Rating', () => {
 
   describe('keyboard navigation', () => {
     it('should increase value with ArrowRight', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -222,7 +222,7 @@ describe('Rating', () => {
     })
 
     it('should decrease value with ArrowLeft', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -244,7 +244,7 @@ describe('Rating', () => {
     })
 
     it('should use 0.5 step with precision=0.5', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -266,7 +266,7 @@ describe('Rating', () => {
     })
 
     it('should not exceed max value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -288,7 +288,7 @@ describe('Rating', () => {
     })
 
     it('should not go below 0', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -312,7 +312,7 @@ describe('Rating', () => {
 
   describe('disabled state', () => {
     it('should set data-disabled attribute when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -330,7 +330,7 @@ describe('Rating', () => {
     })
 
     it('should not have data-disabled when not disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -349,7 +349,7 @@ describe('Rating', () => {
 
   describe('readOnly state', () => {
     it('should set data-readonly attribute when readOnly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -369,7 +369,7 @@ describe('Rating', () => {
 
   describe('custom icons', () => {
     it('should use custom filled and empty icons', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -391,7 +391,7 @@ describe('Rating', () => {
 
   describe('size', () => {
     it('should set data-size attribute', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -408,7 +408,7 @@ describe('Rating', () => {
     })
 
     it('should default to medium size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -427,7 +427,7 @@ describe('Rating', () => {
 
   describe('theme integration', () => {
     it('should set CSS color variable from theme (default warning)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -439,13 +439,13 @@ describe('Rating', () => {
         await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(wrapper.style.getPropertyValue('--rating-color')).toBe(themeService.theme.palette.warning.main)
       })
     })
 
     it('should use custom color from color prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -457,7 +457,7 @@ describe('Rating', () => {
         await flushUpdates()
 
         const wrapper = document.querySelector('shade-rating') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(wrapper.style.getPropertyValue('--rating-color')).toBe(themeService.theme.palette.primary.main)
       })
     })
@@ -465,7 +465,7 @@ describe('Rating', () => {
 
   describe('accessibility', () => {
     it('should have slider role when interactive', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -486,7 +486,7 @@ describe('Rating', () => {
     })
 
     it('should have img role when readOnly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -507,7 +507,7 @@ describe('Rating', () => {
 
   describe('hidden input', () => {
     it('should render hidden input with name and value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -526,7 +526,7 @@ describe('Rating', () => {
     })
 
     it('should not render hidden input without name', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -545,7 +545,7 @@ describe('Rating', () => {
 
   describe('additional keyboard navigation', () => {
     it('should jump to max on End', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -567,7 +567,7 @@ describe('Rating', () => {
     })
 
     it('should jump to 0 on Home', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -589,7 +589,7 @@ describe('Rating', () => {
     })
 
     it('should not change value with ArrowUp (reserved for spatial navigation)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -611,7 +611,7 @@ describe('Rating', () => {
     })
 
     it('should not change value with ArrowDown (reserved for spatial navigation)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -633,7 +633,7 @@ describe('Rating', () => {
     })
 
     it('should not fire onValueChange for unrecognized keys', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -655,7 +655,7 @@ describe('Rating', () => {
     })
 
     it('should not handle keyboard when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -677,7 +677,7 @@ describe('Rating', () => {
     })
 
     it('should not handle keyboard when readOnly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -701,7 +701,7 @@ describe('Rating', () => {
 
   describe('hover visuals', () => {
     it('should restore star visuals on mouse leave', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -725,7 +725,7 @@ describe('Rating', () => {
     })
 
     it('should update star visuals on hover', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -761,7 +761,7 @@ describe('Rating', () => {
     })
 
     it('should not update star visuals on hover when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -785,7 +785,7 @@ describe('Rating', () => {
     })
 
     it('should not update star visuals on mouse leave when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -811,7 +811,7 @@ describe('Rating', () => {
 
   describe('small size', () => {
     it('should set data-size to small', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -830,7 +830,7 @@ describe('Rating', () => {
 
   describe('aria-readonly', () => {
     it('should set aria-readonly when readOnly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -847,7 +847,7 @@ describe('Rating', () => {
     })
 
     it('should not have aria-readonly when interactive', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -866,7 +866,7 @@ describe('Rating', () => {
 
   describe('spatial navigation integration', () => {
     it('should set data-spatial-nav-target on the host element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -883,7 +883,7 @@ describe('Rating', () => {
     })
 
     it('should not set data-spatial-nav-target when readOnly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -900,7 +900,7 @@ describe('Rating', () => {
     })
 
     it('should not set data-spatial-nav-target when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -917,7 +917,7 @@ describe('Rating', () => {
     })
 
     it('should set aria-orientation to horizontal', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -934,7 +934,7 @@ describe('Rating', () => {
     })
 
     it('should not preventDefault on ArrowRight when at max value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -958,7 +958,7 @@ describe('Rating', () => {
     })
 
     it('should not preventDefault on ArrowLeft when at min value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -982,7 +982,7 @@ describe('Rating', () => {
     })
 
     it('should preventDefault on ArrowRight when value can increase', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -1006,7 +1006,7 @@ describe('Rating', () => {
     })
 
     it('should preventDefault on ArrowLeft when value can decrease', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -1030,7 +1030,7 @@ describe('Rating', () => {
     })
 
     it('should not preventDefault on ArrowUp or ArrowDown', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 

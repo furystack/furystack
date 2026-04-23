@@ -1,11 +1,13 @@
+import { createInjector } from '@furystack/inject'
+import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import type { NotyModel } from './noty-service.js'
 import { NotyService } from './noty-service.js'
-import { using } from '@furystack/utils'
 
 describe('NotyService', () => {
-  it('Should add and removea noty', () => {
-    using(new NotyService(), (notyService) => {
+  it('Should add and removea noty', async () => {
+    await usingAsync(createInjector(), async (injector) => {
+      const notyService = injector.get(NotyService)
       expect(notyService.getNotyList()).toEqual([])
 
       const exampleNoty: NotyModel = {

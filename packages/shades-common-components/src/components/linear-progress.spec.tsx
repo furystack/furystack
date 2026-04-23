@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
 import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -44,7 +44,7 @@ describe('LinearProgress', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -61,7 +61,7 @@ describe('LinearProgress', () => {
   })
 
   it('should render the progress bar element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -78,7 +78,7 @@ describe('LinearProgress', () => {
   })
 
   it('should set role="progressbar"', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -96,7 +96,7 @@ describe('LinearProgress', () => {
 
   describe('determinate variant', () => {
     it('should set aria-valuenow for determinate variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -115,7 +115,7 @@ describe('LinearProgress', () => {
     })
 
     it('should set bar width based on value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -132,7 +132,7 @@ describe('LinearProgress', () => {
     })
 
     it('should clamp value to 0-100 range', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -149,7 +149,7 @@ describe('LinearProgress', () => {
     })
 
     it('should clamp negative values to 0', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -166,7 +166,7 @@ describe('LinearProgress', () => {
     })
 
     it('should update bar width when value prop changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const obs = new ObservableValue(20)
 
@@ -189,7 +189,7 @@ describe('LinearProgress', () => {
     })
 
     it('should update aria-valuenow when value prop changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const obs = new ObservableValue(30)
 
@@ -214,7 +214,7 @@ describe('LinearProgress', () => {
 
   describe('indeterminate variant', () => {
     it('should default to indeterminate variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -231,7 +231,7 @@ describe('LinearProgress', () => {
     })
 
     it('should not set aria-valuenow for indeterminate variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -250,7 +250,7 @@ describe('LinearProgress', () => {
 
   describe('size', () => {
     it('should set data-size="small" when size is small', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -267,7 +267,7 @@ describe('LinearProgress', () => {
     })
 
     it('should not set data-size when size is medium (default)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -286,7 +286,7 @@ describe('LinearProgress', () => {
 
   describe('theme integration', () => {
     it('should set CSS color variable from theme', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -298,13 +298,13 @@ describe('LinearProgress', () => {
         await sleepAsync(50)
 
         const el = document.querySelector('shade-linear-progress') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(el.style.getPropertyValue('--progress-color')).toBe(themeService.theme.palette.primary.main)
       })
     })
 
     it('should use custom color from color prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -316,7 +316,7 @@ describe('LinearProgress', () => {
         await sleepAsync(50)
 
         const el = document.querySelector('shade-linear-progress') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(el.style.getPropertyValue('--progress-color')).toBe(themeService.theme.palette.error.main)
       })
     })

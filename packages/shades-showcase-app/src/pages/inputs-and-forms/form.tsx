@@ -5,7 +5,7 @@ import {
   Checkbox,
   Divider,
   Form,
-  FormService,
+  FormContextToken,
   Icon,
   icons,
   Input,
@@ -37,7 +37,7 @@ type AdvancedFormData = {
 const FormStatusMonitor = Shade({
   customElementName: 'shade-form-status-monitor',
   render: ({ injector, useObservable }) => {
-    const formService = injector.getInstance(FormService)
+    const formService = injector.get(FormContextToken)!
     const [rawFormData] = useObservable('rawFormData', formService.rawFormData)
     const [validatedFormData] = useObservable('validatedFormData', formService.validatedFormData)
     const [validationResult] = useObservable('validationResult', formService.validationResult)
@@ -65,7 +65,7 @@ const PasswordInputs = Shade({
   customElementName: 'shade-password-inputs',
   css: { display: 'contents' },
   render: ({ injector }) => {
-    const formService = injector.getInstance(FormService)
+    const formService = injector.get(FormContextToken)!
 
     return (
       <>

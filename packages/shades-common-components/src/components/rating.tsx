@@ -144,7 +144,7 @@ export const Rating = Shade<RatingProps>({
     },
   },
   render: ({ props, injector, useHostProps, useRef }) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     const max = props.max ?? 5
     const precision = props.precision ?? 1
     const value = props.value ?? 0

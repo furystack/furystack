@@ -37,7 +37,7 @@ export const WizardStep = Shade<{ title: string } & WizardStepProps>({
 
     const [isLargeScreenInitial] = useObservable(
       'screenSizeChange',
-      injector.getInstance(ScreenService).screenSize.atLeast.md,
+      injector.get(ScreenService).screenSize.atLeast.md,
       {
         onChange: (isLargeScreen) => {
           if (formRef.current) {

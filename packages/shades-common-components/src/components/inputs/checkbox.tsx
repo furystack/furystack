@@ -4,7 +4,7 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { ComponentSize } from '../component-size.js'
-import { FormService } from '../form.js'
+import { FormContextToken } from '../form.js'
 
 export type CheckboxProps = {
   /**
@@ -203,7 +203,7 @@ export const Checkbox = Shade<CheckboxProps>({
     const inputRef = useRef<HTMLInputElement>('formInput')
 
     useDisposable('form-registration', () => {
-      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      const formService = injector.get(FormContextToken)
       if (formService) {
         queueMicrotask(() => {
           if (inputRef.current) formService.inputs.add(inputRef.current)
@@ -216,7 +216,7 @@ export const Checkbox = Shade<CheckboxProps>({
       }
     })
 
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
 
     const color = themeProvider.theme.palette[props.color || 'primary'].main
     useHostProps({

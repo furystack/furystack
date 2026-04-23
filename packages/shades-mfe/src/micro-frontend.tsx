@@ -22,7 +22,7 @@ export const MicroFrontend: <TApi>(props: MicroFrontendProps<TApi>) => JSX.Eleme
 
         const creatorService = await props.loaderCallback()
 
-        const childInjector = injector.createChild({
+        const childInjector = injector.createScope({
           owner: creatorService,
         })
 

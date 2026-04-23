@@ -1,9 +1,10 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
-import { Form, FormService } from '../form.js'
+import { Form, FormContextToken } from '../form.js'
 import { Checkbox } from './checkbox.js'
 
 describe('Checkbox', () => {
@@ -17,7 +18,7 @@ describe('Checkbox', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -34,7 +35,7 @@ describe('Checkbox', () => {
   })
 
   it('should render the inner checkbox input element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -52,7 +53,7 @@ describe('Checkbox', () => {
   })
 
   it('should render the label title', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -70,7 +71,7 @@ describe('Checkbox', () => {
   })
 
   it('should not render label span when no labelTitle is provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -88,7 +89,7 @@ describe('Checkbox', () => {
 
   describe('checked state', () => {
     it('should be checked when checked prop is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -105,7 +106,7 @@ describe('Checkbox', () => {
     })
 
     it('should not be checked when checked prop is false', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -124,7 +125,7 @@ describe('Checkbox', () => {
 
   describe('disabled state', () => {
     it('should set data-disabled attribute when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -144,7 +145,7 @@ describe('Checkbox', () => {
     })
 
     it('should not have data-disabled attribute when not disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -163,7 +164,7 @@ describe('Checkbox', () => {
 
   describe('indeterminate state', () => {
     it('should set data-indeterminate attribute when indeterminate', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -180,7 +181,7 @@ describe('Checkbox', () => {
     })
 
     it('should not have data-indeterminate attribute when not indeterminate', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -199,7 +200,7 @@ describe('Checkbox', () => {
 
   describe('theme integration', () => {
     it('should set CSS color variable from theme', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -211,13 +212,13 @@ describe('Checkbox', () => {
         await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(wrapper.style.getPropertyValue('--checkbox-color')).toBe(themeService.theme.palette.primary.main)
       })
     })
 
     it('should use custom color from color prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -229,7 +230,7 @@ describe('Checkbox', () => {
         await flushUpdates()
 
         const wrapper = document.querySelector('shade-checkbox') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(wrapper.style.getPropertyValue('--checkbox-color')).toBe(themeService.theme.palette.secondary.main)
       })
     })
@@ -237,7 +238,7 @@ describe('Checkbox', () => {
 
   describe('callbacks', () => {
     it('should call onchange when checkbox is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 
@@ -261,7 +262,7 @@ describe('Checkbox', () => {
 
   describe('value and name', () => {
     it('should set value attribute', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -281,7 +282,7 @@ describe('Checkbox', () => {
 
   describe('required', () => {
     it('should set required attribute', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -300,7 +301,7 @@ describe('Checkbox', () => {
 
   describe('labelProps', () => {
     it('should pass labelProps to the label element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -319,7 +320,7 @@ describe('Checkbox', () => {
 
   describe('FormService integration', () => {
     it('should register input with FormService when inside a Form', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         type TestFormData = { agree: string }
@@ -338,14 +339,14 @@ describe('Checkbox', () => {
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
-        const formService = formInjector.getInstance(FormService)
+        const formService = formInjector.get(FormContextToken)!
 
         expect(formService.inputs.size).toBe(1)
       })
     })
 
     it('should unregister input from FormService on cleanup', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         type TestFormData = { agree: string }
@@ -364,7 +365,7 @@ describe('Checkbox', () => {
 
         const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
         const formInjector = (form as unknown as { injector: Injector }).injector
-        const formService = formInjector.getInstance(FormService)
+        const formService = formInjector.get(FormContextToken)!
 
         expect(formService.inputs.size).toBe(1)
 
@@ -377,7 +378,7 @@ describe('Checkbox', () => {
 
   describe('size', () => {
     it('should not set data-size when size is not specified', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Checkbox /> })
         await flushUpdates()
@@ -387,7 +388,7 @@ describe('Checkbox', () => {
     })
 
     it('should not set data-size for medium size (default)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Checkbox size="medium" /> })
         await flushUpdates()
@@ -397,7 +398,7 @@ describe('Checkbox', () => {
     })
 
     it('should set data-size="small" for small size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Checkbox size="small" /> })
         await flushUpdates()
@@ -407,7 +408,7 @@ describe('Checkbox', () => {
     })
 
     it('should set data-size="large" for large size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <Checkbox size="large" /> })
         await flushUpdates()

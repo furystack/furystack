@@ -33,7 +33,7 @@ export const Loader = Shade<LoaderProps>({
     opacity: '0',
   },
   render: ({ props, injector, useRef }) => {
-    const { theme } = injector.getInstance(ThemeProviderService)
+    const { theme } = injector.get(ThemeProviderService)
     const spinnerRef = useRef<HTMLDivElement>('spinner')
 
     const { delay = 500 } = props

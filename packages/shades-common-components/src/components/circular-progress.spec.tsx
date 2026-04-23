@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot, Shade } from '@furystack/shades'
 import { ObservableValue, sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -44,7 +44,7 @@ describe('CircularProgress', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -61,7 +61,7 @@ describe('CircularProgress', () => {
   })
 
   it('should render an SVG element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -78,7 +78,7 @@ describe('CircularProgress', () => {
   })
 
   it('should render track and progress circles', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -97,7 +97,7 @@ describe('CircularProgress', () => {
   })
 
   it('should set role="progressbar"', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -115,7 +115,7 @@ describe('CircularProgress', () => {
 
   describe('size', () => {
     it('should use default size of 40px', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -133,7 +133,7 @@ describe('CircularProgress', () => {
     })
 
     it('should accept custom size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -153,7 +153,7 @@ describe('CircularProgress', () => {
 
   describe('determinate variant', () => {
     it('should set aria-valuenow for determinate variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -172,7 +172,7 @@ describe('CircularProgress', () => {
     })
 
     it('should clamp value to 0-100 range', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -189,7 +189,7 @@ describe('CircularProgress', () => {
     })
 
     it('should update stroke-dashoffset when value prop changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const obs = new ObservableValue(0)
 
@@ -213,7 +213,7 @@ describe('CircularProgress', () => {
     })
 
     it('should update aria-valuenow when value prop changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const obs = new ObservableValue(20)
 
@@ -238,7 +238,7 @@ describe('CircularProgress', () => {
 
   describe('indeterminate variant', () => {
     it('should default to indeterminate variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -257,7 +257,7 @@ describe('CircularProgress', () => {
 
   describe('theme integration', () => {
     it('should set CSS color variable from theme', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -269,13 +269,13 @@ describe('CircularProgress', () => {
         await sleepAsync(50)
 
         const el = document.querySelector('shade-circular-progress') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(el.style.getPropertyValue('--circular-progress-color')).toBe(themeService.theme.palette.primary.main)
       })
     })
 
     it('should use custom color from color prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -287,7 +287,7 @@ describe('CircularProgress', () => {
         await sleepAsync(50)
 
         const el = document.querySelector('shade-circular-progress') as HTMLElement
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(el.style.getPropertyValue('--circular-progress-color')).toBe(themeService.theme.palette.secondary.main)
       })
     })

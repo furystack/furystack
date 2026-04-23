@@ -1,7 +1,7 @@
 import { ScreenService, Shade, createComponent, type ScreenSize } from '@furystack/shades'
 import type { ValueObserver } from '@furystack/utils'
 import { cssVariableTheme } from '../../services/css-variable-theme.js'
-import { LAYOUT_CSS_VARIABLES, LayoutService } from '../../services/layout-service.js'
+import { LAYOUT_CSS_VARIABLES, LayoutService, createLayoutService } from '../../services/layout-service.js'
 
 /**
  * AppBar configuration for PageLayout.
@@ -213,21 +213,17 @@ export const PageLayout = Shade<PageLayoutProps>({
   },
 
   render: ({ props, children, injector, useObservable, useDisposable, useHostProps }) => {
-    // Create scoped LayoutService (CSS variables are set on the host via useHostProps)
-    const layoutService = useDisposable('layoutService', () => new LayoutService())
+    const layoutService = useDisposable('layoutService', () => createLayoutService())
 
-    // Create a child injector with the scoped LayoutService
-    // This allows child components (like DrawerToggleButton) to access it
     const childInjector = useDisposable('childInjector', () => {
-      const child = injector.createChild()
-      child.setExplicitInstance(layoutService, LayoutService)
+      const child = injector.createScope({ owner: 'page-layout' })
+      child.bind(LayoutService, () => layoutService)
       return child
     })
 
-    // Propagate the child injector on the host so descendants can find it
     useHostProps({ injector: childInjector })
 
-    const screenService = injector.getInstance(ScreenService)
+    const screenService = injector.get(ScreenService)
 
     // Initialize AppBar
     const appBarHeight = props.appBar?.height ?? DEFAULT_APPBAR_HEIGHT

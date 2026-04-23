@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, LocationService } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -35,7 +35,7 @@ describe('Tabs', () => {
   ]
 
   it('should render all tab headers', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const tabs = createTabs()
 
@@ -54,7 +54,7 @@ describe('Tabs', () => {
   })
 
   it('should display the active tab content based on URL hash', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       window.location.hash = '#tab2'
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -75,7 +75,7 @@ describe('Tabs', () => {
   })
 
   it('should not display any tab content when hash does not match', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       window.location.hash = '#nonexistent'
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -96,7 +96,7 @@ describe('Tabs', () => {
   })
 
   it('should update active tab when hash changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       window.location.hash = '#tab1'
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -114,7 +114,7 @@ describe('Tabs', () => {
 
       // Change hash
       window.location.hash = '#tab3'
-      injector.getInstance(LocationService).updateState()
+      injector.get(LocationService).updateState()
 
       await flushUpdates()
 
@@ -124,7 +124,7 @@ describe('Tabs', () => {
   })
 
   it('should render tab headers as anchor elements with correct href', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const tabs = createTabs()
 
@@ -145,7 +145,7 @@ describe('Tabs', () => {
   })
 
   it('should mark the active tab header with active class', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       window.location.hash = '#tab2'
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -170,7 +170,7 @@ describe('Tabs', () => {
   })
 
   it('should switch active class when hash changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       window.location.hash = '#tab1'
 
       const rootElement = document.getElementById('root') as HTMLDivElement
@@ -193,7 +193,7 @@ describe('Tabs', () => {
 
       // Change hash
       window.location.hash = '#tab2'
-      injector.getInstance(LocationService).updateState()
+      injector.get(LocationService).updateState()
 
       await flushUpdates()
 
@@ -208,7 +208,7 @@ describe('Tabs', () => {
   })
 
   it('should apply containerStyle to the element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const tabs = createTabs()
 
@@ -226,7 +226,7 @@ describe('Tabs', () => {
   })
 
   it('should work with empty tabs array', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -244,7 +244,7 @@ describe('Tabs', () => {
 
   describe('controlled mode', () => {
     it('should display the active tab based on activeKey', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -263,7 +263,7 @@ describe('Tabs', () => {
     })
 
     it('should render tab headers as buttons instead of anchors', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -284,7 +284,7 @@ describe('Tabs', () => {
     })
 
     it('should mark the active tab button with active class', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -304,7 +304,7 @@ describe('Tabs', () => {
     })
 
     it('should fire onTabChange when a controlled tab is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
         const onTabChange = vi.fn()
@@ -325,7 +325,7 @@ describe('Tabs', () => {
     })
 
     it('should ignore URL hash when activeKey is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         window.location.hash = '#tab3'
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -348,7 +348,7 @@ describe('Tabs', () => {
 
   describe('type prop', () => {
     it('should set data-type="card" attribute when type is card', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -366,7 +366,7 @@ describe('Tabs', () => {
     })
 
     it('should not set data-type attribute when type is line', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -386,7 +386,7 @@ describe('Tabs', () => {
 
   describe('orientation prop', () => {
     it('should set data-orientation="vertical" attribute', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -404,7 +404,7 @@ describe('Tabs', () => {
     })
 
     it('should not set data-orientation attribute when horizontal', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -424,7 +424,7 @@ describe('Tabs', () => {
 
   describe('closable tabs', () => {
     it('should render close button for closable tabs when onClose is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs: Tab[] = [
           { hash: 'tab1', header: <span>Tab 1</span>, component: <div>Content 1</div>, closable: true },
@@ -445,7 +445,7 @@ describe('Tabs', () => {
     })
 
     it('should not render close button when onClose is not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs: Tab[] = [
           { hash: 'tab1', header: <span>Tab 1</span>, component: <div>Content 1</div>, closable: true },
@@ -465,7 +465,7 @@ describe('Tabs', () => {
     })
 
     it('should fire onClose when close button is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onClose = vi.fn()
         const tabs: Tab[] = [
@@ -489,7 +489,7 @@ describe('Tabs', () => {
     })
 
     it('should not fire onTabChange when close button is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onClose = vi.fn()
         const onTabChange = vi.fn()
@@ -516,7 +516,7 @@ describe('Tabs', () => {
 
   describe('add button', () => {
     it('should render add button when onAdd is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -535,7 +535,7 @@ describe('Tabs', () => {
     })
 
     it('should not render add button when onAdd is not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
 
@@ -553,7 +553,7 @@ describe('Tabs', () => {
     })
 
     it('should fire onAdd when add button is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
         const onAdd = vi.fn()
@@ -576,7 +576,7 @@ describe('Tabs', () => {
 
   describe('onTabChange callback (hash mode)', () => {
     it('should fire onTabChange when tab header is clicked in hash mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const tabs = createTabs()
         const onTabChange = vi.fn()
@@ -616,7 +616,7 @@ describe('Tabs', () => {
     it('should call startViewTransition when viewTransition is enabled and hash changes', async () => {
       const spy = mockStartViewTransition()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         window.location.hash = '#tab1'
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -632,7 +632,7 @@ describe('Tabs', () => {
         spy.mockClear()
 
         window.location.hash = '#tab2'
-        injector.getInstance(LocationService).updateState()
+        injector.get(LocationService).updateState()
         await flushUpdates()
 
         expect(spy).toHaveBeenCalled()
@@ -643,7 +643,7 @@ describe('Tabs', () => {
     it('should not call startViewTransition when viewTransition is not set', async () => {
       const spy = mockStartViewTransition()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         window.location.hash = '#tab1'
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -659,7 +659,7 @@ describe('Tabs', () => {
         spy.mockClear()
 
         window.location.hash = '#tab2'
-        injector.getInstance(LocationService).updateState()
+        injector.get(LocationService).updateState()
         await flushUpdates()
 
         expect(spy).not.toHaveBeenCalled()

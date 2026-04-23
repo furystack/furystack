@@ -64,7 +64,7 @@ export const CircularProgress = Shade<CircularProgressProps>({
     },
   },
   render: ({ props, injector, useHostProps }) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     const variant = props.variant || 'indeterminate'
     const value = clampValue(props.value ?? 0)
     const size = props.size ?? DEFAULT_SIZE

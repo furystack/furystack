@@ -67,7 +67,7 @@ export const LinearProgress = Shade<LinearProgressProps>({
     },
   },
   render: ({ props, injector, useHostProps, useRef }) => {
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     const barRef = useRef<HTMLElement>('progressBar')
     const variant = props.variant || 'indeterminate'
     const value = clampValue(props.value ?? 0)

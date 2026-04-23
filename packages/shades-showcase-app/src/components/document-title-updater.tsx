@@ -10,7 +10,7 @@ const APP_TITLE = 'FuryStack Shades'
 export const DocumentTitleUpdater = Shade({
   customElementName: 'document-title-updater',
   render: ({ injector, useObservable, useState }) => {
-    const routeMatchService = injector.getInstance(RouteMatchService)
+    const routeMatchService = injector.get(RouteMatchService)
 
     const updateTitle = async (chain: MatchChainEntry[]) => {
       const titles = await resolveRouteTitles(chain, injector)

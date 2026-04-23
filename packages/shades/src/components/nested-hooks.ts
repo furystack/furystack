@@ -93,7 +93,7 @@ export const createNestedHooks = <TRoutes extends Record<string, NestedRoute<any
     getTypedQuery: (injector, path) => {
       const route = walkRoute(routes, path)
       if (!route?.query) return null
-      const locationService = injector.getInstance(LocationService)
+      const locationService = injector.get(LocationService)
       const deserialized = locationService.onDeserializedLocationSearchChanged.getValue()
       return route.query(deserialized) as never
     },
@@ -101,7 +101,7 @@ export const createNestedHooks = <TRoutes extends Record<string, NestedRoute<any
       const route = walkRoute(routes, path)
       const declaredHash = route?.hash as readonly string[] | undefined
       if (!declaredHash) return undefined
-      const locationService = injector.getInstance(LocationService)
+      const locationService = injector.get(LocationService)
       const currentHash = locationService.onLocationHashChanged.getValue()
       return declaredHash.includes(currentHash) ? (currentHash as never) : undefined
     },

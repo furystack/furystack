@@ -1,4 +1,4 @@
-import { createLanguage, I18NService } from '@furystack/i18n'
+import { createLanguage, I18NServiceImpl } from '@furystack/i18n'
 import { createComponent, Shade } from '@furystack/shades'
 import { Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
 import { createI18nComponent } from '@furystack/shades-i18n'
@@ -22,7 +22,7 @@ const fr = createLanguage({
   },
 })
 
-const service = new I18NService(en, de, hu, fr, es)
+const service = new I18NServiceImpl(en, de, hu, fr, es)
 
 const TranslatedComponent = createI18nComponent({
   service,

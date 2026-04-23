@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SpatialNavigationService, configureSpatialNavigation } from './spatial-navigation-service.js'
@@ -44,29 +44,30 @@ describe('SpatialNavigationService', () => {
   })
 
   it('Should be constructed via injector', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const s = i.getInstance(SpatialNavigationService)
-      expect(s).toBeInstanceOf(SpatialNavigationService)
+    await usingAsync(createInjector(), async (i) => {
+      const s = i.get(SpatialNavigationService)
+      expect(s).toBeDefined()
+      expect(typeof s.moveFocus).toBe('function')
     })
   })
 
   it('Should be enabled by default', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const s = i.getInstance(SpatialNavigationService)
+    await usingAsync(createInjector(), async (i) => {
+      const s = i.get(SpatialNavigationService)
       expect(s.enabled.getValue()).toBe(true)
     })
   })
 
   it('Should have null activeSection initially', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const s = i.getInstance(SpatialNavigationService)
+    await usingAsync(createInjector(), async (i) => {
+      const s = i.get(SpatialNavigationService)
       expect(s.activeSection.getValue()).toBeNull()
     })
   })
 
   describe('focus movement', () => {
     it('Should move focus to the right', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
         const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
         document.body.append(left, right)
@@ -74,56 +75,56 @@ describe('SpatialNavigationService', () => {
         left.focus()
         expect(document.activeElement).toBe(left)
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('right')
         expect(document.activeElement).toBe(right)
       })
     })
 
     it('Should move focus to the left', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
         const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
         document.body.append(left, right)
 
         right.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('left')
         expect(document.activeElement).toBe(left)
       })
     })
 
     it('Should move focus down', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const top = createButton('top', { left: 0, top: 0, width: 50, height: 50 })
         const bottom = createButton('bottom', { left: 0, top: 100, width: 50, height: 50 })
         document.body.append(top, bottom)
 
         top.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('down')
         expect(document.activeElement).toBe(bottom)
       })
     })
 
     it('Should move focus up', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const top = createButton('top', { left: 0, top: 0, width: 50, height: 50 })
         const bottom = createButton('bottom', { left: 0, top: 100, width: 50, height: 50 })
         document.body.append(top, bottom)
 
         bottom.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('up')
         expect(document.activeElement).toBe(top)
       })
     })
 
     it('Should select nearest element by Euclidean distance', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const origin = createButton('origin', { left: 0, top: 0, width: 50, height: 50 })
         const near = createButton('near', { left: 100, top: 10, width: 50, height: 50 })
         const far = createButton('far', { left: 300, top: 10, width: 50, height: 50 })
@@ -131,34 +132,34 @@ describe('SpatialNavigationService', () => {
 
         origin.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('right')
         expect(document.activeElement).toBe(near)
       })
     })
 
     it('Should be a no-op when no candidate exists in the direction', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const only = createButton('only', { left: 0, top: 0, width: 50, height: 50 })
         document.body.append(only)
 
         only.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('right')
         expect(document.activeElement).toBe(only)
       })
     })
 
     it('Should call scrollIntoView on the target element', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
         const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
         document.body.append(left, right)
 
         left.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('right')
         expect(right.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' })
       })
@@ -167,33 +168,33 @@ describe('SpatialNavigationService', () => {
 
   describe('initial focus', () => {
     it('Should focus first element when no element is focused', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const btn = createButton('first', { left: 0, top: 0, width: 50, height: 50 })
         document.body.append(btn)
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('down')
         expect(document.activeElement).toBe(btn)
       })
     })
 
     it('Should focus first element in first section when no element is focused', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section = document.createElement('div')
         section.setAttribute('data-nav-section', 'main')
         const btn = createButton('first', { left: 0, top: 0, width: 50, height: 50 })
         section.append(btn)
         document.body.append(section)
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('down')
         expect(document.activeElement).toBe(btn)
       })
     })
 
     it('Should be a no-op when there are no focusable elements', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('down')
         expect(document.activeElement).toBe(document.body)
       })
@@ -202,13 +203,13 @@ describe('SpatialNavigationService', () => {
 
   describe('keydown event handling', () => {
     it('Should move focus on arrow key press', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
         const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
         document.body.append(left, right)
 
         left.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(right)
@@ -216,14 +217,14 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should activate focused element on Enter', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const btn = createButton('btn', { left: 0, top: 0, width: 50, height: 50 })
         const clickHandler = vi.fn()
         btn.addEventListener('click', clickHandler)
         document.body.append(btn)
 
         btn.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Enter')
         expect(clickHandler).toHaveBeenCalledTimes(1)
@@ -231,13 +232,13 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not handle events when disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
         const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
         document.body.append(left, right)
 
         left.focus()
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.enabled.setValue(false)
 
         pressKey('ArrowRight')
@@ -246,13 +247,13 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should skip events that are already defaultPrevented', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
         const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
         document.body.append(left, right)
 
         left.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         const preventer = (ev: Event) => ev.preventDefault()
         window.addEventListener('keydown', preventer, { capture: true })
@@ -269,7 +270,7 @@ describe('SpatialNavigationService', () => {
 
   describe('input passthrough', () => {
     it('Should not intercept arrow keys on text input when cursor is mid-text', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
         input.value = 'hello'
@@ -279,7 +280,7 @@ describe('SpatialNavigationService', () => {
 
         input.focus()
         input.setSelectionRange(2, 2)
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(input)
@@ -287,7 +288,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should escape text input with ArrowRight when cursor is at end', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
         input.value = 'hello'
@@ -298,7 +299,7 @@ describe('SpatialNavigationService', () => {
 
         input.focus()
         input.setSelectionRange(5, 5)
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(btn)
@@ -306,7 +307,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should escape text input with ArrowLeft when cursor is at start', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
         input.value = 'hello'
@@ -317,7 +318,7 @@ describe('SpatialNavigationService', () => {
 
         input.focus()
         input.setSelectionRange(0, 0)
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowLeft')
         expect(document.activeElement).toBe(btn)
@@ -325,7 +326,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept arrow keys on textarea when cursor is mid-text', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const textarea = document.createElement('textarea')
         textarea.value = 'line1\nline2'
         mockRect(textarea, { left: 0, top: 0, width: 200, height: 100 })
@@ -334,7 +335,7 @@ describe('SpatialNavigationService', () => {
 
         textarea.focus()
         textarea.setSelectionRange(3, 3)
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowDown')
         expect(document.activeElement).toBe(textarea)
@@ -342,14 +343,14 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept arrow keys on select', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const select = document.createElement('select')
         mockRect(select, { left: 0, top: 0, width: 200, height: 30 })
         const btn = createButton('btn', { left: 0, top: 100, width: 50, height: 50 })
         document.body.append(select, btn)
 
         select.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowDown')
         expect(document.activeElement).toBe(select)
@@ -357,7 +358,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept arrow keys on contenteditable', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const div = document.createElement('div')
         div.contentEditable = 'true'
         div.tabIndex = 0
@@ -366,7 +367,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(div, btn)
 
         div.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(div)
@@ -374,7 +375,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept arrow keys on children of contenteditable', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const div = document.createElement('div')
         div.contentEditable = 'true'
         div.tabIndex = 0
@@ -390,7 +391,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(div, btn)
 
         span.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(span)
@@ -398,7 +399,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept Enter on children of contenteditable', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const div = document.createElement('div')
         div.contentEditable = 'true'
         div.tabIndex = 0
@@ -414,7 +415,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(div)
 
         span.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Enter')
         expect(clickHandler).not.toHaveBeenCalled()
@@ -422,7 +423,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should intercept arrow keys on button-type input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'button'
         mockRect(input, { left: 0, top: 0, width: 50, height: 30 })
@@ -431,7 +432,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(btn)
@@ -439,7 +440,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept Left/Right on range input (slider adjustment)', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'range'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -447,7 +448,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowLeft')
         expect(document.activeElement).toBe(input)
@@ -458,7 +459,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should intercept Up/Down on range input for spatial navigation', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'range'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -467,7 +468,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowDown')
         expect(document.activeElement).toBe(btn)
@@ -475,7 +476,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should intercept arrow keys on color input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'color'
         mockRect(input, { left: 0, top: 0, width: 50, height: 50 })
@@ -484,7 +485,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(btn)
@@ -492,7 +493,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should intercept arrow keys on file input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'file'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -501,7 +502,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(btn)
@@ -509,7 +510,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept arrow keys on radio input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const radio = document.createElement('input')
         radio.type = 'radio'
         radio.name = 'group'
@@ -518,7 +519,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(radio, btn)
 
         radio.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowDown')
         expect(document.activeElement).toBe(radio)
@@ -529,7 +530,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept Up/Down on number input (increment/decrement)', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'number'
         input.value = '5'
@@ -538,7 +539,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowUp')
         expect(document.activeElement).toBe(input)
@@ -549,7 +550,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should intercept Left/Right on number input for spatial navigation', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'number'
         input.value = '5'
@@ -560,7 +561,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(btnLeft, input, btnRight)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(btnRight)
@@ -568,7 +569,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept arrow keys on date input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'date'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -576,7 +577,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(input)
@@ -587,7 +588,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept arrow keys on time input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'time'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -595,7 +596,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowDown')
         expect(document.activeElement).toBe(input)
@@ -606,7 +607,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should escape empty text input on any arrow key', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -615,7 +616,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input, btn)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(btn)
@@ -623,7 +624,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept Enter on text input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -632,7 +633,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Enter')
         expect(clickHandler).not.toHaveBeenCalled()
@@ -640,7 +641,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept Enter on textarea', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const textarea = document.createElement('textarea')
         textarea.value = 'hello'
         mockRect(textarea, { left: 0, top: 0, width: 200, height: 100 })
@@ -649,7 +650,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(textarea)
 
         textarea.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Enter')
         expect(clickHandler).not.toHaveBeenCalled()
@@ -657,7 +658,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should activate Enter on button-type input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'button'
         mockRect(input, { left: 0, top: 0, width: 50, height: 30 })
@@ -666,7 +667,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(input)
 
         input.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Enter')
         expect(clickHandler).toHaveBeenCalledTimes(1)
@@ -676,7 +677,7 @@ describe('SpatialNavigationService', () => {
 
   describe('data-spatial-nav-passthrough', () => {
     it('Should not intercept arrow keys inside a passthrough container', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const container = document.createElement('div')
         container.setAttribute('data-spatial-nav-passthrough', '')
         const inner = document.createElement('input')
@@ -688,7 +689,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(container, btn)
 
         inner.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(inner)
@@ -696,7 +697,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not intercept Enter inside a passthrough container', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const container = document.createElement('div')
         container.setAttribute('data-spatial-nav-passthrough', '')
         const inner = createButton('inner', { left: 0, top: 0, width: 50, height: 50 })
@@ -706,7 +707,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(container)
 
         inner.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Enter')
         expect(clickHandler).not.toHaveBeenCalled()
@@ -714,7 +715,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should still intercept keys outside a passthrough container', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const container = document.createElement('div')
         container.setAttribute('data-spatial-nav-passthrough', '')
         const inner = document.createElement('input')
@@ -727,7 +728,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(left, right, container)
 
         left.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('ArrowRight')
         expect(document.activeElement).toBe(right)
@@ -737,7 +738,7 @@ describe('SpatialNavigationService', () => {
 
   describe('section navigation', () => {
     it('Should scope navigation within the active section', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section1 = document.createElement('div')
         section1.setAttribute('data-nav-section', 'sidebar')
         mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
@@ -755,14 +756,14 @@ describe('SpatialNavigationService', () => {
 
         btn2.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('down')
         expect(document.activeElement).toBe(btn3)
       })
     })
 
     it('Should update activeSection when focus moves', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section = document.createElement('div')
         section.setAttribute('data-nav-section', 'main')
         const btn = createButton('btn', { left: 0, top: 0, width: 50, height: 50 })
@@ -771,7 +772,7 @@ describe('SpatialNavigationService', () => {
 
         btn.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('down')
         expect(s.activeSection.getValue()).toBe('main')
       })
@@ -780,7 +781,7 @@ describe('SpatialNavigationService', () => {
 
   describe('cross-section navigation', () => {
     it('Should navigate to adjacent section when no candidate in current section', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section1 = document.createElement('div')
         section1.setAttribute('data-nav-section', 'left')
         mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
@@ -798,7 +799,7 @@ describe('SpatialNavigationService', () => {
 
         btn1.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('right')
         expect(document.activeElement).toBe(btn2)
         expect(s.activeSection.getValue()).toBe('right')
@@ -806,7 +807,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not navigate cross-section when disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         configureSpatialNavigation(i, { crossSectionNavigation: false })
 
         const section1 = document.createElement('div')
@@ -825,7 +826,7 @@ describe('SpatialNavigationService', () => {
 
         btn1.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('right')
         expect(document.activeElement).toBe(btn1)
       })
@@ -834,7 +835,7 @@ describe('SpatialNavigationService', () => {
 
   describe('focus memory', () => {
     it('Should remember and restore focus when returning to a section', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section1 = document.createElement('div')
         section1.setAttribute('data-nav-section', 'left')
         mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
@@ -853,7 +854,7 @@ describe('SpatialNavigationService', () => {
 
         btn1b.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
 
         // Navigate away from section1
         s.moveFocus('right')
@@ -867,7 +868,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should fall back to nearest element when remembered element is removed', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section1 = document.createElement('div')
         section1.setAttribute('data-nav-section', 'left')
         mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
@@ -887,7 +888,7 @@ describe('SpatialNavigationService', () => {
 
         // Focus btn2a, navigate to section1
         btn2a.focus()
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('left')
 
         // Remove btn2a from DOM
@@ -900,7 +901,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should fall back to nearest element when remembered element becomes disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section1 = document.createElement('div')
         section1.setAttribute('data-nav-section', 'left')
         mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
@@ -919,7 +920,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(section1, section2)
 
         btn2a.focus()
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('left')
 
         // Disable btn2a after navigating away
@@ -934,13 +935,13 @@ describe('SpatialNavigationService', () => {
 
   describe('enabled toggle', () => {
     it('Should stop handling keys when disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const left = createButton('left', { left: 0, top: 0, width: 50, height: 50 })
         const right = createButton('right', { left: 100, top: 0, width: 50, height: 50 })
         document.body.append(left, right)
 
         left.focus()
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
 
         s.enabled.setValue(false)
         pressKey('ArrowRight')
@@ -957,8 +958,8 @@ describe('SpatialNavigationService', () => {
     it('Should remove keydown listener on dispose', async () => {
       const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
 
-      await usingAsync(new Injector(), async (i) => {
-        i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        i.get(SpatialNavigationService)
       })
 
       expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
@@ -971,8 +972,8 @@ describe('SpatialNavigationService', () => {
 
       left.focus()
 
-      await usingAsync(new Injector(), async (i) => {
-        i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        i.get(SpatialNavigationService)
       })
 
       pressKey('ArrowRight')
@@ -982,7 +983,7 @@ describe('SpatialNavigationService', () => {
 
   describe('backspace and escape', () => {
     it('Should call history.back() on Backspace when configured', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         configureSpatialNavigation(i, { backspaceGoesBack: true })
 
         const btn = createButton('btn', { left: 0, top: 0, width: 50, height: 50 })
@@ -990,7 +991,7 @@ describe('SpatialNavigationService', () => {
         btn.focus()
 
         const backSpy = vi.spyOn(history, 'back').mockImplementation(() => {})
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Backspace')
         expect(backSpy).toHaveBeenCalledTimes(1)
@@ -998,13 +999,13 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not call history.back() on Backspace by default', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const btn = createButton('btn', { left: 0, top: 0, width: 50, height: 50 })
         document.body.append(btn)
         btn.focus()
 
         const backSpy = vi.spyOn(history, 'back').mockImplementation(() => {})
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Backspace')
         expect(backSpy).not.toHaveBeenCalled()
@@ -1012,7 +1013,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not call history.back() on Backspace when focused on a text input', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         configureSpatialNavigation(i, { backspaceGoesBack: true })
 
         const input = document.createElement('input')
@@ -1023,7 +1024,7 @@ describe('SpatialNavigationService', () => {
         input.focus()
 
         const backSpy = vi.spyOn(history, 'back').mockImplementation(() => {})
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Backspace')
         expect(backSpy).not.toHaveBeenCalled()
@@ -1031,7 +1032,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should not call history.back() on Backspace when focused on a textarea', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         configureSpatialNavigation(i, { backspaceGoesBack: true })
 
         const textarea = document.createElement('textarea')
@@ -1041,7 +1042,7 @@ describe('SpatialNavigationService', () => {
         textarea.focus()
 
         const backSpy = vi.spyOn(history, 'back').mockImplementation(() => {})
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Backspace')
         expect(backSpy).not.toHaveBeenCalled()
@@ -1049,7 +1050,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should move to parent section on Escape when configured', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         configureSpatialNavigation(i, { escapeGoesToParentSection: true })
 
         const outer = document.createElement('div')
@@ -1065,7 +1066,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(outer)
 
         innerBtn.focus()
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
 
         pressKey('Escape')
         expect(document.activeElement).toBe(outerBtn)
@@ -1073,7 +1074,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should blur a range input on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'range'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -1082,14 +1083,14 @@ describe('SpatialNavigationService', () => {
         input.focus()
         expect(document.activeElement).toBe(input)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(document.body)
       })
     })
 
     it('Should blur a radio input on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const radio = document.createElement('input')
         radio.type = 'radio'
         radio.name = 'group'
@@ -1099,14 +1100,14 @@ describe('SpatialNavigationService', () => {
         radio.focus()
         expect(document.activeElement).toBe(radio)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(document.body)
       })
     })
 
     it('Should blur a date input on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'date'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -1115,14 +1116,14 @@ describe('SpatialNavigationService', () => {
         input.focus()
         expect(document.activeElement).toBe(input)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(document.body)
       })
     })
 
     it('Should blur a time input on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'time'
         mockRect(input, { left: 0, top: 0, width: 200, height: 30 })
@@ -1131,14 +1132,14 @@ describe('SpatialNavigationService', () => {
         input.focus()
         expect(document.activeElement).toBe(input)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(document.body)
       })
     })
 
     it('Should blur a number input on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'number'
         input.value = '5'
@@ -1148,14 +1149,14 @@ describe('SpatialNavigationService', () => {
         input.focus()
         expect(document.activeElement).toBe(input)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(document.body)
       })
     })
 
     it('Should blur a text input on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const input = document.createElement('input')
         input.type = 'text'
         input.value = 'hello'
@@ -1165,14 +1166,14 @@ describe('SpatialNavigationService', () => {
         input.focus()
         expect(document.activeElement).toBe(input)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(document.body)
       })
     })
 
     it('Should blur a textarea on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const textarea = document.createElement('textarea')
         textarea.value = 'hello'
         mockRect(textarea, { left: 0, top: 0, width: 200, height: 100 })
@@ -1181,21 +1182,21 @@ describe('SpatialNavigationService', () => {
         textarea.focus()
         expect(document.activeElement).toBe(textarea)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(document.body)
       })
     })
 
     it('Should not blur a button on Escape', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const btn = createButton('btn', { left: 0, top: 0, width: 50, height: 50 })
         document.body.append(btn)
 
         btn.focus()
         expect(document.activeElement).toBe(btn)
 
-        i.getInstance(SpatialNavigationService)
+        i.get(SpatialNavigationService)
         pressKey('Escape')
         expect(document.activeElement).toBe(btn)
       })
@@ -1204,7 +1205,7 @@ describe('SpatialNavigationService', () => {
 
   describe('data-spatial-nav-target', () => {
     it('Should treat elements with data-spatial-nav-target as focusable candidates', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const origin = createButton('origin', { left: 0, top: 0, width: 50, height: 50 })
         const target = document.createElement('div')
         target.setAttribute('data-spatial-nav-target', '')
@@ -1216,7 +1217,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(origin, target)
 
         origin.focus()
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('right')
         expect(document.activeElement).toBe(target)
       })
@@ -1225,7 +1226,7 @@ describe('SpatialNavigationService', () => {
 
   describe('overflow-aware visibility', () => {
     it('Should skip candidates whose center is outside their overflow container', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const container = document.createElement('div')
         Object.defineProperty(container, 'computedStyleMap', { value: () => new Map() })
         vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
@@ -1244,7 +1245,7 @@ describe('SpatialNavigationService', () => {
         document.body.append(container, origin)
 
         origin.focus()
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.moveFocus('up')
         expect(document.activeElement).toBe(visible)
       })
@@ -1253,7 +1254,7 @@ describe('SpatialNavigationService', () => {
 
   describe('focus trap', () => {
     it('Should block cross-section navigation when a trap is active', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section1 = document.createElement('div')
         section1.setAttribute('data-nav-section', 'modal')
         mockRect(section1, { left: 0, top: 0, width: 400, height: 400 })
@@ -1270,7 +1271,7 @@ describe('SpatialNavigationService', () => {
 
         btn1.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.pushFocusTrap('modal')
 
         s.moveFocus('right')
@@ -1279,16 +1280,16 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should set activeSection when pushing a trap', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(SpatialNavigationService)
         s.pushFocusTrap('dialog')
         expect(s.activeSection.getValue()).toBe('dialog')
       })
     })
 
     it('Should restore previous section on pop', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(SpatialNavigationService)
         s.activeSection.setValue('main')
         s.pushFocusTrap('dialog')
         expect(s.activeSection.getValue()).toBe('dialog')
@@ -1299,8 +1300,8 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should support nested traps — topmost wins', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(SpatialNavigationService)
         s.pushFocusTrap('outer-dialog')
         s.pushFocusTrap('inner-dialog')
         expect(s.activeSection.getValue()).toBe('inner-dialog')
@@ -1314,7 +1315,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should allow within-section navigation when trap is active', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section = document.createElement('div')
         section.setAttribute('data-nav-section', 'modal')
         mockRect(section, { left: 0, top: 0, width: 400, height: 400 })
@@ -1325,7 +1326,7 @@ describe('SpatialNavigationService', () => {
 
         btn1.focus()
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.pushFocusTrap('modal')
 
         s.moveFocus('down')
@@ -1334,7 +1335,7 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should focus within trapped section when activeElement is document.body', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const section1 = document.createElement('div')
         section1.setAttribute('data-nav-section', 'sidebar')
         mockRect(section1, { left: 0, top: 0, width: 200, height: 400 })
@@ -1353,7 +1354,7 @@ describe('SpatialNavigationService', () => {
         ;(document.activeElement as HTMLElement)?.blur()
         expect(document.activeElement).toBe(document.body)
 
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         s.pushFocusTrap('modal')
 
         s.moveFocus('down')
@@ -1363,13 +1364,13 @@ describe('SpatialNavigationService', () => {
     })
 
     it('Should clear trap stack on disposal', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(SpatialNavigationService)
         s.pushFocusTrap('dialog')
       })
       // After disposal, creating a new instance should have no traps
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(SpatialNavigationService)
         expect(s.activeSection.getValue()).toBeNull()
       })
     })
@@ -1377,19 +1378,23 @@ describe('SpatialNavigationService', () => {
 
   describe('configureSpatialNavigation', () => {
     it('Should configure the service with custom options', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         configureSpatialNavigation(i, { initiallyEnabled: false })
-        const s = i.getInstance(SpatialNavigationService)
+        const s = i.get(SpatialNavigationService)
         expect(s.enabled.getValue()).toBe(false)
       })
     })
 
-    it('Should throw if called after service is instantiated', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        i.getInstance(SpatialNavigationService)
-        expect(() => configureSpatialNavigation(i, {})).toThrow(
-          'configureSpatialNavigation must be called before the SpatialNavigationService is instantiated',
-        )
+    it('Should rebind options when called after the service is instantiated', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        const first = i.get(SpatialNavigationService)
+        expect(first.enabled.getValue()).toBe(true)
+
+        configureSpatialNavigation(i, { initiallyEnabled: false })
+
+        const second = i.get(SpatialNavigationService)
+        expect(second).not.toBe(first)
+        expect(second.enabled.getValue()).toBe(false)
       })
     })
   })

@@ -386,7 +386,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
       chainElements: [],
     })
 
-    const locationService = injector.getInstance(LocationService)
+    const locationService = injector.get(LocationService)
 
     const updateUrl = async (currentUrl: string) => {
       const [lastState] = useState<NestedRouterState>('routerState', state)
@@ -426,7 +426,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
 
             const applyUpdate = () => {
               setState({ matchChain: newChain, jsx: newResult.jsx, chainElements: newResult.chainElements })
-              injector.getInstance(RouteMatchService).currentMatchChain.setValue(newChain)
+              injector.get(RouteMatchService).currentMatchChain.setValue(newChain)
             }
 
             const vtConfig = resolveViewTransition(options.props.viewTransition, newChain)
@@ -451,7 +451,7 @@ export const NestedRouter = Shade<NestedRouterProps>({
               jsx: options.props.notFound || <div />,
               chainElements: [],
             })
-            injector.getInstance(RouteMatchService).currentMatchChain.setValue([])
+            injector.get(RouteMatchService).currentMatchChain.setValue([])
           }
 
           await maybeViewTransition(options.props.viewTransition, applyNotFound)

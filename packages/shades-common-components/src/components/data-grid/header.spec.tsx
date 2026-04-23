@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
 import { ObservableValue, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -72,7 +72,7 @@ describe('DataGridHeader', () => {
 
   describe('rendering', () => {
     it('should render with custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -90,7 +90,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should render field name', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -109,7 +109,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should render order button', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -127,7 +127,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should not render filter button when no filterConfig is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -145,7 +145,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should render filter button when filterConfig is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -172,7 +172,7 @@ describe('DataGridHeader', () => {
 
   describe('OrderButton', () => {
     it('should show neutral icon when no order is set', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -190,7 +190,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should call onFindOptionsChange with ASC when clicking on unsorted field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -212,7 +212,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should call onFindOptionsChange with DESC when clicking on ASC-sorted field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -240,7 +240,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should call onFindOptionsChange with ASC when clicking on DESC-sorted field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -268,7 +268,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should react to external findOptions changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const obs = new ObservableValue<FilterableFindOptions>({})
 
@@ -294,7 +294,7 @@ describe('DataGridHeader', () => {
 
   describe('FilterButton', () => {
     it('should show inactive state when no filter is set', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -319,7 +319,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should show active state when filter is set for field', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -344,7 +344,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should transition from active to inactive when filter is externally cleared', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const obs = new ObservableValue<FilterableFindOptions>({
           filter: { name: { $regex: 'test' } },
@@ -370,7 +370,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should open filter dropdown when clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -402,7 +402,7 @@ describe('DataGridHeader', () => {
 
   describe('filter type routing', () => {
     it('should render StringFilter for string filterConfig', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -432,7 +432,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should render NumberFilter for number filterConfig', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -462,7 +462,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should render BooleanFilter for boolean filterConfig', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -492,7 +492,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should render EnumFilter for enum filterConfig', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -522,7 +522,7 @@ describe('DataGridHeader', () => {
     })
 
     it('should render DateFilter for date filterConfig', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onFindOptionsChange = vi.fn()
 
@@ -554,7 +554,7 @@ describe('DataGridHeader', () => {
 
   describe('integration', () => {
     it('should support both sorting and filtering simultaneously', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const obs = new ObservableValue<FilterableFindOptions>({})
 

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -41,7 +41,7 @@ describe('Loader', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -58,7 +58,7 @@ describe('Loader', () => {
   })
 
   it('should have initial opacity of 0', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -78,7 +78,7 @@ describe('Loader', () => {
   })
 
   it('should have correct css styles applied', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -99,7 +99,7 @@ describe('Loader', () => {
   })
 
   it('should use default delay of 500ms', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -120,7 +120,7 @@ describe('Loader', () => {
   })
 
   it('should use custom delay when provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -141,7 +141,7 @@ describe('Loader', () => {
   })
 
   it('should start fade-in animation with correct parameters', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -170,7 +170,7 @@ describe('Loader', () => {
   })
 
   it('should start rotation animation', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -195,7 +195,7 @@ describe('Loader', () => {
   })
 
   it('should have rotation keyframes from 0 to 360 degrees', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -221,7 +221,7 @@ describe('Loader', () => {
   })
 
   it('should use default borderWidth of 15px', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -246,7 +246,7 @@ describe('Loader', () => {
   })
 
   it('should use custom borderWidth when provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -271,7 +271,7 @@ describe('Loader', () => {
   })
 
   it('should use custom borderColor when provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -293,7 +293,7 @@ describe('Loader', () => {
   })
 
   it('should use theme primary color as default borderColor', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -310,13 +310,13 @@ describe('Loader', () => {
       const innerDiv = loader.querySelector('div') as HTMLElement
       expect(innerDiv).not.toBeNull()
 
-      const themeService = injector.getInstance(ThemeProviderService)
+      const themeService = injector.get(ThemeProviderService)
       expect(innerDiv.style.borderBottom).toContain(themeService.theme.palette.primary.main)
     })
   })
 
   it('should render with circular shape', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -339,7 +339,7 @@ describe('Loader', () => {
   })
 
   it('should have a semi-transparent main border and colored bottom border', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({

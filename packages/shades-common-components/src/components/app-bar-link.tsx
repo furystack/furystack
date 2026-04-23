@@ -26,7 +26,7 @@ export const AppBarLink = Shade<AppBarLinkProps>({
     },
   },
   render: ({ children, props, useObservable, injector, useHostProps }) => {
-    const [currentUrl] = useObservable('locationChange', injector.getInstance(LocationService).onLocationPathChanged)
+    const [currentUrl] = useObservable('locationChange', injector.get(LocationService).onLocationPathChanged)
 
     const isActive = !!match(props.path, props.routingOptions)(currentUrl)
     if (isActive) {

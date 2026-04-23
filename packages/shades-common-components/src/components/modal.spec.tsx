@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { initializeShadeRoot, createComponent, Shade, flushUpdates, SpatialNavigationService } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +15,7 @@ describe('Modal', () => {
 
   describe('visibility', () => {
     it('should render when isVisible is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -35,7 +35,7 @@ describe('Modal', () => {
     })
 
     it('should not render when isVisible is false', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -70,7 +70,7 @@ describe('Modal', () => {
         },
       })
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
@@ -101,7 +101,7 @@ describe('Modal', () => {
         },
       })
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
@@ -119,7 +119,7 @@ describe('Modal', () => {
 
   describe('backdrop click', () => {
     it('should call onClose when backdrop is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onClose = vi.fn()
 
@@ -145,7 +145,7 @@ describe('Modal', () => {
     })
 
     it('should call hideAnimation before onClose when backdrop is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const callOrder: string[] = []
         const hideAnimation = vi.fn(async () => {
@@ -179,7 +179,7 @@ describe('Modal', () => {
 
   describe('animations', () => {
     it('should call showAnimation when modal becomes visible', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const showAnimation = vi.fn()
 
@@ -215,7 +215,7 @@ describe('Modal', () => {
         },
       })
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })
@@ -231,7 +231,7 @@ describe('Modal', () => {
     })
 
     it('should call hideAnimation with element on backdrop click', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const hideAnimation = vi.fn()
 
@@ -258,7 +258,7 @@ describe('Modal', () => {
 
   describe('styling', () => {
     it('should apply custom backdropStyle', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const backdropStyle: Partial<CSSStyleDeclaration> = {
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -286,7 +286,7 @@ describe('Modal', () => {
 
   describe('children', () => {
     it('should render children inside the backdrop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -311,7 +311,7 @@ describe('Modal', () => {
 
   describe('spatial navigation', () => {
     it('should render with data-nav-section attribute when visible', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -331,7 +331,7 @@ describe('Modal', () => {
     })
 
     it('should render with custom navSection name', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -351,8 +351,8 @@ describe('Modal', () => {
     })
 
     it('should push focus trap when trapFocus is true and service is active', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const spatialNav = injector.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const spatialNav = injector.get(SpatialNavigationService)
         const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -375,8 +375,8 @@ describe('Modal', () => {
     })
 
     it('should not push focus trap when trapFocus is false', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const spatialNav = injector.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const spatialNav = injector.get(SpatialNavigationService)
         const pushSpy = vi.spyOn(spatialNav, 'pushFocusTrap')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -415,8 +415,8 @@ describe('Modal', () => {
         },
       })
 
-      await usingAsync(new Injector(), async (injector) => {
-        const spatialNav = injector.getInstance(SpatialNavigationService)
+      await usingAsync(createInjector(), async (injector) => {
+        const spatialNav = injector.get(SpatialNavigationService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({ injector, rootElement, jsxElement: <Wrapper /> })

@@ -30,7 +30,7 @@ const SidebarPageLink = Shade<{ node: AppNavTreeNode }>({
     },
   },
   render: ({ props, injector, useObservable }) => {
-    const locationService = injector.getInstance(LocationService)
+    const locationService = injector.get(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
 
     const isActive = currentPath === props.node.fullPath
@@ -84,7 +84,7 @@ const SidebarCategory = Shade<{ node: AppNavTreeNode }>({
     },
   },
   render: ({ props, injector, useObservable, useState }) => {
-    const locationService = injector.getInstance(LocationService)
+    const locationService = injector.get(LocationService)
     const [currentPath] = useObservable('currentPath', locationService.onLocationPathChanged)
 
     const categoryPath = props.node.fullPath

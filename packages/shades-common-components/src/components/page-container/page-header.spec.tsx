@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -15,7 +15,7 @@ describe('PageHeader component', () => {
 
   describe('rendering', () => {
     it('should render the shade-page-header custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -32,7 +32,7 @@ describe('PageHeader component', () => {
     })
 
     it('should render the title', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -49,7 +49,7 @@ describe('PageHeader component', () => {
     })
 
     it('should render the title as Typography with h4 variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -68,7 +68,7 @@ describe('PageHeader component', () => {
 
   describe('icon', () => {
     it('should render icon when provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -85,7 +85,7 @@ describe('PageHeader component', () => {
     })
 
     it('should not render icon element when not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -101,7 +101,7 @@ describe('PageHeader component', () => {
     })
 
     it('should include icon in title text', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -120,7 +120,7 @@ describe('PageHeader component', () => {
 
   describe('description', () => {
     it('should render description when provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -137,7 +137,7 @@ describe('PageHeader component', () => {
     })
 
     it('should not render description element when not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -153,7 +153,7 @@ describe('PageHeader component', () => {
     })
 
     it('should render description as Typography with body1 variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -172,7 +172,7 @@ describe('PageHeader component', () => {
 
   describe('actions', () => {
     it('should render actions when provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -201,7 +201,7 @@ describe('PageHeader component', () => {
     })
 
     it('should not render actions element when not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -217,7 +217,7 @@ describe('PageHeader component', () => {
     })
 
     it('should render multiple action elements', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -246,7 +246,7 @@ describe('PageHeader component', () => {
 
   describe('combined props', () => {
     it('should render all props together', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -279,7 +279,7 @@ describe('PageHeader component', () => {
     })
 
     it('should work with PageContainer integration', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const { PageContainer } = await import('./index.js')
 

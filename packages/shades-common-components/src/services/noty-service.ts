@@ -1,4 +1,5 @@
-import { Injectable } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import { EventHub } from '@furystack/utils'
 
 export interface NotyModel {
@@ -8,30 +9,41 @@ export interface NotyModel {
   timeout?: number
 }
 
-@Injectable({ lifetime: 'singleton' })
-export class NotyService extends EventHub<{ onNotyAdded: NotyModel; onNotyRemoved: NotyModel }> {
-  private notyList: NotyModel[] = []
+export type NotyServiceEvents = { onNotyAdded: NotyModel; onNotyRemoved: NotyModel }
 
-  public getNotyList = () => [...this.notyList]
-
-  private onNotyAddListener(newNoty: NotyModel) {
-    this.notyList = [...this.notyList, newNoty]
-  }
-
-  private onNotyRemoveListener(removedNoty: NotyModel) {
-    this.notyList = this.notyList.filter((noty) => noty !== removedNoty)
-  }
-
-  public [Symbol.dispose](): void {
-    this.notyList = []
-    this.removeListener('onNotyAdded', this.onNotyAddListener.bind(this))
-    this.removeListener('onNotyRemoved', this.onNotyRemoveListener.bind(this))
-    super[Symbol.dispose]?.()
-  }
-
-  constructor() {
-    super()
-    this.addListener('onNotyAdded', this.onNotyAddListener.bind(this))
-    this.addListener('onNotyRemoved', this.onNotyRemoveListener.bind(this))
-  }
+export interface NotyService extends EventHub<NotyServiceEvents> {
+  getNotyList(): NotyModel[]
 }
+
+export const NotyService: Token<NotyService, 'singleton'> = defineService({
+  name: '@furystack/shades-common-components/NotyService',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const hub = new EventHub<NotyServiceEvents>()
+    let notyList: NotyModel[] = []
+
+    const onNotyAddListener = (newNoty: NotyModel): void => {
+      notyList = [...notyList, newNoty]
+    }
+    const onNotyRemoveListener = (removedNoty: NotyModel): void => {
+      notyList = notyList.filter((noty) => noty !== removedNoty)
+    }
+
+    hub.addListener('onNotyAdded', onNotyAddListener)
+    hub.addListener('onNotyRemoved', onNotyRemoveListener)
+
+    onDispose(() => {
+      notyList = []
+      hub.removeListener('onNotyAdded', onNotyAddListener)
+      hub.removeListener('onNotyRemoved', onNotyRemoveListener)
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is deferred to the injector's onDispose hook.
+      hub[Symbol.dispose]?.()
+    })
+
+    const service = Object.assign(hub, {
+      getNotyList: () => [...notyList],
+    })
+
+    return service as NotyService
+  },
+})
