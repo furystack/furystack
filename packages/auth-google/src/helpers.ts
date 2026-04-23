@@ -1,21 +1,32 @@
 import type { Injector } from '@furystack/inject'
 
+import { defaultGoogleAuthenticationSettings, GoogleAuthenticationSettings } from './google-authentication-settings.js'
 import { GoogleLoginService } from './login-service.js'
 
 /**
- * Configures Google OAuth authentication.
- * Must be called **after** {@link useHttpAuthentication}.
+ * Configures Google OAuth authentication on the given injector.
+ * Must be called **after** `useHttpAuthentication`.
+ *
+ * Binds {@link GoogleAuthenticationSettings} with the caller-supplied
+ * `clientId` merged over the defaults, then invalidates the
+ * {@link GoogleLoginService} token so the next resolution picks up the
+ * fresh settings.
  *
  * @param injector The Injector instance
- * @param settings Google settings. `clientId` is required.
+ * @param overrides Google settings. `clientId` is required.
  */
 export const useGoogleAuthentication = (
   injector: Injector,
-  settings: Partial<GoogleLoginService> & Pick<GoogleLoginService, 'clientId'>,
+  overrides: Partial<GoogleAuthenticationSettings> & Pick<GoogleAuthenticationSettings, 'clientId'>,
 ): void => {
-  if (!settings.clientId) {
+  if (!overrides.clientId) {
     throw new Error('Google clientId is required.')
   }
-  const service = Object.assign(new GoogleLoginService(), settings)
-  injector.setExplicitInstance(service, GoogleLoginService)
+  const mergedSettings: GoogleAuthenticationSettings = {
+    ...defaultGoogleAuthenticationSettings(),
+    ...overrides,
+  }
+  injector.bind(GoogleAuthenticationSettings, () => mergedSettings)
+  injector.invalidate(GoogleAuthenticationSettings)
+  injector.invalidate(GoogleLoginService)
 }

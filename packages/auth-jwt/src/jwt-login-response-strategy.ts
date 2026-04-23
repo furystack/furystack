@@ -21,8 +21,8 @@ import { JwtTokenService } from './jwt-token-service.js'
 export const createJwtLoginStrategy = (
   injector: Injector,
 ): LoginResponseStrategy<{ accessToken: string; refreshToken: string }> => {
-  const tokenService = injector.getInstance(JwtTokenService)
-  const settings = injector.getInstance(JwtAuthenticationSettings)
+  const tokenService = injector.get(JwtTokenService)
+  const settings = injector.get(JwtAuthenticationSettings)
 
   return {
     createLoginResponse: async (user) => {

@@ -1,7 +1,8 @@
-import type { Constructable, Injector } from '@furystack/inject'
+import type { Constructable } from '@furystack/core'
+import type { Injector, Token } from '@furystack/inject'
 import type { ObservableValue } from '@furystack/utils'
 import type { FilterType, SyncState } from '@furystack/entity-sync'
-import { EntitySyncService } from './entity-sync-service.js'
+import type { EntitySyncService } from './entity-sync-service.js'
 
 /**
  * Context required by the entity-sync Shades convenience hooks.
@@ -15,92 +16,72 @@ export type SyncHookContext = {
 }
 
 /**
- * Shades convenience hook for subscribing to a single entity via EntitySyncService.
- * Manages the subscription lifecycle (subscribe on mount, dispose on unmount)
- * and returns the current sync state reactively.
- *
- * @param context Render options from the Shade component (or a subset with injector, useDisposable, useObservable)
- * @param model The model class
- * @param key The entity's primary key value
- * @returns The current SyncState for the entity
- *
- * @example
- * ```typescript
- * const UserProfile = Shade<{ userId: string }>({
- *   customElementName: 'user-profile',
- *   render: (options) => {
- *     const userState = useEntitySync(options, User, options.props.userId)
- *
- *     if (userState.status === 'connecting') return <div>Loading...</div>
- *     if (userState.status === 'error') return <div>Error: {userState.error}</div>
- *
- *     return <div>{userState.data?.name}</div>
- *   },
- * })
- * ```
+ * Bundle returned by {@link createSyncHooks}. Exposes shades hooks bound to
+ * an application-specific {@link EntitySyncService} token.
  */
-export const useEntitySync = <T>(
-  context: SyncHookContext,
-  model: Constructable<T>,
-  key: unknown,
-): SyncState<T | undefined> => {
-  const syncService = context.injector.getInstance(EntitySyncService)
-  const hookKey = `entitySync:${model.name}:${String(key)}`
-  const liveEntity = context.useDisposable(hookKey, () => syncService.subscribeEntity(model, key))
-  const [state] = context.useObservable(hookKey, liveEntity.state)
-  return state
+export interface SyncHooks {
+  /** Shades hook that subscribes to a single entity. */
+  useEntitySync: <T>(context: SyncHookContext, model: Constructable<T>, key: unknown) => SyncState<T | undefined>
+  /** Shades hook that subscribes to a filtered collection. */
+  useCollectionSync: <T>(
+    context: SyncHookContext,
+    model: Constructable<T>,
+    options?: {
+      filter?: FilterType<T>
+      top?: number
+      skip?: number
+      order?: { [P in keyof T]?: 'ASC' | 'DESC' }
+    },
+  ) => SyncState<{ entries: T[]; count: number }>
 }
 
 /**
- * Shades convenience hook for subscribing to a collection of entities via EntitySyncService.
- * Manages the subscription lifecycle (subscribe on mount, dispose on unmount)
- * and returns the current sync state reactively. The state data contains both
- * the entries and the total count, keeping them always consistent.
+ * Creates a bundle of Shades convenience hooks bound to the provided
+ * {@link EntitySyncService} token. Declare the token once with
+ * {@link defineEntitySyncService} at module scope, build the hooks alongside
+ * it and reuse them across components.
  *
- * @param context Render options from the Shade component (or a subset with injector, useDisposable, useObservable)
- * @param model The model class
- * @param options Optional filter, pagination, and ordering options
- * @returns The current SyncState for the collection (entries + count)
+ * The returned `useEntitySync` / `useCollectionSync` hooks subscribe on
+ * mount, dispose on unmount and expose the current {@link SyncState}
+ * reactively.
  *
  * @example
- * ```typescript
- * const ChatMessages = Shade<{ roomId: string }>({
- *   customElementName: 'chat-messages',
- *   render: (options) => {
- *     const messagesState = useCollectionSync(options, ChatMessage, {
- *       filter: { roomId: { $eq: options.props.roomId } },
- *       top: 10,
- *       skip: 0,
- *     })
- *
- *     if (messagesState.status === 'connecting') return <div>Loading...</div>
- *     if (messagesState.status === 'error') return <div>Error: {messagesState.error}</div>
- *
- *     return (
- *       <div>
- *         <p>Total: {messagesState.data.count}</p>
- *         {messagesState.data.entries.map((msg) => <div>{msg.text}</div>)}
- *       </div>
- *     )
- *   },
- * })
+ * ```ts
+ * export const AppEntitySync = defineEntitySyncService({ wsUrl: 'ws://localhost/sync' })
+ * export const { useEntitySync, useCollectionSync } = createSyncHooks(AppEntitySync)
  * ```
  */
-export const useCollectionSync = <T>(
-  context: SyncHookContext,
-  model: Constructable<T>,
-  options?: {
-    filter?: FilterType<T>
-    top?: number
-    skip?: number
-    order?: { [P in keyof T]?: 'ASC' | 'DESC' }
-  },
-): SyncState<{ entries: T[]; count: number }> => {
-  const syncService = context.injector.getInstance(EntitySyncService)
-  const filterKey = JSON.stringify(options?.filter)
-  const hookKey = `collectionSync:${model.name}:${filterKey}`
-  const deps = [options?.top, options?.skip, JSON.stringify(options?.order)] as const
-  const liveCollection = context.useDisposable(hookKey, () => syncService.subscribeCollection(model, options), deps)
-  const [state] = context.useObservable(hookKey, liveCollection.state)
-  return state
+export const createSyncHooks = (syncToken: Token<EntitySyncService, 'singleton'>): SyncHooks => {
+  const useEntitySync = <T>(
+    context: SyncHookContext,
+    model: Constructable<T>,
+    key: unknown,
+  ): SyncState<T | undefined> => {
+    const syncService = context.injector.get(syncToken)
+    const hookKey = `entitySync:${model.name}:${String(key)}`
+    const liveEntity = context.useDisposable(hookKey, () => syncService.subscribeEntity(model, key))
+    const [state] = context.useObservable(hookKey, liveEntity.state)
+    return state
+  }
+
+  const useCollectionSync = <T>(
+    context: SyncHookContext,
+    model: Constructable<T>,
+    options?: {
+      filter?: FilterType<T>
+      top?: number
+      skip?: number
+      order?: { [P in keyof T]?: 'ASC' | 'DESC' }
+    },
+  ): SyncState<{ entries: T[]; count: number }> => {
+    const syncService = context.injector.get(syncToken)
+    const filterKey = JSON.stringify(options?.filter)
+    const hookKey = `collectionSync:${model.name}:${filterKey}`
+    const deps = [options?.top, options?.skip, JSON.stringify(options?.order)] as const
+    const liveCollection = context.useDisposable(hookKey, () => syncService.subscribeCollection(model, options), deps)
+    const [state] = context.useObservable(hookKey, liveCollection.state)
+    return state
+  }
+
+  return { useEntitySync, useCollectionSync }
 }

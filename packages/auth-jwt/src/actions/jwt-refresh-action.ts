@@ -1,8 +1,7 @@
 import { useSystemIdentityContext } from '@furystack/core'
 import { RequestError } from '@furystack/rest'
-import type { RequestAction } from '@furystack/rest-service'
+import { HttpAuthenticationSettings, type RequestAction } from '@furystack/rest-service'
 import { JsonResult } from '@furystack/rest-service'
-import { HttpUserContext } from '@furystack/rest-service'
 import { UnauthenticatedError } from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 
@@ -20,17 +19,20 @@ export const JwtRefreshAction: RequestAction<{
   body: { refreshToken: string }
 }> = async ({ injector, getBody }) => {
   const body = await getBody()
-  const tokenService = injector.getInstance(JwtTokenService)
-  const settings = injector.getInstance(JwtAuthenticationSettings)
+  const tokenService = injector.get(JwtTokenService)
+  const settings = injector.get(JwtAuthenticationSettings)
+  const httpAuthSettings = injector.get(HttpAuthenticationSettings)
   try {
     const { username, replacedByToken } = await tokenService.verifyRefreshToken(body.refreshToken)
 
-    const userContext = injector.getInstance(HttpUserContext)
-    const userDataSet = userContext.getUserDataSet()
     const user = await usingAsync(
       useSystemIdentityContext({ injector, username: 'JwtRefreshAction' }),
       async (systemInjector) => {
-        const users = await userDataSet.find(systemInjector, { filter: { username: { $eq: username } }, top: 2 })
+        const userDataSet = systemInjector.get(httpAuthSettings.userDataSet)
+        const users = await userDataSet.find(systemInjector, {
+          filter: { username: { $eq: username } },
+          top: 2,
+        })
         if (users.length !== 1) {
           throw new UnauthenticatedError()
         }

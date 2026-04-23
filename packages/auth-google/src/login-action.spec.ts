@@ -1,5 +1,5 @@
 import type { User } from '@furystack/core'
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import type { LoginResponseStrategy } from '@furystack/rest-service'
 import { JsonResult } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
@@ -20,23 +20,24 @@ const mockPayload: TokenPayload = {
   email_verified: true,
 } as TokenPayload
 
-const createMockService = (user: User | undefined): GoogleLoginService =>
-  Object.assign(new GoogleLoginService(), {
-    getGoogleUserData: vi.fn(async () => mockPayload),
-    getUserFromGooglePayload: vi.fn(async () => user),
-  })
+const createMockService = (user: User | undefined, enableCsrfCheck = false): GoogleLoginService => ({
+  clientId: 'test',
+  enableCsrfCheck,
+  getGoogleUserData: vi.fn(async () => mockPayload),
+  getUserFromGooglePayload: vi.fn(async () => user),
+})
 
 describe('createGoogleLoginAction', () => {
   const request = { url: 'https://google.com', headers: {} } as IncomingMessage
   const response = {} as ServerResponse
 
   it('Should delegate to the strategy after resolving the user', async () => {
-    await usingAsync(new Injector(), async (i) => {
+    await usingAsync(createInjector(), async (i) => {
       const testUser: User = { username: 'example', roles: [] }
       const strategyFn = vi.fn(async (user: User) => JsonResult(user, 200))
       const strategy: LoginResponseStrategy<User> = { createLoginResponse: strategyFn }
 
-      i.setExplicitInstance(createMockService(testUser), GoogleLoginService)
+      i.bind(GoogleLoginService, () => createMockService(testUser))
 
       const action = createGoogleLoginAction(strategy)
       const result = await action({
@@ -52,12 +53,12 @@ describe('createGoogleLoginAction', () => {
   })
 
   it('Should pass the authenticated user to the strategy', async () => {
-    await usingAsync(new Injector(), async (i) => {
+    await usingAsync(createInjector(), async (i) => {
       const testUser: User = { username: 'user@example.com', roles: ['admin'] }
       const strategyFn = vi.fn(async (user: User) => JsonResult(user, 200))
       const strategy: LoginResponseStrategy<User> = { createLoginResponse: strategyFn }
 
-      i.setExplicitInstance(createMockService(testUser), GoogleLoginService)
+      i.bind(GoogleLoginService, () => createMockService(testUser))
 
       const action = createGoogleLoginAction(strategy)
       await action({
@@ -75,13 +76,13 @@ describe('createGoogleLoginAction', () => {
   })
 
   it('Should work with a custom result type from strategy', async () => {
-    await usingAsync(new Injector(), async (i) => {
+    await usingAsync(createInjector(), async (i) => {
       const testUser: User = { username: 'example', roles: [] }
       const tokenStrategy: LoginResponseStrategy<{ accessToken: string; refreshToken: string }> = {
         createLoginResponse: async () => JsonResult({ accessToken: 'access-tok', refreshToken: 'refresh-tok' }, 200),
       }
 
-      i.setExplicitInstance(createMockService(testUser), GoogleLoginService)
+      i.bind(GoogleLoginService, () => createMockService(testUser))
 
       const action = createGoogleLoginAction(tokenStrategy)
       const result = await action({
@@ -97,12 +98,12 @@ describe('createGoogleLoginAction', () => {
   })
 
   it('Should reject when user is not found', async () => {
-    await usingAsync(new Injector(), async (i) => {
+    await usingAsync(createInjector(), async (i) => {
       const strategy: LoginResponseStrategy<User> = {
         createLoginResponse: async (user) => JsonResult(user, 200),
       }
 
-      i.setExplicitInstance(createMockService(undefined), GoogleLoginService)
+      i.bind(GoogleLoginService, () => createMockService(undefined))
 
       const action = createGoogleLoginAction(strategy)
       await expect(
@@ -117,18 +118,22 @@ describe('createGoogleLoginAction', () => {
   })
 
   it('Should propagate errors from getGoogleUserData', async () => {
-    await usingAsync(new Injector(), async (i) => {
+    await usingAsync(createInjector(), async (i) => {
       const strategy: LoginResponseStrategy<User> = {
         createLoginResponse: async (user) => JsonResult(user, 200),
       }
 
-      const service = Object.assign(new GoogleLoginService(), {
-        getGoogleUserData: vi.fn(async () => {
-          throw new Error('Token verification failed')
+      i.bind(
+        GoogleLoginService,
+        (): GoogleLoginService => ({
+          clientId: 'test',
+          enableCsrfCheck: false,
+          getGoogleUserData: vi.fn(async () => {
+            throw new Error('Token verification failed')
+          }),
+          getUserFromGooglePayload: vi.fn(),
         }),
-        getUserFromGooglePayload: vi.fn(),
-      })
-      i.setExplicitInstance(service, GoogleLoginService)
+      )
 
       const action = createGoogleLoginAction(strategy)
       await expect(
@@ -144,15 +149,13 @@ describe('createGoogleLoginAction', () => {
 
   describe('CSRF validation', () => {
     it('Should pass when CSRF tokens match and enableCsrfCheck is true', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const testUser: User = { username: 'example', roles: [] }
         const strategy: LoginResponseStrategy<User> = {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const service = createMockService(testUser)
-        service.enableCsrfCheck = true
-        i.setExplicitInstance(service, GoogleLoginService)
+        i.bind(GoogleLoginService, () => createMockService(testUser, true))
 
         const csrfToken = 'abc123'
         const csrfRequest = {
@@ -173,14 +176,12 @@ describe('createGoogleLoginAction', () => {
     })
 
     it('Should reject when CSRF tokens do not match', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const strategy: LoginResponseStrategy<User> = {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const service = createMockService({ username: 'x', roles: [] })
-        service.enableCsrfCheck = true
-        i.setExplicitInstance(service, GoogleLoginService)
+        i.bind(GoogleLoginService, () => createMockService({ username: 'x', roles: [] }, true))
 
         const csrfRequest = {
           url: 'https://google.com',
@@ -200,14 +201,12 @@ describe('createGoogleLoginAction', () => {
     })
 
     it('Should reject when CSRF cookie is missing', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const strategy: LoginResponseStrategy<User> = {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const service = createMockService(undefined)
-        service.enableCsrfCheck = true
-        i.setExplicitInstance(service, GoogleLoginService)
+        i.bind(GoogleLoginService, () => createMockService(undefined, true))
 
         const action = createGoogleLoginAction(strategy)
         await expect(
@@ -222,15 +221,13 @@ describe('createGoogleLoginAction', () => {
     })
 
     it('Should skip CSRF check when enableCsrfCheck is false', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const testUser: User = { username: 'example', roles: [] }
         const strategy: LoginResponseStrategy<User> = {
           createLoginResponse: async (user) => JsonResult(user, 200),
         }
 
-        const service = createMockService(testUser)
-        service.enableCsrfCheck = false
-        i.setExplicitInstance(service, GoogleLoginService)
+        i.bind(GoogleLoginService, () => createMockService(testUser, false))
 
         const action = createGoogleLoginAction(strategy)
         const result = await action({

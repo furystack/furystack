@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { Injector } from '@furystack/inject'
-import { InMemoryStore, addStore } from '@furystack/core'
-import { Repository, getDataSetFor } from '@furystack/repository'
+import { createInjector, type Injector } from '@furystack/inject'
+import { defineStore, InMemoryStore, type StoreToken } from '@furystack/core'
+import { defineDataSet, type DataSetToken } from '@furystack/repository'
 import { usingAsync } from '@furystack/utils'
 import type { ServerSyncMessage } from '@furystack/entity-sync'
 import type WebSocket from 'ws'
@@ -12,6 +12,18 @@ class TestEntity {
   declare name: string
   declare category: string
 }
+
+const TestEntityStore: StoreToken<TestEntity, 'id'> = defineStore({
+  name: 'test/TestEntityStore',
+  model: TestEntity,
+  primaryKey: 'id',
+  factory: () => new InMemoryStore({ model: TestEntity, primaryKey: 'id' }),
+})
+
+const TestEntityDataSet: DataSetToken<TestEntity, 'id'> = defineDataSet({
+  name: 'test/TestEntityDataSet',
+  store: TestEntityStore,
+})
 
 const createMockSocket = () => {
   const closeHandlers: Array<() => void> = []
@@ -31,28 +43,34 @@ const getSentMessages = (socket: MockSocket): ServerSyncMessage[] =>
   socket.send.mock.calls.map((call) => JSON.parse(call[0] as string) as ServerSyncMessage)
 
 const setupManager = () => {
-  const injector = new Injector()
-  addStore(injector, new InMemoryStore({ model: TestEntity, primaryKey: 'id' }))
-  injector.getInstance(Repository).createDataSet(TestEntity, 'id')
-  const manager = injector.getInstance(SubscriptionManager)
-  const dataSet = getDataSetFor(injector, TestEntity, 'id')
+  const injector = createInjector()
+  const manager = injector.get(SubscriptionManager)
+  const dataSet = injector.get(TestEntityDataSet)
 
   return {
     injector,
     manager,
     dataSet,
     [Symbol.asyncDispose]: async () => {
-      manager[Symbol.dispose]()
       await injector[Symbol.asyncDispose]()
     },
   }
 }
 
+const addEntity = (ds: ReturnType<typeof setupManager>['dataSet'], i: Injector, e: TestEntity) => ds.add(i, e)
+const updateEntity = (
+  ds: ReturnType<typeof setupManager>['dataSet'],
+  i: Injector,
+  id: string,
+  change: Partial<TestEntity>,
+) => ds.update(i, id, change)
+const removeEntity = (ds: ReturnType<typeof setupManager>['dataSet'], i: Injector, id: string) => ds.remove(i, id)
+
 describe('SubscriptionManager', () => {
   describe('registerModel', () => {
     it('should register a model and track it', async () => {
       await usingAsync(setupManager(), async ({ manager }) => {
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
         const reg = manager.getModelRegistration('TestEntity')
         expect(reg).toBeDefined()
         expect(reg?.primaryKey).toBe('id')
@@ -62,20 +80,20 @@ describe('SubscriptionManager', () => {
 
     it('should be idempotent for the same model', async () => {
       await usingAsync(setupManager(), async ({ manager }) => {
-        manager.registerModel(TestEntity, 'id')
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
+        manager.registerModel(TestEntityDataSet)
         expect(manager.getModelRegistration('TestEntity')).toBeDefined()
       })
     })
 
-    it('should throw on model name conflict', async () => {
+    it('should throw on primary-key conflict for the same model name', async () => {
       await usingAsync(setupManager(), async ({ manager }) => {
-        manager.registerModel(TestEntity, 'id')
-        class OtherEntity {
-          declare id: string
-        }
-        Object.defineProperty(OtherEntity, 'name', { value: 'TestEntity' })
-        expect(() => manager.registerModel(OtherEntity, 'id')).toThrow('Model name conflict')
+        manager.registerModel(TestEntityDataSet)
+        const conflictingDataSet = {
+          ...TestEntityDataSet,
+          primaryKey: 'name',
+        } as unknown as DataSetToken<TestEntity, 'name'>
+        expect(() => manager.registerModel(conflictingDataSet)).toThrow('Model name conflict')
       })
     })
 
@@ -89,8 +107,8 @@ describe('SubscriptionManager', () => {
   describe('subscribeEntity', () => {
     it('should send a snapshot response', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
@@ -123,8 +141,8 @@ describe('SubscriptionManager', () => {
 
     it('should include version in snapshot response', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
@@ -139,8 +157,8 @@ describe('SubscriptionManager', () => {
 
     it('should track active subscriptions', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         expect(manager.activeSubscriptionCount).toBe(0)
 
@@ -155,14 +173,14 @@ describe('SubscriptionManager', () => {
   describe('entity change notifications', () => {
     it('should notify on entity update', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
         socket.send.mockClear()
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Bob' })
 
         const messages = getSentMessages(socket)
         expect(messages).toHaveLength(1)
@@ -175,14 +193,14 @@ describe('SubscriptionManager', () => {
 
     it('should notify on entity removal', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
         socket.send.mockClear()
 
-        await dataSet.remove(injector, '1' as TestEntity['id'])
+        await removeEntity(dataSet, injector, '1')
 
         const messages = getSentMessages(socket)
         expect(messages).toHaveLength(1)
@@ -195,13 +213,13 @@ describe('SubscriptionManager', () => {
 
     it('should notify on entity added matching a subscription key', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
         socket.send.mockClear()
 
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const messages = getSentMessages(socket)
         expect(messages).toHaveLength(1)
@@ -214,15 +232,15 @@ describe('SubscriptionManager', () => {
 
     it('should not notify unrelated subscriptions', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'B' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
         socket.send.mockClear()
 
-        await dataSet.update(injector, '2' as TestEntity['id'], { name: 'Charlie' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '2', { name: 'Charlie' })
 
         expect(getSentMessages(socket)).toHaveLength(0)
       })
@@ -230,15 +248,15 @@ describe('SubscriptionManager', () => {
 
     it('should include version with incrementing seq in notifications', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
         socket.send.mockClear()
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Charlie' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Bob' })
+        await updateEntity(dataSet, injector, '1', { name: 'Charlie' })
 
         const messages = getSentMessages(socket)
         expect(messages).toHaveLength(2)
@@ -252,9 +270,9 @@ describe('SubscriptionManager', () => {
   describe('subscribeCollection', () => {
     it('should send a snapshot response with matching entities', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'B' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
@@ -277,10 +295,10 @@ describe('SubscriptionManager', () => {
 
     it('should include totalCount matching the full unfiltered count', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'A' })
+        await addEntity(dataSet, injector, { id: '3', name: 'Charlie', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(
@@ -303,10 +321,10 @@ describe('SubscriptionManager', () => {
 
     it('should include totalCount matching the filtered count', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
-        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'B' })
+        await addEntity(dataSet, injector, { id: '3', name: 'Charlie', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', {
@@ -322,10 +340,10 @@ describe('SubscriptionManager', () => {
 
     it('should send a snapshot with filter applied', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
-        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'B' })
+        await addEntity(dataSet, injector, { id: '3', name: 'Charlie', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', {
@@ -344,10 +362,10 @@ describe('SubscriptionManager', () => {
 
     it('should send a snapshot with top/skip applied', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'A' })
+        await addEntity(dataSet, injector, { id: '3', name: 'Charlie', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(
@@ -383,7 +401,7 @@ describe('SubscriptionManager', () => {
 
     it('should track collection subscriptions', async () => {
       await usingAsync(setupManager(), async ({ injector, manager }) => {
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
@@ -398,7 +416,7 @@ describe('SubscriptionManager', () => {
   describe('collection change notifications', () => {
     it('should notify when an entity matching the filter is added', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', {
@@ -406,9 +424,8 @@ describe('SubscriptionManager', () => {
         })
         socket.send.mockClear()
 
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
-        // Wait for async evaluation
         await new Promise((r) => setTimeout(r, 50))
 
         const messages = getSentMessages(socket)
@@ -423,7 +440,7 @@ describe('SubscriptionManager', () => {
 
     it('should not notify when an entity not matching the filter is added', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', {
@@ -431,7 +448,7 @@ describe('SubscriptionManager', () => {
         })
         socket.send.mockClear()
 
-        await dataSet.add(injector, { id: '1', name: 'Bob', category: 'B' } as TestEntity)
+        await addEntity(dataSet, injector, { id: '1', name: 'Bob', category: 'B' })
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -442,14 +459,14 @@ describe('SubscriptionManager', () => {
 
     it('should notify when a collection entity is updated', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
         socket.send.mockClear()
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Updated' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Updated' })
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -465,14 +482,14 @@ describe('SubscriptionManager', () => {
 
     it('should notify when a collection entity is removed', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
         socket.send.mockClear()
 
-        await dataSet.remove(injector, '1' as TestEntity['id'])
+        await removeEntity(dataSet, injector, '1')
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -488,8 +505,8 @@ describe('SubscriptionManager', () => {
 
     it('should detect when entity leaves a filtered collection via update', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', {
@@ -497,8 +514,7 @@ describe('SubscriptionManager', () => {
         })
         socket.send.mockClear()
 
-        // Update category so it no longer matches the filter
-        await dataSet.update(injector, '1' as TestEntity['id'], { category: 'B' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { category: 'B' })
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -514,13 +530,13 @@ describe('SubscriptionManager', () => {
 
     it('should send collection-snapshot when entity is added', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
         socket.send.mockClear()
 
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -536,14 +552,14 @@ describe('SubscriptionManager', () => {
 
     it('should send collection-snapshot when entity is removed', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
         socket.send.mockClear()
 
-        await dataSet.remove(injector, '1' as TestEntity['id'])
+        await removeEntity(dataSet, injector, '1')
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -559,14 +575,14 @@ describe('SubscriptionManager', () => {
 
     it('should send collection-snapshot when entity is updated', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
         socket.send.mockClear()
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Updated' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Updated' })
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -582,8 +598,8 @@ describe('SubscriptionManager', () => {
 
     it('should detect when entity enters a filtered collection via update', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'B' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'B' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', {
@@ -591,8 +607,7 @@ describe('SubscriptionManager', () => {
         })
         socket.send.mockClear()
 
-        // Update category so it now matches the filter
-        await dataSet.update(injector, '1' as TestEntity['id'], { category: 'A' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { category: 'A' })
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -612,22 +627,20 @@ describe('SubscriptionManager', () => {
       vi.useFakeTimers()
       try {
         await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-          manager.registerModel(TestEntity, 'id', { debounceMs: 100 })
-          await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+          manager.registerModel(TestEntityDataSet, { debounceMs: 100 })
+          await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
           const socket = createMockSocket()
           await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
           socket.send.mockClear()
 
-          await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
-          await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Charlie' } as Partial<TestEntity>)
+          await updateEntity(dataSet, injector, '1', { name: 'Bob' })
+          await updateEntity(dataSet, injector, '1', { name: 'Charlie' })
 
-          // Should not have sent yet (within debounce window)
           expect(getSentMessages(socket)).toHaveLength(0)
 
           vi.advanceTimersByTime(150)
 
-          // Now both updates should be flushed
           const messages = getSentMessages(socket)
           expect(messages).toHaveLength(2)
           expect(messages[0].type).toBe('entity-updated')
@@ -640,16 +653,15 @@ describe('SubscriptionManager', () => {
 
     it('should send immediately when debounceMs is 0 (default)', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
         socket.send.mockClear()
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Bob' })
 
-        // Should send immediately
         expect(getSentMessages(socket)).toHaveLength(1)
       })
     })
@@ -658,23 +670,19 @@ describe('SubscriptionManager', () => {
   describe('query cache', () => {
     it('should use cached results within queryTtlMs', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id', { queryTtlMs: 500 })
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet, { queryTtlMs: 500 })
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
         socket.send.mockClear()
 
-        // First change triggers a query
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'A' } as TestEntity)
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'A' })
         await new Promise((r) => setTimeout(r, 50))
 
-        // Second change within TTL window should use cached result
-        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+        await addEntity(dataSet, injector, { id: '3', name: 'Charlie', category: 'A' })
         await new Promise((r) => setTimeout(r, 50))
 
-        // The second evaluation should have used the cache, so entity '3' might not appear
-        // in the second notification (cache returns stale data)
         const messages = getSentMessages(socket)
         expect(messages.length).toBeGreaterThanOrEqual(1)
       })
@@ -684,8 +692,8 @@ describe('SubscriptionManager', () => {
   describe('unsubscribe', () => {
     it('should stop notifications after unsubscribe', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
@@ -696,7 +704,7 @@ describe('SubscriptionManager', () => {
         }
         socket.send.mockClear()
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Bob' })
 
         expect(getSentMessages(socket)).toHaveLength(0)
         expect(manager.activeSubscriptionCount).toBe(0)
@@ -705,8 +713,8 @@ describe('SubscriptionManager', () => {
 
     it('should stop collection notifications after unsubscribe', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
@@ -717,7 +725,7 @@ describe('SubscriptionManager', () => {
         }
         socket.send.mockClear()
 
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'A' } as TestEntity)
+        await addEntity(dataSet, injector, { id: '2', name: 'Bob', category: 'A' })
 
         await new Promise((r) => setTimeout(r, 50))
 
@@ -730,8 +738,8 @@ describe('SubscriptionManager', () => {
   describe('socket cleanup', () => {
     it('should remove subscriptions when socket closes', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
@@ -744,7 +752,7 @@ describe('SubscriptionManager', () => {
 
     it('should remove collection subscriptions when socket closes', async () => {
       await usingAsync(setupManager(), async ({ injector, manager }) => {
-        manager.registerModel(TestEntity, 'id')
+        manager.registerModel(TestEntityDataSet)
 
         const socket = createMockSocket()
         await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
@@ -759,8 +767,8 @@ describe('SubscriptionManager', () => {
   describe('changelog and delta sync', () => {
     it('should maintain a changelog of changes', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const reg = manager.getModelRegistration('TestEntity')
         expect(reg?.changelogLength).toBe(1)
@@ -770,9 +778,9 @@ describe('SubscriptionManager', () => {
 
     it('should send delta response when changelog covers the gap', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await updateEntity(dataSet, injector, '1', { name: 'Bob' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1', 0)
@@ -789,12 +797,12 @@ describe('SubscriptionManager', () => {
 
     it('should fall back to snapshot when changelog does not cover the gap', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id', { changelogRetentionMs: 0 })
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet, { changelogRetentionMs: 0 })
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         await new Promise((resolve) => setTimeout(resolve, 10))
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Bob' })
 
         const socket = createMockSocket()
         await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1', 0)
@@ -811,8 +819,8 @@ describe('SubscriptionManager', () => {
   describe('mixed entity and collection subscriptions', () => {
     it('should notify both entity and collection subscribers on change', async () => {
       await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const entitySocket = createMockSocket()
         const collectionSocket = createMockSocket()
@@ -823,33 +831,30 @@ describe('SubscriptionManager', () => {
         entitySocket.send.mockClear()
         collectionSocket.send.mockClear()
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Updated' } as Partial<TestEntity>)
+        await updateEntity(dataSet, injector, '1', { name: 'Updated' })
 
         await new Promise((r) => setTimeout(r, 50))
 
-        // Entity subscriber should get immediate notification
         expect(getSentMessages(entitySocket).some((m) => m.type === 'entity-updated')).toBe(true)
 
-        // Collection subscriber should also get notification (after evaluation)
         expect(getSentMessages(collectionSocket).some((m) => m.type === 'collection-snapshot')).toBe(true)
       })
     })
   })
 
   describe('dispose', () => {
-    it('should clean up all registrations and subscriptions', async () => {
-      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntity, 'id')
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+    it('should clean up all registrations and subscriptions when the injector is disposed', async () => {
+      const { injector, manager, dataSet } = setupManager()
+      manager.registerModel(TestEntityDataSet)
+      await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
-        const socket = createMockSocket()
-        await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
+      const socket = createMockSocket()
+      await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1')
 
-        manager[Symbol.dispose]()
+      await injector[Symbol.asyncDispose]()
 
-        expect(manager.activeSubscriptionCount).toBe(0)
-        expect(manager.getModelRegistration('TestEntity')).toBeUndefined()
-      })
+      expect(manager.activeSubscriptionCount).toBe(0)
+      expect(manager.getModelRegistration('TestEntity')).toBeUndefined()
     })
   })
 })
