@@ -62,7 +62,7 @@ export type DefineStoreOptions<T, TPrimaryKey extends keyof T> = {
  * const store = injector.get(UserStore)
  * ```
  */
-export const defineStore = <T, TPrimaryKey extends keyof T>(
+export const defineStore = <T, const TPrimaryKey extends keyof T>(
   options: DefineStoreOptions<T, TPrimaryKey>,
 ): StoreToken<T, TPrimaryKey> => {
   const token = defineService({
@@ -82,8 +82,9 @@ export const defineStore = <T, TPrimaryKey extends keyof T>(
       return store
     },
   })
-  return Object.assign(token, {
+  const result: StoreToken<T, TPrimaryKey> = Object.assign(token, {
     model: options.model,
     primaryKey: options.primaryKey,
   })
+  return result
 }
