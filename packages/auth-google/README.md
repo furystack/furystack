@@ -22,11 +22,11 @@ yarn add @furystack/auth-google
 Call `useGoogleAuthentication` **after** `useHttpAuthentication`:
 
 ```ts
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { useHttpAuthentication } from '@furystack/rest-service'
 import { useGoogleAuthentication } from '@furystack/auth-google'
 
-const injector = new Injector()
+const injector = createInjector()
 
 useHttpAuthentication(injector, {
   /* … */

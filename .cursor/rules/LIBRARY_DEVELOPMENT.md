@@ -8,8 +8,8 @@ FuryStack is organized as a monorepo with individual packages:
 
 ```
 packages/
-├── core/                  # Core DI and utilities
-├── inject/                # Dependency injection
+├── core/                  # Physical stores, identity context, DI helpers
+├── inject/                # Functional DI (defineService, Injector)
 ├── shades/                # UI framework
 ├── rest-service/          # REST API framework
 ├── logging/               # Logging utilities
@@ -50,76 +50,289 @@ The `@furystack/eslint-plugin` enforces many FuryStack-specific patterns automat
 - **Disposable safety** -- prefer `using()` / `usingAsync()` over manual create-then-dispose (`prefer-using-wrapper`)
 - **Shades rendering** -- no module-level JSX, no removed APIs, no manual `.subscribe()` in render, no `.getValue()` without `useObservable`, prefer `useState` over manual `ObservableValue`, no `useState` for CSS-representable states, valid `customElementName`, prefer `LocationService` and `NestedRouteLink` for navigation
 - **REST actions** -- throw `RequestError` (not `Error`), wrap endpoints with `Validate()`
-- **Data access** -- use Repository/DataSet (`getDataSetFor`) instead of direct `StoreManager` access
+- **Data access** -- prefer `getDataSetFor(injector, dataSetToken)` over direct `injector.get(StoreToken)` in application code (`no-direct-store-token`)
 
 Generate code that satisfies these rules from the start. Verify with `yarn lint`.
 
 ## Dependency Injection Patterns
 
-### Injectable Classes
+FuryStack uses **functional DI**: services are declared with `defineService` / `defineServiceAsync`, which return opaque **tokens**. There are **no decorators** (`@Injectable` / `@Injected` do not exist). An `Injector` resolves tokens, caches instances per their lifetime, and disposes them when it is disposed.
 
-Use `@Injectable` decorator for classes that should be managed by DI:
+### Defining a Service
 
 ```typescript
-// ✅ Good - injectable service
-import { Injectable } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 
-@Injectable({ lifetime: 'singleton' })
-export class LoggerService {
-  private logs: string[] = []
-
-  public log(message: string): void {
-    this.logs.push(message)
-  }
-
-  public getLogs(): readonly string[] {
-    return this.logs
-  }
-}
+export const Counter = defineService({
+  name: 'my-app/Counter',
+  lifetime: 'singleton',
+  factory: () => {
+    let value = 0
+    return {
+      increment: () => ++value,
+      getValue: () => value,
+    }
+  },
+})
 ```
+
+- `name` is debug/readability only — token identity is the returned object reference.
+- `lifetime` is required (`singleton` / `scoped` / `transient`). There is no default.
+- `factory` receives a `ServiceContext` and must return the service instance.
+
+### Resolving Dependencies
+
+Inside a factory, pull dependencies via the `ctx.inject` / `ctx.injectAsync` helpers. Outside a factory, resolve from an `Injector` via `get` / `getAsync`.
+
+```typescript
+import { defineService } from '@furystack/inject'
+
+const Logger = defineService({
+  name: 'my-app/Logger',
+  lifetime: 'singleton',
+  factory: () => ({ log: (msg: string) => console.log(msg) }),
+})
+
+export const UserService = defineService({
+  name: 'my-app/UserService',
+  lifetime: 'singleton',
+  factory: ({ inject }) => {
+    const logger = inject(Logger)
+    return {
+      getUser: async (id: string) => {
+        logger.log(`Getting user: ${id}`)
+        // ...
+      },
+    }
+  },
+})
+```
+
+A singleton factory can only depend on other singletons — the type of `inject` is refined per-lifetime at compile time so a mis-scoped dependency is a type error, not a runtime surprise.
 
 ### Lifetime Management
 
-Choose appropriate lifetime:
+- **singleton** — one instance per injector tree, cached at the root. For shared, stateless-ish services (loggers, config, factories).
+- **scoped** — one instance per scope (`injector.createScope(...)`). For per-request / per-connection state (`HttpUserContext`, per-message DI context).
+- **transient** — a new instance every resolution, not cached. Rarely what you want.
 
-- **singleton**: One instance per injector (default for services)
-- **transient**: New instance every time (for disposable objects)
-- **scoped**: One instance per scope (for request-scoped data)
+**Rules of thumb:**
+
+| Case                                               | Lifetime                     |
+| -------------------------------------------------- | ---------------------------- |
+| Config singletons (settings tokens, policies)      | `singleton`                  |
+| Shared stateful managers that must be disposable   | `singleton` with `onDispose` |
+| Per-request / per-connection / per-test-case state | `scoped`                     |
+| One-off factory outputs, short-lived handles       | `transient`                  |
+
+### The Injector
 
 ```typescript
-// ✅ Good - appropriate lifetimes
-@Injectable({ lifetime: 'singleton' })
-export class ConfigService {
-  // Shared config across app
-}
+import { createInjector, usingAsync } from '@furystack/inject'
 
-@Injectable({ lifetime: 'transient' })
-export class RequestContext {
-  // New instance per request
+const injector = createInjector()
+const counter = injector.get(Counter)
+counter.increment()
+
+// Test / request patterns
+await usingAsync(createInjector(), async (i) => {
+  const service = i.get(UserService)
+  // ...
+})
+```
+
+Key methods on `Injector`:
+
+- `get(token)` — synchronous resolution (rejects async tokens at compile time).
+- `getAsync(token)` — resolves sync or async tokens; returns `Promise<T>`.
+- `bind(token, factory)` — install an override on the injector that would own the cached instance. Drops any cached instance. Use in app bootstrap (to wire a real store behind a throw-by-default token) and in tests (to stub dependencies).
+- `invalidate(token)` — drop the cached instance so the next `get` re-runs the factory. Useful after rebinding sub-dependencies.
+- `createScope({ owner })` — create a child injector whose lifetime is independent. Scoped tokens are cached on the first injector that resolves them, so scoping matters.
+- `withScope(parent, async (scope) => ...)` — convenience wrapper that creates a scope, runs the body, and disposes the scope in `finally`.
+- `injector[Symbol.asyncDispose]()` — disposes the injector and every `onDispose` callback registered by its factories (LIFO).
+
+### Scope Caching Gotcha
+
+`findCached` walks the scope parent chain. If a setup step resolves a scoped token on an ancestor (commonly on the root), every descendant scope returns that same cached instance — any state held on the instance is effectively shared. Either:
+
+1. Do setup inside a short-lived scope so the cache lives on that scope:
+
+   ```typescript
+   await usingAsync(injector.createScope({ owner: 'setup' }), async (setup) => {
+     setup.get(HttpUserContext).cookieLogin(...)
+   })
+   ```
+
+2. Store per-scope state in a `WeakMap` keyed by a per-scope identity (e.g. the request's `headers`) instead of on the instance itself. This is what `HttpUserContext` does for its `userCache`.
+
+### Overrides: `bind` + `invalidate`
+
+`bind(Token, factory)` replaces the factory on the owning injector and drops any cached instance. Use it wherever the old decorator-era code would have called `setExplicitInstance`.
+
+```typescript
+// Configure a throw-by-default persistent store with a concrete backend
+injector.bind(UserStore, () => new InMemoryStore({ model: User, primaryKey: 'username' }))
+
+// Rebinding a setting after the service has been created? Invalidate the dependent:
+injector.bind(LocationServiceSettings, () => ({ ...custom }))
+injector.invalidate(LocationService)
+```
+
+### Lifecycle and Disposal
+
+Factories register teardown via `ctx.onDispose`:
+
+```typescript
+export const ClientPool = defineService({
+  name: 'my-app/ClientPool',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const clients = new Map<string, Client>()
+    onDispose(async () => {
+      await Promise.all([...clients.values()].map((c) => c.close()))
+      clients.clear()
+    })
+    return {
+      getFor: (url: string) => clients.get(url) ?? /* ... */,
+    }
+  },
+})
+```
+
+Callbacks run in LIFO order on `injector[Symbol.asyncDispose]()` so cleanup composes correctly when services depend on each other. Always prefer `onDispose` inside a factory over storing cleanup state outside of it.
+
+Helpers like `useRestService`, `useHttpAuthentication`, `useWebSocketApi`, `useJwtAuthentication` do not run inside a factory context. When they need to register disposal (e.g. close a pooled HTTP server), they push callbacks onto a scoped `CleanupRegistry` service — see `packages/websocket-api/src/use-websocket-api.ts` for the pattern.
+
+### System Identity Context
+
+Server-internal operations (password hashing, token refresh, background jobs) need an elevated identity scope. `useSystemIdentityContext` returns a disposable child injector with a fabricated identity that bypasses authorization checks:
+
+```typescript
+import { useSystemIdentityContext } from '@furystack/core'
+import { getDataSetFor } from '@furystack/repository'
+
+const systemInjector = useSystemIdentityContext({ injector, username: 'MyService' })
+// either dispose manually via onDispose, or wrap in usingAsync(...)
+```
+
+When used inside a service factory, register disposal:
+
+```typescript
+factory: ({ injector, onDispose }) => {
+  const systemInjector = useSystemIdentityContext({ injector, username: 'MyService' })
+  onDispose(() => systemInjector[Symbol.asyncDispose]())
+  // ...
 }
 ```
 
-### Dependency Injection
+**Warning:** `useSystemIdentityContext` bypasses all authorization. Never pass the returned injector to a user-facing request handler.
 
-Use `@Injected` to inject dependencies:
+### Disposable Linting Rule
+
+The `furystack/prefer-using-wrapper` rule flags manual `instance[Symbol.dispose]()` calls. Inside a factory paired with `onDispose`, manual disposal is acceptable — disable the rule on that line with a short comment explaining why.
+
+## Physical Stores with `defineStore`
+
+A **physical store** implements the minimal CRUD contract (`add`, `update`, `remove`, `find`, `get`, `count`). `defineStore` wraps a `defineService({ lifetime: 'singleton' })` call, attaches model/primaryKey metadata, and auto-disposes the store on injector teardown.
 
 ```typescript
-// ✅ Good - injected dependencies
-import { Injectable, Injected } from '@furystack/inject'
+import { defineStore, InMemoryStore } from '@furystack/core'
 
-@Injectable({ lifetime: 'singleton' })
-export class UserService {
-  @Injected(LoggerService)
-  declare private logger: LoggerService
-
-  @Injected(ApiClient)
-  declare private apiClient: ApiClient
-
-  public async getUser(id: string): Promise<User> {
-    this.logger.log(`Getting user: ${id}`)
-    return await this.apiClient.fetchUser(id)
-  }
+class User {
+  declare username: string
+  declare displayName: string
 }
+
+export const UserStore = defineStore({
+  name: 'my-app/UserStore',
+  model: User,
+  primaryKey: 'username',
+  factory: () => new InMemoryStore({ model: User, primaryKey: 'username' }),
+})
+
+const store = injector.get(UserStore)
+```
+
+### Throw-by-Default Stores
+
+Stores shipped by FuryStack packages default to a factory that throws a `NotConfiguredError`. Applications must bind a persistent implementation before resolving anything that depends on them:
+
+```typescript
+import { UserStore } from '@furystack/rest-service'
+import { defineSequelizeStore } from '@furystack/sequelize-store'
+
+injector.bind(UserStore, () => /* your persistent store factory */)
+```
+
+Tests opt into `InMemoryStore` per injector:
+
+```typescript
+injector.bind(UserStore, () => new InMemoryStore({ model: User, primaryKey: 'username' }))
+```
+
+This pattern replaces the old implicit `addStore(...)` side-effect registration.
+
+### Dedicated Store Adapters
+
+Backend packages expose `defineXxxStore` helpers that return a `StoreToken`:
+
+- `defineFileSystemStore<T, PK>({ name, model, primaryKey, fileName, tickMs? })`
+- `defineMongoDbStore<T, PK>({ name, model, primaryKey, url, db, collection, options? })`
+- `defineSequelizeStore<T, M, PK>({ name, model, sequelizeModel, primaryKey, options, initModel? })`
+- `defineRedisStore<T, PK>({ name, model, primaryKey, client })`
+
+TypeScript often collapses the `const TPrimaryKey extends keyof T` generic when it flows through a wrapper. If inference widens the token to `keyof T`, pass explicit generics:
+
+```typescript
+const MyStore = defineFileSystemStore<User, 'username'>({ ... })
+```
+
+## DataSets with `defineDataSet`
+
+A **DataSet** wraps a store with authorization, modification hooks, and change events. It is the recommended write gateway for entity mutations — bypassing it bypasses authorization, hooks, and entity-sync notifications.
+
+```typescript
+import { defineDataSet } from '@furystack/repository'
+
+export const UserDataSet = defineDataSet({
+  name: 'my-app/UserDataSet',
+  store: UserStore,
+  settings: {
+    onEntityAdded: ({ injector, entity }) => {
+      // ...
+    },
+    authorizeUpdate: async ({ entity }) => ({
+      isAllowed: entity.username !== 'system',
+      message: 'Cannot update the system user',
+    }),
+  },
+})
+```
+
+Resolve via `injector.get(UserDataSet)` or the legacy-compatible `getDataSetFor`:
+
+```typescript
+import { getDataSetFor } from '@furystack/repository'
+
+const dataSet = getDataSetFor(injector, UserDataSet)
+await dataSet.add(injector, { username: 'alice', displayName: 'Alice' })
+```
+
+### Passing DataSet tokens to helpers
+
+Endpoint generators and registration helpers take `DataSetToken` directly (no more `{ model, primaryKey }` tuples):
+
+```typescript
+createGetCollectionEndpoint(UserDataSet)
+useEntitySync(injector, { models: [UserDataSet, OrderDataSet] })
+```
+
+### Type-inference gotcha (same shape as `defineStore`)
+
+Inline callback settings widen `TPrimaryKey` back to `keyof T`. Fix by annotating the callback's `entity` parameter or passing the triple generic:
+
+```typescript
+defineDataSet<User, 'username', WithOptionalId<User, 'username'>>({ ... })
 ```
 
 ## Observable Patterns
@@ -129,7 +342,6 @@ export class UserService {
 Create reactive values with `ObservableValue`:
 
 ```typescript
-// ✅ Good - observable value
 import { ObservableValue } from '@furystack/utils'
 
 export class DataStore {
@@ -150,33 +362,33 @@ export class DataStore {
 Expose observables in public APIs:
 
 ```typescript
-// ✅ Good - observable in public API
-@Injectable({ lifetime: 'singleton' })
-export class SessionService {
-  /**
-   * Observable of the current user
-   */
-  public currentUser = new ObservableValue<User | null>(null)
+import { defineService } from '@furystack/inject'
+import { ObservableValue } from '@furystack/utils'
+import type { User } from './models/user.js'
 
-  /**
-   * Subscribe to user changes
-   * @param callback - Callback function
-   * @returns Disposable subscription
-   */
-  public onUserChange(callback: (user: User | null) => void): { dispose: () => void } {
-    return this.currentUser.subscribe(callback)
-  }
+export type SessionService = {
+  /** Observable of the current user. */
+  currentUser: ObservableValue<User | null>
 }
+
+export const SessionServiceToken = defineService({
+  name: 'my-app/SessionService',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const currentUser = new ObservableValue<User | null>(null)
+    onDispose(() => currentUser[Symbol.dispose]())
+    return { currentUser } satisfies SessionService
+  },
+})
 ```
 
 ## Disposable Resources
 
-### Implement Symbol.dispose
+### Implement `Symbol.dispose`
 
-All classes that hold resources should implement disposal:
+Any class that holds resources should implement disposal:
 
 ```typescript
-// ✅ Good - proper disposal
 export class WebSocketConnection {
   private socket: WebSocket
   private subscriptions = new Set<() => void>()
@@ -211,7 +423,6 @@ export class WebSocketConnection {
 Document disposal patterns for library users:
 
 ````typescript
-// ✅ Good - disposal documentation
 /**
  * Creates a scoped resource that will be automatically disposed
  * @example
@@ -230,22 +441,14 @@ export function createResource(): Disposable {
 
 ## Cache Implementation
 
-### Cache Class
-
 Implement cache with proper generics:
 
 ```typescript
-// ✅ Good - cache implementation
 export class Cache<TArgs extends unknown[], TResult> {
   private cache = new Map<string, CachedValue<TResult>>()
 
   constructor(private options: CacheOptions<TArgs, TResult>) {}
 
-  /**
-   * Get value from cache or load it
-   * @param args - Arguments for the load function
-   * @returns Cached or loaded value
-   */
   public async get(...args: TArgs): Promise<TResult> {
     const key = this.getCacheKey(args)
     const cached = this.cache.get(key)
@@ -259,11 +462,6 @@ export class Cache<TArgs extends unknown[], TResult> {
     return value
   }
 
-  /**
-   * Get observable for cache value
-   * @param args - Arguments for the load function
-   * @returns Observable of cache state
-   */
   public getObservable(...args: TArgs): ObservableValue<CacheState<TResult>> {
     // Implementation
   }
@@ -285,7 +483,6 @@ export class Cache<TArgs extends unknown[], TResult> {
 Define request actions with proper typing:
 
 ```typescript
-// ✅ Good - typed request action
 import type { RequestAction } from '@furystack/rest-service'
 
 export type GetUserAction = RequestAction<{
@@ -319,29 +516,11 @@ Follow semantic versioning strictly:
 - **Minor** (0.x.0): New features, backward compatible
 - **Patch** (0.0.x): Bug fixes, backward compatible
 
-```typescript
-// ❌ Breaking change - remove or rename exported API
-// Old:
-export function oldFunction() {}
-
-// New:
-// export function oldFunction() {} // Removed - MAJOR version bump
-
-// ✅ Non-breaking change - add new API
-// Old:
-export function existingFunction() {}
-
-// New:
-export function existingFunction() {}
-export function newFunction() {} // Added - MINOR version bump
-```
-
 ### Deprecation Pattern
 
 Deprecate before removing:
 
 ```typescript
-// ✅ Good - deprecation warning
 /**
  * @deprecated Use `newFunction` instead. Will be removed in v8.0.0
  */
@@ -359,39 +538,28 @@ export function newFunction(): void {
 
 ### JSDoc for Public APIs
 
-All public APIs must have comprehensive JSDoc:
+All public APIs must have clear JSDoc with an example when the usage is not obvious:
 
 ````typescript
 /**
- * Creates a new Injector for dependency injection
+ * Defines a singleton service token.
  *
  * @param options - Configuration options
- * @param options.parent - Parent injector for hierarchical DI
- * @param options.level - Depth level in injector hierarchy
- * @returns New Injector instance
+ * @returns A token that can be resolved via `injector.get(...)`
  *
  * @example
  * ```typescript
- * const injector = new Injector({ parent: parentInjector });
- * const service = injector.getInstance(MyService);
+ * const Counter = defineService({
+ *   name: 'my-app/Counter',
+ *   lifetime: 'singleton',
+ *   factory: () => ({ value: 0 }),
+ * })
+ * const counter = injector.get(Counter)
  * ```
  */
-export class Injector {
-  constructor(options?: InjectorOptions) {
-    // Implementation
-  }
-
-  /**
-   * Gets an instance of the specified class
-   * @typeParam T - The type of instance to retrieve
-   * @param constructor - The class constructor
-   * @returns Instance of the class
-   * @throws {Error} If the class is not injectable
-   */
-  public getInstance<T>(constructor: Constructor<T>): T {
-    // Implementation
-  }
-}
+export const defineService: <TService, TLifetime extends Lifetime>(
+  options: DefineServiceOptions<TService, TLifetime>,
+) => Token<TService, TLifetime, false>
 ````
 
 ## Shades Rendering Patterns
@@ -580,29 +748,15 @@ Use `useHostProps({ style })` only for truly dynamic values (CSS custom properti
 When using theme values in the `css` property, **always import and use `cssVariableTheme`** instead of raw CSS variable strings. This provides type safety and autocomplete:
 
 ```typescript
-// ✅ Good - type-safe theme access
 import { cssVariableTheme } from '@furystack/shades-common-components'
 
 const MyComponent = Shade({
   customElementName: 'my-component',
   css: {
-    color: cssVariableTheme.text.primary, // Type-checked!
+    color: cssVariableTheme.text.primary,
     backgroundColor: cssVariableTheme.background.paper,
     borderColor: cssVariableTheme.palette.primary.main,
-    // For template literals when combining with other values:
     boxShadow: `0 0 0 2px ${cssVariableTheme.palette.primary.main} inset`,
-  },
-  render: () => {
-    /* ... */
-  },
-})
-
-// ❌ Avoid - raw strings with no type safety
-const BadComponent = Shade({
-  customElementName: 'bad-component',
-  css: {
-    color: 'var(--shades-theme-text-primary)', // No autocomplete, typos not caught
-    backgroundColor: 'var(--shades-theme-background-paper)',
   },
   render: () => {
     /* ... */
@@ -632,17 +786,12 @@ The `cssVariableTheme` object is typed as `Theme` and contains all CSS variable 
 Organize exports clearly:
 
 ```typescript
-// ✅ Good - packages/core/src/index.ts
-// Main exports
-export { Injectable, Injected } from './decorators.js'
-export { Injector } from './injector.js'
-
-// Type exports
-export type { InjectorOptions, InjectableOptions } from './types.js'
-export type { Constructor, Disposable } from './common-types.js'
-
-// Re-exports from other packages (if needed)
-export { ObservableValue } from '@furystack/utils'
+// packages/core/src/index.ts
+export { defineStore } from './define-store.js'
+export type { StoreToken } from './define-store.js'
+export { useSystemIdentityContext } from './system-identity-context.js'
+export { InMemoryStore } from './in-memory-store.js'
+// ...
 ```
 
 ### Avoid Side Effects
@@ -662,34 +811,66 @@ console.log('Logger module loaded') // Side effect!
 export class Logger {}
 ```
 
+## Data Access: DataSet over StoreToken
+
+The `no-direct-store-token` lint rule enforces resolving a `DataSetToken` (via `injector.get(...)` or `getDataSetFor(...)`) rather than resolving the underlying `StoreToken` directly in application code. Direct physical-store access bypasses authorization, modification hooks, DataSet events, and entity sync.
+
+```typescript
+// ✅ Good — use DataSet via its token
+import { getDataSetFor } from '@furystack/repository'
+import { useSystemIdentityContext } from '@furystack/core'
+
+await usingAsync(useSystemIdentityContext({ injector, username: 'MyService' }), async (systemInjector) => {
+  const dataSet = getDataSetFor(systemInjector, UserDataSet)
+  await dataSet.add(systemInjector, entity)
+  await dataSet.find(systemInjector, { filter: { ... } })
+})
+```
+
+### When to use a `StoreToken` directly
+
+- **Store implementations** (e.g. `InMemoryStore`, `SequelizeStore`) — testing the store layer itself
+- **Inside a DataSet factory** — the DataSet resolves its backing store via the token internally
+- **Test data seeding** — acceptable in test setup to seed data into the physical store
+
+### Setup helpers
+
+Setup helpers configure throw-by-default tokens for the APIs they expose. Callers must run them on the injector before resolving anything downstream:
+
+```typescript
+useHttpAuthentication(injector) // configures HttpAuthenticationSettings + HttpUserContext dependencies
+useJwtAuthentication(injector, { secret: '...' }) // configures JwtAuthenticationSettings + JwtTokenService
+usePasswordPolicy(injector) // configures PasswordAuthenticator + CryptoPasswordHasher defaults
+```
+
 ## Summary
 
 **Key Principles:**
 
-1. **Public API first** - Design for library users
-2. **Dependency injection** - Use @Injectable and @Injected
-3. **Observable patterns** - Expose ObservableValue for reactive state
-4. **Disposable resources** - Implement Symbol.dispose
-5. **Type safety** - No `any`, explicit types for public APIs
-6. **Semantic versioning** - Follow strictly for all changes
-7. **Deprecation** - Deprecate before removing
-8. **Documentation** - JSDoc on all public APIs
-9. **No side effects** - Package imports should be safe
-10. **Test coverage** - 100% for public APIs
+1. **Public API first** — design for library users
+2. **Functional DI** — `defineService` / `defineStore` / `defineDataSet`, token-based resolution
+3. **Observable patterns** — `ObservableValue` for reactive state
+4. **Disposable resources** — `Symbol.dispose` / `onDispose` factory hooks
+5. **Type safety** — no `any`, explicit types for public APIs
+6. **Semantic versioning** — followed strictly for all changes
+7. **Deprecation** — deprecate before removing
+8. **Documentation** — JSDoc on all public APIs
+9. **No side effects** — package imports must be safe
+10. **Test coverage** — 100% for public APIs
 
 **Library Development Checklist:**
 
-- [ ] @Injectable on all services
-- [ ] @Injected for dependencies
-- [ ] Symbol.dispose for resources
-- [ ] ObservableValue for reactive state
+- [ ] Services declared via `defineService` / `defineServiceAsync` with explicit lifetimes
+- [ ] Stateful resources own their teardown via `ctx.onDispose`
+- [ ] `defineStore` + throw-by-default pattern for persistent data
+- [ ] `defineDataSet` for write gateways; app code resolves the DataSet token, not the underlying store
+- [ ] `ObservableValue` for reactive state; owner class implements `Symbol.dispose`
 - [ ] Explicit types on all exports
 - [ ] JSDoc on public APIs
 - [ ] Tests for all exports
 - [ ] Semantic versioning followed
 - [ ] No breaking changes without deprecation
 - [ ] No side effects on import
-- [ ] Repository/DataSet preferred over direct PhysicalStore access
 
 **Tools:**
 
@@ -698,57 +879,3 @@ export class Logger {}
 - Build: `yarn build` (tsc -b packages)
 - Test: `yarn test`
 - Version: `yarn bumpVersions`
-
-## Data Access: Repository over PhysicalStore
-
-The `no-direct-physical-store` lint rule enforces using Repository/DataSet (`getDataSetFor`) instead of direct `StoreManager` access in application code. Direct `PhysicalStore` writes bypass authorization, modification hooks, DataSet events, and entity sync.
-
-```typescript
-// ✅ Good — use DataSet via Repository
-import { getDataSetFor } from '@furystack/repository'
-import { useSystemIdentityContext } from '@furystack/core'
-
-const systemInjector = useSystemIdentityContext({ injector, username: 'MyService' })
-const dataSet = getDataSetFor(systemInjector, MyModel, 'id')
-await dataSet.add(systemInjector, entity)
-await dataSet.find(systemInjector, { filter: { ... } })
-```
-
-### When to use PhysicalStore directly
-
-- **Store implementations** (e.g. `InMemoryStore`, `SequelizeStore`) — testing the store layer itself
-- **Inside `Repository.createDataSet`** — the Repository uses `StoreManager.getStoreFor` internally
-- **Test data seeding** — acceptable in test setup to seed data into the physical store
-
-### Setup helpers
-
-Setup functions should create DataSets for the models they manage:
-
-```typescript
-// usePasswordPolicy creates DataSets for PasswordCredential and PasswordResetToken
-usePasswordPolicy(injector)
-
-// useHttpAuthentication creates DataSets for User and DefaultSession
-useHttpAuthentication(injector)
-
-// useJwtAuthentication creates DataSet for RefreshToken
-useJwtAuthentication(injector, { secret: '...' })
-```
-
-### System Identity Context
-
-Server-internal services (like `PasswordAuthenticator`, `JwtTokenService`) use `SystemIdentityContext`
-to perform elevated operations through the DataSet layer. This ensures events fire while authorization
-is bypassed for trusted code paths:
-
-```typescript
-@Injected((injector: Injector) => useSystemIdentityContext({ injector, username: 'MyService' }))
-declare private readonly systemInjector: Injector
-
-@Injected((injector) => getDataSetFor(injector, MyModel, 'id'))
-declare private readonly myDataSet: DataSet<MyModel, 'id'>
-
-async doWork() {
-  await this.myDataSet.find(this.systemInjector, { ... })
-}
-```

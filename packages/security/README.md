@@ -15,10 +15,10 @@ yarn add @furystack/security
 ### Setup a password policy
 
 ```ts
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usePasswordPolicy, createMinLengthComplexityRule, createMaxLengthComplexityRule } from '@furystack/security'
 
-const injector = new Injector()
+const injector = createInjector()
 usePasswordPolicy(injector, {
   passwordComplexityRules: [createMinLengthComplexityRule(8), createMaxLengthComplexityRule(64)],
   passwordExpirationDays: 90,
@@ -26,12 +26,18 @@ usePasswordPolicy(injector, {
 })
 ```
 
+`usePasswordPolicy` binds the `SecurityPolicy` settings, the
+`CryptoPasswordHasher` defaults, and the `PasswordAuthenticator` token.
+Applications must also bind concrete stores for the
+`PasswordCredentialStore` and `PasswordResetTokenStore` tokens (they
+throw by default) before resolving anything that depends on them.
+
 ### Check if a user's password is valid
 
 ```ts
 import { PasswordAuthenticator } from '@furystack/security'
 
-const authenticator = injector.getInstance(PasswordAuthenticator)
+const authenticator = injector.get(PasswordAuthenticator)
 
 const userName = 'john_doe'
 const plainPassword = 'SecureP@ssw0rd!'

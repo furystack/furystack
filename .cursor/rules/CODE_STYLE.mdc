@@ -82,12 +82,12 @@ Code is automatically formatted on commit via Husky:
 
 ```
 ✅ Good:
-packages/core/src/injectable.ts
+packages/inject/src/define-service.ts
 packages/shades/src/shade.tsx
 packages/rest-service/src/request-error.ts
 
 ❌ Avoid:
-packages/core/src/Injectable.ts
+packages/inject/src/DefineService.ts
 packages/shades/src/Shade.tsx
 packages/rest-service/src/RequestError.ts
 ```
@@ -99,12 +99,12 @@ packages/rest-service/src/RequestError.ts
 
 ```
 ✅ Good:
-packages/core/src/injectable.ts
-packages/core/src/injectable.spec.ts
+packages/inject/src/define-service.ts
+packages/inject/src/define-service.spec.ts
 
 ❌ Avoid:
-packages/core/test/injectable.spec.ts (not co-located)
-packages/core/src/injectable.test.ts (use .spec.ts)
+packages/inject/test/define-service.spec.ts (not co-located)
+packages/inject/src/define-service.test.ts (use .spec.ts)
 ```
 
 ### Exported Classes and Types
@@ -114,14 +114,13 @@ packages/core/src/injectable.test.ts (use .spec.ts)
 
 ```typescript
 // ✅ Good
-export class Injectable {}
 export class ObservableValue<T> {}
 export type RequestAction<T> = {}
-export interface InjectorOptions {}
+export type InjectorOptions = {}
 
 // ❌ Avoid
-export class injectable {} // Wrong case
-export class IInjectableThing {} // Hungarian notation
+export class observableValue {} // Wrong case
+export class IObservableThing {} // Hungarian notation
 ```
 
 ### Functions and Variables
@@ -344,13 +343,10 @@ packages/
 Each package should have a clear `index.ts`:
 
 ```typescript
-// ✅ Good - packages/core/src/index.ts
-export { Injectable, Injected } from './injectable.js'
-export { Injector } from './injector.js'
-export type { InjectorOptions } from './types.js'
-
-// Re-export commonly used types
-export type { Constructor } from './types.js'
+// ✅ Good - packages/inject/src/index.ts
+export { defineService, defineServiceAsync, isToken } from './define-service.js'
+export { createInjector, Injector, withScope } from './injector.js'
+export type { Lifetime, ServiceContext, Token } from './types.js'
 ```
 
 ## Import Ordering
@@ -369,7 +365,7 @@ import { EventEmitter } from 'events'
 
 import type { Logger } from 'winston'
 
-import { Injectable } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 
 import { getUserData } from './user-data.js'
@@ -378,7 +374,7 @@ import type { UserOptions } from './types.js'
 // ❌ Avoid - random ordering
 import { getUserData } from './user-data.js'
 import { EventEmitter } from 'events'
-import { Injectable } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 ```
 
 ### Import Grouping
@@ -391,7 +387,7 @@ import { EventEmitter } from 'events'
 
 import type { Logger } from 'winston'
 
-import { Injectable } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 
 import { getUserData } from './user-data.js'
 ```
@@ -402,18 +398,18 @@ Use named imports and group them logically:
 
 ```typescript
 // ✅ Good - grouped FuryStack imports
-import { Injectable, Injected } from '@furystack/inject'
+import { createInjector, defineService } from '@furystack/inject'
 import { ObservableValue, usingAsync } from '@furystack/utils'
 
 // ✅ Good - alphabetically sorted when many imports
 import { Cache } from '@furystack/cache'
-import { getCurrentUser } from '@furystack/core'
+import { useSystemIdentityContext } from '@furystack/core'
 import { getLogger } from '@furystack/logging'
 import { JsonResult, RequestError } from '@furystack/rest-service'
 
 // ❌ Avoid - separate imports for same package
-import { Injectable } from '@furystack/inject'
-import { Injected } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 ```
 
 ## Code Organization
@@ -459,12 +455,12 @@ export class MyService {
 
 ```typescript
 // 1. Imports
-import { Injectable } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 
 // 2. Types
-type ServiceOptions = {
-  config: string
+type DataService = {
+  load: () => Promise<void>
 }
 
 // 3. Constants
@@ -476,10 +472,15 @@ const formatData = (data: unknown): string => {
 }
 
 // 5. Main exports
-@Injectable({ lifetime: 'singleton' })
-export class DataService {
-  // Class implementation
-}
+export const DataServiceToken = defineService({
+  name: 'my-app/DataService',
+  lifetime: 'singleton',
+  factory: () => ({
+    load: async () => {
+      /* ... */
+    },
+  }) satisfies DataService,
+})
 ```
 
 ### Component File Structure
@@ -510,7 +511,7 @@ export const UserProfile = Shade<UserProfileProps>({
   customElementName: 'user-profile',
   render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
     // Services
-    const userService = injector.getInstance(UserService);
+    const userService = injector.get(UserService);
 
     // Host element attributes/styles
     useHostProps({
@@ -598,13 +599,13 @@ All exported functions, classes, and types should have JSDoc:
 
 ```typescript
 /**
- * Creates an injectable decorator for dependency injection
- * @param options - Configuration options for the injectable
- * @returns Decorated class with injection metadata
+ * Defines a synchronous service token.
+ * @param options - Configuration options for the service
+ * @returns A token resolvable via `injector.get(...)`
  */
-export function Injectable(options: InjectableOptions): ClassDecorator {
-  // Implementation
-}
+export const defineService: <TService, TLifetime extends Lifetime>(
+  options: DefineServiceOptions<TService, TLifetime>,
+) => Token<TService, TLifetime, false>
 
 /**
  * Observable value container for reactive state management

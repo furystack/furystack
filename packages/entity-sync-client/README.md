@@ -12,19 +12,20 @@ yarn add @furystack/entity-sync-client
 
 ## Setup
 
-Register the `EntitySyncService` with your injector:
+`defineEntitySyncService(options)` mints a per-app singleton token. Declare
+the token once at module scope and reuse it; inlining the call each time
+defeats singleton caching.
 
 ```ts
-import { Injector } from '@furystack/inject'
-import { EntitySyncService } from '@furystack/entity-sync-client'
+import { createInjector } from '@furystack/inject'
+import { defineEntitySyncService } from '@furystack/entity-sync-client'
 
-const injector = new Injector()
+export const AppSync = defineEntitySyncService({
+  wsUrl: 'ws://localhost:8080/api/sync',
+})
 
-const syncService = injector.setExplicitInstance(
-  new EntitySyncService({
-    wsUrl: 'ws://localhost:8080/api/sync',
-  }),
-)
+const injector = createInjector()
+const syncService = injector.get(AppSync)
 ```
 
 ### Options
@@ -76,13 +77,22 @@ liveCollection.state.subscribe((state) => {
 
 ## Shades Hooks
 
-Convenience hooks for `@furystack/shades` components that handle subscription lifecycle automatically:
+`createSyncHooks(syncToken)` returns `{ useEntitySync, useCollectionSync }`
+hooks bound to the caller-supplied token. Declare the token + hooks
+together at module scope and reuse them across components.
+
+```ts
+import { defineEntitySyncService, createSyncHooks } from '@furystack/entity-sync-client'
+
+export const AppSync = defineEntitySyncService({ wsUrl: 'ws://localhost:8080/api/sync' })
+export const { useEntitySync, useCollectionSync } = createSyncHooks(AppSync)
+```
 
 ### `useEntitySync`
 
 ```tsx
 import { Shade } from '@furystack/shades'
-import { useEntitySync } from '@furystack/entity-sync-client'
+import { useEntitySync } from './my-app/sync.js'
 
 const UserProfile = Shade<{ userId: string }>({
   customElementName: 'user-profile',
@@ -101,7 +111,7 @@ const UserProfile = Shade<{ userId: string }>({
 
 ```tsx
 import { Shade } from '@furystack/shades'
-import { useCollectionSync } from '@furystack/entity-sync-client'
+import { useCollectionSync } from './my-app/sync.js'
 
 const ChatMessages = Shade<{ roomId: string }>({
   customElementName: 'chat-messages',
@@ -130,9 +140,9 @@ const ChatMessages = Shade<{ roomId: string }>({
 Enable stale-while-revalidate with a cache store:
 
 ```ts
-import { EntitySyncService, createInMemoryCacheStore } from '@furystack/entity-sync-client'
+import { defineEntitySyncService, createInMemoryCacheStore } from '@furystack/entity-sync-client'
 
-const syncService = new EntitySyncService({
+export const AppSync = defineEntitySyncService({
   wsUrl: 'ws://localhost:8080/api/sync',
   localStore: createInMemoryCacheStore(),
 })
