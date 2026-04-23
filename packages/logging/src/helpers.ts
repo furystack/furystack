@@ -1,22 +1,39 @@
+import { isToken } from '@furystack/inject'
 import type { Injector, ServiceContext, Token } from '@furystack/inject'
 import type { Logger, ScopedLogger } from './logger.js'
-import { LoggerCollection } from './logger-collection.js'
+import { LoggerCollection, LoggerRegistry } from './logger-collection.js'
 
 /**
- * Attaches the provided loggers to the application's {@link LoggerCollection}
- * on the given injector.
- * @param injector The target injector
- * @param loggerTokens Tokens of loggers to attach to the collection
+ * Entry accepted by {@link useLogging}. Either a pre-resolved {@link Logger}
+ * instance (handy for tests and ad-hoc logging sinks) or a {@link Token} that
+ * resolves to a `Logger` through the injector.
  */
-export const useLogging = (injector: Injector, ...loggerTokens: Array<Token<Logger>>): void => {
-  const collection = injector.get(LoggerCollection)
-  collection.attachLogger(...loggerTokens.map((token) => injector.get(token)))
+export type LoggerEntry = Logger | Token<Logger, 'singleton'>
+
+/**
+ * Configures the application's logging composition on the given injector.
+ *
+ * Rebinds the {@link LoggerRegistry} with the requested loggers and invalidates
+ * any previously-resolved {@link LoggerCollection} so subsequent resolutions
+ * fan out to the new set. Each call replaces the previous registration
+ * — this is configuration, not accumulation.
+ *
+ * @example
+ * ```ts
+ * useLogging(injector, ConsoleLogger, FileLogger)
+ * ```
+ */
+export const useLogging = (injector: Injector, ...loggers: LoggerEntry[]): void => {
+  injector.bind(LoggerRegistry, ({ inject }) => ({
+    loggers: loggers.map((entry) => (isToken<Logger>(entry) ? inject(entry) : entry)),
+  }))
+  injector.invalidate(LoggerCollection)
 }
 
 /**
  * Returns the singleton {@link LoggerCollection} for the given injector.
  */
-export const getLogger = (injector: Injector): LoggerCollection => injector.get(LoggerCollection)
+export const getLogger = (injector: Injector): Logger => injector.get(LoggerCollection)
 
 /**
  * Returns a {@link ScopedLogger} whose scope is the name of the service being

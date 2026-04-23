@@ -86,7 +86,7 @@ export type InjectAsyncFn<TParentLifetime extends Lifetime = Lifetime> = TParent
   : <TService>(token: AnyToken<TService>) => Promise<TService>
 
 /**
- * Context object passed to a sync service factory.
+ * Context object passed to a service factory.
  */
 export type ServiceContext<TLifetime extends Lifetime = Lifetime> = {
   /** Resolves a sync dependency by token. */
@@ -95,6 +95,12 @@ export type ServiceContext<TLifetime extends Lifetime = Lifetime> = {
   injectAsync: InjectAsyncFn<TLifetime>
   /** The injector that owns this service's cached instance. */
   injector: Injector
+  /**
+   * The token currently being instantiated. Useful for services that want to
+   * reflect on their own definition — e.g. scoping loggers by the defining
+   * service's {@link Token.name}.
+   */
+  token: AnyToken<unknown>
   /** Registers a disposal callback to run (LIFO) when the owning scope is disposed. */
   onDispose: (cb: DisposeCallback) => void
 }

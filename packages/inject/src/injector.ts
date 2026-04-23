@@ -8,7 +8,6 @@ import type {
   ServiceContext,
   ServiceFactory,
   SyncToken,
-  Token,
 } from './types.js'
 
 /**
@@ -128,7 +127,7 @@ export class Injector implements AsyncDisposable {
     }
   }
 
-  private findCached(token: Token<unknown>): { injector: Injector; entry: CacheEntry } | null {
+  private findCached(token: AnyToken<unknown>): { injector: Injector; entry: CacheEntry } | null {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let current: Injector | null = this
     while (current) {
@@ -141,7 +140,7 @@ export class Injector implements AsyncDisposable {
     return null
   }
 
-  private findFactory<TService>(token: Token<TService>): AnyFactory<TService> {
+  private findFactory<TService>(token: AnyToken<TService>): AnyFactory<TService> {
     const owning = this.ownerForLifetime(token.lifetime)
     const bound = owning.bindings.get(token.id)
     if (bound) {
@@ -150,19 +149,15 @@ export class Injector implements AsyncDisposable {
     return token.factory as AnyFactory<TService>
   }
 
-  private buildContext(
-    lifetime: Lifetime,
-    owningInjector: Injector,
-    parentName: string,
-    resolving: Set<symbol>,
-  ): ServiceContext {
+  private buildContext(token: AnyToken<unknown>, owningInjector: Injector, resolving: Set<symbol>): ServiceContext {
+    const { lifetime, name: parentName } = token
     const inject = <TService>(depToken: SyncToken<TService>): TService => {
       if (!isParentCompatible(lifetime, depToken.lifetime)) {
         throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
       }
       return owningInjector.resolveSync<TService>(depToken, resolving)
     }
-    const injectAsync = <TService>(depToken: Token<TService>): Promise<TService> => {
+    const injectAsync = <TService>(depToken: AnyToken<TService>): Promise<TService> => {
       if (!isParentCompatible(lifetime, depToken.lifetime)) {
         throw new InvalidLifetimeDependencyError(parentName, lifetime, depToken.name, depToken.lifetime)
       }
@@ -175,6 +170,7 @@ export class Injector implements AsyncDisposable {
       inject: inject as ServiceContext['inject'],
       injectAsync: injectAsync as ServiceContext['injectAsync'],
       injector: owningInjector,
+      token,
       onDispose,
     }
   }
@@ -195,7 +191,7 @@ export class Injector implements AsyncDisposable {
     return this.resolveAsync<TService>(token, new Set<symbol>())
   }
 
-  private resolveSync<TService>(token: Token<TService>, resolving: Set<symbol>): TService {
+  private resolveSync<TService>(token: SyncToken<TService>, resolving: Set<symbol>): TService {
     const existing = this.findCached(token)
     if (existing) {
       return this.consumeCached<TService>(existing.entry, token)
@@ -209,7 +205,7 @@ export class Injector implements AsyncDisposable {
     return owning.instantiateSync<TService>(token, resolving)
   }
 
-  private resolveAsync<TService>(token: Token<TService>, resolving: Set<symbol>): Promise<TService> {
+  private resolveAsync<TService>(token: AnyToken<TService>, resolving: Set<symbol>): Promise<TService> {
     const existing = this.findCached(token)
     if (existing) {
       return this.consumeCachedAsync<TService>(existing.entry, token)
@@ -223,7 +219,7 @@ export class Injector implements AsyncDisposable {
     return owning.instantiateAsync<TService>(token, resolving)
   }
 
-  private consumeCached<TService>(entry: CacheEntry, token: Token<TService>): TService {
+  private consumeCached<TService>(entry: CacheEntry, token: AnyToken<TService>): TService {
     if (entry.status === 'resolved') {
       return entry.value as TService
     }
@@ -233,7 +229,7 @@ export class Injector implements AsyncDisposable {
     throw new AsyncTokenInSyncContextError(token.name)
   }
 
-  private async consumeCachedAsync<TService>(entry: CacheEntry, _token: Token<TService>): Promise<TService> {
+  private async consumeCachedAsync<TService>(entry: CacheEntry, _token: AnyToken<TService>): Promise<TService> {
     if (entry.status === 'resolved') {
       return entry.value as TService
     }
@@ -243,7 +239,7 @@ export class Injector implements AsyncDisposable {
     return entry.promise as Promise<TService>
   }
 
-  private pushResolving(resolving: Set<symbol>, token: Token<unknown>): void {
+  private pushResolving(resolving: Set<symbol>, token: AnyToken<unknown>): void {
     if (resolving.has(token.id)) {
       const path = [...Array.from(resolving).map((id) => id.description ?? '<anonymous>'), token.name]
       throw new CircularDependencyError(path)
@@ -251,13 +247,13 @@ export class Injector implements AsyncDisposable {
     resolving.add(token.id)
   }
 
-  private popResolving(resolving: Set<symbol>, token: Token<unknown>): void {
+  private popResolving(resolving: Set<symbol>, token: AnyToken<unknown>): void {
     resolving.delete(token.id)
   }
 
-  private instantiateSync<TService>(token: Token<TService>, resolving: Set<symbol>): TService {
+  private instantiateSync<TService>(token: SyncToken<TService>, resolving: Set<symbol>): TService {
     this.pushResolving(resolving, token)
-    const ctx = this.buildContext(token.lifetime, this, token.name, resolving)
+    const ctx = this.buildContext(token, this, resolving)
     const factory = this.findFactory<TService>(token) as ServiceFactory<TService>
     try {
       const value = factory(ctx)
@@ -275,9 +271,9 @@ export class Injector implements AsyncDisposable {
     }
   }
 
-  private instantiateAsync<TService>(token: Token<TService>, resolving: Set<symbol>): Promise<TService> {
+  private instantiateAsync<TService>(token: AnyToken<TService>, resolving: Set<symbol>): Promise<TService> {
     this.pushResolving(resolving, token)
-    const ctx = this.buildContext(token.lifetime, this, token.name, resolving)
+    const ctx = this.buildContext(token, this, resolving)
     const factory = this.findFactory<TService>(token) as AsyncServiceFactory<TService>
     let promise: Promise<TService>
     try {
@@ -325,7 +321,7 @@ export class Injector implements AsyncDisposable {
     token: AsyncToken<TService, TLifetime>,
     factory: AsyncServiceFactory<TService>,
   ): void
-  public bind<TService>(token: Token<TService>, factory: AnyFactory<TService>): void {
+  public bind<TService>(token: AnyToken<TService>, factory: AnyFactory<TService>): void {
     this.ensureLive()
     const owning = this.ownerForLifetime(token.lifetime)
     owning.bindings.set(token.id, factory as AnyFactory<unknown>)
@@ -337,7 +333,7 @@ export class Injector implements AsyncDisposable {
    * instance. The next resolution will run the factory again. Useful for
    * recovering from cached factory failures or resetting state between tests.
    */
-  public invalidate<TService>(token: Token<TService>): void {
+  public invalidate<TService>(token: AnyToken<TService>): void {
     this.ensureLive()
     const owning = this.ownerForLifetime(token.lifetime)
     owning.cache.delete(token.id)

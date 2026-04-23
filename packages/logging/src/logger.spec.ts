@@ -2,19 +2,18 @@ import { createInjector, defineService, withScope } from '@furystack/inject'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConsoleLogger, defaultFormat, verboseFormat } from './console-logger.js'
 import { getLogger, useLogging, useScopedLogger } from './helpers.js'
-import { LoggerCollection } from './logger-collection.js'
+import { LoggerCollection, LoggerRegistry } from './logger-collection.js'
 import type { LeveledLogEntry } from './log-entries.js'
 import type { Logger, ScopedLogger } from './logger.js'
 import { createTestLogger } from './test-logger.js'
 
 describe('Loggers', () => {
-  it('Can be set up and retrieved with a helper', async () => {
+  it('Resolves an empty registry by default', async () => {
     const injector = createInjector()
     try {
-      useLogging(injector)
       const collection = getLogger(injector)
       expect(collection).toBe(injector.get(LoggerCollection))
-      expect(collection.getLoggers()).toEqual([])
+      expect(injector.get(LoggerRegistry).loggers).toEqual([])
     } finally {
       await injector[Symbol.asyncDispose]()
     }
@@ -31,208 +30,220 @@ describe('Loggers', () => {
     }
   })
 
-  describe('LoggerCollection', () => {
-    it('Is resolvable from the injector', async () => {
+  describe('useLogging', () => {
+    it('registers loggers passed as direct instances', async () => {
       const injector = createInjector()
       try {
-        const loggers = injector.get(LoggerCollection)
-        expect(typeof loggers.attachLogger).toBe('function')
-        expect(typeof loggers.detach).toBe('function')
-      } finally {
-        await injector[Symbol.asyncDispose]()
-      }
-    })
-
-    it('Attach and detach loggers', async () => {
-      const injector = createInjector()
-      try {
-        const loggers = injector.get(LoggerCollection)
-        const probe = createTestLogger(async () => undefined)
-        loggers.attachLogger(probe)
-        expect(loggers.getLoggers()).toContain(probe)
-        loggers.detach(probe)
-        expect(loggers.getLoggers()).not.toContain(probe)
-      } finally {
-        await injector[Symbol.asyncDispose]()
-      }
-    })
-
-    it('attachLogger is idempotent: re-attaching the same logger does not duplicate fan-out', async () => {
-      const injector = createInjector()
-      try {
-        const loggers = injector.get(LoggerCollection)
         const onAdd = vi.fn(async () => undefined)
-        const probe = createTestLogger(onAdd)
-        loggers.attachLogger(probe)
-        loggers.attachLogger(probe)
-        loggers.attachLogger(probe, probe)
-        expect(loggers.getLoggers()).toEqual([probe])
-        await loggers.information({ message: 'm', scope: 's' })
+        useLogging(injector, createTestLogger(onAdd))
+        await getLogger(injector).information({ message: 'm', scope: 's' })
         expect(onAdd).toHaveBeenCalledTimes(1)
       } finally {
         await injector[Symbol.asyncDispose]()
       }
     })
 
-    it('getLoggers returns a defensive copy that cannot mutate the internal set', async () => {
+    it('registers loggers passed as tokens by resolving them through the injector', async () => {
       const injector = createInjector()
       try {
-        const loggers = injector.get(LoggerCollection)
-        const probe = createTestLogger(async () => undefined)
-        loggers.attachLogger(probe)
-        const snapshot = loggers.getLoggers() as Logger[]
-        snapshot.pop()
-        expect(loggers.getLoggers()).toContain(probe)
+        const onAdd = vi.fn(async () => undefined)
+        const ProbeLogger = defineService<Logger, 'singleton'>({
+          name: 'test/ProbeLogger',
+          lifetime: 'singleton',
+          factory: () => createTestLogger(onAdd),
+        })
+        useLogging(injector, ProbeLogger)
+        await getLogger(injector).information({ message: 'm', scope: 's' })
+        expect(onAdd).toHaveBeenCalledTimes(1)
       } finally {
         await injector[Symbol.asyncDispose]()
       }
     })
 
-    it('Should forward Verbose event', async () => {
-      const doneCallback = vi.fn()
+    it('accepts a mix of tokens and direct instances in the same call', async () => {
       const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          expect(e.level).toBe('verbose')
-          doneCallback()
-        }),
-      )
-      await loggers.verbose({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
+      try {
+        const onAddToken = vi.fn(async () => undefined)
+        const onAddInstance = vi.fn(async () => undefined)
+        const ProbeLogger = defineService<Logger, 'singleton'>({
+          name: 'test/ProbeLoggerMixed',
+          lifetime: 'singleton',
+          factory: () => createTestLogger(onAddToken),
+        })
+        useLogging(injector, ProbeLogger, createTestLogger(onAddInstance))
+        await getLogger(injector).information({ message: 'm', scope: 's' })
+        expect(onAddToken).toHaveBeenCalledTimes(1)
+        expect(onAddInstance).toHaveBeenCalledTimes(1)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
     })
 
-    it('Should forward Debug event', async () => {
-      const doneCallback = vi.fn()
+    it('replaces, not accumulates: calling twice uses the second composition only', async () => {
       const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          expect(e.level).toBe('debug')
-          doneCallback()
-        }),
-      )
-      await loggers.debug({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
+      try {
+        const onFirst = vi.fn(async () => undefined)
+        const onSecond = vi.fn(async () => undefined)
+        useLogging(injector, createTestLogger(onFirst))
+        getLogger(injector)
+        useLogging(injector, createTestLogger(onSecond))
+        await getLogger(injector).information({ message: 'm', scope: 's' })
+        expect(onFirst).not.toHaveBeenCalled()
+        expect(onSecond).toHaveBeenCalledTimes(1)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
     })
 
-    it('Should forward Information event', async () => {
+    it('produces a registry whose loggers array is frozen relative to the caller', async () => {
+      const injector = createInjector()
+      try {
+        useLogging(
+          injector,
+          createTestLogger(async () => undefined),
+        )
+        const { loggers } = injector.get(LoggerRegistry)
+        expect(loggers).toHaveLength(1)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
+    })
+  })
+
+  describe('LoggerCollection fan-out', () => {
+    const withProbeCollection = async (
+      assertion: (entry: LeveledLogEntry<unknown>) => void,
+      act: (logger: Logger) => Promise<void>,
+    ): Promise<number> => {
       const doneCallback = vi.fn()
       const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          expect(e.level).toBe('information')
-          doneCallback()
-        }),
+      try {
+        useLogging(
+          injector,
+          createTestLogger(async (entry) => {
+            assertion(entry)
+            doneCallback()
+          }),
+        )
+        await act(getLogger(injector))
+        return doneCallback.mock.calls.length
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
+    }
+
+    it('forwards Verbose entries', async () => {
+      const calls = await withProbeCollection(
+        (e) => expect(e.level).toBe('verbose'),
+        (log) => log.verbose({ message: 'alma', scope: 'alma' }),
       )
-      await loggers.information({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
+      expect(calls).toBe(1)
     })
 
-    it('Should forward Warning event', async () => {
-      const doneCallback = vi.fn()
-      const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          expect(e.level).toBe('warning')
-          doneCallback()
-        }),
+    it('forwards Debug entries', async () => {
+      const calls = await withProbeCollection(
+        (e) => expect(e.level).toBe('debug'),
+        (log) => log.debug({ message: 'alma', scope: 'alma' }),
       )
-      await loggers.warning({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
+      expect(calls).toBe(1)
     })
 
-    it('Should forward Error event', async () => {
-      const doneCallback = vi.fn()
-      const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          expect(e.level).toBe('error')
-          doneCallback()
-        }),
+    it('forwards Information entries', async () => {
+      const calls = await withProbeCollection(
+        (e) => expect(e.level).toBe('information'),
+        (log) => log.information({ message: 'alma', scope: 'alma' }),
       )
-      await loggers.error({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
+      expect(calls).toBe(1)
+    })
+
+    it('forwards Warning entries', async () => {
+      const calls = await withProbeCollection(
+        (e) => expect(e.level).toBe('warning'),
+        (log) => log.warning({ message: 'alma', scope: 'alma' }),
+      )
+      expect(calls).toBe(1)
+    })
+
+    it('forwards Error entries', async () => {
+      const calls = await withProbeCollection(
+        (e) => expect(e.level).toBe('error'),
+        (log) => log.error({ message: 'alma', scope: 'alma' }),
+      )
+      expect(calls).toBe(1)
+    })
+
+    it('forwards Fatal entries', async () => {
+      const calls = await withProbeCollection(
+        (e) => expect(e.level).toBe('fatal'),
+        (log) => log.fatal({ message: 'alma', scope: 'alma' }),
+      )
+      expect(calls).toBe(1)
     })
 
     it('Should raise an Error event if failed to insert below Error', async () => {
       const doneCallback = vi.fn()
       const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          if (e.level !== 'error' && e.level !== 'fatal') {
-            throw new Error('Nooo')
-          }
-          expect(e.level).toBe('error')
-          doneCallback()
-        }),
-      )
-      await loggers.verbose({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
+      try {
+        useLogging(
+          injector,
+          createTestLogger(async (e) => {
+            if (e.level !== 'error' && e.level !== 'fatal') {
+              throw new Error('Nooo')
+            }
+            expect(e.level).toBe('error')
+            doneCallback()
+          }),
+        )
+        await getLogger(injector).verbose({ message: 'alma', scope: 'alma' })
+        expect(doneCallback).toBeCalledTimes(1)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
     })
 
     it('Should raise a Fatal event if failed to insert an Error', async () => {
       const doneCallback = vi.fn()
       const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          if (e.level !== 'fatal') {
-            throw new Error('Nooo')
-          }
-          expect(e.level).toBe('fatal')
-          doneCallback()
-        }),
-      )
-      await loggers.verbose({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
-    })
-
-    it('Should forward Fatal event', async () => {
-      const doneCallback = vi.fn()
-      const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async (e) => {
-          expect(e.level).toBe('fatal')
-          doneCallback()
-        }),
-      )
-      await loggers.fatal({ message: 'alma', scope: 'alma' })
-      expect(doneCallback).toBeCalledTimes(1)
-      await injector[Symbol.asyncDispose]()
+      try {
+        useLogging(
+          injector,
+          createTestLogger(async (e) => {
+            if (e.level !== 'fatal') {
+              throw new Error('Nooo')
+            }
+            expect(e.level).toBe('fatal')
+            doneCallback()
+          }),
+        )
+        await getLogger(injector).verbose({ message: 'alma', scope: 'alma' })
+        expect(doneCallback).toBeCalledTimes(1)
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
     })
 
     it('Should not throw when fatal entry fails to persist', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
       const injector = createInjector()
-      const loggers = injector.get(LoggerCollection)
-      loggers.attachLogger(
-        createTestLogger(async () => {
-          throw new Error('persistence failure')
-        }),
-      )
-      await expect(loggers.fatal({ message: 'critical', scope: 'test' })).resolves.toBeUndefined()
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to persist fatal log entry',
-        expect.objectContaining({
-          originalEntry: expect.any(Object) as object,
-          error: expect.any(Error) as Error,
-        }) as object,
-      )
-      consoleErrorSpy.mockRestore()
-      await injector[Symbol.asyncDispose]()
+      try {
+        useLogging(
+          injector,
+          createTestLogger(async () => {
+            throw new Error('persistence failure')
+          }),
+        )
+        await expect(getLogger(injector).fatal({ message: 'critical', scope: 'test' })).resolves.toBeUndefined()
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Failed to persist fatal log entry',
+          expect.objectContaining({
+            originalEntry: expect.any(Object) as object,
+            error: expect.any(Error) as Error,
+          }) as object,
+        )
+      } finally {
+        consoleErrorSpy.mockRestore()
+        await injector[Symbol.asyncDispose]()
+      }
     })
   })
 
@@ -398,10 +409,12 @@ describe('Loggers', () => {
       const entries: Array<LeveledLogEntry<unknown>> = []
       const injector = createInjector()
       try {
-        const probe = createTestLogger(async (entry) => {
-          entries.push(entry)
-        })
-        injector.get(LoggerCollection).attachLogger(probe)
+        useLogging(
+          injector,
+          createTestLogger(async (entry) => {
+            entries.push(entry)
+          }),
+        )
 
         const MyService = defineService({
           name: '@test/pkg/MyService',
