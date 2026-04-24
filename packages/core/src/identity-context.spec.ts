@@ -36,7 +36,7 @@ describe('IdentityContext default implementation', () => {
     })
   })
 
-  it('propagates the parent-cached context to a child scope via cache lookup', async () => {
+  it('keeps scoped bindings isolated to the scope they were declared on', async () => {
     const custom: IdentityContextType = {
       isAuthenticated: () => Promise.resolve(true),
       isAuthorized: () => Promise.resolve(true),
@@ -44,11 +44,15 @@ describe('IdentityContext default implementation', () => {
     }
     await usingAsync(createInjector(), async (root) => {
       root.bind(IdentityContext, () => custom)
-      // Resolve on the binding scope first so the override is cached; child
-      // scopes then inherit the cached value through the scope chain lookup.
       expect(root.get(IdentityContext)).toBe(custom)
+      // `IdentityContext` is a scoped token -- each scope resolves its own
+      // instance. A binding installed on the parent is *not* inherited by
+      // child scopes; consumers that want the elevated context for a whole
+      // subtree should use `useSystemIdentityContext` (which creates the
+      // scope and binds on it) or bind explicitly on the resolving scope.
       await usingAsync(root.createScope(), async (child) => {
-        expect(child.get(IdentityContext)).toBe(custom)
+        expect(child.get(IdentityContext)).not.toBe(custom)
+        expect(await child.get(IdentityContext).isAuthenticated()).toBe(false)
       })
     })
   })

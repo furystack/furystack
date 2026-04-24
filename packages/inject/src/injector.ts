@@ -128,16 +128,14 @@ export class Injector implements AsyncDisposable {
   }
 
   private findCached(token: AnyToken<unknown>): { injector: Injector; entry: CacheEntry } | null {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let current: Injector | null = this
-    while (current) {
-      const entry = current.cache.get(token.id)
-      if (entry) {
-        return { injector: current, entry }
-      }
-      current = current.parent
-    }
-    return null
+    // Cache is owned by the lifetime resolver: singletons live at the root,
+    // scoped tokens live at the requesting scope. Walking every ancestor
+    // would surface a cached `null` from an ancestor that resolved a scoped
+    // token with its default factory -- masking any descendant `bind()`
+    // that rebinds the same token on a child scope.
+    const owning = this.ownerForLifetime(token.lifetime)
+    const entry = owning.cache.get(token.id)
+    return entry ? { injector: owning, entry } : null
   }
 
   private findFactory<TService>(token: AnyToken<TService>): AnyFactory<TService> {
@@ -361,7 +359,9 @@ export class Injector implements AsyncDisposable {
 
   /**
    * Returns `true` when `token` has a cache entry (resolved, pending or
-   * failed) reachable from this injector's scope chain.
+   * failed) on the scope that owns its lifetime -- the root injector for
+   * singletons, the requesting injector for scoped tokens. Transient
+   * tokens are never cached and therefore always report `false`.
    *
    * Useful for bootstrap helpers that must run before a service is first
    * resolved: checking `isResolved` lets them fail loudly instead of

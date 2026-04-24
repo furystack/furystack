@@ -700,4 +700,69 @@ describe('Injector', () => {
       await inflight
     })
   })
+
+  describe('scoped token cache isolation', () => {
+    it('does not surface an ancestor scope cached value for a scoped token when a descendant rebinds', () => {
+      // Regression: `findCached` used to walk the whole parent chain, so a
+      // `null` cached at an ancestor scope (from resolving the scoped token
+      // with its default factory) masked a descendant `bind()`. This
+      // manifested as `injector.get(FormContextToken)` returning `null`
+      // inside a `<Form>` when any `<Input>` had previously resolved the
+      // same token outside a form on a sibling route.
+      const Token = defineService<{ value: string } | null, 'scoped'>({
+        name: 'test/ScopedDefaultNull',
+        lifetime: 'scoped',
+        factory: () => null,
+      })
+      const root = createInjector()
+      expect(root.get(Token)).toBeNull()
+      const child = root.createScope()
+      child.bind(Token, () => ({ value: 'bound-on-child' }))
+      expect(child.get(Token)).toEqual({ value: 'bound-on-child' })
+      // Sanity: the ancestor still sees its own cached null -- rebinding
+      // on the child must not reach up and overwrite the parent scope.
+      expect(root.get(Token)).toBeNull()
+    })
+
+    it('gives each scope its own instance for scoped tokens that resolve via default factory', () => {
+      const seeds: symbol[] = []
+      const Token = defineService<{ id: symbol }, 'scoped'>({
+        name: 'test/ScopedPerScope',
+        lifetime: 'scoped',
+        factory: () => {
+          const id = Symbol('scoped-instance')
+          seeds.push(id)
+          return { id }
+        },
+      })
+      const root = createInjector()
+      const a = root.createScope()
+      const b = root.createScope()
+      const fromA = a.get(Token)
+      const fromB = b.get(Token)
+      const fromRoot = root.get(Token)
+      expect(fromA).not.toBe(fromB)
+      expect(fromA).not.toBe(fromRoot)
+      expect(fromB).not.toBe(fromRoot)
+      expect(seeds).toHaveLength(3)
+    })
+
+    it('still shares a single cached singleton across every scope in the chain', () => {
+      const factory = vi.fn(() => ({ marker: 'once' }))
+      const Token = defineService({
+        name: 'test/SharedSingleton',
+        lifetime: 'singleton',
+        factory,
+      })
+      const root = createInjector()
+      const a = root.createScope()
+      const b = root.createScope()
+      const fromA = a.get(Token)
+      const fromB = b.get(Token)
+      const fromRoot = root.get(Token)
+      expect(fromA).toBe(fromB)
+      expect(fromA).toBe(fromRoot)
+      expect(factory).toHaveBeenCalledTimes(1)
+    })
+  })
 })
