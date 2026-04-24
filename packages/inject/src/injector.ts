@@ -330,6 +330,12 @@ export class Injector implements AsyncDisposable {
    * cached instance (root for singleton, this injector for scoped/transient).
    * Any cached entry for the token on that injector is dropped so the next
    * resolution uses the new factory.
+   *
+   * Scope caveat: a `scoped` bind applies only to the injector it was called
+   * on. Descendant scopes each own their own cache and resolve scoped tokens
+   * against `token.factory` unless they also call `bind`. Bind at the highest
+   * scope whose cache you want the override to populate — usually the same
+   * scope that will call `injector.get(token)`.
    */
   public bind<TService, TLifetime extends Lifetime>(
     token: SyncToken<TService, TLifetime>,

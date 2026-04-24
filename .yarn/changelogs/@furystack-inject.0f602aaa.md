@@ -14,3 +14,32 @@ Decorator-based DI is gone. Services are now declared with `defineService` / `de
 - `Constructable` moved to `@furystack/core`. Packages that imported it from `@furystack/inject` must switch the import and add `@furystack/core` as a dependency.
 - `hasInjectorReference` is gone — use an `instanceof Injector` check on the candidate prop instead.
 - Added `createInjector()` as the preferred root-injector factory, `withScope(parent, fn)` for scope-create-and-dispose patterns, `isToken(value)` for runtime token detection, and `Injector.isResolved(token)` for bootstrap helpers that need to fail loudly when a service was already resolved before they ran.
+
+### Quick reference
+
+Before:
+
+```ts
+@Injectable({ lifetime: 'singleton' })
+class Logger {
+  @Injected(Config) private config!: Config
+  log(msg: string) {
+    console.log(`[${this.config.level}] ${msg}`)
+  }
+}
+const logger = injector.getInstance(Logger)
+```
+
+After:
+
+```ts
+export const LoggerToken = defineService({
+  name: 'app/Logger',
+  lifetime: 'singleton',
+  factory: ({ inject }) => {
+    const config = inject(Config)
+    return { log: (msg: string) => console.log(`[${config.level}] ${msg}`) }
+  },
+})
+const logger = injector.get(LoggerToken)
+```
