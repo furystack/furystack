@@ -6,6 +6,7 @@ import './route-meta-augmentation.js'
 import { ShowcaseReplaceRoute } from './app-routing.js'
 import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
+import { shadesInjector } from './index.js'
 
 /**
  * Top-level route definitions for the NestedRouter.
@@ -342,8 +343,16 @@ export const appRoutes = defineNestedRoutes({
                 viewTransition
                 loader={<PageLoader />}
                 component={async () => {
-                  const { GridPage } = await import('./pages/data-display/grid/index.js')
-                  return <GridPage />
+                  // Kick off the page chunk download and the service bootstrap in
+                  // parallel: the service module import runs concurrently with the
+                  // page module import, and the async factory starts seeding as
+                  // soon as the service module resolves.
+                  const pagePromise = import('./pages/data-display/grid/index.js')
+                  const servicePromise = import('./pages/data-display/grid/grid-page-service.js').then((m) =>
+                    shadesInjector.getAsync(m.GridPageService),
+                  )
+                  const [{ GridPage }, service] = await Promise.all([pagePromise, servicePromise])
+                  return <GridPage service={service} />
                 }}
               />
             ),

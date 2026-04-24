@@ -1,7 +1,7 @@
 import type { FindOptions } from '@furystack/core'
 import { defineStore, InMemoryStore, useSystemIdentityContext, type StoreToken } from '@furystack/core'
 import type { Token } from '@furystack/inject'
-import { defineService } from '@furystack/inject'
+import { defineServiceAsync } from '@furystack/inject'
 import { defineDataSet, type DataSetToken } from '@furystack/repository'
 import { CollectionService } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
@@ -19,22 +19,38 @@ const GameItemDataSet: DataSetToken<GameItem, 'id'> = defineDataSet<GameItem, 'i
   store: GameItemStore,
 })
 
+/**
+ * Shape returned to consumers after the factory has finished seeding the demo
+ * store and wiring the find-options → collection-service pipeline. Consumers
+ * receive this value via {@link Injector.getAsync} and can treat it as fully
+ * initialized — no explicit `init()` step, no readiness flag.
+ */
 export interface GridPageService {
   readonly findOptions: ObservableValue<FindOptions<GameItem, Array<keyof GameItem>>>
   readonly collectionService: CollectionService<GameItem>
-  init(): Promise<void>
 }
 
-export const GridPageService: Token<GridPageService, 'singleton'> = defineService({
+/**
+ * Async-bootstrapped singleton for the Grid showcase page. Resolves via
+ * {@link Injector.getAsync}; the factory seeds 100 demo items into the
+ * in-memory dataset, subscribes the collection-service to find-options
+ * changes, and runs the first refresh before the promise settles.
+ *
+ * The token is the reference implementation for the v7 async-bootstrap
+ * pattern documented in `docs/migrations/v7-functional-di.md`:
+ * "a service whose instance requires async setup exposes itself as an
+ * async token and is consumed via `injector.getAsync` from a route-level
+ * loader (e.g. inside `<LazyLoad>`), then passed into the page component
+ * as an explicit prop."
+ */
+export const GridPageService: Token<GridPageService, 'singleton', true> = defineServiceAsync({
   name: 'showcase/GridPageService',
   lifetime: 'singleton',
-  factory: ({ inject, injector, onDispose }) => {
+  factory: async ({ inject, injector, onDispose }) => {
     const findOptions = new ObservableValue<FindOptions<GameItem, Array<keyof GameItem>>>({})
     const collectionService = new CollectionService<GameItem>({ searchField: 'name' })
     const dataSet = inject(GameItemDataSet)
     const systemScope = useSystemIdentityContext({ injector, username: 'showcase' })
-
-    let initPromise: Promise<void> | null = null
 
     const updateCollectionService = async (newFindOptions: FindOptions<GameItem, Array<keyof GameItem>>) => {
       const entries = await dataSet.find(systemScope, newFindOptions)
@@ -45,21 +61,11 @@ export const GridPageService: Token<GridPageService, 'singleton'> = defineServic
       })
     }
 
-    const fillStore = async (count = 100) => {
-      const entries = new Array(count).fill(null).map(() => createGameItem())
-      await dataSet.add(systemScope, ...entries)
-    }
+    const seedEntries = new Array(100).fill(null).map(() => createGameItem())
+    await dataSet.add(systemScope, ...seedEntries)
 
-    const init = (): Promise<void> => {
-      if (!initPromise) {
-        initPromise = (async () => {
-          await fillStore()
-          findOptions.subscribe((newValue) => void updateCollectionService(newValue))
-          await updateCollectionService(findOptions.getValue())
-        })()
-      }
-      return initPromise
-    }
+    findOptions.subscribe((newValue) => void updateCollectionService(newValue))
+    await updateCollectionService(findOptions.getValue())
 
     onDispose(async () => {
       // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is deferred to the injector's onDispose hook.
@@ -72,7 +78,6 @@ export const GridPageService: Token<GridPageService, 'singleton'> = defineServic
     return {
       findOptions,
       collectionService,
-      init,
     }
   },
 })

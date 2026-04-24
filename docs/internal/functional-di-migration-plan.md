@@ -272,7 +272,13 @@ Breaking changes documented in code comments, spec coverage and the plan status 
 - **`Object.assign(token, {meta})` doesn't always narrow** — declare the result with explicit annotation: `const result: StoreToken<T, PK> = Object.assign(...)` then `return result`.
 - **`const` type parameter** needed on generics that accept literal keys (e.g. `<T, const TPrimaryKey extends keyof T>`)
 - **`useSystemIdentityContext` scopes leak** if created outside a factory. Mostly harmless for singleton setups; in per-request factories register `onDispose(() => scope[Symbol.asyncDispose]())`
-- **Dead `init()` methods** (e.g. `HttpUserContext.init()`) can be dropped — grep the whole repo to confirm no callers
+- **Pre-migration `init(injector)` methods were NOT dead.** `Injector.getInstance` auto-called `init(injector)` on every freshly constructed singleton that exposed one (PR #329). v7 has no equivalent. Don't drop these methods based on a grep for callers — the injector was the implicit caller. Correct migration path depends on the shape of the init:
+  - **Sync setup** (subscribe to window events, build caches in memory) → fold the body into the `defineService` factory.
+  - **Async setup** (seed store, fetch config, connect to remote) → convert the whole service to `defineServiceAsync`, `await` the setup inside the factory, resolve via `injector.getAsync(Token)` at the consumer. Pass the resolved instance into the consuming component as an explicit prop; route-level `<LazyLoad>` loaders are the right place to own the async boundary.
+  - **Do not** keep a public `init()` method and ask consumers to call it — that leaks lifecycle into every call site and silently breaks if a consumer forgets.
+
+  The only service in this repo that actually depended on the auto-call was `GridPageService`, which now ships as `defineServiceAsync` and is the reference implementation of the pattern (see Tier-3 findings).
+
 - **Spec helper functions widen generic return types** — declare stores/tokens at module scope, or annotate the function's return type explicitly
 - **Test-scoped `InMemoryStore` binding pattern:**
 
@@ -366,7 +372,13 @@ One PR per Tier-1/2 package to keep reviews tractable; Tier 3 (shades) can be ba
   - `@furystack/shades` — `ResourceManager` (internal to `shade.ts`, instantiated per component — not DI-managed).
 - **Tier-3 node version caveat.** Running the `Shades` vitest project locally requires Node ≥ 22 (jsdom 29 → `html-encoding-sniffer@6` → `@exodus/bytes` ESM dep). Node 20 throws `ERR_REQUIRE_ESM` when the jsdom environment boots. Engines field already enforces `>=22` but the local sandbox happens to have Node 20 on PATH — run via `~/.nvm/versions/node/v22.21.1/bin/node` or equivalent. No code change required.
 - **`@furystack/shades` injector fallback.** `shade.ts` still instantiates a bare `new Injector()` when a component has no parent injector and no `injector` prop. Removing this threw on a pre-existing spec that rendered components without a DI context, so the fallback stays for now — apps should always go through `initializeShadeRoot`. Candidate for a harder throw once every downstream test has been audited.
-- **`GridPageService.init()` in shades-showcase-app.** The original class exported an `init(injector)` method that was never actually called by the page, so the grid always rendered empty. Preserving behavior was in-scope; wiring `gridPageService.init()` from the `<GridPage>` render is a small follow-up that would actually make the showcase display data.
+- **`GridPageService` converted to `defineServiceAsync`.** Earlier notes in this plan incorrectly claimed the legacy page never called `init(injector)`; in fact `Injector.getInstance` auto-invoked `init(injector)` on newly constructed singletons (PR #329), which is how the grid populated on `develop`. The functional-DI rewrite dropped that convention, so the `defineService` factory's `init()` was never triggered and the grid rendered `- No Data -`, failing every `e2e/data-display/grid.spec.ts` test. An interim fix wired `void gridPageService.init()` from `<GridPage>` render; that was rolled forward into the idiomatic shape:
+  - `GridPageService` is now a `defineServiceAsync` token. The factory seeds the 100-item store, subscribes `findOptions → updateCollectionService`, and runs the first refresh before resolving. No `init()` method, no readiness flag.
+  - `<GridPage>` and `<GridStatus>` accept a `service: GridPageService` prop instead of resolving from `injector.get(...)`.
+  - The `/data-display/grid` route's `<LazyLoad>` loader parallelizes the page-chunk import and `shadesInjector.getAsync(GridPageService)` via `Promise.all`, then passes the resolved instance into `<GridPage>`.
+  - `routes.tsx` imports `shadesInjector` from `./index.js`; ESM handles the resulting cycle because the reference is only dereferenced inside the lazy loader callback, long after both modules have initialized.
+
+  Grid was the only service in the repo that depended on the auto-call and the only target for this conversion. Future services with async bootstrap should follow the same shape.
 
 ## Tier-2 findings
 

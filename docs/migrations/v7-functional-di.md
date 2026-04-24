@@ -91,6 +91,7 @@ const svc = injector.get(MyService)
 ### `@furystack/inject`
 
 - **Removed:** `@Injectable`, `@Injected`, class-based DI.
+- **Removed (silent behavior change):** `Injector.getInstance` used to automatically call `init(injector)` on any freshly constructed singleton that exposed that method (introduced in PR #329). v7 has no equivalent. Services that need async bootstrap should use `defineServiceAsync` + `injector.getAsync`; services that need sync setup should fold it into the `defineService` factory body. **Do not** expose a public `init()` method and ask consumers to call it. See "`init(injector)` auto-invocation removed" under Common pitfalls for the full migration recipe.
 - **Added:** `defineService`, `defineServiceAsync`, `isToken`, `createInjector`, `withScope`, `Injector.bind`, `Injector.invalidate`, `Injector.createScope`, `ServiceContext`, `Token`, `Lifetime`.
 - **Renamed:** `getInstance` → `get`; `setExplicitInstance` → `bind`; `createChild` → `createScope`.
 - Tokens are plain-object handles with a fresh `Symbol` id — cross-author collisions are structurally impossible; a duplicate module instance of a single library still produces two tokens (rare, obvious failure mode).
@@ -192,7 +193,7 @@ const svc = injector.get(MyService)
 ### `@furystack/shades-showcase-app`
 
 - Mechanical rewrite: `getInstance` → `get`, `new Injector()` → `createInjector()`, `createChild` → `createScope`, `setExplicitInstance` → `bind`, `addStore` → `defineStore`.
-- `GridPageService` converted from `@Injectable` class → `defineService` factory with module-scope `defineStore` / `defineDataSet` tokens.
+- `GridPageService` converted from `@Injectable` class → `defineServiceAsync` factory with module-scope `defineStore` / `defineDataSet` tokens. The factory seeds 100 demo items and wires the `findOptions → collectionService` pipeline before resolving — no `init()` method is exposed. The `/data-display/grid` route's `<LazyLoad>` loader parallelizes the page-chunk import and `shadesInjector.getAsync(GridPageService)`, then hands the fully-initialized instance into `<GridPage service={...}>` (and forward into `<GridStatus service={...}>`) as an explicit prop. This serves as the reference implementation of the async-bootstrap pattern documented under Common pitfalls.
 - `themes.tsx` drops its per-block child-injector dance (global token + CSS variables).
 
 ### `@furystack/utils`, `@furystack/rest`, `@furystack/rest-client-fetch`, `@furystack/logging`, `@furystack/cache`
@@ -341,6 +342,111 @@ need to register disposal (e.g. close a pooled HTTP server) push callbacks
 onto a scoped `CleanupRegistry` token — see
 `packages/websocket-api/src/use-websocket-api.ts` for the pattern. Callbacks
 run in reverse registration order.
+
+### `init(injector)` auto-invocation removed — use `defineServiceAsync` for async bootstrap
+
+In v6, `Injector.getInstance(X)` inspected the freshly constructed singleton and, if it exposed an `init(injector)` method, called it as part of construction (PR #329). v7 has no equivalent. Services that relied on the auto-call silently do nothing on resolve, which manifests as empty state (unseeded stores, missing subscriptions, uninitialized caches).
+
+Exposing a public `init()` on a service and asking consumers to call it is an antipattern in v7 — it leaks lifecycle into every call site and invites drift the moment a consumer forgets. The idiomatic replacements, in order of preference:
+
+#### A. Setup is synchronous → fold it into the `defineService` factory body
+
+```ts
+// v6
+@Injectable({ lifetime: 'singleton' })
+class ThemeWatcher {
+  public init(_injector: Injector) {
+    window.addEventListener('beforeunload', this.persist)
+  }
+}
+
+// v7 — subscriptions wired during construction, torn down via onDispose
+const ThemeWatcher = defineService({
+  name: 'my-app/ThemeWatcher',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const persist = () => {
+      /* ... */
+    }
+    window.addEventListener('beforeunload', persist)
+    onDispose(() => window.removeEventListener('beforeunload', persist))
+    return { persist }
+  },
+})
+```
+
+#### B. Setup requires `await` → use `defineServiceAsync` + `injector.getAsync`
+
+The canonical pattern for genuinely async-bootstrapped services: the factory returns `Promise<T>`, and consumers resolve the token through `injector.getAsync(Token)`. The instance is handed over fully initialized — no readiness flag, no `init()` method, no loading state for the consumer to branch on. If the promise has not settled yet, `getAsync` returns the same pending promise (concurrent callers share it; singleton lifetime caches the resolved value).
+
+```ts
+// v7 async-bootstrap service
+export interface UserCache {
+  readonly users: User[]
+  // ...
+}
+
+export const UserCache = defineServiceAsync({
+  name: 'my-app/UserCache',
+  lifetime: 'singleton',
+  factory: async ({ inject, injector, onDispose }) => {
+    const dataSet = inject(UserDataSet)
+    const scope = useSystemIdentityContext({ injector, username: 'UserCache' })
+    const users = await dataSet.find(scope, {})
+    onDispose(() => scope[Symbol.asyncDispose]())
+    return { users }
+  },
+})
+```
+
+**Consumption — route-level loader wrapped in `<LazyLoad>`, service passed as a prop:**
+
+Components should not own the async boundary. Put it at the route loader, kick off the chunk download and the service bootstrap in parallel, and pass the resolved instance into the page as an explicit prop. The page then has zero lifecycle concerns and no injector dependency for this service.
+
+```tsx
+// routes.tsx
+'/users': {
+  component: () => (
+    <LazyLoad
+      loader={<PageLoader />}
+      component={async () => {
+        const pagePromise = import('./pages/users/index.js')
+        const servicePromise = import('./pages/users/user-cache.js').then((m) =>
+          rootInjector.getAsync(m.UserCache),
+        )
+        const [{ UsersPage }, userCache] = await Promise.all([pagePromise, servicePromise])
+        return <UsersPage userCache={userCache} />
+      }}
+    />
+  ),
+},
+```
+
+```tsx
+// pages/users/index.tsx
+export type UsersPageProps = { userCache: UserCache }
+
+export const UsersPage = Shade<UsersPageProps>({
+  customElementName: 'my-users-page',
+  render: ({ props }) => {
+    const { userCache } = props
+    // userCache is fully initialized; render synchronously
+    return <UserList users={userCache.users} />
+  },
+})
+```
+
+Reference implementation in this repo: `GridPageService` in `@furystack/shades-showcase-app` — `defineServiceAsync` factory seeds the demo store inside the factory body; the `/data-display/grid` route resolves the token via `shadesInjector.getAsync(GridPageService)` and passes the instance to `<GridPage service={...}>` and `<GridStatus service={...}>`.
+
+#### C. "Lazy on first call" — methods are `Promise<T>`, init hides behind them
+
+When the service only needs setup on its first call path (e.g. a database-backed store), hide the init inside an internal `initPromise` and make every public method `Promise<T>`. Consumers never know initialization happened. Examples: `SequelizeStore.getModel()`, `MongoStore.getCollection()`.
+
+#### Antipatterns
+
+- Public `init()` method the consumer must remember to call. (Pick B instead.)
+- Sync `defineService` + internal `isInitialized` flag the consumer has to poll or subscribe to. (Pick B or C instead.)
+- Fire-and-forget async work inside a sync factory. (Leaves the service temporarily in a broken state; races with the first consumer call.)
 
 ### Binding settings after first resolve
 
