@@ -373,9 +373,9 @@ injector.invalidate(LocationService)
 
 ## 7. Need help?
 
-- The `FUNCTIONAL_DI_MIGRATION_PLAN.md` file at repo root captures the
-  per-package migration history and the design decisions locked in during
-  the effort. Read it when you want "why" instead of "how".
+- The internal [`functional-di-migration-plan.md`](../internal/functional-di-migration-plan.md)
+  captures the per-package migration history and the design decisions locked in
+  during the effort. Read it when you want "why" instead of "how".
 - The `.cursor/rules/LIBRARY_DEVELOPMENT.md` file captures the post-v7
   coding conventions for future work.
 - For bugs or questions not covered here, please open an issue on
