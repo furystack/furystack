@@ -1,8 +1,24 @@
-import type { Constructable, StoreToken, WithOptionalId } from '@furystack/core'
+import type { Constructable, PhysicalStore, StoreToken, WithOptionalId } from '@furystack/core'
 import type { ServiceContext, Token } from '@furystack/inject'
 import { defineService } from '@furystack/inject'
 import type { DataSetSettings } from './data-set-setting.js'
 import { DataSet } from './data-set.js'
+
+/**
+ * Resolves a {@link StoreToken} to a {@link PhysicalStore} whose
+ * `TWritableData` generic matches the owning data set. `StoreToken` defaults
+ * `TWritableData` to `WithOptionalId`, while a {@link DataSet} may narrow it
+ * (e.g. to strip system-owned fields). The write surface of `PhysicalStore`
+ * is contravariant in `TWritableData` — a store that accepts
+ * `WithOptionalId<T, TPK>` also accepts any narrower shape — but TypeScript
+ * cannot express that with the default generic, so the cast is localized
+ * here with this explanation rather than scattered at call sites.
+ */
+const resolvePhysicalStore = <T, TPrimaryKey extends keyof T, TWritableData>(
+  ctx: ServiceContext<'singleton'>,
+  store: StoreToken<T, TPrimaryKey>,
+): PhysicalStore<T, TPrimaryKey, TWritableData> =>
+  ctx.inject(store) as unknown as PhysicalStore<T, TPrimaryKey, TWritableData>
 
 /**
  * A DI token that resolves to a {@link DataSet} and carries its model and
@@ -104,11 +120,7 @@ export const defineDataSet = <T, const TPrimaryKey extends keyof T, TWritableDat
     name: options.name,
     lifetime: 'singleton',
     factory: (ctx: ServiceContext<'singleton'>) => {
-      const physicalStore = ctx.inject(options.store) as unknown as DataSetSettings<
-        T,
-        TPrimaryKey,
-        TWritableData
-      >['physicalStore']
+      const physicalStore = resolvePhysicalStore<T, TPrimaryKey, TWritableData>(ctx, options.store)
       const dataSet = new DataSet<T, TPrimaryKey, TWritableData>({
         ...options.settings,
         physicalStore,

@@ -359,6 +359,19 @@ export class Injector implements AsyncDisposable {
     owning.cache.delete(token.id)
   }
 
+  /**
+   * Returns `true` when `token` has a cache entry (resolved, pending or
+   * failed) reachable from this injector's scope chain.
+   *
+   * Useful for bootstrap helpers that must run before a service is first
+   * resolved: checking `isResolved` lets them fail loudly instead of
+   * silently leaking the previous instance.
+   */
+  public isResolved<TService>(token: AnyToken<TService>): boolean {
+    this.ensureLive()
+    return this.findCached(token) !== null
+  }
+
   public createScope(options?: CreateScopeOptions): Injector {
     this.ensureLive()
     return new Injector({ parent: this, owner: options?.owner })

@@ -52,9 +52,15 @@ export const GridPageService: Token<GridPageService, 'singleton', true> = define
     const dataSet = inject(GameItemDataSet)
     const systemScope = useSystemIdentityContext({ injector, username: 'showcase' })
 
+    // Monotonically increasing id so that rapid `findOptions` changes can't
+    // apply stale results out of order -- only the most recently issued
+    // request is allowed to write back into `collectionService.data`.
+    let latestRequestId = 0
     const updateCollectionService = async (newFindOptions: FindOptions<GameItem, Array<keyof GameItem>>) => {
+      const requestId = ++latestRequestId
       const entries = await dataSet.find(systemScope, newFindOptions)
       const count = await dataSet.count(systemScope, newFindOptions.filter)
+      if (requestId !== latestRequestId) return
       collectionService.data.setValue({
         count,
         entries: entries as GameItem[],

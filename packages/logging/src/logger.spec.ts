@@ -1,6 +1,14 @@
 import { createInjector, defineService, withScope } from '@furystack/inject'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ConsoleLogger, defaultFormat, FgMagenta, FgRed, getLevelColor, verboseFormat } from './console-logger.js'
+import {
+  ConsoleLogger,
+  defaultFormat,
+  FgMagenta,
+  FgRed,
+  getLevelColor,
+  VerboseConsoleLogger,
+  verboseFormat,
+} from './console-logger.js'
 import { getLogger, useLogging, useScopedLogger } from './helpers.js'
 import { LoggerCollection, LoggerRegistry } from './logger-collection.js'
 import type { LeveledLogEntry } from './log-entries.js'
@@ -493,6 +501,14 @@ describe('Loggers', () => {
       expect(getLevelColor('error')).toBe(FgRed)
       expect(getLevelColor('fatal')).not.toBe(getLevelColor('error'))
     })
+
+    it('falls back to the error color for unknown log levels', () => {
+      // The discriminated-union `LogLevel` type prevents passing an unknown
+      // value from typed call sites, but the switch's `default` branch is
+      // the production safety net for runtime-supplied levels coming from
+      // serialized/legacy payloads.
+      expect(getLevelColor('not-a-real-level' as unknown as 'error')).toBe(FgRed)
+    })
   })
 
   describe('defaultFormat', () => {
@@ -514,5 +530,34 @@ describe('Loggers', () => {
           data: {},
         }),
       ).toEqual(['\u001b[34m%s\u001b[0m', 'scope', 'message', {}]))
+
+    it('Should omit data entry when the verbose formatter receives none', () =>
+      expect(
+        verboseFormat({
+          level: 'debug',
+          scope: 'scope',
+          message: 'message',
+        }),
+      ).toEqual(['\u001b[34m%s\u001b[0m', 'scope', 'message']))
+  })
+
+  describe('VerboseConsoleLogger', () => {
+    it('Should route entries through verboseFormat and console.log', async () => {
+      const injector = createInjector()
+      try {
+        const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+        const logger = injector.get(VerboseConsoleLogger)
+        await logger.information({ scope: 'verbose-test', message: 'hi', data: { key: 'value' } })
+        expect(log).toHaveBeenCalledWith(
+          expect.stringContaining('%s'),
+          'verbose-test',
+          'hi',
+          expect.objectContaining({ key: 'value' }),
+        )
+        log.mockRestore()
+      } finally {
+        await injector[Symbol.asyncDispose]()
+      }
+    })
   })
 })

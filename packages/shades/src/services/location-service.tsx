@@ -176,22 +176,33 @@ export const LocationService: Token<LocationService, 'singleton'> = defineServic
 })
 
 /**
- * Configures custom (de)serialization for URL search state. Rebinds
- * {@link LocationServiceSettings} on the given injector and invalidates the
- * cached {@link LocationService} so the next resolution uses the new
- * serializers. Call **before** {@link LocationService} consumers resolve it
- * for the first time — calling afterwards silently drops the previous
- * instance (listeners won't be torn down until the injector is disposed).
+ * Configures custom (de)serialization for URL search state by binding
+ * {@link LocationServiceSettings} on the given injector.
+ *
+ * Must be called **before** any consumer resolves {@link LocationService}:
+ * the service patches `history.pushState` / `history.replaceState` and
+ * subscribes to `popstate` / `hashchange` on construction, and those
+ * listeners are only torn down when the owning injector is disposed.
+ * Rebinding after the first resolution would leak the previous instance,
+ * so this helper throws loudly if that happens.
+ *
  * @param injector The root injector.
  * @param serialize Function to serialize state to a query string.
  * @param deserialize Function to deserialize a query string to state.
+ * @throws If {@link LocationService} has already been resolved on
+ *         `injector` (or any reachable ancestor).
  */
 export const useCustomSearchStateSerializer = (
   injector: Injector,
   serialize: typeof defaultSerializeToQueryString,
   deserialize: typeof defaultDeserializeQueryString,
 ): void => {
+  if (injector.isResolved(LocationService)) {
+    throw new Error(
+      'useCustomSearchStateSerializer must be called before LocationService is resolved for the first time. ' +
+        'Configure serializers during injector bootstrap (e.g. before the first render).',
+    )
+  }
   injector.bind(LocationServiceSettings, () => ({ serialize, deserialize }))
   injector.invalidate(LocationServiceSettings)
-  injector.invalidate(LocationService)
 }

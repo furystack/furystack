@@ -166,9 +166,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
               this._refs.set(key, refObject as unknown as RefObject<Element>)
               return refObject as RefObject<T>
             },
-            useObservable: (key, obesrvable, options) => {
+            useObservable: (key, observable, options) => {
               const onChange = options?.onChange || (() => this.updateComponent())
-              return this.resourceManager.useObservable(key, obesrvable, onChange, options)
+              return this.resourceManager.useObservable(key, observable, onChange, options)
             },
             useState: (key, initialValue) =>
               this.resourceManager.useState(key, initialValue, this.updateComponent.bind(this)),

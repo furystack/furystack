@@ -586,4 +586,118 @@ describe('Injector', () => {
       expect(root.parent).toBeNull()
     })
   })
+
+  describe('isResolved', () => {
+    it('returns false before the token is resolved', () => {
+      const T = defineService({ name: 'test/NotYet', lifetime: 'singleton', factory: () => ({}) })
+      const injector = createInjector()
+      expect(injector.isResolved(T)).toBe(false)
+    })
+
+    it('returns true after the token is resolved on the same injector', () => {
+      const T = defineService({ name: 'test/Resolved', lifetime: 'singleton', factory: () => ({}) })
+      const injector = createInjector()
+      injector.get(T)
+      expect(injector.isResolved(T)).toBe(true)
+    })
+
+    it('returns true from a child scope when the singleton was resolved at the root', () => {
+      const T = defineService({ name: 'test/ResolvedRoot', lifetime: 'singleton', factory: () => ({}) })
+      const root = createInjector()
+      root.get(T)
+      const scope = root.createScope()
+      expect(scope.isResolved(T)).toBe(true)
+    })
+
+    it('returns true for async tokens that have already resolved', async () => {
+      const T = defineServiceAsync({
+        name: 'test/ResolvedAsync',
+        lifetime: 'singleton',
+        factory: async () => ({}),
+      })
+      const injector = createInjector()
+      await injector.getAsync(T)
+      expect(injector.isResolved(T)).toBe(true)
+    })
+
+    it('throws after disposal', async () => {
+      const T = defineService({ name: 'test/DisposedCheck', lifetime: 'singleton', factory: () => ({}) })
+      const injector = createInjector()
+      await injector[Symbol.asyncDispose]()
+      expect(() => injector.isResolved(T)).toThrow(InjectorDisposedError)
+    })
+  })
+
+  describe('async lifetime and cache edge cases', () => {
+    it('rejects an async dep with incompatible lifetime via injectAsync', async () => {
+      const ScopedAsync = defineServiceAsync({
+        name: 'test/AsyncScopedDep',
+        lifetime: 'scoped',
+        factory: async () => ({ marker: 1 }),
+      })
+      const SingletonAsync = defineServiceAsync({
+        name: 'test/AsyncSingletonParent',
+        lifetime: 'singleton',
+        factory: async ({ injectAsync }) => {
+          await injectAsync(ScopedAsync as never)
+          return {}
+        },
+      })
+      const injector = createInjector()
+      await expect(injector.getAsync(SingletonAsync)).rejects.toBeInstanceOf(InvalidLifetimeDependencyError)
+    })
+
+    it('resolves an async singleton from a child scope by delegating to the root owner', async () => {
+      const factory = vi.fn(async () => ({ id: 'once' }))
+      const AsyncSingleton = defineServiceAsync({
+        name: 'test/AsyncSingletonOwner',
+        lifetime: 'singleton',
+        factory,
+      })
+      const root = createInjector()
+      const scope = root.createScope()
+      const fromScope = await scope.getAsync(AsyncSingleton)
+      const fromRoot = await root.getAsync(AsyncSingleton)
+      expect(fromScope).toBe(fromRoot)
+      expect(factory).toHaveBeenCalledTimes(1)
+    })
+
+    it('returns a cached async value synchronously via getAsync after first resolution', async () => {
+      const AsyncSingleton = defineServiceAsync({
+        name: 'test/AsyncCached',
+        lifetime: 'singleton',
+        factory: async () => ({ ready: true }),
+      })
+      const injector = createInjector()
+      const first = await injector.getAsync(AsyncSingleton)
+      const second = await injector.getAsync(AsyncSingleton)
+      expect(second).toBe(first)
+    })
+
+    it('throws AsyncTokenInSyncContextError when a sync injector.get() hits a still-pending async cache entry', async () => {
+      let release: (() => void) | undefined
+      const Pending = defineServiceAsync({
+        name: 'test/PendingAsyncForSync',
+        lifetime: 'singleton',
+        factory: () =>
+          new Promise<{ ok: true }>((resolve) => {
+            release = () => resolve({ ok: true })
+          }),
+      })
+      // Sync-side consumer that reaches for the still-pending async entry
+      // via inject(). `get` itself short-circuits async tokens, so this is
+      // the path that actually exercises the `pending` branch of
+      // `consumeCached` (sync context meets pending cache entry).
+      const Consumer = defineService({
+        name: 'test/SyncConsumerOfPending',
+        lifetime: 'transient',
+        factory: ({ inject }) => inject(Pending as never),
+      })
+      const injector = createInjector()
+      const inflight = injector.getAsync(Pending)
+      expect(() => injector.get(Consumer)).toThrow(AsyncTokenInSyncContextError)
+      release?.()
+      await inflight
+    })
+  })
 })

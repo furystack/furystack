@@ -58,8 +58,12 @@ export const createSyncHooks = (syncToken: Token<EntitySyncService, 'singleton'>
     key: unknown,
   ): SyncState<T | undefined> => {
     const syncService = context.injector.get(syncToken)
-    const hookKey = `entitySync:${model.name}:${String(key)}`
-    const liveEntity = context.useDisposable(hookKey, () => syncService.subscribeEntity(model, key))
+    // Keep the hook key stable per (hook-site, model) and route variable
+    // params through `deps` so the ResourceManager disposes the previous
+    // subscription when `key` changes mid-mount, instead of leaking it
+    // under a stale keyed entry until unmount.
+    const hookKey = `entitySync:${model.name}`
+    const liveEntity = context.useDisposable(hookKey, () => syncService.subscribeEntity(model, key), [key])
     const [state] = context.useObservable(hookKey, liveEntity.state)
     return state
   }
@@ -75,9 +79,8 @@ export const createSyncHooks = (syncToken: Token<EntitySyncService, 'singleton'>
     },
   ): SyncState<{ entries: T[]; count: number }> => {
     const syncService = context.injector.get(syncToken)
-    const filterKey = JSON.stringify(options?.filter)
-    const hookKey = `collectionSync:${model.name}:${filterKey}`
-    const deps = [options?.top, options?.skip, JSON.stringify(options?.order)] as const
+    const hookKey = `collectionSync:${model.name}`
+    const deps = [JSON.stringify(options?.filter), options?.top, options?.skip, JSON.stringify(options?.order)] as const
     const liveCollection = context.useDisposable(hookKey, () => syncService.subscribeCollection(model, options), deps)
     const [state] = context.useObservable(hookKey, liveCollection.state)
     return state

@@ -83,24 +83,21 @@ scopedLogger.verbose({ message: 'FooBarBaz' })
 
 ### Implementing Your Own Logger
 
-You can implement your own logging logic in a similar way as this custom log collector:
+`AbstractLogger` was removed in v7. Build custom loggers with `createLogger(backend)` — pass a `LoggerBackend` that persists the leveled log entry to your sink of choice. The factory wires the level convenience methods (`verbose` / `debug` / `information` / `warning` / `error` / `fatal`) and `withScope` sugar, and handles error isolation (failures at `error` level escalate to `fatal`; failures at `fatal` fall back to `console.error`).
 
 ```ts
 import { defineService } from '@furystack/inject'
-import { AbstractLogger, type LeveledLogEntry, type Logger } from '@furystack/logging'
+import { createLogger, type LeveledLogEntry, type Logger } from '@furystack/logging'
 
-class MyCustomLogCollector extends AbstractLogger {
-  public readonly entries: Array<LeveledLogEntry<unknown>> = []
-
-  public async addEntry<T>(entry: LeveledLogEntry<T>): Promise<void> {
-    this.entries.push(entry)
-  }
-}
-
-export const MyCustomLogCollectorToken = defineService({
+export const MyCustomLogCollectorToken = defineService<Logger, 'singleton'>({
   name: 'my-app/MyCustomLogCollector',
   lifetime: 'singleton',
-  factory: () => new MyCustomLogCollector() satisfies Logger,
+  factory: () => {
+    const entries: Array<LeveledLogEntry<unknown>> = []
+    return createLogger(async (entry) => {
+      entries.push(entry)
+    })
+  },
 })
 
 // Register alongside ConsoleLogger:

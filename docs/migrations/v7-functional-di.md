@@ -161,7 +161,7 @@ const svc = injector.get(MyService)
 ### `@furystack/shades`
 
 - **Declassed:** `LocationService`, `RouteMatchService`, `ScreenService`, `SpatialNavigationService`, `LocationServiceSettings`, `SpatialNavigationSettings` are plain-object factories behind singleton tokens. No class exports.
-- **Added:** `useCustomSearchStateSerializer(injector, serialize, deserialize)` and `configureSpatialNavigation(injector, opts)` switch to `bind` + `invalidate` on the settings tokens.
+- **Added:** `useCustomSearchStateSerializer(injector, serialize, deserialize)` and `configureSpatialNavigation(injector, opts)` switch to `bind` + `invalidate` on the settings tokens. `useCustomSearchStateSerializer` still enforces the v6 "must be called before first resolve" contract — it throws if `LocationService` has already been resolved (history patching / global listeners are not re-runnable).
 - `injector.cachedSingletons.has(X)` is gone — replaced by nullable scoped tokens where a "register me if a parent did" surface is needed.
 - `Constructable` import moved to `@furystack/core`.
 
@@ -199,7 +199,7 @@ const svc = injector.get(MyService)
 ### `@furystack/utils`, `@furystack/rest`, `@furystack/rest-client-fetch`, `@furystack/logging`, `@furystack/cache`
 
 - `@furystack/utils`, `@furystack/rest`, `@furystack/rest-client-fetch`: no public DI surface. The major bump is to keep the monorepo version line consistent; call-sites unchanged.
-- `@furystack/logging`: `useLogging(injector, ...loggers)` and `getLogger(injector)` preserved; internals are now `defineService`-based. Custom loggers declared via `defineService({ lifetime: 'singleton', factory: () => yourLogger })`.
+- `@furystack/logging`: `useLogging(injector, ...loggers)` and `getLogger(injector)` preserved; internals are now `defineService`-based. Custom loggers declared via `defineService({ lifetime: 'singleton', factory: () => createLogger(backend) })`. **`AbstractLogger` was removed** — replace `class MyLogger extends AbstractLogger { addEntry(entry) { ... } }` with `createLogger(async (entry) => { ... })`, which also gives you level convenience methods, `withScope`, and the error-isolation escalation ladder for free.
 - `@furystack/cache`: no DI surface; major bump for consistency.
 
 ---

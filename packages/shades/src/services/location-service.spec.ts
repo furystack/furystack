@@ -148,22 +148,17 @@ describe('LocationService', () => {
       })
     })
 
-    it('Should rebind the serializer when called after LocationService has been instantiated', async () => {
+    it('Should throw when called after LocationService has been resolved', async () => {
       await usingAsync(createInjector(), async (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
         const customDeserializer = vi.fn((value: string) => deserializeQueryString(value))
 
-        // Eagerly resolve once with the default settings.
+        // Eagerly resolve once so the service patches history / adds listeners.
         i.get(LocationService)
 
-        useCustomSearchStateSerializer(i, customSerializer, customDeserializer)
-
-        // The next resolution should be a fresh instance wired to the custom
-        // (de)serializers.
-        const locationService = i.get(LocationService)
-        history.pushState(null, '', '/loc?test=IjIi')
-        locationService.useSearchParam('test', '').setValue('3')
-        expect(customSerializer).toHaveBeenCalled()
+        expect(() => useCustomSearchStateSerializer(i, customSerializer, customDeserializer)).toThrow(
+          /before LocationService is resolved/,
+        )
       })
     })
 

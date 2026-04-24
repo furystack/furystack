@@ -84,6 +84,23 @@ describe('JwtTokenService', () => {
       })
     })
 
+    it('Should reject a token with wrong audience', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { audience: 'correct-audience', fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.get(JwtTokenService)
+
+        const now = Math.floor(Date.now() / 1000)
+        const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
+        const payload = base64UrlEncode(
+          JSON.stringify({ sub: 'testuser', roles: [], iat: now, exp: now + 900, aud: 'wrong-audience' }),
+        )
+        const sig = signHs256(`${header}.${payload}`, SECRET)
+        const token = `${header}.${payload}.${sig}`
+
+        expect(() => service.verifyAccessToken(token)).toThrow(UnauthenticatedError)
+      })
+    })
+
     it('Should reject an expired token', async () => {
       await usingAsync(createInjector(), async (i) => {
         prepareInjector(i, { clockSkewToleranceSeconds: 0, fingerprintCookie: FINGERPRINT_DISABLED })

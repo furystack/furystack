@@ -13,4 +13,4 @@ Decorator-based DI is gone. Services are now declared with `defineService` / `de
 - Removed `injector.cachedSingletons`. If you probed for opt-in registration, declare a nullable scoped token (`Token<T | null, 'scoped'>`, default `null`) and have the parent bind it.
 - `Constructable` moved to `@furystack/core`. Packages that imported it from `@furystack/inject` must switch the import and add `@furystack/core` as a dependency.
 - `hasInjectorReference` is gone — use an `instanceof Injector` check on the candidate prop instead.
-- Added `createInjector()` as the preferred root-injector factory, `withScope(parent, fn)` for scope-create-and-dispose patterns, and `isToken(value)` for runtime token detection.
+- Added `createInjector()` as the preferred root-injector factory, `withScope(parent, fn)` for scope-create-and-dispose patterns, `isToken(value)` for runtime token detection, and `Injector.isResolved(token)` for bootstrap helpers that need to fail loudly when a service was already resolved before they ran.
