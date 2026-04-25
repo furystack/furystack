@@ -1,5 +1,5 @@
-import type { Constructable } from '@furystack/inject'
 import type { EventHub } from '@furystack/utils'
+import type { Constructable } from './constructable.js'
 
 export const NumberComparisonOperators = ['$gt', '$gte', '$lt', '$lte'] as const
 

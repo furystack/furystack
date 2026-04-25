@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +15,7 @@ describe('Fab', () => {
   })
 
   const renderFab = async (children?: JSX.Element[]) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
@@ -100,7 +100,7 @@ describe('Fab', () => {
 
   describe('button functionality', () => {
     it('should trigger onclick handler when clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const handleClick = vi.fn()
         const root = document.getElementById('root')!
         initializeShadeRoot({

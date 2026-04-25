@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, LocationService } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -15,7 +15,7 @@ describe('AppBarLink component', () => {
 
   describe('rendering', () => {
     it('should render the shade-app-bar-link custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -33,7 +33,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should render children through NestedRouteLink', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -49,7 +49,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should render NestedRouteLink with correct href', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -67,7 +67,7 @@ describe('AppBarLink component', () => {
 
   describe('route matching', () => {
     it('should have active class when current URL matches href', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/dashboard')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -86,7 +86,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should not have active class when current URL does not match href', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/other-page')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -105,7 +105,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should update active class when location changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/home')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -123,7 +123,7 @@ describe('AppBarLink component', () => {
 
         // Navigate to matching route
         history.pushState(null, '', '/dashboard')
-        injector.getInstance(LocationService).updateState()
+        injector.get(LocationService).updateState()
 
         await flushUpdates()
 
@@ -132,7 +132,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should remove active class when navigating away', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/dashboard')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -150,7 +150,7 @@ describe('AppBarLink component', () => {
 
         // Navigate away
         history.pushState(null, '', '/other')
-        injector.getInstance(LocationService).updateState()
+        injector.get(LocationService).updateState()
 
         await flushUpdates()
 
@@ -159,7 +159,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should match routes with parameters', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/users/123')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -178,7 +178,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should support routingOptions with end: false for prefix matching', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/admin/settings/security')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -201,7 +201,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should not match prefix by default (end: true)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/admin/settings')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -222,7 +222,7 @@ describe('AppBarLink component', () => {
 
   describe('multiple links', () => {
     it('should only activate the matching link', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/settings')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -249,7 +249,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should update all links when location changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         history.pushState(null, '', '/home')
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -273,7 +273,7 @@ describe('AppBarLink component', () => {
 
         // Navigate to settings
         history.pushState(null, '', '/settings')
-        injector.getInstance(LocationService).updateState()
+        injector.get(LocationService).updateState()
 
         await flushUpdates()
 
@@ -285,7 +285,7 @@ describe('AppBarLink component', () => {
 
   describe('styling', () => {
     it('should have flex display', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -303,7 +303,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should have pointer cursor', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -321,7 +321,7 @@ describe('AppBarLink component', () => {
     })
 
     it('should have transition for animations', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({

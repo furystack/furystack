@@ -42,26 +42,32 @@ Each rule file contains frontmatter metadata that tells Cursor **when** and **wh
 - **CODE_STYLE.mdc** - Naming, organization
 - **TYPESCRIPT_GUIDELINES.mdc** - Public API types
 
-### Creating an Injectable Service
+### Creating a Service
 
 **Apply in order:**
 
-1. **LIBRARY_DEVELOPMENT.mdc** - @Injectable pattern, lifetime
+1. **LIBRARY_DEVELOPMENT.mdc** - `defineService` pattern, lifetime, factory, `onDispose`
 2. **TYPESCRIPT_GUIDELINES.mdc** - Type safety, generics
-3. **CODE_STYLE.mdc** - Class structure, naming
+3. **CODE_STYLE.mdc** - File layout, naming
 
 **Pattern:**
 
 ```typescript
-@Injectable({ lifetime: 'singleton' })
-export class MyService {
-  @Injected(Dependency)
-  declare private dependency: Dependency
+import { defineService } from '@furystack/inject'
 
-  public [Symbol.dispose](): void {
-    // Cleanup
-  }
-}
+export const MyService = defineService({
+  name: 'my-app/MyService',
+  lifetime: 'singleton',
+  factory: ({ inject, onDispose }) => {
+    const dependency = inject(Dependency)
+    onDispose(() => {
+      // Cleanup
+    })
+    return {
+      /* service surface */
+    }
+  },
+})
 ```
 
 ### Adding Public API
@@ -133,7 +139,7 @@ export class MyService {
 
 - JSDoc on all public APIs (CODE_STYLE.mdc)
 - Explicit types on exports (TYPESCRIPT_GUIDELINES.mdc)
-- @Injectable for services (LIBRARY_DEVELOPMENT.mdc)
+- `defineService` for services (LIBRARY_DEVELOPMENT.mdc)
 - Integration tests (TESTING_GUIDELINES.mdc)
 
 ### Medium (RECOMMENDED)
@@ -178,7 +184,7 @@ export class MyService {
 - **Library Quality**: Public APIs must be well-designed and documented
 - **Type Safety**: No `any`, explicit types for all exports
 - **Testing**: 100% coverage for public APIs
-- **Dependency Injection**: @Injectable pattern for services
+- **Dependency Injection**: `defineService` + token-based resolution
 - **Observable Patterns**: Reactive state with ObservableValue
 - **Disposable Resources**: Proper cleanup with Symbol.dispose
 - **Breaking Changes**: Semantic versioning, deprecation before removal

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -22,7 +22,7 @@ describe('CommandPaletteInput', () => {
   }
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -41,7 +41,7 @@ describe('CommandPaletteInput', () => {
   })
 
   it('should render an input element with placeholder', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -62,7 +62,7 @@ describe('CommandPaletteInput', () => {
   })
 
   it('should always have width 100%', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -83,7 +83,7 @@ describe('CommandPaletteInput', () => {
   })
 
   it('should have overflow hidden style', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -103,7 +103,7 @@ describe('CommandPaletteInput', () => {
   })
 
   it('should focus input when opened', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -129,7 +129,7 @@ describe('CommandPaletteInput', () => {
   })
 
   it('should clear input value when closing', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(true)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -155,7 +155,7 @@ describe('CommandPaletteInput', () => {
   })
 
   it('should preserve input value when opening', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
         const rootElement = document.getElementById('root') as HTMLDivElement

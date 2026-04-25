@@ -14,7 +14,7 @@ import {
 export const SpatialNavigationPage = Shade({
   customElementName: 'shades-spatial-navigation-page',
   render: ({ injector, useObservable, useDisposable, useState }) => {
-    const spatialNav = injector.getInstance(SpatialNavigationService)
+    const spatialNav = injector.get(SpatialNavigationService)
 
     const [isEnabled] = useObservable('enabled', spatialNav.enabled)
     const [activeSection] = useObservable('activeSection', spatialNav.activeSection)

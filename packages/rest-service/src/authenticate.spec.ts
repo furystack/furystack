@@ -1,84 +1,78 @@
 import { IdentityContext } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { usingAsync } from '@furystack/utils'
+import { createInjector } from '@furystack/inject'
+import { EventHub, usingAsync } from '@furystack/utils'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { describe, expect, it, vi } from 'vitest'
 import { Authenticate } from './authenticate.js'
-import { HttpUserContext } from './http-user-context.js'
+import type { HttpUserContext } from './http-user-context.js'
+import { HttpUserContext as HttpUserContextToken } from './http-user-context.js'
 import { EmptyResult } from './request-action-implementation.js'
 
+const makeHttpUserContextStub = (providers: Array<{ name: string }>): HttpUserContext =>
+  Object.assign(new EventHub(), {
+    authentication: { authenticationProviders: providers },
+  }) as unknown as HttpUserContext
+
 describe('Authenticate', () => {
-  const response = {} as any as ServerResponse
+  const response = {} as ServerResponse
   const request = { url: 'http://google.com' } as IncomingMessage
 
-  it('Should return 401 without WWW-Authenticate header when no basic-auth provider is registered', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const isAuthenticatedAction = vi.fn(async () => false)
+  it('returns 401 without WWW-Authenticate when no basic-auth provider is registered', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const isAuthenticated = vi.fn(async () => false)
+      i.bind(IdentityContext, () => ({
+        isAuthenticated,
+        getCurrentUser: () => Promise.reject(new Error(':(')),
+        isAuthorized: () => Promise.resolve(false),
+      }))
+      i.bind(HttpUserContextToken, () => makeHttpUserContextStub([]))
 
-      i.setExplicitInstance(
-        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(new Error(':(')) },
-        IdentityContext,
-      )
-
-      i.setExplicitInstance(
-        {
-          authentication: { authenticationProviders: [] },
-        },
-        HttpUserContext,
-      )
-      const exampleAuthenticatedAction = vi.fn(async () => EmptyResult())
-      const authorized = Authenticate()(exampleAuthenticatedAction)
+      const exampleAction = vi.fn(async () => EmptyResult())
+      const authorized = Authenticate()(exampleAction)
 
       const result = await authorized({ injector: i, request, response })
       expect(result.statusCode).toBe(401)
       expect(result.chunk).toEqual({ error: 'unauthorized' })
       expect(result.headers).toEqual({ 'Content-Type': 'application/json' })
-      expect(exampleAuthenticatedAction).not.toBeCalled()
+      expect(exampleAction).not.toHaveBeenCalled()
     })
   })
 
-  it('Should return 401 with WWW-Authenticate: Basic header when basic-auth provider is registered', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const isAuthenticatedAction = vi.fn(async () => false)
+  it('returns 401 with WWW-Authenticate: Basic when a basic-auth provider is registered', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const isAuthenticated = vi.fn(async () => false)
+      i.bind(IdentityContext, () => ({
+        isAuthenticated,
+        getCurrentUser: () => Promise.reject(new Error(':(')),
+        isAuthorized: () => Promise.resolve(false),
+      }))
+      i.bind(HttpUserContextToken, () => makeHttpUserContextStub([{ name: 'basic-auth' }]))
 
-      i.setExplicitInstance(
-        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(new Error(':(')) },
-        IdentityContext,
-      )
-
-      i.setExplicitInstance(
-        {
-          authentication: {
-            authenticationProviders: [{ name: 'basic-auth', authenticate: async () => null }],
-          },
-        },
-        HttpUserContext,
-      )
-      const exampleAuthenticatedAction = vi.fn(async () => EmptyResult())
-      const authorized = Authenticate()(exampleAuthenticatedAction)
+      const exampleAction = vi.fn(async () => EmptyResult())
+      const authorized = Authenticate()(exampleAction)
 
       const result = await authorized({ injector: i, request, response })
       expect(result.statusCode).toBe(401)
       expect(result.chunk).toEqual({ error: 'unauthorized' })
       expect(result.headers).toEqual({ 'Content-Type': 'application/json', 'WWW-Authenticate': 'Basic' })
-      expect(exampleAuthenticatedAction).not.toBeCalled()
+      expect(exampleAction).not.toHaveBeenCalled()
     })
   })
 
-  it('Should exec the original action if authorized', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const isAuthenticatedAction = vi.fn(async () => true)
-      i.setExplicitInstance(
-        { isAuthenticated: isAuthenticatedAction, getCurrentUser: async () => Promise.reject(new Error(':(')) },
-        IdentityContext,
-      )
-      const exampleAuthenticatedAction = vi.fn(async () => EmptyResult())
-      const authorized = Authenticate()(exampleAuthenticatedAction)
-      const params = { injector: i, body: undefined, query: undefined, request, response }
+  it('invokes the wrapped action when the caller is authenticated', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      i.bind(IdentityContext, () => ({
+        isAuthenticated: () => Promise.resolve(true),
+        getCurrentUser: () => Promise.reject(new Error(':(')),
+        isAuthorized: () => Promise.resolve(true),
+      }))
+      const exampleAction = vi.fn(async () => EmptyResult())
+      const authorized = Authenticate()(exampleAction)
+      const params = { injector: i, request, response }
       const result = await authorized(params)
       expect(result.statusCode).toBe(200)
       expect(result.chunk).toBe(undefined)
-      expect(exampleAuthenticatedAction).toBeCalledWith(params)
+      expect(exampleAction).toHaveBeenCalledWith(params)
     })
   })
 })

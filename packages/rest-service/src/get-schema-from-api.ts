@@ -1,6 +1,6 @@
 import type { ApiEndpointDefinition, ApiEndpointSchema, Method, RestApi, Schema } from '@furystack/rest'
-import type { RestApiImplementation } from './api-manager.js'
 import type { RequestAction } from './request-action-implementation.js'
+import type { RestApiImplementation } from './rest-api-runtime.js'
 
 export const defaultSchema: Schema = {
   definitions: {

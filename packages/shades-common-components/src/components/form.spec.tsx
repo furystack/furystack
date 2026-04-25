@@ -1,49 +1,49 @@
-import { Injector } from '@furystack/inject'
+import { createInjector, Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { using, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Form, FormService } from './form.js'
+import { Form, FormContextToken, createFormService } from './form.js'
 
 describe('FormService', () => {
   describe('initialization', () => {
     it('should initialize with null validatedFormData', () => {
-      using(new FormService(), (service) => {
+      using(createFormService(), (service) => {
         expect(service.validatedFormData.getValue()).toBeNull()
       })
     })
 
     it('should initialize with null rawFormData', () => {
-      using(new FormService(), (service) => {
+      using(createFormService(), (service) => {
         expect(service.rawFormData.getValue()).toBeNull()
       })
     })
 
     it('should initialize with unknown validation result', () => {
-      using(new FormService(), (service) => {
+      using(createFormService(), (service) => {
         expect(service.validationResult.getValue()).toEqual({ isValid: null })
       })
     })
 
     it('should initialize with empty fieldErrors', () => {
-      using(new FormService(), (service) => {
+      using(createFormService(), (service) => {
         expect(service.fieldErrors.getValue()).toEqual({})
       })
     })
 
     it('should initialize with empty inputs set', () => {
-      using(new FormService(), (service) => {
+      using(createFormService(), (service) => {
         expect(service.inputs.size).toBe(0)
       })
     })
 
     it('should initialize isSubmitting as false', () => {
-      using(new FormService(), (service) => {
+      using(createFormService(), (service) => {
         expect(service.isSubmitting.getValue()).toBe(false)
       })
     })
 
     it('should initialize submitError as undefined', () => {
-      using(new FormService(), (service) => {
+      using(createFormService(), (service) => {
         expect(service.submitError.getValue()).toBeUndefined()
       })
     })
@@ -51,7 +51,7 @@ describe('FormService', () => {
 
   describe('setFieldState', () => {
     it('should update field errors with valid result', () => {
-      using(new FormService<{ email: string }>(), (service) => {
+      using(createFormService<{ email: string }>(), (service) => {
         const validity = { valid: true } as ValidityState
 
         service.setFieldState('email', { isValid: true }, validity)
@@ -63,7 +63,7 @@ describe('FormService', () => {
     })
 
     it('should update field errors with invalid result', () => {
-      using(new FormService<{ email: string }>(), (service) => {
+      using(createFormService<{ email: string }>(), (service) => {
         const validity = { valid: false, valueMissing: true } as ValidityState
         const validationResult = { isValid: false as const, message: 'Email is required' }
 
@@ -76,7 +76,7 @@ describe('FormService', () => {
     })
 
     it('should merge field errors when updating multiple fields', () => {
-      using(new FormService<{ email: string; password: string }>(), (service) => {
+      using(createFormService<{ email: string; password: string }>(), (service) => {
         const validity = { valid: true } as ValidityState
 
         service.setFieldState('email', { isValid: true }, validity)
@@ -91,7 +91,7 @@ describe('FormService', () => {
 
   describe('disposal', () => {
     it('should dispose all observables', () => {
-      const service = new FormService()
+      const service = createFormService()
 
       const validatedFormDataDisposeSpy = vi.spyOn(service.validatedFormData, Symbol.dispose)
       const rawFormDataDisposeSpy = vi.spyOn(service.rawFormData, Symbol.dispose)
@@ -122,7 +122,7 @@ describe('Form component', () => {
   })
 
   it('should render children', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { name: string }
@@ -154,7 +154,7 @@ describe('Form component', () => {
   })
 
   it('should call onSubmit with validated data when form is valid', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const onSubmit = vi.fn()
 
@@ -193,7 +193,7 @@ describe('Form component', () => {
   })
 
   it('should not call onSubmit when validation fails', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const onSubmit = vi.fn()
 
@@ -236,7 +236,7 @@ describe('Form component', () => {
   })
 
   it('should set validation result to validation-failed when validate returns false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { email: string }
@@ -270,7 +270,7 @@ describe('Form component', () => {
       await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
 
       expect(formService.validationResult.getValue()).toEqual({
         isValid: false,
@@ -280,7 +280,7 @@ describe('Form component', () => {
   })
 
   it('should reset form state on reset event', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const onReset = vi.fn()
 
@@ -317,7 +317,7 @@ describe('Form component', () => {
       await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
 
       expect(formService.rawFormData.getValue()).toEqual({ name: 'Test' })
 
@@ -333,7 +333,7 @@ describe('Form component', () => {
   })
 
   it('should update rawFormData on change event', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { username: string }
@@ -366,14 +366,14 @@ describe('Form component', () => {
       await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
 
       expect(formService.rawFormData.getValue()).toEqual({ username: 'testuser' })
     })
   })
 
   it('should set validatedFormData when validation passes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { title: string }
@@ -406,7 +406,7 @@ describe('Form component', () => {
       await flushUpdates()
 
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
 
       expect(formService.validatedFormData.getValue()).toEqual({ title: 'My Title' })
       expect(formService.validationResult.getValue()).toEqual({ isValid: true })
@@ -414,7 +414,7 @@ describe('Form component', () => {
   })
 
   it('should prevent default on submit event', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { field: string }
@@ -444,7 +444,7 @@ describe('Form component', () => {
   })
 
   it('should create child injector with FormService', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { data: string }
@@ -467,13 +467,13 @@ describe('Form component', () => {
       expect(formInjector).toBeInstanceOf(Injector)
       expect(formInjector).not.toBe(injector)
 
-      const formService = formInjector.getInstance(FormService)
-      expect(formService).toBeInstanceOf(FormService)
+      const formService = formInjector.get(FormContextToken)!
+      expect(formService).toBeDefined()
     })
   })
 
   it('should handle oninvalid event and trigger validation', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { required: string }
@@ -508,7 +508,7 @@ describe('Form component', () => {
   })
 
   it('should set isSubmitting during async onSubmit and reset after', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       let resolveSubmit: () => void
@@ -542,7 +542,7 @@ describe('Form component', () => {
       input.value = 'Test'
 
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
 
       expect(formService.isSubmitting.getValue()).toBe(false)
 
@@ -559,7 +559,7 @@ describe('Form component', () => {
   })
 
   it('should reset isSubmitting to false and set submitError when onSubmit throws', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { name: string }
@@ -592,7 +592,7 @@ describe('Form component', () => {
       input.value = 'Test'
 
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
 
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
       form.dispatchEvent(submitEvent)
@@ -604,7 +604,7 @@ describe('Form component', () => {
   })
 
   it('should clear submitError before a new submission', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       let shouldThrow = true
@@ -643,7 +643,7 @@ describe('Form component', () => {
       input.value = 'Test'
 
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
 
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
       await flushUpdates()
@@ -662,7 +662,7 @@ describe('Form component', () => {
   })
 
   it('should set inert on form element when disableOnSubmit is true during async submit', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       let resolveSubmit: () => void
@@ -711,7 +711,7 @@ describe('Form component', () => {
   })
 
   it('should not set inert when disableOnSubmit is not provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       let resolveSubmit: () => void
@@ -756,7 +756,7 @@ describe('Form component', () => {
   })
 
   it('should remove inert even if onSubmit throws when disableOnSubmit is true', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       type FormData = { name: string }
@@ -793,7 +793,7 @@ describe('Form component', () => {
       await flushUpdates()
       expect(form.inert).toBe(false)
       const formInjector = (form as unknown as { injector: Injector }).injector
-      const formService = formInjector.getInstance(FormService)
+      const formService = formInjector.get(FormContextToken)!
       expect(formService.isSubmitting.getValue()).toBe(false)
     })
   })

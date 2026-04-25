@@ -1,5 +1,5 @@
 import type { FindOptions } from '@furystack/core'
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -28,7 +28,7 @@ describe('DataGridFooter', () => {
   }
 
   it('should render with custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
@@ -50,7 +50,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should render items per page select', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
@@ -74,7 +74,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should render all items per page options', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
@@ -104,7 +104,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should show Pagination component when pagination is enabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 0)
@@ -127,7 +127,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should hide Pagination when showing all items (Infinity)', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 50)
       const findOptions = createFindOptions(Infinity, 0)
@@ -150,7 +150,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should render page buttons in Pagination based on data count and items per page', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(25, 0)
@@ -178,7 +178,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should call onFindOptionsChange when page is changed via Pagination', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 0)
@@ -208,7 +208,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should call onFindOptionsChange when items per page is changed', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 0)
@@ -243,7 +243,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should preserve current page position when changing items per page', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 20)
@@ -278,7 +278,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should highlight the correct current page in Pagination', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(10, 30)
@@ -304,7 +304,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should select the correct items per page option', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 100)
       const findOptions = createFindOptions(25, 0)
@@ -333,7 +333,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should react to data count changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 30)
       const findOptions = createFindOptions(10, 0)
@@ -374,7 +374,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should render custom paginationOptions', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()
@@ -408,7 +408,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should hide the rows-per-page selector when only one paginationOption is provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService([], 50)
       const findOptions = createFindOptions(10, 0)
@@ -436,7 +436,7 @@ describe('DataGridFooter', () => {
   })
 
   it('should use default dataGridItemsPerPage when paginationOptions is not provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const service = createService()
       const findOptions = createFindOptions()

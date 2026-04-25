@@ -12,51 +12,58 @@ yarn add @furystack/websocket-api
 
 ## Usage Example
 
-You can initialize the WebSocket package as follows:
+`useWebSocketApi` boots a WebSocket endpoint on the shared HTTP server pool
+managed by `@furystack/rest-service`. It takes the injector, port, optional
+hostname and path, and a map of `WebSocketAction` descriptors.
 
 ```ts
-import { Injector } from '@furystack/inject'
-import { useWebsockets } from '@furystack/websocket-api'
+import { createInjector } from '@furystack/inject'
+import { useWebSocketApi } from '@furystack/websocket-api'
+import { WhoAmI } from './actions/whoami.js'
 
-const myInjector = new Injector()
-await useWebsockets(myInjector, {
+const myInjector = createInjector()
+
+const wsApi = useWebSocketApi({
+  injector: myInjector,
+  port: 8080,
   path: '/api/sockets',
-  actions: [WhoAmI],
+  actions: { WhoAmI },
+})
+
+wsApi.subscribe('onConnect', ({ injector: connectionInjector }) => {
+  // per-connection scope with an IdentityContext bound lazily
 })
 ```
 
+`useWebSocketApi` returns a handle exposing `subscribe` / `emit` for
+`onConnect` / `onDisconnect` events and a `broadcast(cb)` helper. Action
+failures are routed to `ServerTelemetryToken#onWebSocketActionFailed`.
+
 ### Implementing Your Own Actions
 
-You can implement a WebSocket action as follows:
+A `WebSocketAction` is a plain object with two methods:
 
 ```ts
-import { Injectable, Injected } from '@furystack/inject'
-import { HttpUserContext } from '@furystack/rest-service'
-import type { IncomingMessage } from 'http'
-import type { Data, WebSocket } from 'ws'
 import type { WebSocketAction } from '@furystack/websocket-api'
+import { HttpUserContext } from '@furystack/rest-service'
 
-@Injectable({ lifetime: 'transient' })
-export class WhoAmI implements WebSocketAction {
-  public [Symbol.dispose]() {
-    /** */
-  }
-
-  public static canExecute(options: { data: Data; request: IncomingMessage }): boolean {
-    const stringifiedValue: string = options.data.toString()
-    return stringifiedValue === 'whoami' || stringifiedValue === 'whoami /claims'
-  }
-
-  public async execute(options: { data: Data; request: IncomingMessage; socket: WebSocket }) {
+export const WhoAmI: WebSocketAction = {
+  canExecute: ({ data }) => {
+    const msg = data.toString()
+    return msg === 'whoami' || msg === 'whoami /claims'
+  },
+  execute: async ({ injector, request, socket }) => {
     try {
-      const currentUser = await this.httpUserContext.getCurrentUser(options.request)
-      options.socket.send(JSON.stringify({ currentUser }))
-    } catch (error) {
-      options.socket.send(JSON.stringify({ currentUser: null }))
+      const httpUser = injector.get(HttpUserContext)
+      const currentUser = await httpUser.getCurrentUser(request)
+      socket.send(JSON.stringify({ currentUser }))
+    } catch {
+      socket.send(JSON.stringify({ currentUser: null }))
     }
-  }
-
-  @Injected(HttpUserContext)
-  declare private readonly httpUserContext: HttpUserContext
+  },
 }
 ```
+
+The `injector` passed to `execute` is a per-message scope, so scoped
+services resolve fresh for every message and any `onDispose` callbacks run
+when the message has been handled.

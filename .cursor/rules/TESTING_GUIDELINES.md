@@ -8,28 +8,34 @@ Every exported function, class, and method must have tests:
 
 ```typescript
 // ✅ Good - testing public API
-describe('Injectable', () => {
-  it('should create injectable class with singleton lifetime', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      @Injectable({ lifetime: 'singleton' })
-      class MyService {}
+describe('defineService', () => {
+  it('should cache singleton instances across resolutions', async () => {
+    await usingAsync(createInjector(), async (injector) => {
+      const Service = defineService({
+        name: 'test/Service',
+        lifetime: 'singleton',
+        factory: () => ({ id: Math.random() }),
+      })
 
-      const instance1 = injector.getInstance(MyService)
-      const instance2 = injector.getInstance(MyService)
+      const a = injector.get(Service)
+      const b = injector.get(Service)
 
-      expect(instance1).toBe(instance2) // Same instance
+      expect(a).toBe(b) // Same instance
     })
   })
 
-  it('should create injectable class with transient lifetime', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      @Injectable({ lifetime: 'transient' })
-      class MyService {}
+  it('should produce a new instance per resolution for transient services', async () => {
+    await usingAsync(createInjector(), async (injector) => {
+      const Service = defineService({
+        name: 'test/Service',
+        lifetime: 'transient',
+        factory: () => ({ id: Math.random() }),
+      })
 
-      const instance1 = injector.getInstance(MyService)
-      const instance2 = injector.getInstance(MyService)
+      const a = injector.get(Service)
+      const b = injector.get(Service)
 
-      expect(instance1).not.toBe(instance2) // Different instances
+      expect(a).not.toBe(b) // Different instances
     })
   })
 })
@@ -75,23 +81,23 @@ Test how packages work together:
 // ✅ Good - integration test
 describe('DI Integration', () => {
   it('should inject dependencies across packages', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      @Injectable({ lifetime: 'singleton' })
-      class ServiceA {
-        public name = 'ServiceA'
-      }
+    await usingAsync(createInjector(), async (injector) => {
+      const ServiceA = defineService({
+        name: 'test/ServiceA',
+        lifetime: 'singleton',
+        factory: () => ({ name: 'ServiceA' }),
+      })
 
-      @Injectable({ lifetime: 'singleton' })
-      class ServiceB {
-        @Injected(ServiceA)
-        declare public serviceA: ServiceA
+      const ServiceB = defineService({
+        name: 'test/ServiceB',
+        lifetime: 'singleton',
+        factory: ({ inject }) => {
+          const serviceA = inject(ServiceA)
+          return { getName: () => serviceA.name }
+        },
+      })
 
-        public getName(): string {
-          return this.serviceA.name
-        }
-      }
-
-      const serviceB = injector.getInstance(ServiceB)
+      const serviceB = injector.get(ServiceB)
 
       expect(serviceB.getName()).toBe('ServiceA')
     })
@@ -143,6 +149,7 @@ Common disposable types in FuryStack:
 
 ```typescript
 import { using, usingAsync } from '@furystack/utils'
+import { createInjector } from '@furystack/inject'
 
 // ✅ Good - sync disposable wrapped in using()
 it('should cache values', () => {
@@ -154,8 +161,8 @@ it('should cache values', () => {
 
 // ✅ Good - async disposable wrapped in usingAsync()
 it('should work with injected services', async () => {
-  await usingAsync(new Injector(), async (injector) => {
-    const service = injector.getInstance(MyService)
+  await usingAsync(createInjector(), async (injector) => {
+    const service = injector.get(MyService)
     expect(service.getData()).toBe('expected')
   })
 })
@@ -207,19 +214,22 @@ describe('PackageName', () => {
 
 ### Minimal Mocking
 
-Keep mocking minimal in library tests:
+Keep mocking minimal in library tests. When you must substitute a service, use `injector.bind(Token, factory)` — the same mechanism production code uses for bootstrap overrides.
 
 ```typescript
-// ✅ Good - testing real implementations
+// ✅ Good - testing real implementations with a bound stub
 describe('Injector', () => {
-  it('should create instances of registered classes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      class MyClass {}
+  it('should resolve bound factories', async () => {
+    await usingAsync(createInjector(), async (injector) => {
+      const Greeter = defineService({
+        name: 'test/Greeter',
+        lifetime: 'singleton',
+        factory: () => ({ greet: () => 'hello' }),
+      })
 
-      injector.setExplicitInstance(MyClass, new MyClass())
+      injector.bind(Greeter, () => ({ greet: () => 'stubbed' }))
 
-      const instance = injector.getInstance(MyClass)
-      expect(instance).toBeInstanceOf(MyClass)
+      expect(injector.get(Greeter).greet()).toBe('stubbed')
     })
   })
 })

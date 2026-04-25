@@ -1,14 +1,23 @@
-import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
-import { PasswordCredential, UnauthenticatedError } from '@furystack/security'
+import type { User } from '@furystack/core'
+import { InMemoryStore, User as UserModel } from '@furystack/core'
+import { createInjector, type Injector } from '@furystack/inject'
+import {
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  UnauthenticatedError,
+  usePasswordPolicy,
+} from '@furystack/security'
+import { DefaultSession, SessionStore, UserStore, useHttpAuthentication } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
-import type { FingerprintCookieSettings } from './jwt-authentication-settings.js'
-import { JwtAuthenticationSettings } from './jwt-authentication-settings.js'
+import { useJwtAuthentication } from './helpers.js'
+import type { FingerprintCookieSettings, JwtAuthenticationSettings } from './jwt-authentication-settings.js'
 import { JwtTokenService } from './jwt-token-service.js'
 import { base64UrlEncode, decodeJwt, hashFingerprint, signHs256 } from './jwt-utils.js'
 import { RefreshToken } from './models/refresh-token.js'
+import { RefreshTokenStore } from './refresh-token-store.js'
 
 const SECRET = 'a-very-secret-key-at-least-32-bytes-long!'
 const FINGERPRINT_DISABLED: FingerprintCookieSettings = {
@@ -19,14 +28,16 @@ const FINGERPRINT_DISABLED: FingerprintCookieSettings = {
   path: '/',
 }
 
-const setupInjector = (i: Injector, overrides?: Partial<JwtAuthenticationSettings>) => {
-  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+const prepareInjector = (i: Injector, overrides?: Partial<JwtAuthenticationSettings>): void => {
+  i.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  i.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  i.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  i.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+  i.bind(RefreshTokenStore, () => new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
 
-  const settings = Object.assign(new JwtAuthenticationSettings(), { secret: SECRET, ...overrides })
-  getRepository(i).createDataSet(RefreshToken, 'token')
-  i.setExplicitInstance(settings, JwtAuthenticationSettings)
+  usePasswordPolicy(i)
+  useHttpAuthentication(i)
+  useJwtAuthentication(i, { secret: SECRET, ...overrides })
 }
 
 describe('JwtTokenService', () => {
@@ -34,9 +45,9 @@ describe('JwtTokenService', () => {
 
   describe('signAccessToken / verifyAccessToken', () => {
     it('Should sign and verify an access token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const { token, fingerprint } = service.signAccessToken(testUser)
         const payload = service.verifyAccessToken(token, fingerprint)
         expect(payload.sub).toBe('testuser')
@@ -46,9 +57,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should include issuer and audience when configured', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { issuer: 'my-app', audience: 'my-client' })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { issuer: 'my-app', audience: 'my-client' })
+        const service = i.get(JwtTokenService)
         const { token, fingerprint } = service.signAccessToken(testUser)
         const payload = service.verifyAccessToken(token, fingerprint)
         expect(payload.iss).toBe('my-app')
@@ -57,9 +68,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should reject a token with wrong issuer', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { issuer: 'correct-issuer', fingerprintCookie: FINGERPRINT_DISABLED })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { issuer: 'correct-issuer', fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.get(JwtTokenService)
 
         const now = Math.floor(Date.now() / 1000)
         const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
@@ -73,10 +84,27 @@ describe('JwtTokenService', () => {
       })
     })
 
+    it('Should reject a token with wrong audience', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { audience: 'correct-audience', fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.get(JwtTokenService)
+
+        const now = Math.floor(Date.now() / 1000)
+        const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
+        const payload = base64UrlEncode(
+          JSON.stringify({ sub: 'testuser', roles: [], iat: now, exp: now + 900, aud: 'wrong-audience' }),
+        )
+        const sig = signHs256(`${header}.${payload}`, SECRET)
+        const token = `${header}.${payload}.${sig}`
+
+        expect(() => service.verifyAccessToken(token)).toThrow(UnauthenticatedError)
+      })
+    })
+
     it('Should reject an expired token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { clockSkewToleranceSeconds: 0, fingerprintCookie: FINGERPRINT_DISABLED })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { clockSkewToleranceSeconds: 0, fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.get(JwtTokenService)
 
         const now = Math.floor(Date.now() / 1000)
         const header = base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
@@ -89,9 +117,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should reject a token with alg: none', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
 
         const now = Math.floor(Date.now() / 1000)
         const header = base64UrlEncode(JSON.stringify({ alg: 'none', typ: 'JWT' }))
@@ -103,9 +131,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should reject a token with wrong alg (RS256)', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
 
         const now = Math.floor(Date.now() / 1000)
         const header = base64UrlEncode(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
@@ -118,9 +146,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should reject a tampered token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const { token } = service.signAccessToken(testUser)
         const parts = token.split('.')
         const tamperedPayload = base64UrlEncode(
@@ -133,9 +161,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should reject an invalid format token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         expect(() => service.verifyAccessToken('not-a-jwt')).toThrow(UnauthenticatedError)
         expect(() => service.verifyAccessToken('')).toThrow(UnauthenticatedError)
       })
@@ -144,9 +172,9 @@ describe('JwtTokenService', () => {
 
   describe('Fingerprint cookie protection', () => {
     it('Should embed fpt claim in the access token when enabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const { token, fingerprint } = service.signAccessToken(testUser)
         expect(fingerprint).toBeTruthy()
         const decoded = decodeJwt(token)
@@ -155,9 +183,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should not embed fpt claim when fingerprinting is disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { fingerprintCookie: FINGERPRINT_DISABLED })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.get(JwtTokenService)
         const { token, fingerprint } = service.signAccessToken(testUser)
         expect(fingerprint).toBeNull()
         const decoded = decodeJwt(token)
@@ -166,27 +194,27 @@ describe('JwtTokenService', () => {
     })
 
     it('Should verify successfully with the correct fingerprint', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const { token, fingerprint } = service.signAccessToken(testUser)
         expect(() => service.verifyAccessToken(token, fingerprint)).not.toThrow()
       })
     })
 
     it('Should reject a token with a wrong fingerprint', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const { token } = service.signAccessToken(testUser)
         expect(() => service.verifyAccessToken(token, 'wrong-fingerprint-value')).toThrow(UnauthenticatedError)
       })
     })
 
     it('Should reject a token with a missing fingerprint when enabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const { token } = service.signAccessToken(testUser)
         expect(() => service.verifyAccessToken(token)).toThrow(UnauthenticatedError)
         expect(() => service.verifyAccessToken(token, null)).toThrow(UnauthenticatedError)
@@ -194,9 +222,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should skip fingerprint check when disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { fingerprintCookie: FINGERPRINT_DISABLED })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { fingerprintCookie: FINGERPRINT_DISABLED })
+        const service = i.get(JwtTokenService)
         const { token } = service.signAccessToken(testUser)
         expect(() => service.verifyAccessToken(token)).not.toThrow()
       })
@@ -205,9 +233,9 @@ describe('JwtTokenService', () => {
 
   describe('signRefreshToken / verifyRefreshToken', () => {
     it('Should sign and verify a refresh token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const token = await service.signRefreshToken(testUser)
         expect(typeof token).toBe('string')
         expect(token.length).toBe(64)
@@ -218,17 +246,17 @@ describe('JwtTokenService', () => {
     })
 
     it('Should reject a non-existent refresh token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         await expect(service.verifyRefreshToken('nonexistent')).rejects.toThrow(UnauthenticatedError)
       })
     })
 
     it('Should reject an expired refresh token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { refreshTokenExpirationSeconds: -1 })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { refreshTokenExpirationSeconds: -1 })
+        const service = i.get(JwtTokenService)
         const token = await service.signRefreshToken(testUser)
         await expect(service.verifyRefreshToken(token)).rejects.toThrow(UnauthenticatedError)
       })
@@ -237,9 +265,9 @@ describe('JwtTokenService', () => {
 
   describe('Token rotation with grace period', () => {
     it('Should accept a rotated token within grace period and return replacement', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { refreshTokenRotationGracePeriodSeconds: 60 })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { refreshTokenRotationGracePeriodSeconds: 60 })
+        const service = i.get(JwtTokenService)
         const oldToken = await service.signRefreshToken(testUser)
         const newToken = await service.signRefreshToken(testUser)
         await service.rotateRefreshToken(oldToken, newToken)
@@ -251,13 +279,13 @@ describe('JwtTokenService', () => {
     })
 
     it('Should reject a rotated token beyond grace period', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { refreshTokenRotationGracePeriodSeconds: 0 })
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { refreshTokenRotationGracePeriodSeconds: 0 })
+        const service = i.get(JwtTokenService)
         const oldToken = await service.signRefreshToken(testUser)
         const newToken = await service.signRefreshToken(testUser)
 
-        const store = i.getInstance(StoreManager).getStoreFor(RefreshToken, 'token')
+        const store = i.get(RefreshTokenStore)
         await store.update(oldToken, {
           revokedAt: new Date(Date.now() - 10000).toISOString(),
           replacedByToken: newToken,
@@ -270,9 +298,9 @@ describe('JwtTokenService', () => {
 
   describe('revokeRefreshToken', () => {
     it('Should remove the token from the store', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const token = await service.signRefreshToken(testUser)
         await service.revokeRefreshToken(token)
         await expect(service.verifyRefreshToken(token)).rejects.toThrow(UnauthenticatedError)
@@ -280,9 +308,9 @@ describe('JwtTokenService', () => {
     })
 
     it('Should not throw for a non-existent token', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         await expect(service.revokeRefreshToken('nonexistent')).resolves.not.toThrow()
       })
     })
@@ -290,9 +318,9 @@ describe('JwtTokenService', () => {
 
   describe('revokeAllRefreshTokensForUser', () => {
     it('Should remove all tokens for a user', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i)
-        const service = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const service = i.get(JwtTokenService)
         const token1 = await service.signRefreshToken(testUser)
         const token2 = await service.signRefreshToken(testUser)
         await service.revokeAllRefreshTokensForUser('testuser')

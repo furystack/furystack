@@ -12,19 +12,22 @@ yarn add @furystack/mongodb-store
 
 ## Initialization
 
+`defineMongoDbStore` mints a `StoreToken` backed by a MongoDB collection.
+The shared `MongoClientFactory` singleton pools `MongoClient` instances by
+URL and closes them when the owning injector is disposed.
+
 ```ts
-import { Injector } from '@furystack/inject'
-import { StoreManager } from '@furystack/core'
-import { useMongoDb } from '@furystack/mongodb-store'
+import { createInjector } from '@furystack/inject'
+import { defineMongoDbStore } from '@furystack/mongodb-store'
+import { defineDataSet } from '@furystack/repository'
 
 export class TestEntry {
   declare _id: string
   declare value: string
 }
 
-const myInjector = new Injector()
-useMongoDb({
-  injector: myInjector,
+export const TestEntryStore = defineMongoDbStore<TestEntry, '_id'>({
+  name: 'my-app/TestEntryStore',
   model: TestEntry,
   primaryKey: '_id',
   url: 'mongodb://localhost:27017',
@@ -32,7 +35,17 @@ useMongoDb({
   collection: 'TestEntries',
 })
 
-const myMongoStore = myInjector.getInstance(StoreManager).getStoreFor(TestEntry, '_id')
+export const TestEntryDataSet = defineDataSet({
+  name: 'my-app/TestEntryDataSet',
+  store: TestEntryStore,
+})
+
+const myInjector = createInjector()
+const dataSet = myInjector.get(TestEntryDataSet)
 ```
 
-> **Tip:** For application-level data access, wrap the physical store with a Repository DataSet using `getRepository(injector).createDataSet(Model, 'primaryKey')` and then use `getDataSetFor(injector, Model, 'primaryKey')` from `@furystack/repository`. This ensures authorization, hooks, and entity sync events are properly triggered.
+> **Tip:** For application-level data access, always go through a
+> `DataSetToken` rather than resolving the `StoreToken` directly. The
+> DataSet layer runs authorization, modification hooks, and entity-sync
+> events; a direct store access skips all of them. The
+> `furystack/no-direct-store-token` lint rule guards against this.

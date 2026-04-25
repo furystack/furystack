@@ -1,9 +1,7 @@
 import type { Injector } from '@furystack/inject'
-import { Injectable } from '@furystack/inject'
 import { debounce, ObservableValue } from '@furystack/utils'
 import type { CommandPaletteSuggestionResult, CommandProvider } from './command-provider.js'
 
-@Injectable({ lifetime: 'singleton' })
 export class CommandPaletteManager {
   public isOpened = new ObservableValue(false)
   public isLoading = new ObservableValue(false)

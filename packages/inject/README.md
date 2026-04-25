@@ -1,6 +1,6 @@
 # @furystack/inject
 
-Dependency injection / inversion of control package for FuryStack.
+Functional dependency injection for FuryStack. Tokens, not decorators.
 
 ## Installation
 
@@ -12,89 +12,190 @@ yarn add @furystack/inject
 
 ## Injector
 
-Injectors act as containers; they are responsible for creating and retrieving service instances based on the provided Injectable metadata. You can create an injector by simply instantiating the class:
+An `Injector` is a container: it resolves tokens to service instances, caches
+them according to their declared lifetime, and disposes everything it
+instantiated when it itself is disposed. Create one via `createInjector()`:
 
 ```ts
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 
-const myInjector = new Injector()
+const myInjector = createInjector()
 ```
 
-You can organize your injectors in trees by creating child injectors. You can use the children and services with scoped lifetime for contextual services:
+Child scopes — used for per-request, per-connection, or per-test state — are
+created with `.createScope(...)`:
 
 ```ts
-const childInjector = myInjector.createChild({ owner: 'myCustomContext' })
+const scope = myInjector.createScope({ owner: 'myCustomContext' })
 ```
 
-## Injectable
+A scope is itself an `Injector`. Scoped-lifetime tokens resolved on a scope are
+cached on that scope; disposing the scope runs every `onDispose` callback its
+factories registered.
 
-### Creating an Injectable Service from a Class
-
-You can create an injectable service from a plain class by decorating it with the `@Injectable()` decorator:
+The `withScope(parent, async (scope) => ...)` helper creates a scope, runs the
+callback, and disposes the scope in `finally`:
 
 ```ts
-import { Injectable } from '@furystack/inject'
+import { withScope } from '@furystack/inject'
 
-@Injectable({
-  /** Injectable options */
+await withScope(myInjector, async (scope) => {
+  const svc = scope.get(MyService)
+  // ...
 })
-export class MyService {
-  /** ...service implementation... */
-
-  constructor(s1: OtherInjectableService, s2: AnotherInjectableService) {}
-}
 ```
 
-The constructor parameters (`s1: OtherInjectableService` and `s2: AnotherInjectableService`) should also be decorated and will be resolved recursively.
+## Defining Services
 
-### Lifetime
-
-You can define a specific lifetime for injectable services in the decorator:
+Services are declared with `defineService` / `defineServiceAsync`, which each
+return an opaque **token**. The token carries the factory and lifetime; the
+caller never constructs the service directly.
 
 ```ts
-@Injectable({
-  lifetime: 'transient',
+import { defineService } from '@furystack/inject'
+
+export const MyService = defineService({
+  name: 'my-app/MyService',
+  lifetime: 'singleton',
+  factory: () => {
+    let value = 0
+    return {
+      increment: () => ++value,
+      getValue: () => value,
+    }
+  },
 })
-export class MyService {
-  /** ...service implementation... */
-}
 ```
 
-The lifetime can be
+- `name` is debug/readability only — token identity is the returned object reference.
+- `lifetime` is required; pick one of `singleton` / `scoped` / `transient`.
+- `factory` receives a `ServiceContext` and returns the service instance.
 
-- **transient** - A new instance will be created each time when you get an instance
-- **scoped** - A new instance will be created _if it doesn't exist on the current scope_. Can be useful for injectable services that can be used for contextual data.
-- **singleton** - A new instance will be created only if it doesn't exist on the _root_ injector. It will act as a singleton in other cases.
+### Lifetimes
 
-Injectables can only depend on services with _longer lifetime_, e.g. a **transient** can depend on a **singleton**, but inverting it will throw an error
+- **transient** — a new instance every resolution. Not cached.
+- **scoped** — one instance per scope. Cached on the first injector that resolves it.
+- **singleton** — one instance for the whole injector tree. Cached at the root.
 
-### Retrieving your service from the injector
+Type-level rule: a `singleton` factory can only depend on other `singleton`
+tokens. The `ctx.inject` resolver is refined per-lifetime, so mis-scoped
+dependencies are a compile-time error.
 
-You can retrieve a service by calling
+### Resolving Dependencies
+
+Inside a factory, pull dependencies via `ctx.inject` / `ctx.injectAsync`:
 
 ```ts
-const service = myInjector.getInstance(MyService)
+import { defineService } from '@furystack/inject'
+
+const Logger = defineService({
+  name: 'my-app/Logger',
+  lifetime: 'singleton',
+  factory: () => ({ log: (m: string) => console.log(m) }),
+})
+
+export const UserService = defineService({
+  name: 'my-app/UserService',
+  lifetime: 'singleton',
+  factory: ({ inject }) => {
+    const logger = inject(Logger)
+    return {
+      greet: (name: string) => logger.log(`hello ${name}`),
+    }
+  },
+})
 ```
 
-### Explicit instance setup
-
-There are cases that you have to set a service instance explicitly. You can do that in the following way
+Outside a factory, resolve via `injector.get(token)` (or `.getAsync(token)` for
+async tokens):
 
 ```ts
-class MyService {
-  constructor(public readonly foo: string)
-}
-
-myInjector.setExplicitInstance(new MyService('bar'))
+const userService = myInjector.get(UserService)
+userService.greet('alice')
 ```
 
-### Extension methods
+### Disposal
 
-A simple injector can easily be extended from 3rd party packages with extension methods, just like the FuryStack packages. These extension methods usually provide a shortcut to an instance or set up a preconfigured explicit instance of a service. You can build clean and fluent APIs in this way - you can check the [logging helpers](https://github.com/furystack/furystack/blob/develop/packages/logging/src/helpers.ts) for an example
+Factories register teardown with `ctx.onDispose`. Callbacks run in LIFO order
+on `injector[Symbol.asyncDispose]()`:
 
-### A few things to care about
+```ts
+export const ClientPool = defineService({
+  name: 'my-app/ClientPool',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const clients = new Map<string, Client>()
+    onDispose(async () => {
+      await Promise.all([...clients.values()].map((c) => c.close()))
+      clients.clear()
+    })
+    return {
+      getFor: (url: string) => clients.get(url) ?? /* ... */,
+    }
+  },
+})
+```
 
-**Circular imports:** If two of your services are importing each other, one of them will be ignored by CommonJS. TypeScript won't complain at compile time, but if you get this:
-`Uncaught TypeError: SomeService is not a constructor` - you should start reviewing how your injectables depend on each other.
+### Overrides — `bind` + `invalidate`
 
-**There is also a limitation by design:** A service can depend only on a service with a higher or equal lifetime than its lifetime. That means a _singleton_ cannot depend on a _transient_ or scoped service - you should get an exception at runtime if you try it.
+`injector.bind(token, factory)` installs a factory override on the injector
+that owns the cached instance for that token (root for singletons, this
+injector for scoped/transient). Any previously cached instance is dropped.
+
+```ts
+// Wire a persistent store behind a throw-by-default token at app bootstrap
+injector.bind(UserStore, () => new SequelizeStore({ model: User, primaryKey: 'username', ... }))
+
+// Reconfigure a settings token, then drop the dependent service cache
+injector.bind(LocationServiceSettings, () => ({ ...custom }))
+injector.invalidate(LocationService)
+```
+
+In tests, `bind` replaces the old `setExplicitInstance(...)` pattern and is
+the preferred way to substitute mocks:
+
+```ts
+injector.bind(DependencyToken, () => mockDependency)
+```
+
+### Async Services
+
+Use `defineServiceAsync` when the factory must await I/O. Async tokens can
+only be resolved via `injector.getAsync(...)`; the sync `get` rejects them at
+compile time.
+
+```ts
+const Config = defineServiceAsync({
+  name: 'my-app/Config',
+  lifetime: 'singleton',
+  factory: async () => JSON.parse(await fs.readFile('./config.json', 'utf8')),
+})
+
+const config = await myInjector.getAsync(Config)
+```
+
+## A few things to care about
+
+**Circular imports:** If two modules each import the other's token, one may
+be undefined at resolution time. TypeScript won't complain; you'll get
+`Cannot read properties of undefined (reading 'factory')` at runtime. Break
+the cycle via a lazy import or by splitting the shared dependency into its
+own module.
+
+**Lifetime invariants:** A service can depend only on tokens with a
+longer-or-equal lifetime than its own. The type of `ctx.inject` enforces the
+singleton → singleton rule at compile time; scoped/transient dependencies
+flow naturally.
+
+**Scope caching gotcha:** `findCached` walks the scope parent chain. If a
+setup step resolves a scoped token on an ancestor (commonly on the root),
+every descendant scope returns that same cached instance. Do setup inside a
+short-lived scope, or store per-scope state in a `WeakMap` keyed by a
+per-scope identity rather than on the service instance.
+
+**Extending the injector surface:** The `useXxx` helpers exported by other
+FuryStack packages (`useRestService`, `useHttpAuthentication`,
+`useJwtAuthentication`, …) do not run inside a factory. They internally use
+a scoped `CleanupRegistry` token to register disposal without a `ServiceContext`.
+Follow the same pattern when authoring your own setup helpers — see
+`packages/websocket-api/src/use-websocket-api.ts` for a reference.

@@ -45,7 +45,7 @@ export const Modal = Shade<ModalProps>({
       () => {
         if (!isVisible || !trapFocus) return { [Symbol.dispose]: () => {} }
 
-        const spatialNav = injector.getInstance(SpatialNavigationService)
+        const spatialNav = injector.get(SpatialNavigationService)
 
         const previousSection = spatialNav.activeSection.getValue()
         spatialNav.pushFocusTrap(sectionName)

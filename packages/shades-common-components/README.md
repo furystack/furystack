@@ -294,12 +294,13 @@ import { useThemeCssVariables, defaultLightTheme } from '@furystack/shades-commo
 useThemeCssVariables(defaultLightTheme)
 ```
 
-For reactive theme switching through the injector, use `ThemeProviderService`:
+For reactive theme switching through the injector, resolve the
+`ThemeProviderService` token:
 
 ```tsx
 import { ThemeProviderService, defaultDarkTheme } from '@furystack/shades-common-components'
 
-const themeProvider = injector.getInstance(ThemeProviderService)
+const themeProvider = injector.get(ThemeProviderService)
 themeProvider.setAssignedTheme(defaultDarkTheme)
 
 // Listen for changes
@@ -449,7 +450,7 @@ A singleton service for managing the active theme. It updates CSS variables and 
 ```tsx
 import { ThemeProviderService, defaultDarkTheme } from '@furystack/shades-common-components'
 
-const themeProvider = injector.getInstance(ThemeProviderService)
+const themeProvider = injector.get(ThemeProviderService)
 
 // Access the CSS-variable-based theme reference (for use in styles)
 const primaryColor = themeProvider.theme.palette.primary.main

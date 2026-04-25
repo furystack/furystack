@@ -1,5 +1,5 @@
-import { I18NService } from '@furystack/i18n'
-import { Injector } from '@furystack/inject'
+import { I18NServiceImpl } from '@furystack/i18n'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -8,7 +8,7 @@ import { createI18nComponent } from './create-i18n-component.js'
 type TestKeys = 'hello' | 'goodbye' | 'world'
 
 const createTestService = () => {
-  return new I18NService<TestKeys>(
+  return new I18NServiceImpl<TestKeys>(
     {
       code: 'en',
       values: {
@@ -45,7 +45,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should render with the initial translation', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
@@ -65,7 +65,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should render with the correct translation for different keys', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
@@ -91,7 +91,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should update when language changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
@@ -119,7 +119,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should fallback to default language for missing keys', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
@@ -144,7 +144,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should handle rapid language changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
@@ -172,7 +172,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should cleanup subscription on unmount', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const unsubscribeSpy = vi.fn()
       const originalSubscribe = service.subscribe.bind(service)
@@ -210,7 +210,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should render as span element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,
@@ -232,7 +232,7 @@ describe('createI18nComponent', () => {
   })
 
   it('should work with multiple instances using different keys', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const service = createTestService()
       const I18n = createI18nComponent({
         service,

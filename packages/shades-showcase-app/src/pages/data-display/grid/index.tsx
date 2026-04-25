@@ -10,7 +10,7 @@ import {
   Paper,
   SelectionCell,
 } from '@furystack/shades-common-components'
-import { GridPageService } from './grid-page-service.js'
+import type { GridPageService } from './grid-page-service.js'
 import { GridStatus } from './grid-status.js'
 import { itemRarities, itemTypes } from './game-item.js'
 
@@ -22,7 +22,18 @@ const rarityColors: Record<string, string> = {
   legendary: '#ff8000',
 }
 
-export const GridPage = Shade({
+/**
+ * Props for the grid showcase page. The `service` is a fully-initialized
+ * {@link GridPageService} instance — the route-level `<LazyLoad>` resolves
+ * it via `injector.getAsync(GridPageService)` in parallel with the page
+ * chunk download, then passes it in explicitly so the page itself has no
+ * lifecycle concerns.
+ */
+export type GridPageProps = {
+  service: GridPageService
+}
+
+export const GridPage = Shade<GridPageProps>({
   customElementName: 'shades-grid-page',
   css: {
     height: `100%`,
@@ -31,9 +42,9 @@ export const GridPage = Shade({
     position: 'relative',
   },
 
-  render: ({ injector, useObservable }) => {
-    const gridPageService = injector.getInstance(GridPageService)
-    const [findOptions, setFindOptions] = useObservable('findOptions', gridPageService.findOptions)
+  render: ({ props, useObservable }) => {
+    const { service } = props
+    const [findOptions, setFindOptions] = useObservable('findOptions', service.findOptions)
 
     return (
       <PageContainer>
@@ -61,7 +72,7 @@ export const GridPage = Shade({
               marginBottom: '8px',
             }}
           >
-            <GridStatus />
+            <GridStatus service={service} />
           </div>
           <div style={{ flex: '1', minHeight: '0', overflow: 'hidden' }}>
             <DataGrid
@@ -79,7 +90,7 @@ export const GridPage = Shade({
               findOptions={findOptions}
               onFindOptionsChange={setFindOptions}
               styles={undefined}
-              collectionService={gridPageService.collectionService}
+              collectionService={service.collectionService}
               columnFilters={
                 {
                   name: { type: 'string' },
@@ -100,7 +111,7 @@ export const GridPage = Shade({
                 customAction: () => <span style={{ paddingLeft: '1em' }}>Actions</span>,
               }}
               rowComponents={{
-                id: (entry) => <SelectionCell entry={entry} service={gridPageService.collectionService} />,
+                id: (entry) => <SelectionCell entry={entry} service={service.collectionService} />,
                 rarity: ({ rarity }) => (
                   <span
                     style={{

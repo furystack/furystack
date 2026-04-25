@@ -94,11 +94,11 @@ Check for:
 
 **FuryStack Library-Specific:**
 
-- Public API changes (exported functions, classes, types)
+- Public API changes (exported functions, tokens, types)
 - Breaking changes detection
-- Dependency injection patterns (`@Injectable`, `@Injected`)
+- Dependency injection patterns (`defineService`, `defineStore`, `defineDataSet`, `injector.get`/`bind`/`invalidate`/`createScope`, `useSystemIdentityContext`, throw-by-default store tokens)
 - Observable patterns (`ObservableValue`, subscriptions)
-- Disposable resources (`Symbol.dispose`, `Symbol.asyncDispose`)
+- Disposable resources (`Symbol.dispose`, `Symbol.asyncDispose`, factory `onDispose`)
 - Package structure and organization
 
 **Shades Patterns:**
@@ -154,7 +154,7 @@ Look for patterns in the diff that suggest a new custom ESLint rule should be ad
 - **Repeated anti-pattern fixes** — the same kind of correction applied across multiple files (e.g., replacing `X` with `Y` in 5+ places). If a human has to remember to avoid it, a lint rule can enforce it.
 - **New conventions introduced** — if the branch establishes a new "always do X instead of Y" pattern, it may be worth codifying as a rule.
 - **Manual enforcement via comments** — code comments like "don't do X", "always use Y here", or "TODO: lint rule for this" are direct signals.
-- **Domain-specific patterns** — especially around DI (`@Injectable`, `@Injected`), Observables (`ObservableValue`, subscriptions, disposal), Shades rendering (render hooks, JSX patterns), REST actions (`RequestError`, validation), and data access (`Repository`, `DataSet`).
+- **Domain-specific patterns** — especially around DI (`defineService`, `defineStore`, `defineDataSet`, token-based resolution), Observables (`ObservableValue`, subscriptions, disposal), Shades rendering (render hooks, JSX patterns), REST actions (`RequestError`, validation), and data access (`DataSetToken`, `StoreToken`).
 
 When evaluating a potential rule:
 

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +15,7 @@ describe('Button', () => {
   })
 
   const renderButton = async (props: Parameters<typeof Button>[0] = {}, children?: JSX.Element[]) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
@@ -72,7 +72,7 @@ describe('Button', () => {
     })
 
     it('should remove data-variant attribute when variant changes to undefined', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const root = document.getElementById('root')!
 
         const TestComponent = Shade<{ variant?: 'contained' | 'outlined' }>({

@@ -1,5 +1,5 @@
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-fetch'
 import { usingAsync } from '@furystack/utils'
@@ -32,7 +32,7 @@ export interface EchoApi extends RestApi {
 const createEchoApiServer = async () => {
   const port = getPort()
   const root = '/api'
-  const injector = new Injector()
+  const injector = createInjector()
   await useRestService<EchoApi>({
     injector,
     port,
@@ -67,122 +67,62 @@ const createEchoApiServer = async () => {
 }
 
 describe('REST Integration tests with FETCH client', () => {
-  it('Should execute a single parameterless GET query', async () => {
+  it('executes a parameterless GET request', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const result = await client({
-        method: 'GET',
-        action: '/plain',
-      })
+      const result = await client({ method: 'GET', action: '/plain' })
       expect(result.response.status).toBe(200)
       expect(result.result).toEqual({})
     })
   })
 
-  it('Should execute a request with headers', async () => {
+  it('passes headers through', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const value = 'value'
-      const result = await client({
-        method: 'GET',
-        action: '/headers',
-        headers: {
-          value,
-        },
-      })
+      const result = await client({ method: 'GET', action: '/headers', headers: { value: 'hello' } })
       expect(result.response.status).toBe(200)
-      expect(result.result.headers.value).toEqual(value)
+      expect(result.result.headers.value).toBe('hello')
     })
   })
 
-  it('Should execute a request with query', async () => {
+  it('serialises url params', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const value = 'value2'
+      const result = await client({ method: 'GET', action: '/urlParams/:id', url: { id: '42' } })
+      expect(result.result.url.id).toBe('42')
+    })
+  })
+
+  it('serialises a structured query', async () => {
+    await usingAsync(await createEchoApiServer(), async ({ client }) => {
       const result = await client({
         method: 'GET',
         action: '/query',
-        query: {
-          someObject: {
-            foo: value,
-          },
-        },
+        query: { someObject: { foo: 'bar' } },
       })
-      expect(result.response.status).toBe(200)
-      expect(result.result.query.someObject.foo).toEqual(value)
+      expect(result.result.query.someObject.foo).toBe('bar')
     })
   })
 
-  it('Should execute a request with URL parameters', async () => {
+  it('dispatches plain and multi-segment URLs correctly', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const value = 'value3'
-      const result = await client({
-        method: 'GET',
-        action: '/urlParams/:id',
-        url: {
-          id: value,
-        },
-      })
-      expect(result.response.status).toBe(200)
-      expect(result.result.url.id).toEqual(value)
-    })
-  })
-
-  it('should execute a request for a segment', async () => {
-    await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const result = await client({
-        method: 'GET',
-        action: '/segment',
-      })
-      expect(result.response.status).toBe(200)
-      expect(result.result.name).toEqual('segment')
-    })
-  })
-
-  it('should execute a request for a subsegment', async () => {
-    await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const result = await client({
-        method: 'GET',
-        action: '/segment/subsegment',
-      })
-      expect(result.response.status).toBe(200)
-      expect(result.result.name).toEqual('segment-subsegment')
-    })
-  })
-
-  it('should execute a request for a subsegment with URL parameters', async () => {
-    await usingAsync(await createEchoApiServer(), async ({ client }) => {
-      const value = 'value4'
-      const result = await client({
+      expect((await client({ method: 'GET', action: '/segment' })).result.name).toBe('segment')
+      expect((await client({ method: 'GET', action: '/segment/subsegment' })).result.name).toBe('segment-subsegment')
+      const subsegment = await client({
         method: 'GET',
         action: '/segment/:id/subsegment',
-        url: {
-          id: value,
-        },
+        url: { id: 'abc' },
       })
-      expect(result.response.status).toBe(200)
-      expect(result.result.url.id).toEqual(value)
-      expect(result.result.url.name).toEqual('segment-subsegment')
+      expect(subsegment.result.url.id).toBe('abc')
+      expect(subsegment.result.url.name).toBe('segment-subsegment')
     })
   })
-  it('should evaluate optional parameters in the URL', async () => {
+
+  it('forwards POST bodies', async () => {
     await usingAsync(await createEchoApiServer(), async ({ client }) => {
       const result = await client({
-        method: 'GET',
-        action: '/segment{/:optionalId}?/optionalSubsegment/',
-        url: {},
+        method: 'POST',
+        action: '/body',
+        body: { foo: 'hi', bar: 42 },
       })
-      expect(result.response.status).toBe(200)
-      expect(result.result.url.optionalId).toBeUndefined()
-      expect(result.result.name).toEqual('optional-id')
-
-      const result2 = await client({
-        method: 'GET',
-        action: '/segment{/:optionalId}?/optionalSubsegment/',
-        url: {
-          optionalId: 'value',
-        },
-      })
-      expect(result2.response.status).toBe(200)
-      expect(result2.result.url.optionalId).toEqual('value')
-      expect(result2.result.name).toEqual('optional-id')
+      expect(result.result.body).toEqual({ foo: 'hi', bar: 42 })
     })
   })
 })

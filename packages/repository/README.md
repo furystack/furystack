@@ -1,8 +1,8 @@
 # @furystack/repository
 
-Repository implementation for FuryStack.
-With a repository, you can implement entity-level business logic in an easy and structured way.
-You can authorize, manipulate, and observe CRUD operations.
+DataSet implementation for FuryStack. A DataSet wraps a physical store with
+entity-level business logic — authorization, modification hooks, and change
+events — in a structured way.
 
 ## Installation
 
@@ -12,14 +12,17 @@ npm install @furystack/repository
 yarn add @furystack/repository
 ```
 
-## Setting Up a Repository
+## Setting Up a DataSet
 
-You can set up a repository as follows:
+A DataSet is declared with `defineDataSet`. It takes the underlying
+`StoreToken` (from `@furystack/core` or a backend adapter) and optional
+settings (authorizers, modifiers, event callbacks). The returned
+`DataSetToken` is a DI token that resolves to a ready-to-use `DataSet`.
 
 ```ts
-import { Injector } from '@furystack/inject'
-import { InMemoryStore, addStore } from '@furystack/core'
-import { getRepository, getDataSetFor } from '@furystack/repository'
+import { createInjector } from '@furystack/inject'
+import { InMemoryStore, defineStore } from '@furystack/core'
+import { defineDataSet, getDataSetFor } from '@furystack/repository'
 import { getLogger } from '@furystack/logging'
 
 class MyModel {
@@ -27,57 +30,88 @@ class MyModel {
   declare value: string
 }
 
-const myInjector = new Injector()
-addStore(myInjector, new InMemoryStore({ model: MyModel, primaryKey: 'id' }))
-getRepository(myInjector).createDataSet(MyModel, 'id', {
-  onEntityAdded: ({ injector, entity }) => {
-    getLogger(injector).verbose({ message: `An entity was added with value '${entity.value}'` })
-  },
-  authorizeUpdate: async () => ({
-    isAllowed: false,
-    message: 'This is a read-only dataset. No update is allowed. :(',
-  }),
+const MyStore = defineStore({
+  name: 'my-app/MyStore',
+  model: MyModel,
+  primaryKey: 'id',
+  factory: () => new InMemoryStore({ model: MyModel, primaryKey: 'id' }),
 })
-```
 
-In the example above, we've created a physical InMemory store for the model `MyModel`, and we've configured a repository with a DataSet.
-It will log to a logger when an entity has been added, and it won't allow updates to entities.
+const MyDataSet = defineDataSet({
+  name: 'my-app/MyDataSet',
+  store: MyStore,
+  settings: {
+    onEntityAdded: ({ injector, entity }) => {
+      getLogger(injector).verbose({ message: `An entity was added with value '${entity.value}'` })
+    },
+    authorizeUpdate: async () => ({
+      isAllowed: false,
+      message: 'This is a read-only dataset. No update is allowed. :(',
+    }),
+  },
+})
+
+const myInjector = createInjector()
+```
 
 ### Working with the DataSet
 
-A DataSet is similar to a physical store, but it can have custom event callbacks and authorization logic.
-You can retrieve the dataset as follows:
+Resolve via `injector.get(MyDataSet)` or the convenience helper
+`getDataSetFor(injector, MyDataSet)`:
 
 ```ts
-const dataSet = getDataSetFor(myInjector, MyModel, 'id')
-dataSet.add(myInjector, { id: 1, value: 'foo' }) // <-- this will log to a logger
-dataSet.update(myInjector, 1, { id: 1, value: 'bar' }) // <--- this one will be rejected
+const dataSet = getDataSetFor(myInjector, MyDataSet)
+await dataSet.add(myInjector, { id: 1, value: 'foo' }) // <-- logs via onEntityAdded
+await dataSet.update(myInjector, 1, { id: 1, value: 'bar' }) // <-- rejected by authorizeUpdate
 ```
 
 ### Events
 
-Events are great for logging or monitoring DataSet changes or distributing changes to clients. They are simple optional callbacks – if defined, they will be called on a specific event. These events are `onEntityAdded`, `onEntityUpdated`, and `onEntityRemoved`
+Events are great for logging, monitoring DataSet changes, or distributing
+changes to clients. They are optional callbacks — if defined, they are called
+on a specific event. Supported events: `onEntityAdded`, `onEntityUpdated`,
+`onEntityRemoved`.
 
 ### Authorizing operations
 
-**Authorizers** are similar callbacks but they have to return a promise with an `AuthorizationResult` object - you can allow or deny CRUD operations or add additional filters to collections with these Authorize callbacks. These are `authorizeAdd`, `authorizeUpdate`, `authorizeUpdateEntity` (this needs an additional reload of entity but can compare with the original one), `authorizeRemove`, `authorizeRemoveEntity` (also needs reloading), `authorizeGet`, `authorizeGetEntity` (also needs reloading),
+**Authorizers** are similar callbacks that return a promise with an
+`AuthorizationResult`. You can allow or deny CRUD operations, or add
+additional filters to collections. Supported authorizers: `authorizeAdd`,
+`authorizeUpdate`, `authorizeUpdateEntity` (reloads the entity, compares with
+the original), `authorizeRemove`, `authorizeRemoveEntity`, `authorizeGet`,
+`authorizeGetEntity`.
 
 ### Modifiers and additional filters
 
-There are some callbacks that modify an entity before persisting (like `modifyOnAdd` or `modifyOnUpdate`). For example, you can fill createdByUser or lastModifiedByUser fields with these.
-There is an additional property called `addFilter`, you can use that to add a pre-filter condition **before** a filter expression will be evaluated in the data store - ensuring e.g. that the user can _retrieve_ only stuff from the physical store that they have permission for.
+`modifyOnAdd` / `modifyOnUpdate` transform entities before persisting (e.g.
+fill `createdByUser` / `lastModifiedByUser`). `addFilter` injects a
+pre-filter condition **before** a user-supplied filter expression is
+evaluated, ensuring the caller only ever sees entities they have permission
+for.
 
 ### Getting the Context
 
-All methods above have an _injector instance_ on the call parameter - you can use that injector to get service instances from the right caller context. It means that you can use e.g. HttpUserContext to get the current user.
+Every callback receives an `injector` — use it to resolve request-scoped
+services like `HttpUserContext` to identify the caller.
 
 ### Server-side writes and the elevated IdentityContext
 
-The DataSet is the **recommended write gateway** for all entity mutations. Writing through the DataSet ensures that authorization rules, modification hooks, and change events (`onEntityAdded`, `onEntityUpdated`, `onEntityRemoved`) are all triggered. These events are required for features like [entity sync](./../entity-sync-service/README.md) to work correctly.
+The DataSet is the **recommended write gateway** for all entity mutations.
+Writing through the DataSet ensures that authorization rules, modification
+hooks, and change events (`onEntityAdded`, `onEntityUpdated`,
+`onEntityRemoved`) all fire. These events are required for features like
+[entity sync](./../entity-sync-service/README.md) to work correctly.
 
-> **Warning:** Writing directly to the underlying physical store bypasses the DataSet layer entirely. No authorization checks, hooks, or events will fire, and downstream consumers (such as entity sync) will **not** be notified of the change.
+> **Warning:** Writing directly to the underlying physical store bypasses
+> the DataSet layer entirely. No authorization checks, hooks, or events
+> fire, and downstream consumers (such as entity sync) will **not** be
+> notified of the change. The `furystack/no-direct-store-token` lint rule
+> guards against this in application code.
 
-For server-side or background operations that don't originate from an HTTP request (e.g. scheduled jobs, migrations, seed scripts), you won't have a user session. Use `useSystemIdentityContext` from `@furystack/core` to create a scoped child injector with elevated privileges:
+For server-side or background operations that don't originate from an HTTP
+request (e.g. scheduled jobs, migrations, seed scripts), you won't have a
+user session. Use `useSystemIdentityContext` from `@furystack/core` to
+create a scoped child injector with elevated privileges:
 
 ```ts
 import { useSystemIdentityContext } from '@furystack/core'
@@ -85,12 +119,16 @@ import { getDataSetFor } from '@furystack/repository'
 import { usingAsync } from '@furystack/utils'
 
 await usingAsync(useSystemIdentityContext({ injector, username: 'background-job' }), async (systemInjector) => {
-  const dataSet = getDataSetFor(systemInjector, MyModel, 'id')
+  const dataSet = getDataSetFor(systemInjector, MyDataSet)
   await dataSet.add(systemInjector, { value: 'created by background job' })
 })
 // systemInjector is disposed here -- all scoped instances cleaned up
 ```
 
-> **Warning:** `useSystemIdentityContext` bypasses **all** authorization checks. Only use it in trusted server-side contexts. Never pass the returned injector to user-facing request handlers.
+> **Warning:** `useSystemIdentityContext` bypasses **all** authorization
+> checks. Only use it in trusted server-side contexts. Never pass the
+> returned injector to user-facing request handlers.
 
-This pattern ensures that all writes go through the same pipeline, keeping authorization, hooks, and event-driven features consistent regardless of the caller.
+This pattern ensures that all writes go through the same pipeline, keeping
+authorization, hooks, and event-driven features consistent regardless of
+the caller.

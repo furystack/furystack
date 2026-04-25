@@ -1,5 +1,5 @@
-import type { Constructable } from '@furystack/inject'
-import { hasInjectorReference, Injector } from '@furystack/inject'
+import type { Constructable } from '@furystack/core'
+import { Injector } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 import type { ChildrenList, CSSObject, PartialElement, RenderOptions } from './models/index.js'
 import type { RefObject } from './models/render-options.js'
@@ -166,16 +166,16 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
               this._refs.set(key, refObject as unknown as RefObject<Element>)
               return refObject as RefObject<T>
             },
-            useObservable: (key, obesrvable, options) => {
+            useObservable: (key, observable, options) => {
               const onChange = options?.onChange || (() => this.updateComponent())
-              return this.resourceManager.useObservable(key, obesrvable, onChange, options)
+              return this.resourceManager.useObservable(key, observable, onChange, options)
             },
             useState: (key, initialValue) =>
               this.resourceManager.useState(key, initialValue, this.updateComponent.bind(this)),
             useSearchState: (key, initialValue) =>
               this.resourceManager.useObservable(
                 `useSearchState-${key}`,
-                this.injector.getInstance(LocationService).useSearchParam(key, initialValue),
+                this.injector.get(LocationService).useSearchParam(key, initialValue),
                 () => this.updateComponent(),
               ),
 
@@ -416,8 +416,8 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             return this._injector
           }
 
-          const fromProps = hasInjectorReference(this.props) && this.props.injector
-          if (fromProps && fromProps instanceof Injector) {
+          const fromProps = (this.props as { injector?: unknown } | undefined)?.injector
+          if (fromProps instanceof Injector) {
             return fromProps
           }
 
@@ -426,7 +426,10 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
             this._injector = fromParent
             return fromParent
           }
-          // Injector not set explicitly and not found on parents!
+          // Fallback for isolated components (tests and non-DI use cases) that
+          // never reach for any services. Components that do resolve tokens
+          // will fail loudly at resolution time, since this throwaway injector
+          // has no bindings.
           return new Injector()
         }
 

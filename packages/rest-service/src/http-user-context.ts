@@ -1,17 +1,17 @@
 import type { User } from '@furystack/core'
 import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
-import { Injectable, Injected } from '@furystack/inject'
+import { defineService, type Token } from '@furystack/inject'
 import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security'
 import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import { randomBytes } from 'crypto'
 import type { IncomingMessage } from 'http'
 import { extractSessionIdFromCookies } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
-import type { DefaultSession } from './models/default-session.js'
 
 /**
- * Events emitted by the {@link HttpUserContext}
+ * Events emitted by a per-request {@link HttpUserContext} instance. Since
+ * the context is scoped, each request sees its own event stream.
  */
 export type HttpUserContextEvents = {
   onLogin: { user: User }
@@ -21,45 +21,77 @@ export type HttpUserContextEvents = {
 }
 
 /**
- * Injectable UserContext for FuryStack HTTP Api
+ * Request-scoped authentication/authorization facade.
+ *
+ * `HttpUserContext` consolidates identity lookup, authentication-provider
+ * walk-through and cookie session helpers behind a single object. Resolved
+ * users are memoized per `request.headers` via a {@link WeakMap} so repeated
+ * calls within the same request skip re-authentication — and so ancestor
+ * scopes caching the same `HttpUserContext` instance cannot leak an
+ * authenticated user into sibling requests.
  */
-@Injectable({ lifetime: 'scoped' })
-export class HttpUserContext extends EventHub<HttpUserContextEvents> {
-  public getUserDataSet = () => this.authentication.getUserDataSet(this.systemInjector)
+export interface HttpUserContext extends EventHub<HttpUserContextEvents> {
+  /** The active {@link HttpAuthenticationSettings} captured at resolve time. */
+  readonly authentication: HttpAuthenticationSettings
+  /** Whether the current user is authenticated according to the bound providers. */
+  isAuthenticated(request: Pick<IncomingMessage, 'headers'>): Promise<boolean>
+  /** Returns `true` when the current user has **all** of the supplied roles. */
+  isAuthorized(request: Pick<IncomingMessage, 'headers'>, ...roles: string[]): Promise<boolean>
+  /** Verifies a username/password pair against the system `PasswordAuthenticator`. */
+  authenticateUser(userName: string, password: string): Promise<User>
+  /** Returns the cached user for this request or resolves it via the provider chain. */
+  getCurrentUser(request: Pick<IncomingMessage, 'headers'>): Promise<User>
+  /** Extracts the session id for `request` using the configured cookie name. */
+  getSessionIdFromRequest(request: Pick<IncomingMessage, 'headers'>): string | null
+  /** Walks the configured authentication providers and returns the first match. */
+  authenticateRequest(request: Pick<IncomingMessage, 'headers'>): Promise<User>
+  /** Creates and persists a session for `user`, setting the cookie on `response`. */
+  cookieLogin(user: User, response: { setHeader: (header: string, value: string) => void }): Promise<User>
+  /** Clears the session identified by the request's cookie (if any). */
+  cookieLogout(
+    request: Pick<IncomingMessage, 'headers'>,
+    response: { setHeader: (header: string, value: string) => void },
+  ): Promise<void>
+}
 
-  public getSessionDataSet = () => this.authentication.getSessionDataSet(this.systemInjector)
-
-  private getUserByName = async (userName: string) => {
-    const userDataSet = this.getUserDataSet()
-    const users = await userDataSet.find(this.systemInjector, { filter: { username: { $eq: userName } }, top: 2 })
-    if (users.length !== 1) {
-      throw new UnauthenticatedError()
-    }
-    return users[0]
-  }
-
-  private user?: User
+/**
+ * Internal concrete EventHub-backed {@link HttpUserContext}. Exposed via
+ * the {@link HttpUserContextToken} token; constructed by its factory.
+ */
+class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements HttpUserContext {
+  /**
+   * Per-request user cache keyed by the request's `headers` object identity.
+   * Each incoming HTTP/WS message allocates its own `headers` object, so
+   * entries here never leak between requests — even when this
+   * `HttpUserContext` instance happens to be cached by an ancestor scope
+   * (e.g. because setup code resolved it on the root injector before any
+   * per-request child scope existed).
+   */
+  private readonly userCache = new WeakMap<object, Promise<User>>()
 
   /**
-   * @param request The request to be authenticated
-   * @returns whether the current user is authenticated
+   * `authenticator` is resolved lazily so that tests (and applications) that
+   * never invoke `authenticateUser` don't need to bind password-credential
+   * stores.
    */
-  public async isAuthenticated(request: IncomingMessage) {
+  constructor(
+    public readonly authentication: HttpAuthenticationSettings,
+    private readonly resolveAuthenticator: () => PasswordAuthenticator,
+    private readonly systemInjector: Injector,
+  ) {
+    super()
+  }
+
+  public async isAuthenticated(request: Pick<IncomingMessage, 'headers'>): Promise<boolean> {
     try {
       const currentUser = await this.getCurrentUser(request)
       return currentUser !== null
-    } catch (error) {
+    } catch {
       return false
     }
   }
 
-  /**
-   * Returns whether the current user can be authorized with ALL of the specified roles
-   * @param request The request to be authenticated
-   * @param roles The list of roles to authorize
-   * @returns a boolean value that indicates whether the user is authorized
-   */
-  public async isAuthorized(request: IncomingMessage, ...roles: string[]): Promise<boolean> {
+  public async isAuthorized(request: Pick<IncomingMessage, 'headers'>, ...roles: string[]): Promise<boolean> {
     const currentUser = await this.getCurrentUser(request)
     for (const role of roles) {
       if (!currentUser || !currentUser.roles.some((c) => c === role)) {
@@ -69,15 +101,8 @@ export class HttpUserContext extends EventHub<HttpUserContextEvents> {
     return true
   }
 
-  /**
-   * Checks if the system contains a user with the provided name and password, throws an error otherwise
-   * @param userName The username
-   * @param password The password
-   * @returns the authenticated User
-   */
-  public async authenticateUser(userName: string, password: string) {
-    const result = await this.authenticator.checkPasswordForUser(userName, password)
-
+  public async authenticateUser(userName: string, password: string): Promise<User> {
+    const result = await this.resolveAuthenticator().checkPasswordForUser(userName, password)
     if (!result.isValid) {
       throw new UnauthenticatedError()
     }
@@ -88,24 +113,26 @@ export class HttpUserContext extends EventHub<HttpUserContextEvents> {
     return user
   }
 
-  public async getCurrentUser(request: Pick<IncomingMessage, 'headers'>) {
-    if (!this.user) {
-      this.user = await this.authenticateRequest(request)
-      return this.user
+  public async getCurrentUser(request: Pick<IncomingMessage, 'headers'>): Promise<User> {
+    const key = request.headers
+    const cached = this.userCache.get(key)
+    if (cached) {
+      return cached
     }
-    return this.user
+    const pending = this.authenticateRequest(request)
+    this.userCache.set(key, pending)
+    try {
+      return await pending
+    } catch (error) {
+      this.userCache.delete(key)
+      throw error
+    }
   }
 
   public getSessionIdFromRequest(request: Pick<IncomingMessage, 'headers'>): string | null {
     return extractSessionIdFromCookies(request, this.authentication.cookieName)
   }
 
-  /**
-   * Iterates registered authentication providers in order.
-   * - A provider returning `User` means authentication succeeded.
-   * - A provider returning `null` means it does not apply; try the next one.
-   * - A provider throwing means it owns the request but auth failed; propagate the error.
-   */
   public async authenticateRequest(request: Pick<IncomingMessage, 'headers'>): Promise<User> {
     for (const provider of this.authentication.authenticationProviders) {
       const user = await provider.authenticate(request)
@@ -114,20 +141,14 @@ export class HttpUserContext extends EventHub<HttpUserContextEvents> {
     throw new UnauthenticatedError()
   }
 
-  /**
-   * Creates and sets up a cookie-based session for the provided user
-   * @param user The user to create a session for
-   * @param serverResponse A serverResponse to set the cookie
-   * @returns the current User
-   */
   public async cookieLogin(
     user: User,
-    serverResponse: { setHeader: (header: string, value: string) => void },
+    response: { setHeader: (header: string, value: string) => void },
   ): Promise<User> {
     const sessionId = randomBytes(32).toString('hex')
-    await this.getSessionDataSet().add(this.systemInjector, { sessionId, username: user.username })
-    serverResponse.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
-    this.user = user
+    const sessionDataSet = this.systemInjector.get(this.authentication.sessionDataSet)
+    await sessionDataSet.add(this.systemInjector, { sessionId, username: user.username })
+    response.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
     this.emit('onLogin', { user })
     return user
   }
@@ -135,45 +156,47 @@ export class HttpUserContext extends EventHub<HttpUserContextEvents> {
   public async cookieLogout(
     request: Pick<IncomingMessage, 'headers'>,
     response: { setHeader: (header: string, value: string) => void },
-  ) {
-    this.user = undefined
+  ): Promise<void> {
+    this.userCache.delete(request.headers)
     const sessionId = this.getSessionIdFromRequest(request)
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
 
     if (sessionId) {
-      const sessionDataSet = this.getSessionDataSet()
-      const sessions = await sessionDataSet.find(this.systemInjector, { filter: { sessionId: { $eq: sessionId } } })
-      await sessionDataSet.remove(this.systemInjector, ...sessions.map((s) => s[sessionDataSet.primaryKey]))
+      const sessionDataSet = this.systemInjector.get(this.authentication.sessionDataSet)
+      const sessions = await sessionDataSet.find(this.systemInjector, {
+        filter: { sessionId: { $eq: sessionId } },
+      })
+      await sessionDataSet.remove(this.systemInjector, ...sessions.map((s) => s.sessionId))
     }
     this.emit('onLogout', undefined)
   }
 
-  @Injected(HttpAuthenticationSettings)
-  declare public readonly authentication: HttpAuthenticationSettings<User, DefaultSession>
-
-  @Injected((injector: Injector) => useSystemIdentityContext({ injector, username: 'HttpUserContext' }))
-  declare private readonly systemInjector: Injector
-
-  @Injected(PasswordAuthenticator)
-  declare private readonly authenticator: PasswordAuthenticator
-
-  public init() {
-    this.getUserDataSet().addListener('onEntityUpdated', ({ id, change }) => {
-      if (this.user?.username === id) {
-        this.user = { ...this.user, ...change }
-      }
+  private async getUserByName(userName: string): Promise<User> {
+    const userDataSet = this.systemInjector.get(this.authentication.userDataSet)
+    const users = await userDataSet.find(this.systemInjector, {
+      filter: { username: { $eq: userName } },
+      top: 2,
     })
-
-    this.getUserDataSet().addListener('onEntityRemoved', ({ key }) => {
-      if (this.user?.username === key) {
-        this.user = undefined
-        this.emit('onSessionInvalidated', undefined)
-      }
-    })
-
-    this.getSessionDataSet().addListener('onEntityRemoved', () => {
-      this.user = undefined
-      this.emit('onSessionInvalidated', undefined)
-    })
+    if (users.length !== 1) {
+      throw new UnauthenticatedError()
+    }
+    return users[0]
   }
 }
+
+/**
+ * DI token for the per-request {@link HttpUserContext}. Scoped — each HTTP
+ * request resolves its own instance with a fresh `user` cache.
+ */
+export const HttpUserContext: Token<HttpUserContext, 'scoped'> = defineService({
+  name: 'furystack/rest-service/HttpUserContext',
+  lifetime: 'scoped',
+  factory: ({ inject, injector, onDispose }): HttpUserContext => {
+    const authentication = inject(HttpAuthenticationSettings)
+    const systemInjector = useSystemIdentityContext({ injector, username: 'HttpUserContext' })
+    onDispose(() => systemInjector[Symbol.asyncDispose]())
+    // Password authenticator resolution is deferred: tests that exercise only
+    // unauthenticated endpoints never have to bind credential stores.
+    return new HttpUserContextImpl(authentication, () => injector.get(PasswordAuthenticator), systemInjector)
+  },
+})

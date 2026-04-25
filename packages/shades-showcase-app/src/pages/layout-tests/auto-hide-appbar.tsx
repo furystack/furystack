@@ -13,7 +13,7 @@ import {
 const ShowAppBarButton = Shade({
   customElementName: 'show-appbar-button',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.appBarVisible.setValue(true)}>
         <Icon icon={icons.eye} size="small" /> Show AppBar
@@ -25,7 +25,7 @@ const ShowAppBarButton = Shade({
 const HideAppBarButton = Shade({
   customElementName: 'hide-appbar-button',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button variant="outlined" onclick={() => layoutService.appBarVisible.setValue(false)}>
         <Icon icon={icons.eyeOff} size="small" /> Hide AppBar

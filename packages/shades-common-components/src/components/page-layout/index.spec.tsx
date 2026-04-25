@@ -1,4 +1,5 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -24,7 +25,7 @@ describe('PageLayout component', () => {
   }
 
   const renderPageLayout = async (options: RenderOptions = {}) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
     initializeShadeRoot({
@@ -44,7 +45,7 @@ describe('PageLayout component', () => {
     return {
       injector,
       pageLayout,
-      layoutService: pageLayout.injector.getInstance(LayoutService),
+      layoutService: pageLayout.injector.get(LayoutService),
       [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }
@@ -58,7 +59,7 @@ describe('PageLayout component', () => {
     })
 
     it('should render children in content area', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -102,7 +103,7 @@ describe('PageLayout component', () => {
 
   describe('AppBar', () => {
     it('should render AppBar when configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -127,7 +128,7 @@ describe('PageLayout component', () => {
     })
 
     it('should not render AppBar when not configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -175,7 +176,7 @@ describe('PageLayout component', () => {
     })
 
     it('should add appbar-auto-hide class to host for auto-hide variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -200,7 +201,7 @@ describe('PageLayout component', () => {
     })
 
     it('should not add appbar-auto-hide class to host for permanent variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -225,7 +226,7 @@ describe('PageLayout component', () => {
     })
 
     it('should not have appbar-visible class initially for auto-hide variant (starts hidden)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -253,7 +254,7 @@ describe('PageLayout component', () => {
 
   describe('Left Drawer', () => {
     it('should render left drawer when configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -280,7 +281,7 @@ describe('PageLayout component', () => {
     })
 
     it('should not render left drawer when not configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -381,7 +382,7 @@ describe('PageLayout component', () => {
     })
 
     it('should add drawer-left-closed class to host when drawer is closed', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -411,7 +412,7 @@ describe('PageLayout component', () => {
 
   describe('Right Drawer', () => {
     it('should render right drawer when configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -438,7 +439,7 @@ describe('PageLayout component', () => {
     })
 
     it('should not render right drawer when not configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -480,7 +481,7 @@ describe('PageLayout component', () => {
 
   describe('Both Drawers', () => {
     it('should render both drawers when configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -539,7 +540,7 @@ describe('PageLayout component', () => {
 
   describe('Temporary Drawer Backdrop', () => {
     it('should render backdrop element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -565,7 +566,7 @@ describe('PageLayout component', () => {
     })
 
     it('should add backdrop-visible class to host when temporary drawer is open', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -593,7 +594,7 @@ describe('PageLayout component', () => {
     })
 
     it('should close temporary drawer when backdrop is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -629,7 +630,7 @@ describe('PageLayout component', () => {
 
   describe('Content Area', () => {
     it('should render content area', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -648,7 +649,7 @@ describe('PageLayout component', () => {
     })
 
     it('should set data-nav-section="content" on the content area for spatial navigation scoping', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -668,7 +669,7 @@ describe('PageLayout component', () => {
     })
 
     it('should set CSS variable for zero paddingTop when no AppBar is configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -690,7 +691,7 @@ describe('PageLayout component', () => {
     })
 
     it('should set CSS variable for paddingTop equal to AppBar height when AppBar is configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -718,7 +719,7 @@ describe('PageLayout component', () => {
     })
 
     it('should set CSS variable for topGap when configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -746,7 +747,7 @@ describe('PageLayout component', () => {
     })
 
     it('should set CSS variable for sideGap when configured', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -774,7 +775,7 @@ describe('PageLayout component', () => {
     })
 
     it('should respond to drawer state changes from LayoutService', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -797,7 +798,7 @@ describe('PageLayout component', () => {
         await flushUpdates()
 
         const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
-        const layoutService = pageLayout.injector.getInstance(LayoutService)
+        const layoutService = pageLayout.injector.get(LayoutService)
 
         // Initially open
         expect(pageLayout.hasAttribute('data-drawer-left-closed')).toBe(false)
@@ -811,7 +812,7 @@ describe('PageLayout component', () => {
     })
 
     it('should respond to appBarVisible changes for auto-hide variant', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -832,7 +833,7 @@ describe('PageLayout component', () => {
         await flushUpdates()
 
         const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
-        const layoutService = pageLayout.injector.getInstance(LayoutService)
+        const layoutService = pageLayout.injector.get(LayoutService)
 
         // Initially hidden for auto-hide variant
         expect(pageLayout.hasAttribute('data-appbar-visible')).toBe(false)
@@ -850,7 +851,7 @@ describe('PageLayout component', () => {
 
   describe('Full Layout', () => {
     it('should render complete layout with AppBar and both drawers', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -889,7 +890,7 @@ describe('PageLayout component', () => {
         expect(document.body.innerHTML).toContain('page-layout-content')
 
         const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
-        const layoutService = pageLayout.injector.getInstance(LayoutService)
+        const layoutService = pageLayout.injector.get(LayoutService)
 
         expect(layoutService.appBarHeight.getValue()).toBe('64px')
         expect(layoutService.drawerState.getValue()).toEqual({
@@ -902,7 +903,7 @@ describe('PageLayout component', () => {
 
   describe('Contained Mode', () => {
     it('should set data-contained attribute on host when contained is true', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -922,7 +923,7 @@ describe('PageLayout component', () => {
     })
 
     it('should not set data-contained attribute when contained is not set', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -942,7 +943,7 @@ describe('PageLayout component', () => {
     })
 
     it('should have absolute positioning when contained', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -963,7 +964,7 @@ describe('PageLayout component', () => {
     })
 
     it('should work with AppBar and drawers in contained mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -996,13 +997,13 @@ describe('PageLayout component', () => {
         expect(document.body.innerHTML).toContain('page-layout-drawer-left')
         expect(document.body.innerHTML).toContain('page-layout-content')
 
-        const layoutService = pageLayout.injector.getInstance(LayoutService)
+        const layoutService = pageLayout.injector.get(LayoutService)
         expect(layoutService.drawerState.getValue().left?.open).toBe(true)
       })
     })
 
     it('should support drawer toggle in contained mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -1026,7 +1027,7 @@ describe('PageLayout component', () => {
         await flushUpdates()
 
         const pageLayout = document.querySelector('shade-page-layout') as HTMLElement & { injector: Injector }
-        const layoutService = pageLayout.injector.getInstance(LayoutService)
+        const layoutService = pageLayout.injector.get(LayoutService)
 
         expect(pageLayout.hasAttribute('data-drawer-left-closed')).toBe(false)
 
@@ -1038,7 +1039,7 @@ describe('PageLayout component', () => {
     })
 
     it('should support temporary drawer backdrop click in contained mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({

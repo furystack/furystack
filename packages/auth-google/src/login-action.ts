@@ -17,9 +17,9 @@ const extractCookieValue = (cookieHeader: string | undefined, name: string): str
  * Google ID token, resolves the local user, then delegates session/token
  * creation to the provided {@link LoginResponseStrategy}.
  *
- * When {@link GoogleLoginService.enableCsrfCheck} is `true`, the action
- * validates the `g_csrf_token` double-submit cookie sent by Google
- * Identity Services before proceeding.
+ * When the configured {@link GoogleLoginService} has `enableCsrfCheck: true`,
+ * the action validates the `g_csrf_token` double-submit cookie sent by
+ * Google Identity Services before proceeding.
  *
  * The return type is inferred from the strategy:
  * - Cookie strategy -> `ActionResult<User>`
@@ -32,7 +32,7 @@ export const createGoogleLoginAction = <TResult>(
   strategy: LoginResponseStrategy<TResult>,
 ): RequestAction<{ result: TResult; body: { token: string; g_csrf_token?: string } }> => {
   return async ({ injector, getBody, request }) => {
-    const service = injector.getInstance(GoogleLoginService)
+    const service = injector.get(GoogleLoginService)
     const body = await getBody()
 
     if (service.enableCsrfCheck) {

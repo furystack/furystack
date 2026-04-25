@@ -12,10 +12,13 @@ yarn add @furystack/redis-store
 
 ## Usage Example
 
+`defineRedisStore` mints a `StoreToken` backed by a Redis client. The caller
+owns the client's lifecycle — connect before binding, quit when you're done.
+
 ```ts
-import { Injector } from '@furystack/inject'
-import { StoreManager } from '@furystack/core'
-import { useRedis } from '@furystack/redis-store'
+import { createInjector } from '@furystack/inject'
+import { defineRedisStore } from '@furystack/redis-store'
+import { defineDataSet } from '@furystack/repository'
 import { createClient } from 'redis'
 
 class MyModel {
@@ -23,15 +26,29 @@ class MyModel {
   declare value: string
 }
 
-const myInjector = new Injector()
-useRedis({
-  injector: myInjector,
+const client = createClient()
+await client.connect()
+
+export const MyStore = defineRedisStore<MyModel, 'id'>({
+  name: 'my-app/MyStore',
   model: MyModel,
   primaryKey: 'id',
-  client: createClient(),
+  client,
 })
 
-const myStore = myInjector.getInstance(StoreManager).getStoreFor(MyModel, 'id')
+export const MyDataSet = defineDataSet({
+  name: 'my-app/MyDataSet',
+  store: MyStore,
+})
+
+const myInjector = createInjector()
+const dataSet = myInjector.get(MyDataSet)
+// ... app code ...
+await client.quit()
 ```
 
-> **Tip:** For application-level data access, wrap the physical store with a Repository DataSet using `getRepository(injector).createDataSet(Model, 'primaryKey')` and then use `getDataSetFor(injector, Model, 'primaryKey')` from `@furystack/repository`. This ensures authorization, hooks, and entity sync events are properly triggered.
+> **Tip:** For application-level data access, always go through a
+> `DataSetToken` rather than resolving the `StoreToken` directly. The
+> DataSet layer runs authorization, modification hooks, and entity-sync
+> events; a direct store access skips all of them. The
+> `furystack/no-direct-store-token` lint rule guards against this.

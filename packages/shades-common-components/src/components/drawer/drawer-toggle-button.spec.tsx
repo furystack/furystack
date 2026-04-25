@@ -1,8 +1,8 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LayoutService } from '../../services/layout-service.js'
+import { LayoutService, createLayoutService } from '../../services/layout-service.js'
 import { DrawerToggleButton } from './drawer-toggle-button.js'
 
 /**
@@ -26,9 +26,9 @@ describe('DrawerToggleButton component', () => {
 
   describe('rendering', () => {
     it('should render the shade-drawer-toggle-button custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -45,9 +45,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should render a button element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -63,9 +63,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should render hamburger icon', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -91,9 +91,9 @@ describe('DrawerToggleButton component', () => {
     // The aria attributes are set in JSX and work correctly in browser environments.
 
     it('should accept ariaLabel prop with default value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -110,9 +110,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should accept custom ariaLabel prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -129,9 +129,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should reflect drawer state in visual appearance', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // Initialize drawer as open
@@ -162,9 +162,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should have type="button" to prevent form submission', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -182,9 +182,9 @@ describe('DrawerToggleButton component', () => {
 
   describe('toggling', () => {
     it('should toggle left drawer when clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // Initialize drawer as open
@@ -215,9 +215,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should toggle right drawer when clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // Initialize drawer as open
@@ -242,9 +242,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should not throw if drawer is not initialized', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -264,9 +264,9 @@ describe('DrawerToggleButton component', () => {
 
   describe('visual state', () => {
     it('should not have open class when drawer is closed', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // Initialize drawer as closed
@@ -285,9 +285,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should have open class when drawer is open', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // Initialize drawer as open
@@ -306,9 +306,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should update visual state when drawer state changes', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         // Initialize drawer as open
@@ -336,9 +336,9 @@ describe('DrawerToggleButton component', () => {
 
   describe('data-testid', () => {
     it('should have data-testid for left position', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -354,9 +354,9 @@ describe('DrawerToggleButton component', () => {
     })
 
     it('should have data-testid for right position', async () => {
-      await usingAsync(new Injector(), async (injector) => {
-        const layoutService = new LayoutService(createMockElement())
-        injector.setExplicitInstance(layoutService, LayoutService)
+      await usingAsync(createInjector(), async (injector) => {
+        const layoutService = createLayoutService(createMockElement())
+        injector.bind(LayoutService, () => layoutService)
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({

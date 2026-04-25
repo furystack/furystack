@@ -1,7 +1,8 @@
-import type { PhysicalStore } from './models/physical-store.js'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { Injector } from '@furystack/inject'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import type { PhysicalStore } from './models/physical-store.js'
 
 export class TestClass {
   declare id: number
@@ -36,7 +37,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
   describe(`Standard Physical Store tests for '${options.typeName}'`, () => {
     describe('General CRUD', () => {
       it('Should be created with empty by default', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const count = await store.count()
           expect(count).toBe(0)
@@ -44,7 +45,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should be able to store an entity', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const onAddListener = vi.fn()
 
           const store = options.createStore(i)
@@ -62,7 +63,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should be able to store an entity without providing an unique Id', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const onAddListener = vi.fn()
           const store = options.createStore(i)
 
@@ -83,7 +84,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should be able to store multiple entities', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const onAddListener = vi.fn()
 
           const store = options.createStore(i)
@@ -101,7 +102,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Add should throw and skip adding on duplicate IDs', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const onAddListener = vi.fn()
 
           const store = options.createStore(i)
@@ -120,7 +121,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should return undefined if no entry has been found', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const entity = await store.get(1)
           expect(entity).toBeUndefined()
@@ -128,7 +129,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should be able to retrieve an added entity', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const entity = createMockEntity()
           await store.add(entity)
@@ -138,7 +139,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should be able to retrieve an added entity with projection', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const entity = createMockEntity()
           await store.add(entity)
@@ -151,7 +152,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should be able to update an added entity', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const updateListener = vi.fn()
 
           const store = options.createStore(i)
@@ -170,7 +171,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Update should throw an error if the entity does not exists', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const updateListener = vi.fn()
 
           const store = options.createStore(i)
@@ -185,7 +186,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should remove an entity', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const removeListener = vi.fn()
 
           const store = options.createStore(i)
@@ -204,7 +205,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('Should remove multiple entities at once', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const removeListener = vi.fn()
           const store = options.createStore(i)
           store.addListener('onEntityRemoved', removeListener)
@@ -235,7 +236,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
     describe('Top, skip', () => {
       it('Should respect top and skip', async () => {
-        await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(createInjector(), async (injector) => {
           const store = options.createStore(injector)
           for (let i = 0; i < 10; i++) {
             await store.add(createMockEntity({ id: i }))
@@ -253,7 +254,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
     })
     describe('Ordering', () => {
       it('Should sort by numeric values', async () => {
-        await usingAsync(new Injector(), async (injector) => {
+        await usingAsync(createInjector(), async (injector) => {
           const store = options.createStore(injector)
           for (let i = 0; i < 10; i++) {
             await store.add(createMockEntity({ id: i, numberValue1: Math.random(), numberValue2: Math.random() }))
@@ -284,7 +285,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
     })
     describe('Filtering', () => {
       it('should filter strings with $eq', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -297,7 +298,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('should filter numbers with $eq', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ id: 1, numberValue1: 1 }),
@@ -310,7 +311,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries for multiple props', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -324,7 +325,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $in statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ stringValue1: 'asd' }),
@@ -339,7 +340,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $nin statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -354,7 +355,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $ne statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -369,7 +370,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $lt statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const { created } = await store.add(
             createMockEntity({ id: 1, numberValue1: 1 }),
@@ -384,7 +385,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $lte statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const { created } = await store.add(
             createMockEntity({ id: 1, numberValue1: 1 }),
@@ -399,7 +400,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $gt statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const { created } = await store.add(
             createMockEntity({ id: 1, numberValue1: 1 }),
@@ -414,7 +415,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $gte statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           const { created } = await store.add(
             createMockEntity({ id: 1, numberValue1: 1 }),
@@ -429,7 +430,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
       })
 
       it('filter should return the corresponding entries with $in AND $eq statement', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -445,7 +446,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
       describe('logical $and statements', () => {
         it('should filter $and logical statements with $eq statements', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             const { created } = await store.add(
               createMockEntity({ id: 1, numberValue1: 1, numberValue2: 1 }),
@@ -461,7 +462,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
 
         it('should filter $and logical statements with $ne statements', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             const { created } = await store.add(
               createMockEntity({ id: 1, numberValue1: 1, numberValue2: 2 }),
@@ -477,7 +478,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
 
         it('should filter $and logical statements with $lt/$gt statements', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             const { created } = await store.add(
               createMockEntity({ id: 1, numberValue1: 1, numberValue2: 2 }),
@@ -493,7 +494,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
 
         it('should filter $and logical statements with $lte/$gte statements', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             const { created } = await store.add(
               createMockEntity({ id: 1, numberValue1: 1, numberValue2: 1 }),
@@ -511,7 +512,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
       describe('logical $or statements', () => {
         it('should filter logical $or statements with $eq statements', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             const { created } = await store.add(
               createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -528,7 +529,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
 
         it('should filter logical $or statements with $neq statements', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             const { created } = await store.add(
               createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -547,7 +548,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
       describe('Nested $or and $and logical operators', () => {
         it('should filter $and operators inside $or-s', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             const { created } = await store.add(
               createMockEntity({ id: 1, numberValue1: 1, numberValue2: 3, booleanValue: true }),
@@ -575,7 +576,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
       if (!options.skipRegexTests) {
         it('filter should return the corresponding entries with $regex', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             await store.add(
               createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -592,7 +593,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
       if (!options.skipStringTests) {
         it('filter should return the corresponding entries with $startsWith', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             await store.add(
               createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -606,7 +607,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
           })
         })
         it('filter should return the corresponding entries with $endsWith', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             await store.add(
               createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -621,7 +622,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
 
         it('filter should return the corresponding entries with $like', async () => {
-          await usingAsync(new Injector(), async (i) => {
+          await usingAsync(createInjector(), async (i) => {
             const store = options.createStore(i)
             await store.add(
               createMockEntity({ id: 1, stringValue1: 'asd' }),
@@ -647,7 +648,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
 
     describe('Count', () => {
       it('Should return the count', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(createMockEntity(), createMockEntity(), createMockEntity())
           const count = await store.count()
@@ -655,7 +656,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
         })
       })
       it('Should respect filters', async () => {
-        await usingAsync(new Injector(), async (i) => {
+        await usingAsync(createInjector(), async (i) => {
           const store = options.createStore(i)
           await store.add(
             createMockEntity({ numberValue1: 1 }),

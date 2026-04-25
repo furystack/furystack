@@ -1,15 +1,10 @@
-import { AbstractLogger } from './abstract-logger.js'
+import { createLogger } from './create-logger.js'
 import type { LeveledLogEntry } from './log-entries.js'
+import type { Logger } from './logger.js'
 
 /**
- * A test logger instance with a callback for added events
+ * Creates a {@link Logger} that forwards every persisted entry to `onAddEntry`.
+ * Convenient for asserting log output in tests.
  */
-export class TestLogger extends AbstractLogger {
-  constructor(private readonly onAddEntry: <T>(entry: LeveledLogEntry<T>) => Promise<void>) {
-    super()
-  }
-
-  public async addEntry<T>(entry: LeveledLogEntry<T>): Promise<void> {
-    await this.onAddEntry(entry)
-  }
-}
+export const createTestLogger = (onAddEntry: <T>(entry: LeveledLogEntry<T>) => Promise<void>): Logger =>
+  createLogger(onAddEntry)

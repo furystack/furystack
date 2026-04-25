@@ -1,11 +1,10 @@
-import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
 import type { Injector } from '@furystack/inject'
 import { sleepAsync, using, usingAsync } from '@furystack/utils'
 import { promises } from 'fs'
 import { afterAll, describe, expect, it, vi } from 'vitest'
+import { defineFileSystemStore } from './define-filesystem-store.js'
 import { FileSystemStore } from './filesystem-store.js'
-import { useFileSystemStore } from './store-manager-helpers.js'
 
 let storeCount = 0
 
@@ -14,15 +13,13 @@ describe('FileSystemStore', () => {
   const createStore = (i: Injector) => {
     const fileName = `filestore-test-${storeCount++}.json`
     storeNames.push(fileName)
-
-    useFileSystemStore({
-      injector: i,
+    const token = defineFileSystemStore<TestClass, 'id'>({
+      name: `FileSystemStore-test-${storeCount}`,
       model: TestClass,
       fileName,
       primaryKey: 'id',
     })
-
-    return i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
+    return i.get(token)
   }
 
   createStoreTest({

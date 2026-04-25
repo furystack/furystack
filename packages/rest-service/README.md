@@ -19,8 +19,8 @@ Start by importing your custom API endpoint interface (see `@furystack/rest`) an
 Usage example – authenticated GET, GET collection, and POST APIs for a custom entity that has a physical store and repository set up:
 
 ```ts
-import { MyApi, MyEntity } from 'my-common-package'
-import { Injector } from '@furystack/inject'
+import { MyApi, MyEntity, MyEntityDataSet } from 'my-common-package'
+import { createInjector } from '@furystack/inject'
 import {
   createGetCollectionEndpoint,
   createGetEntityEndpoint,
@@ -30,7 +30,7 @@ import {
   useRestService,
 } from '@furystack/rest-service'
 
-const myInjector = new Injector()
+const myInjector = createInjector()
 useHttpAuthentication(myInjector)
 await useRestService<MyApi>({
   injector: myInjector,
@@ -45,20 +45,24 @@ await useRestService<MyApi>({
   api: {
     // Endpoints that can be called with GET HTTP method
     GET: {
-      '/my-entities': Authenticate()(createGetCollectionEndpoint({ model: MyEntity, primaryKey: 'id' })),
-      '/my-entities/:id': Authenticate()(createGetEntityEndpoint({ model: MyEntity, primaryKey: 'id' })),
+      '/my-entities': Authenticate()(createGetCollectionEndpoint(MyEntityDataSet)),
+      '/my-entities/:id': Authenticate()(createGetEntityEndpoint(MyEntityDataSet)),
     },
     // Endpoints that can be called with POST HTTP method
     POST: {
-      '/my-entities': Authenticate()(createPostEndpoint({ model: MyEntity, primaryKey: 'id' })),
+      '/my-entities': Authenticate()(createPostEndpoint(MyEntityDataSet)),
     },
   },
 })
 ```
 
-### Endpoint Generators (Based on Repository DataSets)
+Endpoint generators now take a `DataSetToken` directly. Define the token
+once with `defineDataSet` in a shared module and import it in both the
+server and any generators that need it.
 
-If you use the underlying layers of FuryStack (`PhysicalStore` -> `Repository`) for an entity type, you can easily create some CRUD endpoints for them. These include:
+### Endpoint Generators (Based on DataSets)
+
+If you use the underlying layers of FuryStack (`defineStore` → `defineDataSet`) for an entity type, you can easily create some CRUD endpoints for them. These include:
 
 - createDeleteEndpoint()
 - createGetCollectionEndpoint()
@@ -66,7 +70,7 @@ If you use the underlying layers of FuryStack (`PhysicalStore` -> `Repository`) 
 - createPatchEndpoint()
 - createPostEndpoint()
 
-The endpoints will use the defined Physical Stores for retrieving entities and the Repository for authorization / event subscriptions.
+Each generator takes a `DataSetToken` and resolves it via the per-request injector. Authorization, hooks, and events configured on the DataSet apply transparently.
 
 ### Custom Endpoint Implementation
 
@@ -109,9 +113,10 @@ export interface MyApiWithCustomEndpoint extends RestApi {
 
 /** In the Backend code */
 
+import { createInjector } from '@furystack/inject'
 import { JsonResult, useRestService } from '@furystack/rest-service'
 
-const i = new Injector()
+const i = createInjector()
 
 await useRestService<MyApiWithCustomEndpoint>({
   injector: i,
@@ -139,7 +144,8 @@ await useRestService<MyApiWithCustomEndpoint>({
 
         console.log('The headers are:', headers) /** {foo: 'asd', bar: 2, baz: false} */
 
-        const currentUser = await injector.getCurrentUser() // Injector is scoped to the Request
+        const httpUser = injector.get(HttpUserContext) // Injector is scoped to the Request
+        const currentUser = await httpUser.getCurrentUser()
         console.log('The current user is:', currentUser)
 
         return JsonResult({ success: true }, 200)
@@ -208,20 +214,31 @@ In that way, you will get full validation for _all_ defined endpoint data (heade
 You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. You can use it with the `useHttpAuthentication()` helper:
 
 ```ts
-import { useHttpAuthentication, useRestService } from '@furystack/rest-service'
-import { Injector } from '@furystack/inject'
-import { getDataSetFor } from '@furystack/repository'
+import { createInjector } from '@furystack/inject'
+import { useHttpAuthentication, useRestService, UserStore, SessionStore } from '@furystack/rest-service'
+// Persistent store factories and your app-specific DataSet tokens
+import { applicationUserStoreFactory, applicationSessionStoreFactory, ApplicationUserDataSet } from './my-app/stores.js'
 
-const myInjector = new Injector()
+const myInjector = createInjector()
+
+// Wire persistent stores behind the throw-by-default tokens
+myInjector.bind(UserStore, applicationUserStoreFactory)
+myInjector.bind(SessionStore, applicationSessionStoreFactory)
+
 useHttpAuthentication(myInjector, {
-  cookieName: 'sessionId', // The session ID will be stored in this cookie
-  enableBasicAuth: true, // Enables / disables standard Basic Authentication
-  model: ApplicationUserModel, // The custom User model. Should implement `User`
-  getUserDataSet: (injector) => getDataSetFor(injector, ApplicationUserModel, 'username'),
-  getSessionDataSet: (injector) => getDataSetFor(injector, MySessionModel, 'sessionId'),
+  cookieName: 'sessionId',
+  enableBasicAuth: true,
+  userDataSet: ApplicationUserDataSet,
 })
+
 await useRestService<MyApi>({ injector: myInjector, ...apiOptions })
 ```
+
+`useHttpAuthentication` binds the `HttpAuthenticationSettings` and
+`HttpUserContext` tokens. Your app is responsible for binding the
+`UserStore` / `SessionStore` tokens (which throw by default) to concrete
+persistent implementations, and for passing the `DataSetToken` that backs
+user lookups.
 
 ### Static File Serving
 
@@ -322,14 +339,14 @@ The proxy server acts as an intermediary, forwarding requests and responses whil
 
 **Error Handling and Monitoring:**
 
-The proxy emits events when requests fail, allowing you to monitor and log errors:
+Proxy failures are routed through the `ServerTelemetryToken`, which is a
+singleton event hub shared by every `useXxx` helper in this package:
 
 ```ts
-import { ProxyManager } from '@furystack/rest-service'
+import { ServerTelemetryToken } from '@furystack/rest-service'
 
-// Set up error monitoring
-const proxyManager = injector.getInstance(ProxyManager)
-proxyManager.subscribe('onProxyFailed', ({ from, to, error }) => {
+const telemetry = injector.get(ServerTelemetryToken)
+telemetry.subscribe('onProxyFailed', ({ from, to, error }) => {
   console.error(`Proxy failed: ${from} -> ${to}`, error)
   // Send to your logging service
 })
@@ -369,11 +386,13 @@ When enabled, the proxy will forward WebSocket upgrade requests to the target se
 - Timeout configuration (applies to upgrade handshake)
 - Error monitoring via `onWebSocketProxyFailed` events
 
-Monitor WebSocket proxy errors:
+Monitor WebSocket proxy errors via the same telemetry token:
 
 ```ts
-const proxyManager = injector.getInstance(ProxyManager)
-proxyManager.subscribe('onWebSocketProxyFailed', ({ from, to, error }) => {
+import { ServerTelemetryToken } from '@furystack/rest-service'
+
+const telemetry = injector.get(ServerTelemetryToken)
+telemetry.subscribe('onWebSocketProxyFailed', ({ from, to, error }) => {
   console.error(`WebSocket proxy failed: ${from} -> ${to}`, error)
 })
 ```

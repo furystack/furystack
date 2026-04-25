@@ -1,4 +1,5 @@
-import { Injectable } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 import type { MatchChainEntry } from '../components/nested-router.js'
 
@@ -7,11 +8,19 @@ import type { MatchChainEntry } from '../components/nested-router.js'
  * NestedRouter as an observable. Consumers (breadcrumbs, document title,
  * navigation trees) subscribe to this instead of re-running route matching.
  */
-@Injectable({ lifetime: 'singleton' })
-export class RouteMatchService implements Disposable {
-  public readonly currentMatchChain = new ObservableValue<MatchChainEntry[]>([])
-
-  public [Symbol.dispose]() {
-    this.currentMatchChain[Symbol.dispose]()
-  }
+export interface RouteMatchService {
+  readonly currentMatchChain: ObservableValue<MatchChainEntry[]>
 }
+
+export const RouteMatchService: Token<RouteMatchService, 'singleton'> = defineService({
+  name: '@furystack/shades/RouteMatchService',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const currentMatchChain = new ObservableValue<MatchChainEntry[]>([])
+    onDispose(() => {
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is deferred to the injector's onDispose hook.
+      currentMatchChain[Symbol.dispose]()
+    })
+    return { currentMatchChain }
+  },
+})

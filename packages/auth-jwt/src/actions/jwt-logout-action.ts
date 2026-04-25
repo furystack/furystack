@@ -14,7 +14,7 @@ export const JwtLogoutAction: RequestAction<{
   body: { refreshToken: string }
 }> = async ({ injector, getBody }) => {
   const body = await getBody()
-  await injector.getInstance(JwtTokenService).revokeRefreshToken(body.refreshToken)
-  const settings = injector.getInstance(JwtAuthenticationSettings)
+  await injector.get(JwtTokenService).revokeRefreshToken(body.refreshToken)
+  const settings = injector.get(JwtAuthenticationSettings)
   return EmptyResult(200, fingerprintClearCookieHeaders(settings.fingerprintCookie))
 }

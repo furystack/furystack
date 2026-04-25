@@ -62,7 +62,7 @@ const SampleContent = ({ text }: { text: string }) => (
 const ToggleLeftDrawerButton = Shade({
   customElementName: 'showcase-toggle-left',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button
         variant="outlined"
@@ -78,7 +78,7 @@ const ToggleLeftDrawerButton = Shade({
 const OpenTempDrawerButton = Shade({
   customElementName: 'showcase-open-temp-drawer',
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <Button
         variant="outlined"
@@ -114,7 +114,7 @@ const ShowAppBarTab = Shade({
     },
   },
   render: ({ injector }) => {
-    const layoutService = injector.getInstance(LayoutService)
+    const layoutService = injector.get(LayoutService)
     return (
       <div
         className="appbar-hover-tab"

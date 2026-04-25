@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot, LocationService, SpatialNavigationService } from '@furystack/shades'
 import {
   defaultDarkTheme,
@@ -12,10 +12,10 @@ import {
 import { App } from './app.js'
 import './style.css'
 
-export const shadesInjector = new Injector()
+export const shadesInjector = createInjector()
 
-shadesInjector.getInstance(ThemeProviderService)
-shadesInjector.getInstance(SpatialNavigationService)
+shadesInjector.get(ThemeProviderService)
+shadesInjector.get(SpatialNavigationService)
 
 useThemeCssVariables(defaultLightTheme)
 injectFocusVisibleStyles()
@@ -29,7 +29,7 @@ initializeShadeRoot({
 })
 
 shadesInjector
-  .getInstance(LocationService)
+  .get(LocationService)
   .useSearchParam('searchValue', 'default value')
   .subscribe((value) => {
     console.log('searchValue param changed', value)
@@ -58,7 +58,7 @@ Object.assign(window, {
       | 'xenomorph'
       | 'hawkins',
   ) => {
-    const themeProvider = shadesInjector.getInstance(ThemeProviderService)
+    const themeProvider = shadesInjector.get(ThemeProviderService)
     switch (themeName) {
       case 'dark':
         themeProvider.setAssignedTheme(defaultDarkTheme)

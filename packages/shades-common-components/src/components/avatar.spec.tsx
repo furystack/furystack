@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ describe('Avatar component', () => {
   })
 
   it('should render an image with the provided avatarUrl', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const testUrl = 'https://example.com/avatar.png'
 
@@ -37,7 +37,7 @@ describe('Avatar component', () => {
   })
 
   it('should display default fallback icon when image fails to load', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -71,7 +71,7 @@ describe('Avatar component', () => {
   })
 
   it('should display custom fallback when image fails to load and fallback prop is provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const customFallback = <span data-testid="custom-fallback">AB</span>
 
@@ -107,7 +107,7 @@ describe('Avatar component', () => {
   })
 
   it('should apply custom style from props', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -126,7 +126,7 @@ describe('Avatar component', () => {
   })
 
   it('should pass through additional props to the container', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({

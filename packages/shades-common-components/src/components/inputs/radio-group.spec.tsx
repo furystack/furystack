@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -16,7 +16,7 @@ describe('RadioGroup', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -38,7 +38,7 @@ describe('RadioGroup', () => {
   })
 
   it('should set the radiogroup role', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -59,7 +59,7 @@ describe('RadioGroup', () => {
   })
 
   it('should render the label title', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -81,7 +81,7 @@ describe('RadioGroup', () => {
   })
 
   it('should not render label span when labelTitle is not provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -103,7 +103,7 @@ describe('RadioGroup', () => {
 
   describe('orientation', () => {
     it('should default to vertical orientation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -124,7 +124,7 @@ describe('RadioGroup', () => {
     })
 
     it('should set horizontal orientation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -147,7 +147,7 @@ describe('RadioGroup', () => {
 
   describe('name propagation', () => {
     it('should set the name attribute on child radio inputs', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -173,7 +173,7 @@ describe('RadioGroup', () => {
 
   describe('value selection', () => {
     it('should set the correct radio as checked based on value prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -198,7 +198,7 @@ describe('RadioGroup', () => {
     })
 
     it('should set the correct radio as checked based on defaultValue prop', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -225,7 +225,7 @@ describe('RadioGroup', () => {
 
   describe('disabled state', () => {
     it('should disable all radio inputs when group is disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -251,7 +251,7 @@ describe('RadioGroup', () => {
 
   describe('onchange callback', () => {
     it('should call onchange when a radio is selected', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onchange = vi.fn()
 

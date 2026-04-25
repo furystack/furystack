@@ -1,4 +1,5 @@
-import { Injectable } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import { ObservableValue, type ValueObserver } from '@furystack/utils'
 
 /**
@@ -20,11 +21,8 @@ export type AppBarVariant = 'permanent' | 'auto-hide'
  * Drawer configuration for a single side (left or right).
  */
 export type DrawerSideState = {
-  /** Whether the drawer is currently open */
   open: boolean
-  /** Width of the drawer (CSS value, e.g., '240px') */
   width: string
-  /** Variant that determines how the drawer affects content layout */
   variant: DrawerVariant
 }
 
@@ -32,165 +30,152 @@ export type DrawerSideState = {
  * State for all drawers in the layout.
  */
 export type DrawerState = {
-  /** Left drawer configuration */
   left?: DrawerSideState
-  /** Right drawer configuration */
   right?: DrawerSideState
 }
 
 /**
- * CSS variable names managed by LayoutService.
- * These variables are set on the PageLayout host element for scoped access.
- *
- * Use these to access layout dimensions in your components:
- * ```typescript
- * // In Shade css property
- * css: {
- *   height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})`,
- *   marginLeft: `var(${LAYOUT_CSS_VARIABLES.contentMarginLeft})`,
- * }
- *
- * // In inline styles
- * style={{ height: `var(${LAYOUT_CSS_VARIABLES.contentAvailableHeight})` }}
- * ```
+ * CSS variable names managed by LayoutService. Exposed so consumer components
+ * can reference the same names in their own CSS.
  */
 export const LAYOUT_CSS_VARIABLES = {
-  /** Height of the AppBar (e.g., '48px') */
   appBarHeight: '--layout-appbar-height',
-  /** Top gap spacing between AppBar and content */
   topGap: '--layout-top-gap',
-  /** Side gap spacing for content padding */
   sideGap: '--layout-side-gap',
-  /** Total padding from top (appBarHeight + topGap) */
   contentPaddingTop: '--layout-content-padding-top',
-  /** Current width of the left drawer (0 when closed for collapsible/temporary) */
   drawerLeftWidth: '--layout-drawer-left-width',
-  /** Current width of the right drawer (0 when closed for collapsible/temporary) */
   drawerRightWidth: '--layout-drawer-right-width',
-  /** Configured width of the left drawer (always set, even when closed) */
   drawerLeftConfiguredWidth: '--layout-drawer-left-configured-width',
-  /** Configured width of the right drawer (always set, even when closed) */
   drawerRightConfiguredWidth: '--layout-drawer-right-configured-width',
-  /** Top margin for content (deprecated, use contentPaddingTop instead) */
   contentMarginTop: '--layout-content-margin-top',
-  /** Left margin for content (considers drawer variant) */
   contentMarginLeft: '--layout-content-margin-left',
-  /** Right margin for content (considers drawer variant) */
   contentMarginRight: '--layout-content-margin-right',
 } as const
 
 /**
- * Scoped service for managing layout state within a PageLayout component.
- *
- * This service is created per PageLayout instance and sets CSS variables on the
- * host element rather than document.documentElement, providing proper scoping.
- *
- * Manages:
- * - Drawer open/close state and widths
- * - AppBar visibility (for auto-hide mode)
- * - CSS custom properties for layout dimensions (scoped to the PageLayout)
- *
- * **Note:** For responsive breakpoint detection, use `ScreenService` from `@furystack/shades`.
- * ScreenService provides `screenSize.atLeast[size]` observables for responsive behavior.
- *
- * @example
- * ```typescript
- * // Get layout service from injector (must be inside PageLayout)
- * const layoutService = injector.getInstance(LayoutService);
- *
- * // Toggle left drawer
- * layoutService.toggleDrawer('left');
- * ```
+ * Thrown when a component tries to resolve {@link LayoutService} but no
+ * `<PageLayout>` ancestor has bound one on its scoped injector.
  */
-@Injectable({ lifetime: 'explicit' })
-export class LayoutService implements Disposable {
-  /**
-   * Observable state for all drawers.
-   * Subscribe to receive updates when any drawer opens, closes, or changes width.
-   */
-  public drawerState = new ObservableValue<DrawerState>({})
+export class LayoutServiceNotConfiguredError extends Error {
+  constructor() {
+    super(
+      'LayoutService is not configured on this injector scope. Render components that depend on LayoutService inside a <PageLayout>.',
+    )
+    this.name = 'LayoutServiceNotConfiguredError'
+  }
+}
 
-  /**
-   * AppBar visibility state.
-   * Used for auto-hide AppBar mode - set to false to hide the AppBar.
-   */
-  public appBarVisible = new ObservableValue<boolean>(true)
+/**
+ * Scoped service managing layout state within a PageLayout component.
+ *
+ * Exposes observables for drawer state, AppBar visibility, gap values and a
+ * set of CSS custom properties that are optionally mirrored onto a target
+ * element.
+ */
+export interface LayoutService extends Disposable {
+  readonly drawerState: ObservableValue<DrawerState>
+  readonly appBarVisible: ObservableValue<boolean>
+  readonly appBarVariant: ObservableValue<AppBarVariant>
+  readonly appBarHeight: ObservableValue<string>
+  readonly topGap: ObservableValue<string>
+  readonly sideGap: ObservableValue<string>
+  toggleDrawer(position: 'left' | 'right'): void
+  setDrawerOpen(position: 'left' | 'right', open: boolean): void
+  setDrawerWidth(position: 'left' | 'right', width: string): void
+  initDrawer(position: 'left' | 'right', config: DrawerSideState): void
+  removeDrawer(position: 'left' | 'right'): void
+  setTopGap(gap: string): void
+  setSideGap(gap: string): void
+  getContentMarginForPosition(position: 'left' | 'right'): string
+}
 
-  /**
-   * AppBar variant that determines visibility behavior.
-   * - 'permanent': Always visible, content has padding for appbar
-   * - 'auto-hide': Hidden by default, overlays content when visible
-   */
-  public appBarVariant = new ObservableValue<AppBarVariant>('permanent')
+/**
+ * Creates a fresh {@link LayoutService} instance. Used by `<PageLayout>` to
+ * bind a per-scope service inside a child injector. Consumer code should go
+ * through the {@link LayoutService} token rather than calling this directly.
+ * @param targetElement - Optional element (or ref) that will have CSS variables
+ *   applied as the layout state changes. When omitted, CSS variables are not
+ *   written — the page-layout component applies them via host props instead.
+ */
+export const createLayoutService = (
+  targetElement?: HTMLElement | { readonly current: HTMLElement | null },
+): LayoutService => {
+  const drawerState = new ObservableValue<DrawerState>({})
+  const appBarVisible = new ObservableValue<boolean>(true)
+  const appBarVariant = new ObservableValue<AppBarVariant>('permanent')
+  const appBarHeight = new ObservableValue<string>('48px')
+  const topGap = new ObservableValue<string>('0px')
+  const sideGap = new ObservableValue<string>('0px')
 
-  /**
-   * Current AppBar height.
-   * Used for calculating content margins.
-   */
-  public appBarHeight = new ObservableValue<string>('48px')
-
-  /**
-   * Top gap spacing between AppBar and content.
-   * CSS value (e.g., '0px', '16px').
-   */
-  public topGap = new ObservableValue<string>('0px')
-
-  /**
-   * Side gap spacing for content padding.
-   * CSS value (e.g., '0px', '16px').
-   */
-  public sideGap = new ObservableValue<string>('0px')
-
-  private drawerStateSubscription: ValueObserver<DrawerState> | null = null
-  private appBarHeightSubscription: ValueObserver<string> | null = null
-  private appBarVariantSubscription: ValueObserver<AppBarVariant> | null = null
-  private topGapSubscription: ValueObserver<string> | null = null
-  private sideGapSubscription: ValueObserver<string> | null = null
-
-  /**
-   * Creates a new LayoutService instance scoped to the given element or ref.
-   *
-   * @param targetElement - The element (or ref) to set CSS variables on (typically the PageLayout host).
-   *                        If undefined (e.g., in SSR), CSS variables won't be set.
-   */
-  constructor(private targetElement?: HTMLElement | { readonly current: HTMLElement | null }) {
-    this.setupCssVariableSync()
-    this.updateCssVariables()
+  const getTarget = (): HTMLElement | undefined => {
+    if (!targetElement) return undefined
+    if ('current' in targetElement) return targetElement.current ?? undefined
+    return targetElement
   }
 
-  private getTarget(): HTMLElement | undefined {
-    if (!this.targetElement) return undefined
-    if ('current' in this.targetElement) return this.targetElement.current ?? undefined
-    return this.targetElement
-  }
-
-  /**
-   * Toggles the open/close state of a drawer.
-   * If the drawer doesn't exist in the state, this is a no-op.
-   *
-   * @param position - Which drawer to toggle ('left' or 'right')
-   */
-  public toggleDrawer(position: 'left' | 'right'): void {
-    const currentState = this.drawerState.getValue()
-    const drawerConfig = currentState[position]
-
-    if (drawerConfig) {
-      this.setDrawerOpen(position, !drawerConfig.open)
+  const getContentMarginForDrawer = (state: DrawerSideState | undefined): string => {
+    if (!state) return '0px'
+    switch (state.variant) {
+      case 'temporary':
+        return '0px'
+      case 'permanent':
+        return state.width
+      case 'collapsible':
+      default:
+        return state.open ? state.width : '0px'
     }
   }
 
-  /**
-   * Sets the open state of a drawer.
-   * Creates the drawer entry if it doesn't exist.
-   *
-   * @param position - Which drawer to modify ('left' or 'right')
-   * @param open - Whether the drawer should be open
-   */
-  public setDrawerOpen(position: 'left' | 'right', open: boolean): void {
-    const currentState = this.drawerState.getValue()
-    const existingConfig = currentState[position]
+  const updateCssVariables = (): void => {
+    const target = getTarget()
+    if (!target) return
 
-    this.drawerState.setValue({
+    const state = drawerState.getValue()
+    const appBarHeightValue = appBarHeight.getValue()
+    const appBarVariantValue = appBarVariant.getValue()
+    const topGapValue = topGap.getValue()
+    const sideGapValue = sideGap.getValue()
+
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.appBarHeight, appBarHeightValue)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGapValue)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGapValue)
+
+    const contentPaddingTop =
+      appBarVariantValue === 'auto-hide' ? topGapValue : `calc(${appBarHeightValue} + ${topGapValue})`
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, contentPaddingTop)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeightValue)
+
+    const leftConfiguredWidth = state.left?.width ?? '0px'
+    const leftWidth = state.left?.open ? state.left.width : '0px'
+    const leftContentMargin = getContentMarginForDrawer(state.left)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth, leftConfiguredWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftWidth, leftWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginLeft, leftContentMargin)
+
+    const rightConfiguredWidth = state.right?.width ?? '0px'
+    const rightWidth = state.right?.open ? state.right.width : '0px'
+    const rightContentMargin = getContentMarginForDrawer(state.right)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightConfiguredWidth, rightConfiguredWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightWidth, rightWidth)
+    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginRight, rightContentMargin)
+  }
+
+  const subscriptions: Array<ValueObserver<unknown>> = []
+  const track = <T>(observable: ObservableValue<T>): void => {
+    subscriptions.push(observable.subscribe(() => updateCssVariables()) as ValueObserver<unknown>)
+  }
+  track(drawerState)
+  track(appBarHeight)
+  track(appBarVariant)
+  track(topGap)
+  track(sideGap)
+
+  updateCssVariables()
+
+  const setDrawerOpen = (position: 'left' | 'right', open: boolean): void => {
+    const currentState = drawerState.getValue()
+    const existingConfig = currentState[position]
+    drawerState.setValue({
       ...currentState,
       [position]: {
         width: existingConfig?.width ?? '240px',
@@ -200,18 +185,10 @@ export class LayoutService implements Disposable {
     })
   }
 
-  /**
-   * Sets the width of a drawer.
-   * Creates the drawer entry if it doesn't exist (defaults to closed).
-   *
-   * @param position - Which drawer to modify ('left' or 'right')
-   * @param width - The CSS width value (e.g., '240px', '20rem')
-   */
-  public setDrawerWidth(position: 'left' | 'right', width: string): void {
-    const currentState = this.drawerState.getValue()
+  const setDrawerWidth = (position: 'left' | 'right', width: string): void => {
+    const currentState = drawerState.getValue()
     const existingConfig = currentState[position]
-
-    this.drawerState.setValue({
+    drawerState.setValue({
       ...currentState,
       [position]: {
         open: existingConfig?.open ?? false,
@@ -221,189 +198,72 @@ export class LayoutService implements Disposable {
     })
   }
 
-  /**
-   * Initializes a drawer with the given configuration.
-   * Use this when setting up a drawer for the first time.
-   *
-   * @param position - Which drawer to initialize ('left' or 'right')
-   * @param config - Initial drawer configuration
-   */
-  public initDrawer(position: 'left' | 'right', config: DrawerSideState): void {
-    const currentState = this.drawerState.getValue()
-
-    this.drawerState.setValue({
-      ...currentState,
-      [position]: config,
-    })
+  const initDrawer = (position: 'left' | 'right', config: DrawerSideState): void => {
+    drawerState.setValue({ ...drawerState.getValue(), [position]: config })
   }
 
-  /**
-   * Removes a drawer from the state, clearing its configuration.
-   * Use this when a Drawer component is unmounted to prevent stale state
-   * from affecting content margins.
-   *
-   * @param position - Which drawer to remove ('left' or 'right')
-   */
-  public removeDrawer(position: 'left' | 'right'): void {
-    if (this.drawerState.isDisposed) return
-
-    const currentState = this.drawerState.getValue()
-
+  const removeDrawer = (position: 'left' | 'right'): void => {
+    if (drawerState.isDisposed) return
+    const currentState = drawerState.getValue()
     if (currentState[position]) {
       const { [position]: _, ...rest } = currentState
-      this.drawerState.setValue(rest)
+      drawerState.setValue(rest)
     }
   }
 
-  /**
-   * Sets the top gap spacing between AppBar and content.
-   *
-   * @param gap - CSS value for the gap (e.g., '0px', '16px')
-   */
-  public setTopGap(gap: string): void {
-    this.topGap.setValue(gap)
-  }
-
-  /**
-   * Sets the side gap spacing for content padding.
-   *
-   * @param gap - CSS value for the gap (e.g., '0px', '16px')
-   */
-  public setSideGap(gap: string): void {
-    this.sideGap.setValue(gap)
-  }
-
-  /**
-   * Calculates the content margin for a drawer based on its variant and open state.
-   *
-   * - 'temporary': always '0px' (overlay, doesn't push content)
-   * - 'permanent': always drawer width (always visible)
-   * - 'collapsible': drawer width when open, '0px' when closed
-   *
-   * @param drawerState - The drawer state (may be undefined)
-   * @returns The margin value to use
-   */
-  public getContentMarginForPosition(position: 'left' | 'right'): string {
-    return this.getContentMarginForDrawer(this.drawerState.getValue()[position])
-  }
-
-  private getContentMarginForDrawer(drawerState: DrawerSideState | undefined): string {
-    if (!drawerState) return '0px'
-
-    switch (drawerState.variant) {
-      case 'temporary':
-        // Temporary drawers overlay content, never push
-        return '0px'
-      case 'permanent':
-        // Permanent drawers always push content
-        return drawerState.width
-      case 'collapsible':
-      default:
-        // Collapsible drawers push content only when open
-        return drawerState.open ? drawerState.width : '0px'
+  const toggleDrawer = (position: 'left' | 'right'): void => {
+    const currentState = drawerState.getValue()
+    const drawerConfig = currentState[position]
+    if (drawerConfig) {
+      setDrawerOpen(position, !drawerConfig.open)
     }
   }
 
-  /**
-   * Updates CSS custom properties based on current layout state.
-   * Called automatically when drawer state, AppBar height, variant, or gap values change.
-   */
-  private updateCssVariables(): void {
-    const target = this.getTarget()
-    if (!target) return
-
-    const state = this.drawerState.getValue()
-    const appBarHeight = this.appBarHeight.getValue()
-    const appBarVariant = this.appBarVariant.getValue()
-    const topGap = this.topGap.getValue()
-    const sideGap = this.sideGap.getValue()
-
-    // AppBar and gap values
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.appBarHeight, appBarHeight)
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.topGap, topGap)
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.sideGap, sideGap)
-
-    // Content padding top:
-    // - For 'permanent' appbar: appBarHeight + topGap (content pushed below appbar)
-    // - For 'auto-hide' appbar: just topGap (appbar overlays content when visible)
-    const contentPaddingTop = appBarVariant === 'auto-hide' ? topGap : `calc(${appBarHeight} + ${topGap})`
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentPaddingTop, contentPaddingTop)
-
-    // Legacy content margin top (deprecated, kept for backward compatibility)
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginTop, appBarHeight)
-
-    // Left drawer
-    const leftConfiguredWidth = state.left?.width ?? '0px'
-    const leftWidth = state.left?.open ? state.left.width : '0px'
-    const leftContentMargin = this.getContentMarginForDrawer(state.left)
-
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftConfiguredWidth, leftConfiguredWidth)
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerLeftWidth, leftWidth)
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginLeft, leftContentMargin)
-
-    // Right drawer
-    const rightConfiguredWidth = state.right?.width ?? '0px'
-    const rightWidth = state.right?.open ? state.right.width : '0px'
-    const rightContentMargin = this.getContentMarginForDrawer(state.right)
-
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightConfiguredWidth, rightConfiguredWidth)
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.drawerRightWidth, rightWidth)
-    target.style.setProperty(LAYOUT_CSS_VARIABLES.contentMarginRight, rightContentMargin)
-  }
-
-  /**
-   * Sets up subscriptions to automatically update CSS variables
-   * when drawer state, AppBar height, variant, or gap values change.
-   */
-  private setupCssVariableSync(): void {
-    this.drawerStateSubscription = this.drawerState.subscribe(() => {
-      this.updateCssVariables()
-    })
-
-    this.appBarHeightSubscription = this.appBarHeight.subscribe(() => {
-      this.updateCssVariables()
-    })
-
-    this.appBarVariantSubscription = this.appBarVariant.subscribe(() => {
-      this.updateCssVariables()
-    })
-
-    this.topGapSubscription = this.topGap.subscribe(() => {
-      this.updateCssVariables()
-    })
-
-    this.sideGapSubscription = this.sideGap.subscribe(() => {
-      this.updateCssVariables()
-    })
-  }
-
-  /**
-   * Cleans up all resources held by the service.
-   * Disposes subscriptions and observables.
-   */
-  public [Symbol.dispose](): void {
-    // Clean up subscriptions
-    this.drawerStateSubscription?.[Symbol.dispose]()
-    this.drawerStateSubscription = null
-
-    this.appBarHeightSubscription?.[Symbol.dispose]()
-    this.appBarHeightSubscription = null
-
-    this.appBarVariantSubscription?.[Symbol.dispose]()
-    this.appBarVariantSubscription = null
-
-    this.topGapSubscription?.[Symbol.dispose]()
-    this.topGapSubscription = null
-
-    this.sideGapSubscription?.[Symbol.dispose]()
-    this.sideGapSubscription = null
-
-    // Dispose observables
-    this.drawerState[Symbol.dispose]()
-    this.appBarVisible[Symbol.dispose]()
-    this.appBarVariant[Symbol.dispose]()
-    this.appBarHeight[Symbol.dispose]()
-    this.topGap[Symbol.dispose]()
-    this.sideGap[Symbol.dispose]()
+  return {
+    drawerState,
+    appBarVisible,
+    appBarVariant,
+    appBarHeight,
+    topGap,
+    sideGap,
+    toggleDrawer,
+    setDrawerOpen,
+    setDrawerWidth,
+    initDrawer,
+    removeDrawer,
+    setTopGap: (gap) => topGap.setValue(gap),
+    setSideGap: (gap) => sideGap.setValue(gap),
+    getContentMarginForPosition: (position) => getContentMarginForDrawer(drawerState.getValue()[position]),
+    [Symbol.dispose](): void {
+      for (const subscription of subscriptions) {
+        subscription[Symbol.dispose]()
+      }
+      subscriptions.length = 0
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <PageLayout> via useDisposable.
+      drawerState[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <PageLayout> via useDisposable.
+      appBarVisible[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <PageLayout> via useDisposable.
+      appBarVariant[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <PageLayout> via useDisposable.
+      appBarHeight[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <PageLayout> via useDisposable.
+      topGap[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <PageLayout> via useDisposable.
+      sideGap[Symbol.dispose]()
+    },
   }
 }
+
+/**
+ * Scoped {@link LayoutService} token. The default factory throws — a
+ * `<PageLayout>` ancestor binds a real instance on its child scope via
+ * {@link createLayoutService}.
+ */
+export const LayoutService: Token<LayoutService, 'scoped'> = defineService({
+  name: '@furystack/shades-common-components/LayoutService',
+  lifetime: 'scoped',
+  factory: () => {
+    throw new LayoutServiceNotConfiguredError()
+  },
+})

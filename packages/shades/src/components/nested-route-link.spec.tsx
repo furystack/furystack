@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { initializeShadeRoot } from '../initialize.js'
@@ -24,7 +24,7 @@ describe('NestedRouteLink', () => {
   })
 
   it('Should render a link with the correct href', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -44,11 +44,11 @@ describe('NestedRouteLink', () => {
   })
 
   it('Should trigger SPA navigation on click', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const onRouteChange = vi.fn()
 
-      injector.getInstance(LocationService).onLocationPathChanged.subscribe(onRouteChange)
+      injector.get(LocationService).onLocationPathChanged.subscribe(onRouteChange)
 
       initializeShadeRoot({
         injector,
@@ -68,7 +68,7 @@ describe('NestedRouteLink', () => {
   })
 
   it('Should compile route params in the href', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -88,7 +88,7 @@ describe('NestedRouteLink', () => {
   })
 
   it('Should compile route params with multiple segments', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -108,7 +108,7 @@ describe('NestedRouteLink', () => {
   })
 
   it('Should append a serialized query string to the rendered href', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -128,7 +128,7 @@ describe('NestedRouteLink', () => {
   })
 
   it('Should append the hash segment to the rendered href', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({

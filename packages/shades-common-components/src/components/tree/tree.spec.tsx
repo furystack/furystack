@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -43,7 +43,7 @@ describe('Tree', () => {
 
   describe('rendering', () => {
     it('should render the shade-tree custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -70,7 +70,7 @@ describe('Tree', () => {
     })
 
     it('should render only root items when nothing is expanded', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -98,7 +98,7 @@ describe('Tree', () => {
     })
 
     it('should render a tree container with correct role', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -127,7 +127,7 @@ describe('Tree', () => {
     })
 
     it('should render items with role treeitem', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -155,7 +155,7 @@ describe('Tree', () => {
     })
 
     it('should render icon when renderIcon is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -184,7 +184,7 @@ describe('Tree', () => {
     })
 
     it('should set data-variant attribute when variant is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -212,7 +212,7 @@ describe('Tree', () => {
     })
 
     it('should set aria-expanded on items with children', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -242,7 +242,7 @@ describe('Tree', () => {
     })
 
     it('should set aria-level on items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -274,7 +274,7 @@ describe('Tree', () => {
 
   describe('focus management', () => {
     it('should set focus on click', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -305,7 +305,7 @@ describe('Tree', () => {
     })
 
     it('should lose focus on click outside', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -341,7 +341,7 @@ describe('Tree', () => {
     })
 
     it('should set focused item on item click', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -371,7 +371,7 @@ describe('Tree', () => {
     })
 
     it('should add focused CSS class to focused item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -405,7 +405,7 @@ describe('Tree', () => {
 
   describe('selection', () => {
     it('should add selected CSS class to selected items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -438,7 +438,7 @@ describe('Tree', () => {
     })
 
     it('should set aria-selected on selected items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -471,7 +471,7 @@ describe('Tree', () => {
 
     it('should call onSelectionChange when selection changes', async () => {
       const onSelectionChange = vi.fn()
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -503,7 +503,7 @@ describe('Tree', () => {
 
   describe('item spatial navigation attributes', () => {
     it('should set data-spatial-nav-target on tree items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -535,7 +535,7 @@ describe('Tree', () => {
     })
 
     it('should set tabIndex 0 on focused item and -1 on others', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -567,7 +567,7 @@ describe('Tree', () => {
     })
 
     it('should sync focusedItem on item onfocus', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -602,7 +602,7 @@ describe('Tree', () => {
 
   describe('keyboard navigation', () => {
     it('should not handle ArrowDown (delegated to spatial navigation)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -635,7 +635,7 @@ describe('Tree', () => {
     })
 
     it('should handle ArrowRight to expand a node', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -668,7 +668,7 @@ describe('Tree', () => {
     })
 
     it('should handle ArrowLeft to collapse an expanded node', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -702,7 +702,7 @@ describe('Tree', () => {
     })
 
     it('should not handle keyboard when not focused', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()
@@ -737,7 +737,7 @@ describe('Tree', () => {
 
   describe('keyboard listener cleanup', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const treeData = createTreeData()
         const service = createTestService()

@@ -1,5 +1,4 @@
-import type { CreateResult, PhysicalStore } from '@furystack/core'
-import type { Constructable } from '@furystack/inject'
+import type { Constructable, CreateResult, PhysicalStore } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
 import type { createClient } from 'redis'
 

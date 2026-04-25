@@ -1,6 +1,5 @@
+import type { Constructable } from '@furystack/core'
 import type { ClientSyncMessage, FilterType, ServerSyncMessage, SyncState } from '@furystack/entity-sync'
-import type { Constructable } from '@furystack/inject'
-import { Injectable } from '@furystack/inject'
 import { EventHub, ObservableValue, type ListenerErrorPayload } from '@furystack/utils'
 import type { LiveCollection } from './live-collection.js'
 import type { LiveEntity } from './live-entity.js'
@@ -90,8 +89,12 @@ type LiveSubscriptionInternal = LiveEntityInternal | LiveCollectionInternal
  * Client-side service for managing entity sync subscriptions over WebSocket.
  * Provides reference-counted LiveEntity and LiveCollection instances with auto-suspend.
  * Optionally supports local caching for stale-while-revalidate and delta sync on reconnect.
+ *
+ * Applications typically obtain an instance through the per-app token minted by
+ * {@link defineEntitySyncService}. The constructor remains public so tests and
+ * non-DI integrations can instantiate the service directly with a custom
+ * `createWebSocket` factory.
  */
-@Injectable({ lifetime: 'explicit' })
 export class EntitySyncService extends EventHub<EntitySyncServiceEvents> implements Disposable {
   private ws: WebSocket | null = null
   private readonly models = new Map<string, ModelEntry>()

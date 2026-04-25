@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ describe('Image component', () => {
   })
 
   it('should render an image with the provided src and alt', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const testSrc = 'https://example.com/photo.jpg'
       const testAlt = 'Test photo'
@@ -38,7 +38,7 @@ describe('Image component', () => {
   })
 
   it('should render with default alt when not provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -56,7 +56,7 @@ describe('Image component', () => {
   })
 
   it('should apply width and height props', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -75,7 +75,7 @@ describe('Image component', () => {
   })
 
   it('should apply objectFit prop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -93,7 +93,7 @@ describe('Image component', () => {
   })
 
   it('should set loading="lazy" when lazy prop is true', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -111,7 +111,7 @@ describe('Image component', () => {
   })
 
   it('should not set loading="lazy" by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -129,7 +129,7 @@ describe('Image component', () => {
   })
 
   it('should show default fallback when image fails to load', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -161,7 +161,7 @@ describe('Image component', () => {
   })
 
   it('should show custom fallback when image fails to load', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -187,7 +187,7 @@ describe('Image component', () => {
   })
 
   it('should set data-preview attribute when preview is enabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -208,7 +208,7 @@ describe('Image component', () => {
   })
 
   it('should not show preview icon when preview is disabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -228,7 +228,7 @@ describe('Image component', () => {
   })
 
   it('should open lightbox when clicking a preview-enabled image', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -262,7 +262,7 @@ describe('Image component', () => {
   })
 
   it('should not open lightbox when clicking a non-preview image', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -284,7 +284,7 @@ describe('Image component', () => {
   })
 
   it('should close lightbox when pressing Escape', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -314,7 +314,7 @@ describe('Image component', () => {
   })
 
   it('should have zoom controls in the lightbox', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -346,7 +346,7 @@ describe('Image component', () => {
   })
 
   it('should be focusable when preview is enabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -363,7 +363,7 @@ describe('Image component', () => {
   })
 
   it('should not be focusable when preview is disabled', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -380,7 +380,7 @@ describe('Image component', () => {
   })
 
   it('should open lightbox when pressing Enter on a preview-enabled image', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -404,7 +404,7 @@ describe('Image component', () => {
   })
 
   it('should open lightbox when pressing Space on a preview-enabled image', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -428,7 +428,7 @@ describe('Image component', () => {
   })
 
   it('should store src and alt as data attributes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -456,7 +456,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should render children images', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -482,7 +482,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should apply gap prop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -505,7 +505,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should open lightbox with navigation when clicking an image in a group', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -550,7 +550,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should navigate to next image in group lightbox', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -595,7 +595,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should navigate to previous image in group lightbox', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -637,7 +637,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should navigate with keyboard arrows in group lightbox', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -682,7 +682,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should zoom in and out in the lightbox', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -723,7 +723,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should rotate in the lightbox', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -754,7 +754,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should close lightbox when clicking the close button', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -785,7 +785,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should close lightbox when clicking the backdrop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -815,7 +815,7 @@ describe('ImageGroup component', () => {
   })
 
   it('should apply style overrides', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({

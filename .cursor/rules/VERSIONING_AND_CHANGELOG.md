@@ -117,6 +117,17 @@ yarn applyReleaseChanges
 - ✅ SHOULD document bug fixes
 - ✅ Version format: `## [X.Y.Z] - YYYY-MM-DD`
 
+### Exception: Shared Release-Wide Migration Guide
+
+When a single coordinated release touches many packages and ships a **shared migration guide** (e.g. `docs/migrations/vX-name.md`) that documents the rationale, patterns, pitfalls, and common issues once for the whole release, per-package major CHANGELOG entries may be condensed:
+
+- ✅ MUST link to the shared migration guide from the `💥 Breaking Changes` section.
+- ✅ MUST list the package-specific API deltas (what was removed / renamed / moved, what replaces it).
+- ⚠️ MAY omit the long-form migration guide, common-issues, and testing-checklist boilerplate — they live in the shared guide.
+- ✅ The shared guide itself MUST include the items the per-package entry omits (prerequisites, step-by-step migration, common issues, testing checklist).
+
+This keeps per-package changelogs scannable and avoids 30x duplication of the same prose across a monorepo-wide breaking change.
+
 ### Determining Version Number
 
 When `.yarn/versions/*.yml` files exist in your changes:

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -25,7 +25,7 @@ describe('ContextMenu', () => {
   ]
 
   const renderContextMenu = async (options?: { onItemSelect?: (item: TestData) => void }) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const rootElement = document.getElementById('root') as HTMLDivElement
     const manager = new ContextMenuManager<TestData>()
 

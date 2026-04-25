@@ -15,12 +15,17 @@ yarn add @furystack/logging
 You can start using the logging service with an injector as follows:
 
 ```ts
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { ConsoleLogger, useLogging } from '@furystack/logging'
 
-const myInjector = new Injector()
-useLogging(myInjector, ConsoleLogger, Logger1, Logger2 /* ...your Logger implementations */)
+const myInjector = createInjector()
+useLogging(myInjector, ConsoleLogger, Logger1, Logger2 /* ...your Logger tokens or instances */)
 ```
+
+`useLogging(injector, ...loggers)` rebinds the `LoggerRegistry` with the given
+set and invalidates the collection so the next `getLogger(injector)` resolves
+the new composition. Each entry can be a `Logger` instance or a
+`Token<Logger, 'singleton'>`.
 
 You can retrieve the Logger instance with:
 
@@ -78,26 +83,23 @@ scopedLogger.verbose({ message: 'FooBarBaz' })
 
 ### Implementing Your Own Logger
 
-You can implement your own logging logic in a similar way as this custom log collector:
+`AbstractLogger` was removed in v7. Build custom loggers with `createLogger(backend)` — pass a `LoggerBackend` that persists the leveled log entry to your sink of choice. The factory wires the level convenience methods (`verbose` / `debug` / `information` / `warning` / `error` / `fatal`) and `withScope` sugar, and handles error isolation (failures at `error` level escalate to `fatal`; failures at `fatal` fall back to `console.error`).
 
 ```ts
-import { Injectable } from '@furystack/inject'
-import { AbstractLogger, LeveledLogEntry } from '@furystack/logging'
+import { defineService } from '@furystack/inject'
+import { createLogger, type LeveledLogEntry, type Logger } from '@furystack/logging'
 
-@Injectable({ lifetime: 'singleton' })
-export class MyCustomLogCollector extends AbstractLogger {
-  private readonly entries: Array<LeveledLogEntry<unknown>> = []
+export const MyCustomLogCollectorToken = defineService<Logger, 'singleton'>({
+  name: 'my-app/MyCustomLogCollector',
+  lifetime: 'singleton',
+  factory: () => {
+    const entries: Array<LeveledLogEntry<unknown>> = []
+    return createLogger(async (entry) => {
+      entries.push(entry)
+    })
+  },
+})
 
-  public getEntries() {
-    return [...this.entries]
-  }
-
-  public async addEntry<T>(entry: LeveledLogEntry<T>): Promise<void> {
-    this.entries.push(entry)
-  }
-
-  constructor() {
-    super()
-  }
-}
+// Register alongside ConsoleLogger:
+useLogging(myInjector, ConsoleLogger, MyCustomLogCollectorToken)
 ```

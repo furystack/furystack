@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { RestApiImplementation } from './api-manager.js'
 import { defaultSchema, getSchemaFromApi } from './get-schema-from-api.js'
+import type { RestApiImplementation } from './rest-api-runtime.js'
 import { JsonResult, type RequestAction } from './request-action-implementation.js'
 import validationSchema from './validate.integration.spec.schema.json' with { type: 'json' }
 import { Validate } from './validate.js'

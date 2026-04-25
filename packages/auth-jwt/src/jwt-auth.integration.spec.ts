@@ -1,11 +1,24 @@
-import { InMemoryStore, StoreManager, User, addStore } from '@furystack/core'
+import type { User } from '@furystack/core'
+import { InMemoryStore, User as UserModel } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
+import { createInjector, type Injector } from '@furystack/inject'
 import type { RestApi } from '@furystack/rest'
-import { DefaultSession, GetCurrentUser, useHttpAuthentication, useRestService } from '@furystack/rest-service'
-import { PasswordAuthenticator, PasswordCredential } from '@furystack/security'
-import { usePasswordPolicy } from '@furystack/security'
+import {
+  DefaultSession,
+  GetCurrentUser,
+  SessionStore,
+  UserStore,
+  useHttpAuthentication,
+  useRestService,
+} from '@furystack/rest-service'
+import {
+  PasswordAuthenticator,
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  usePasswordPolicy,
+} from '@furystack/security'
 import { PathHelper, sleepAsync, usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { createJwtLoginAction } from './actions/jwt-login-action.js'
@@ -15,6 +28,7 @@ import { useJwtAuthentication } from './helpers.js'
 import type { FingerprintCookieSettings } from './jwt-authentication-settings.js'
 import { base64UrlEncode, createJwt } from './jwt-utils.js'
 import { RefreshToken } from './models/refresh-token.js'
+import { RefreshTokenStore } from './refresh-token-store.js'
 
 const SECRET = 'integration-test-secret-that-is-at-least-32-bytes-long!'
 
@@ -43,23 +57,18 @@ const FINGERPRINT_DISABLED: FingerprintCookieSettings = {
 }
 
 const createJwtTestServer = async (fingerprintCookie: FingerprintCookieSettings = FINGERPRINT_DISABLED) => {
-  const injector = new Injector()
+  const injector = createInjector()
   const port = getPort()
   const root = 'api'
 
-  addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-    .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
+  injector.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  injector.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  injector.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  injector.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+  injector.bind(RefreshTokenStore, () => new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
 
-  const repo = getRepository(injector)
-  repo.createDataSet(User, 'username')
-  repo.createDataSet(DefaultSession, 'sessionId')
-  repo.createDataSet(PasswordCredential, 'userName')
-  repo.createDataSet(RefreshToken, 'token')
-
-  useHttpAuthentication(injector)
   usePasswordPolicy(injector)
+  useHttpAuthentication(injector)
   useJwtAuthentication(injector, {
     secret: SECRET,
     accessTokenExpirationSeconds: ACCESS_TOKEN_EXPIRATION_SECONDS,
@@ -94,11 +103,10 @@ const createJwtTestServer = async (fingerprintCookie: FingerprintCookieSettings 
 }
 
 const seedUser = async (injector: Injector, username: string, password: string, roles: string[] = []) => {
-  const sm = injector.getInstance(StoreManager)
-  const pw = injector.getInstance(PasswordAuthenticator)
+  const pw = injector.get(PasswordAuthenticator)
   const cred = await pw.hasher.createCredential(username, password)
-  await sm.getStoreFor(PasswordCredential, 'userName').add(cred)
-  await sm.getStoreFor(User, 'username').add({ username, roles })
+  await injector.get(PasswordCredentialStore).add(cred)
+  await injector.get(UserStore).add({ username, roles })
 }
 
 type TokenPair = { accessToken: string; refreshToken: string }
@@ -432,8 +440,7 @@ describe('@furystack/auth-jwt integration tests', () => {
         await seedUser(injector, 'testuser', 'testpass')
         const { refreshToken } = await login(apiUrl, 'testuser', 'testpass')
 
-        const sm = injector.getInstance(StoreManager)
-        await sm.getStoreFor(User, 'username').remove('testuser')
+        await injector.get(UserStore).remove('testuser')
 
         const refreshResponse = await postJson(PathHelper.joinPaths(apiUrl, 'jwt/refresh'), { refreshToken })
         expect(refreshResponse.status).toBe(401)
@@ -445,8 +452,7 @@ describe('@furystack/auth-jwt integration tests', () => {
         await seedUser(injector, 'testuser', 'testpass')
         const { refreshToken } = await login(apiUrl, 'testuser', 'testpass')
 
-        const sm = injector.getInstance(StoreManager)
-        const refreshTokenStore = sm.getStoreFor(RefreshToken, 'token')
+        const refreshTokenStore = injector.get(RefreshTokenStore)
         const originalFind = refreshTokenStore.find.bind(refreshTokenStore)
         refreshTokenStore.find = async () => {
           throw new Error('Unexpected DB failure')

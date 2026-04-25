@@ -40,7 +40,7 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
 
       queueMicrotask(() => {
         if (!containerRef.current) return
-        const themeProvider = injector.getInstance(ThemeProviderService)
+        const themeProvider = injector.get(ThemeProviderService)
 
         const themeName = registerShadesTheme(themeProvider)
 

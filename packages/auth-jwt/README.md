@@ -13,8 +13,7 @@ yarn add @furystack/auth-jwt
 ## Server Setup
 
 ```typescript
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
+import { createInjector } from '@furystack/inject'
 import { useHttpAuthentication, useRestService } from '@furystack/rest-service'
 import { usePasswordPolicy } from '@furystack/security'
 import {
@@ -22,13 +21,15 @@ import {
   createJwtLoginAction,
   JwtRefreshAction,
   JwtLogoutAction,
-  RefreshToken,
+  RefreshTokenStore,
 } from '@furystack/auth-jwt'
+// Your app-level persistent store factory for refresh tokens
+import { refreshTokenStoreFactory } from './my-app/stores.js'
 
-const injector = new Injector()
+const injector = createInjector()
 
-// Register stores and data sets
-getRepository(injector).createDataSet(RefreshToken, 'token')
+// RefreshTokenStore is throw-by-default — bind a persistent implementation
+injector.bind(RefreshTokenStore, refreshTokenStoreFactory)
 
 // Set up authentication
 useHttpAuthentication(injector)

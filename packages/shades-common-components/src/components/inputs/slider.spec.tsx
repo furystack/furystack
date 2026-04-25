@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -16,7 +16,7 @@ describe('Slider', () => {
   })
 
   const renderSlider = async (props: Parameters<typeof Slider>[0] = {}) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,
@@ -292,14 +292,14 @@ describe('Slider', () => {
   describe('theme integration', () => {
     it('should set CSS color variable from theme', async () => {
       await usingAsync(await renderSlider(), async ({ slider, injector }) => {
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(slider.style.getPropertyValue('--slider-color')).toBe(themeService.theme.palette.primary.main)
       })
     })
 
     it('should use custom color from color prop', async () => {
       await usingAsync(await renderSlider({ color: 'secondary' }), async ({ slider, injector }) => {
-        const themeService = injector.getInstance(ThemeProviderService)
+        const themeService = injector.get(ThemeProviderService)
         expect(slider.style.getPropertyValue('--slider-color')).toBe(themeService.theme.palette.secondary.main)
       })
     })

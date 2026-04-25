@@ -1,7 +1,6 @@
-import type { FilterType } from '@furystack/core'
-import type { Constructable, Injector } from '@furystack/inject'
-import { Injectable, Injected } from '@furystack/inject'
-import { Repository } from '@furystack/repository'
+import { useSystemIdentityContext, type FilterType } from '@furystack/core'
+import { defineService, type Injector, type Token } from '@furystack/inject'
+import { type DataSetToken } from '@furystack/repository'
 import type { SyncChangeEntry, ServerSyncMessage, SyncVersion } from '@furystack/entity-sync'
 import type WebSocket from 'ws'
 
@@ -35,7 +34,6 @@ type CollectionSubscription = {
 type Subscription = EntitySubscription | CollectionSubscription
 
 type ModelRegistration = {
-  model: Constructable<unknown>
   modelName: string
   primaryKey: string
   currentSeq: number
@@ -64,7 +62,7 @@ type QueryCacheEntry = {
 }
 
 /**
- * Options for model registration
+ * Options for model registration.
  */
 export type ModelSyncOptions = {
   /** How long to keep change entries for delta sync (default: 5 minutes) */
@@ -76,12 +74,80 @@ export type ModelSyncOptions = {
 }
 
 /**
- * Manages entity and collection subscriptions and dispatches changes to connected WebSocket clients.
- * Tracks a per-model changelog with sequence numbers for delta sync support.
- * Supports configurable debounce and query caching for collection subscriptions.
+ * Subscription registry for entity sync. Tracks per-model changelogs, fans
+ * out change events from the registered {@link DataSetToken}s to matching
+ * WebSocket subscribers and supports debounced/cached collection queries.
+ *
+ * Configure via {@link useEntitySync} during application setup; the
+ * registry itself is exposed via the {@link SubscriptionManager} token so
+ * integration tests and websocket actions can resolve it directly.
  */
-@Injectable({ lifetime: 'singleton' })
-export class SubscriptionManager implements Disposable {
+export interface SubscriptionManager extends Disposable {
+  /**
+   * Registers a data set for entity sync.
+   * Subscribes to the underlying DataSet's events to track changes and
+   * maintain a per-model changelog.
+   *
+   * **Important:** Only writes that go through the DataSet (via
+   * `dataSet.add()`, `dataSet.update()`, `dataSet.remove()`) will trigger
+   * sync notifications. Writes made directly to the underlying physical
+   * store will **not** be detected.
+   *
+   * @param dataSetToken The DataSet token. `modelName` is derived from its
+   *   `model.name` and used as the wire-format identifier.
+   * @param options Optional sync configuration.
+   */
+  registerModel<T, TPrimaryKey extends keyof T>(
+    dataSetToken: DataSetToken<T, TPrimaryKey>,
+    options?: ModelSyncOptions,
+  ): void
+  /** Current active (entity + collection) subscription count. */
+  readonly activeSubscriptionCount: number
+  /** Returns summary info for a registered model, or `undefined`. */
+  getModelRegistration(modelName: string):
+    | {
+        modelName: string
+        primaryKey: string
+        currentSeq: number
+        changelogLength: number
+      }
+    | undefined
+  /** Debug helper — returns every active subscription in wire-friendly form. */
+  getActiveSubscriptions(): Array<{
+    subscriptionId: string
+    modelName: string
+    type: 'entity' | 'collection'
+    key?: unknown
+  }>
+  /**
+   * Subscribes a client to entity changes.
+   * Supports delta sync when the client provides a `lastSeq` and the
+   * changelog covers the gap; otherwise returns a full snapshot.
+   */
+  subscribeEntity(
+    socket: WebSocket,
+    clientInjector: Injector,
+    requestId: string,
+    modelName: string,
+    key: unknown,
+    lastSeq?: number,
+  ): Promise<void>
+  /** Subscribes a client to a filtered collection. Sends a full snapshot on subscribe. */
+  subscribeCollection(
+    socket: WebSocket,
+    clientInjector: Injector,
+    requestId: string,
+    modelName: string,
+    filter?: unknown,
+    top?: number,
+    skip?: number,
+    order?: Record<string, 'ASC' | 'DESC'>,
+  ): Promise<void>
+  /** Removes a subscription by id. No-op when the id is unknown. */
+  unsubscribe(subscriptionId: string): void
+}
+
+class SubscriptionManagerImpl implements SubscriptionManager {
   private readonly modelRegistrations = new Map<string, ModelRegistration>()
   private readonly subscriptions = new Map<string, Subscription>()
   private readonly socketSubscriptionIds = new Map<WebSocket, Set<string>>()
@@ -91,45 +157,27 @@ export class SubscriptionManager implements Disposable {
   private readonly pendingEntityMessages = new Map<string, ServerSyncMessage[]>()
   private readonly queryCache = new Map<string, QueryCacheEntry>()
 
-  /**
-   * Registers a model for entity sync.
-   * Subscribes to the model's **DataSet** events to track changes and maintain a changelog.
-   *
-   * **Important:** Only writes that go through the DataSet (via `dataSet.add()`, `dataSet.update()`,
-   * `dataSet.remove()`) will trigger sync notifications. Writes made directly to the underlying
-   * physical store will **not** be detected. Always use the DataSet as your write gateway.
-   *
-   * @param model The model class (wire name derived from constructor.name)
-   * @param primaryKey The primary key field of the model
-   * @param options Optional configuration
-   */
+  constructor(private readonly systemInjector: Injector) {}
+
   public registerModel<T, TPrimaryKey extends keyof T>(
-    model: Constructable<T>,
-    primaryKey: TPrimaryKey,
+    dataSetToken: DataSetToken<T, TPrimaryKey>,
     options?: ModelSyncOptions,
-  ): void
-  /**
-   * Registers a model for entity sync using a string primary key.
-   * Useful when the model type is not statically known (e.g. from a config array).
-   * The primary key is validated at runtime by Repository.getDataSetFor.
-   */
-  public registerModel(model: Constructable<unknown>, primaryKey: string, options?: ModelSyncOptions): void
-  public registerModel(model: Constructable<unknown>, primaryKey: string, options?: ModelSyncOptions): void {
-    const modelName = model.name
+  ): void {
+    const modelName = dataSetToken.model.name
+    const primaryKey = dataSetToken.primaryKey as string
 
     if (this.modelRegistrations.has(modelName)) {
       const existing = this.modelRegistrations.get(modelName)!
-      if (existing.model !== model) {
-        throw new Error(`Model name conflict: '${modelName}' is already registered by a different class`)
+      if (existing.primaryKey !== primaryKey) {
+        throw new Error(`Model name conflict: '${modelName}' is already registered with a different primary key`)
       }
       return
     }
 
     type AnyEntity = Record<string, unknown>
-    const dataSet = this.repository.getDataSetFor(model as Constructable<AnyEntity>, primaryKey)
+    const dataSet = this.systemInjector.get(dataSetToken)
 
     const registration: ModelRegistration = {
-      model,
       modelName,
       primaryKey,
       currentSeq: 0,
@@ -138,29 +186,25 @@ export class SubscriptionManager implements Disposable {
       debounceMs: options?.debounceMs ?? 0,
       queryTtlMs: options?.queryTtlMs ?? 0,
       eventSubscriptions: [],
-      getEntity: (injector, key) => dataSet.get(injector, key),
+      getEntity: (injector, key) => dataSet.get(injector, key as T[TPrimaryKey]) as Promise<unknown>,
       findEntities: async (injector, findOptions) => {
         const result = await dataSet.find(injector, {
-          filter: findOptions.filter as FilterType<AnyEntity> | undefined,
+          filter: findOptions.filter as FilterType<T> | undefined,
           top: findOptions.top,
           skip: findOptions.skip,
-          order: findOptions.order as { [P in keyof AnyEntity]?: 'ASC' | 'DESC' } | undefined,
+          order: findOptions.order as { [P in keyof T]?: 'ASC' | 'DESC' } | undefined,
         })
         return result as unknown[]
       },
-      countEntities: (injector, filter) => dataSet.count(injector, filter as FilterType<AnyEntity> | undefined),
+      countEntities: (injector, filter) => dataSet.count(injector, filter as FilterType<T> | undefined),
     }
 
     registration.eventSubscriptions = [
       dataSet.subscribe('onEntityAdded', ({ entity }) => {
-        this.handleEntityAdded(
-          modelName,
-          entity as unknown as Record<string, unknown>,
-          (entity as unknown as Record<string, unknown>)[primaryKey],
-        )
+        this.handleEntityAdded(modelName, entity as unknown as AnyEntity, (entity as unknown as AnyEntity)[primaryKey])
       }),
       dataSet.subscribe('onEntityUpdated', ({ id, change }) => {
-        this.handleEntityUpdated(modelName, id, change as unknown as Record<string, unknown>)
+        this.handleEntityUpdated(modelName, id, change as unknown as AnyEntity)
       }),
       dataSet.subscribe('onEntityRemoved', ({ key }) => {
         this.handleEntityRemoved(modelName, key)
@@ -261,9 +305,6 @@ export class SubscriptionManager implements Disposable {
     }
   }
 
-  /**
-   * Dispatches a notification to an entity subscription, respecting debounce settings.
-   */
   private dispatchEntityNotification(
     sub: EntitySubscription,
     message: ServerSyncMessage,
@@ -284,9 +325,6 @@ export class SubscriptionManager implements Disposable {
     }
   }
 
-  /**
-   * Schedules a collection subscription for re-evaluation, respecting debounce settings.
-   */
   private scheduleCollectionEvaluation(sub: CollectionSubscription, registration: ModelRegistration): void {
     if (registration.debounceMs === 0) {
       void this.evaluateCollectionSubscription(sub).catch((error) => {
@@ -339,10 +377,6 @@ export class SubscriptionManager implements Disposable {
     }
   }
 
-  /**
-   * Re-evaluates a collection subscription by re-querying the DataSet.
-   * Sends a full collection-snapshot if entries or count changed.
-   */
   private async evaluateCollectionSubscription(sub: CollectionSubscription): Promise<void> {
     const registration = this.modelRegistrations.get(sub.modelName)
     if (!registration) return
@@ -442,22 +476,11 @@ export class SubscriptionManager implements Disposable {
   }
 
   private sendMessage(socket: WebSocket, message: ServerSyncMessage): void {
-    // readyState 1 = OPEN
     if (socket.readyState === 1) {
       socket.send(JSON.stringify(message))
     }
   }
 
-  /**
-   * Subscribes a client to entity changes.
-   * Supports delta sync when the client provides a lastSeq and the changelog covers the gap.
-   * @param socket The client's WebSocket connection
-   * @param clientInjector The client's scoped injector for authorization
-   * @param requestId The client's request ID for correlation
-   * @param modelName The model wire name (derived from constructor.name)
-   * @param key The entity's primary key value
-   * @param lastSeq Optional: client's last known seq for delta sync
-   */
   public async subscribeEntity(
     socket: WebSocket,
     clientInjector: Injector,
@@ -479,7 +502,6 @@ export class SubscriptionManager implements Disposable {
     try {
       const subscriptionId = `sub-${++this.subscriptionCounter}`
 
-      // Try delta sync if client provides lastSeq
       if (lastSeq !== undefined && registration.changelog.length > 0) {
         const oldestEntry = registration.changelog[0]
         if (oldestEntry.version.seq <= lastSeq + 1) {
@@ -506,7 +528,6 @@ export class SubscriptionManager implements Disposable {
         }
       }
 
-      // Full snapshot - fetch entity with authorization
       const entity = await registration.getEntity(clientInjector, key)
 
       this.storeEntitySubscription(subscriptionId, socket, clientInjector, modelName, key, registration.currentSeq)
@@ -529,19 +550,6 @@ export class SubscriptionManager implements Disposable {
     }
   }
 
-  /**
-   * Subscribes a client to a collection of entities matching the given filter.
-   * Sends a full snapshot of matching entities on subscribe.
-   * On subsequent changes, re-evaluates the collection and sends diffs.
-   * @param socket The client's WebSocket connection
-   * @param clientInjector The client's scoped injector for authorization
-   * @param requestId The client's request ID for correlation
-   * @param modelName The model wire name (derived from constructor.name)
-   * @param filter Optional filter to match entities
-   * @param top Optional limit on the number of results
-   * @param skip Optional offset for pagination
-   * @param order Optional sort order
-   */
   public async subscribeCollection(
     socket: WebSocket,
     clientInjector: Injector,
@@ -640,10 +648,6 @@ export class SubscriptionManager implements Disposable {
     this.trackSocket(socket, subscriptionId)
   }
 
-  /**
-   * Removes a subscription
-   * @param subscriptionId The subscription to remove
-   */
   public unsubscribe(subscriptionId: string): void {
     const sub = this.subscriptions.get(subscriptionId)
     if (sub) {
@@ -691,11 +695,6 @@ export class SubscriptionManager implements Disposable {
     }
   }
 
-  /**
-   * Returns the model registration info for a model name
-   * @param modelName The model wire name
-   * @returns The registration info or undefined
-   */
   public getModelRegistration(modelName: string) {
     const reg = this.modelRegistrations.get(modelName)
     if (!reg) return undefined
@@ -707,16 +706,10 @@ export class SubscriptionManager implements Disposable {
     }
   }
 
-  /**
-   * Returns the number of active subscriptions
-   */
   public get activeSubscriptionCount(): number {
     return this.subscriptions.size
   }
 
-  /**
-   * Returns details of active subscriptions (for testing/debugging)
-   */
   public getActiveSubscriptions(): Array<{
     subscriptionId: string
     modelName: string
@@ -749,7 +742,27 @@ export class SubscriptionManager implements Disposable {
     this.pendingEntityMessages.clear()
     this.queryCache.clear()
   }
-
-  @Injected(Repository)
-  declare private readonly repository: Repository
 }
+
+/**
+ * DI token for the singleton {@link SubscriptionManager}.
+ *
+ * The factory creates a dedicated system-identity child scope that the
+ * manager uses to resolve DataSets and subscribe to change events. That
+ * scope, and the manager's internal state, are torn down when the owning
+ * injector is disposed.
+ */
+export const SubscriptionManager: Token<SubscriptionManager, 'singleton'> = defineService({
+  name: 'furystack/entity-sync-service/SubscriptionManager',
+  lifetime: 'singleton',
+  factory: ({ injector, onDispose }): SubscriptionManager => {
+    const systemInjector = useSystemIdentityContext({ injector, username: 'SubscriptionManager' })
+    const manager = new SubscriptionManagerImpl(systemInjector)
+    onDispose(async () => {
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- onDispose is the teardown hook
+      manager[Symbol.dispose]()
+      await systemInjector[Symbol.asyncDispose]()
+    })
+    return manager
+  },
+})

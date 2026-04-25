@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -47,7 +47,7 @@ describe('Skeleton', () => {
   })
 
   it('should render with correct initial state and default delay', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -79,7 +79,7 @@ describe('Skeleton', () => {
   })
 
   it('should use custom delay when provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -101,7 +101,7 @@ describe('Skeleton', () => {
   })
 
   it('should start fade-in animation with correct parameters', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -132,7 +132,7 @@ describe('Skeleton', () => {
   })
 
   it('should start background animation with correct keyframes after fade-in completes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -17,7 +17,7 @@ describe('DataGridBody', () => {
   })
 
   it('should render default empty component when no data', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -41,7 +41,7 @@ describe('DataGridBody', () => {
   })
 
   it('should render custom empty component when provided and no data', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -70,7 +70,7 @@ describe('DataGridBody', () => {
   })
 
   it('should render rows for each data entry', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -104,7 +104,7 @@ describe('DataGridBody', () => {
   })
 
   it('should render cell content from entry properties', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -136,7 +136,7 @@ describe('DataGridBody', () => {
   })
 
   it('should re-render when data observable changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -170,7 +170,7 @@ describe('DataGridBody', () => {
   })
 
   it('should call onRowClick callback when row is clicked', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onRowClick = vi.fn()
@@ -206,7 +206,7 @@ describe('DataGridBody', () => {
   })
 
   it('should call onRowDoubleClick callback when row is double-clicked', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onRowDoubleClick = vi.fn()
@@ -243,7 +243,7 @@ describe('DataGridBody', () => {
   })
 
   it('should use custom row components when provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -281,7 +281,7 @@ describe('DataGridBody', () => {
   })
 
   it('should use default row component when column-specific one is not provided', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -315,7 +315,7 @@ describe('DataGridBody', () => {
   })
 
   it('should render with empty entries array', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(new CollectionService<TestEntry>(), async (service) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 

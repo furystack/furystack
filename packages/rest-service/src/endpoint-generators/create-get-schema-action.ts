@@ -1,7 +1,7 @@
 import { RequestError } from '@furystack/rest'
-import type { RestApiImplementation } from '../api-manager.js'
 import { getSchemaFromApi } from '../get-schema-from-api.js'
 import { JsonResult, type RequestAction } from '../request-action-implementation.js'
+import type { RestApiImplementation } from '../rest-api-runtime.js'
 
 export type GetSchemaResult = ReturnType<typeof getSchemaFromApi>
 

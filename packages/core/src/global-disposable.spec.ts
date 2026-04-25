@@ -1,15 +1,15 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
 import { exitHandler, globalDisposables } from './global-disposables.js'
 import { disposeOnProcessExit } from './helpers.js'
 
 describe('Global Disposables', () => {
-  it('Should be empty by default', () => {
+  it('is empty by default', () => {
     expect(globalDisposables.size).toBe(0)
   })
 
-  it('Should attach event listeners', () => {
+  it('attaches process event listeners for termination signals', () => {
     expect(process.listeners('exit')).toContain(exitHandler)
     expect(process.listeners('SIGINT')).toContain(exitHandler)
     expect(process.listeners('SIGUSR1')).toContain(exitHandler)
@@ -17,20 +17,22 @@ describe('Global Disposables', () => {
     expect(process.listeners('uncaughtException')).toContain(exitHandler)
   })
 
-  it('Should be filled from an injector extension', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('registers an injector through disposeOnProcessExit', async () => {
+    await usingAsync(createInjector(), async (i) => {
       disposeOnProcessExit(i)
       expect(globalDisposables).toContain(i)
       globalDisposables.delete(i)
     })
   })
-  it('Should dispose the injector on exit', () => {
+
+  it('disposes the registered injector on exit', () => {
     // Not using usingAsync here because exitHandler() itself disposes the injector
-    const i = new Injector()
-    i[Symbol.asyncDispose] = vi.fn(i[Symbol.asyncDispose])
+    const i = createInjector()
+    const disposeSpy = vi.fn(i[Symbol.asyncDispose].bind(i))
+    i[Symbol.asyncDispose] = disposeSpy
     disposeOnProcessExit(i)
     exitHandler()
-    expect(i[Symbol.asyncDispose]).toBeCalled()
+    expect(disposeSpy).toHaveBeenCalled()
     globalDisposables.delete(i)
   })
 })

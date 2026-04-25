@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -14,7 +14,7 @@ describe('AppBar component', () => {
   })
 
   const renderAppBar = async (children: JSX.Element) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const rootElement = document.getElementById('root') as HTMLDivElement
 
     initializeShadeRoot({
@@ -50,7 +50,7 @@ describe('AppBar component', () => {
     })
 
     it('should render multiple children', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({

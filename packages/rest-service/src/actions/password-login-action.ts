@@ -25,7 +25,7 @@ export const createPasswordLoginAction = <TResult>(
   return async ({ injector, getBody }) => {
     const body = await getBody()
     try {
-      const user = await injector.getInstance(HttpUserContext).authenticateUser(body.username, body.password)
+      const user = await injector.get(HttpUserContext).authenticateUser(body.username, body.password)
       return strategy.createLoginResponse(user, injector)
     } catch {
       await sleepAsync(Math.random() * 1000)

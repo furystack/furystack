@@ -1,4 +1,5 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { LocationService } from '../services/location-service.js'
@@ -9,8 +10,8 @@ type TestRoute = Pick<NestedRoute<unknown, any, any>, 'component'>
 
 describe('nestedReplace', () => {
   it('Should replace the current history entry with a simple path', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const navigateSpy = vi.spyOn(locationService, 'navigate')
       const replaceSpy = vi.spyOn(locationService, 'replace')
 
@@ -22,8 +23,8 @@ describe('nestedReplace', () => {
   })
 
   it('Should compile params, query and hash for a replace call', async () => {
-    await usingAsync(new Injector(), async (injector) => {
-      const locationService = injector.getInstance(LocationService)
+    await usingAsync(createInjector(), async (injector) => {
+      const locationService = injector.get(LocationService)
       const replaceSpy = vi.spyOn(locationService, 'replace')
 
       nestedReplace(injector, {
@@ -69,7 +70,7 @@ describe('createNestedReplace', () => {
 
     const appReplace = createNestedReplace<Routes>()
     // @ts-expect-error -- '/nonexistent' is not a valid route path
-    appReplace(new Injector(), { path: '/nonexistent' })
+    appReplace(createInjector(), { path: '/nonexistent' })
   })
 
   it('Should enforce a declared required query shape', () => {

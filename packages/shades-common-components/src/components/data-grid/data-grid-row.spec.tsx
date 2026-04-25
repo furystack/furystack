@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -30,7 +30,7 @@ describe('DataGridRow', () => {
     unselectedRowStyle?: Partial<CSSStyleDeclaration>
     rowComponents?: Record<string, (entry: TestEntry) => JSX.Element>
   }) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
 
     // Create shade-data-grid element manually to simulate production structure

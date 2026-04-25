@@ -1,4 +1,5 @@
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { describe, expect, it, vi } from 'vitest'
 import './jsx.js'
 import { createComponent } from './shade-component.js'
@@ -83,7 +84,7 @@ describe('Shades Component Factory', () => {
 
       const component = (
         <div>
-          <Example foo="example" injector={new Injector()} />
+          <Example foo="example" injector={createInjector()} />
         </div>
       )
 

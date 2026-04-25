@@ -117,8 +117,8 @@ export const Drawer = Shade<DrawerProps>({
   },
 
   render: ({ props, children, injector, useObservable, useDisposable }) => {
-    const layoutService = injector.getInstance(LayoutService)
-    const screenService = injector.getInstance(ScreenService)
+    const layoutService = injector.get(LayoutService)
+    const screenService = injector.get(ScreenService)
 
     const { position, variant, width = DEFAULT_DRAWER_WIDTH, defaultOpen, collapseOnBreakpoint } = props
 

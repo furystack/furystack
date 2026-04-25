@@ -4,7 +4,7 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { ComponentSize } from '../component-size.js'
-import { FormService } from '../form.js'
+import { FormContextToken } from '../form.js'
 import { check, close } from '../icons/icon-definitions.js'
 import { Icon } from '../icons/icon.js'
 import type { InputValidationResult } from './input.js'
@@ -379,7 +379,7 @@ export const Select = Shade<SelectProps>({
     const dropdownRef = useRef<HTMLUListElement>('dropdown')
 
     useDisposable('form-registration', () => {
-      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      const formService = injector.get(FormContextToken)
       if (formService) {
         queueMicrotask(() => {
           if (hiddenInputRef.current) formService.inputs.add(hiddenInputRef.current)
@@ -392,7 +392,7 @@ export const Select = Shade<SelectProps>({
       }
     })
 
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     const isMultiple = props.mode === 'multiple'
 
     const allOptions = getAllOptions(props)
@@ -437,9 +437,13 @@ export const Select = Shade<SelectProps>({
       },
     })
 
-    if (injector.cachedSingletons.has(FormService)) {
-      const formService = injector.getInstance(FormService)
-      formService.setFieldState(props.name as keyof unknown, validationResult || { isValid: true }, {} as ValidityState)
+    const formServiceForValidity = injector.get(FormContextToken)
+    if (formServiceForValidity) {
+      formServiceForValidity.setFieldState(
+        props.name as keyof unknown,
+        validationResult || { isValid: true },
+        {} as ValidityState,
+      )
     }
 
     const filterFn = props.filterOption || defaultFilterOption

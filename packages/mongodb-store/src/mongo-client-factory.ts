@@ -1,40 +1,43 @@
-import { Injectable } from '@furystack/inject'
-import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import type { MongoClientOptions } from 'mongodb'
 import { MongoClient } from 'mongodb'
 
 /**
- * Events emitted by the {@link MongoClientFactory}
+ * Pools {@link MongoClient} instances by URL so every store that targets the
+ * same MongoDB deployment shares a single connection.
+ *
+ * Application code rarely calls this directly — {@link defineMongoDbStore}
+ * resolves the factory token internally. Exported for tests and advanced
+ * integrations that need raw client access (e.g. dropping a test database).
  */
-export type MongoClientFactoryEvents = {
-  onClientCreated: { url: string }
-  onDisposed: undefined
-  onListenerError: ListenerErrorPayload
+export interface MongoClientFactory {
+  getClientFor(url: string, options?: MongoClientOptions): MongoClient
 }
 
 /**
- * Factory for instantiating MongoDb clients
+ * Singleton token for the {@link MongoClientFactory}. Closes every pooled
+ * client when the owning injector is disposed.
  */
-@Injectable({ lifetime: 'singleton' })
-export class MongoClientFactory extends EventHub<MongoClientFactoryEvents> implements AsyncDisposable {
-  private connections: Map<string, MongoClient> = new Map()
-
-  public async [Symbol.asyncDispose]() {
-    await Promise.all([...this.connections.values()].map((c) => c.close(true)))
-    this.connections.clear()
-    this.emit('onDisposed', undefined)
-    super[Symbol.dispose]()
-  }
-
-  public getClientFor(url: string, options?: MongoClientOptions) {
-    const existing = this.connections.get(url)
-    if (existing) {
-      return existing
+export const MongoClientFactory: Token<MongoClientFactory, 'singleton'> = defineService({
+  name: '@furystack/mongodb-store/MongoClientFactory',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const connections = new Map<string, MongoClient>()
+    onDispose(async () => {
+      await Promise.all([...connections.values()].map((c) => c.close(true)))
+      connections.clear()
+    })
+    return {
+      getClientFor(url: string, options?: MongoClientOptions): MongoClient {
+        const existing = connections.get(url)
+        if (existing) {
+          return existing
+        }
+        const client = new MongoClient(url, options)
+        connections.set(url, client)
+        return client
+      },
     }
-
-    const client = new MongoClient(url, options)
-    this.connections.set(url, client)
-    this.emit('onClientCreated', { url })
-    return client
-  }
-}
+  },
+})

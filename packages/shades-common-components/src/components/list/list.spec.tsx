@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -28,7 +28,7 @@ describe('List', () => {
 
   describe('rendering', () => {
     it('should render the shade-list custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -50,7 +50,7 @@ describe('List', () => {
     })
 
     it('should render list items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -73,7 +73,7 @@ describe('List', () => {
     })
 
     it('should render a listbox container', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -97,7 +97,7 @@ describe('List', () => {
     })
 
     it('should render items with role option', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -120,7 +120,7 @@ describe('List', () => {
     })
 
     it('should render icon when renderIcon is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -148,7 +148,7 @@ describe('List', () => {
     })
 
     it('should render secondary actions when provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -176,7 +176,7 @@ describe('List', () => {
     })
 
     it('should set data-variant attribute when variant is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -203,7 +203,7 @@ describe('List', () => {
     })
 
     it('should sync items to the service', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -226,7 +226,7 @@ describe('List', () => {
 
   describe('focus management', () => {
     it('should set focus on click', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -253,7 +253,7 @@ describe('List', () => {
     })
 
     it('should lose focus on focusout to an outside element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -286,7 +286,7 @@ describe('List', () => {
     })
 
     it('should set focused item on item click', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -311,7 +311,7 @@ describe('List', () => {
     })
 
     it('should add focused CSS class to focused item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -338,7 +338,7 @@ describe('List', () => {
     })
 
     it('should not initialize focusedItem on wrapper focusin (items handle focus individually)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -361,7 +361,7 @@ describe('List', () => {
     })
 
     it('should clear hasFocus on focusout when focus moves outside', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
         const outsideEl = document.createElement('button')
@@ -392,7 +392,7 @@ describe('List', () => {
     })
 
     it('should clear hasFocus on focusout when relatedTarget is null', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -421,7 +421,7 @@ describe('List', () => {
 
   describe('selection', () => {
     it('should add selected CSS class to selected items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -449,7 +449,7 @@ describe('List', () => {
     })
 
     it('should set aria-selected on selected items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -477,7 +477,7 @@ describe('List', () => {
 
     it('should call onSelectionChange when selection changes', async () => {
       const onSelectionChange = vi.fn()
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -508,7 +508,7 @@ describe('List', () => {
 
   describe('keyboard navigation', () => {
     it('should not handle ArrowDown (delegated to spatial navigation)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -534,7 +534,7 @@ describe('List', () => {
     })
 
     it('should not handle ArrowUp (delegated to spatial navigation)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -560,7 +560,7 @@ describe('List', () => {
     })
 
     it('should handle Home to move focus to first item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -586,7 +586,7 @@ describe('List', () => {
     })
 
     it('should handle End to move focus to last item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -612,7 +612,7 @@ describe('List', () => {
     })
 
     it('should handle Space to toggle selection of focused item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -640,7 +640,7 @@ describe('List', () => {
     })
 
     it('should handle + to select all items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -665,7 +665,7 @@ describe('List', () => {
     })
 
     it('should handle - to deselect all items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -691,7 +691,7 @@ describe('List', () => {
     })
 
     it('should handle * to invert selection', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -720,7 +720,7 @@ describe('List', () => {
     })
 
     it('should handle Escape to clear selection and search term', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -748,7 +748,7 @@ describe('List', () => {
     })
 
     it('should not handle keyboard when not focused', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -777,7 +777,7 @@ describe('List', () => {
   describe('activation', () => {
     it('should call onItemActivate on Enter key', async () => {
       const onItemActivate = vi.fn()
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -809,7 +809,7 @@ describe('List', () => {
 
     it('should call onItemActivate on double-click', async () => {
       const onItemActivate = vi.fn()
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -843,7 +843,7 @@ describe('List', () => {
     const manyItems: TestItem[] = Array.from({ length: 25 }, (_, i) => ({ id: i + 1, name: `Item ${i + 1}` }))
 
     it('should render only current page items when pagination is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -871,7 +871,7 @@ describe('List', () => {
     })
 
     it('should render the Pagination component', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -898,7 +898,7 @@ describe('List', () => {
     })
 
     it('should show last page items correctly', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -926,7 +926,7 @@ describe('List', () => {
     })
 
     it('should not render Pagination when all items fit on one page', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -954,7 +954,7 @@ describe('List', () => {
 
     it('should call onPageChange when a pagination button is clicked', async () => {
       const onPageChange = vi.fn()
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -986,7 +986,7 @@ describe('List', () => {
     })
 
     it('should render all items when pagination is not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -1014,7 +1014,7 @@ describe('List', () => {
 
   describe('item spatial navigation attributes', () => {
     it('should set data-spatial-nav-target on list items', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -1038,7 +1038,7 @@ describe('List', () => {
     })
 
     it('should set tabIndex 0 on focused item and -1 on others', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -1064,7 +1064,7 @@ describe('List', () => {
     })
 
     it('should sync focusedItem on item onfocus', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 
@@ -1091,7 +1091,7 @@ describe('List', () => {
 
   describe('keyboard listener cleanup', () => {
     it('should remove keyboard listener when component is disconnected', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const service = createTestService()
 

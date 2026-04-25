@@ -1,7 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester'
 import { afterAll, describe, it } from 'vitest'
 import { noDirectGetValueInRender } from './no-direct-get-value-in-render.js'
-import { noDirectPhysicalStore } from './no-direct-physical-store.js'
 import { noManualSubscribeInRender } from './no-manual-subscribe-in-render.js'
 import { requireDisposableForObservableOwner } from './require-disposable-for-observable-owner.js'
 import { restNoTypeCast } from './rest-no-type-cast.js'
@@ -54,30 +53,6 @@ typedTester.run('no-direct-get-value-in-render (typed)', noDirectGetValueInRende
         })
       `,
       errors: [{ messageId: 'noDirectGetValue' }],
-    },
-  ],
-})
-
-typedTester.run('no-direct-physical-store (typed)', noDirectPhysicalStore, {
-  valid: [
-    {
-      name: '.getStoreFor() on non-StoreManager is ignored when type info is available',
-      code: `
-        declare class ConfigManager { getStoreFor(key: string): unknown }
-        declare const cfg: ConfigManager
-        const store = cfg.getStoreFor('settings')
-      `,
-    },
-  ],
-  invalid: [
-    {
-      name: '.getStoreFor() on StoreManager is still reported with type info',
-      code: `
-        declare class StoreManager { getStoreFor(model: unknown, pk: string): unknown }
-        declare const sm: StoreManager
-        const store = sm.getStoreFor(MyModel, 'id')
-      `,
-      errors: [{ messageId: 'noGetStoreFor' }],
     },
   ],
 })

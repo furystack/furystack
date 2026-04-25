@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import type { ChildrenList } from '@furystack/shades'
 import { createComponent, flushUpdates, initializeShadeRoot, Shade } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
@@ -75,7 +75,7 @@ describe('Wizard', () => {
     onFinish?: () => void,
     options?: { stepLabels?: string[]; showProgress?: boolean; viewTransition?: boolean },
   ) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,

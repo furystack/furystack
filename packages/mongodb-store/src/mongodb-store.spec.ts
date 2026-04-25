@@ -1,10 +1,10 @@
-import { StoreManager } from '@furystack/core'
 import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { defineMongoDbStore } from './define-mongodb-store.js'
 import { MongoClientFactory } from './mongo-client-factory.js'
-import { useMongoDb } from './store-manager-helpers.js'
 
 class TestClassWithId {
   declare _id: string
@@ -18,8 +18,7 @@ const mongoDbUrl = process?.env?.MONGODB_URL || 'mongodb://localhost:27017'
 describe('MongoDB Store', () => {
   let dbIdx = 0
 
-  const getMongoOptions = (injector: Injector) => ({
-    injector,
+  const getMongoOptions = () => ({
     model: TestClass,
     primaryKey: 'id' as const,
     collection: `furystack-mongo-store-tests-${storeCount++}`,
@@ -27,16 +26,20 @@ describe('MongoDB Store', () => {
     url: mongoDbUrl,
     options: {},
   })
+
   createStoreTest({
     typeName: 'mongodb-store',
     skipStringTests: true,
     createStore: (i) => {
-      const mongoOptions = getMongoOptions(i)
-      useMongoDb(mongoOptions)
-      const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
+      const mongoOptions = getMongoOptions()
+      const token = defineMongoDbStore<TestClass, 'id'>({
+        name: `mongodb-store/${mongoOptions.collection}`,
+        ...mongoOptions,
+      })
+      const store = i.get(token)
       const oldDispose = i[Symbol.asyncDispose]
       i[Symbol.asyncDispose] = async () => {
-        const client = i.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
+        const client = i.get(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
         const db = client.db(mongoOptions.db)
         await db.dropDatabase()
         await oldDispose.call(i)
@@ -46,20 +49,23 @@ describe('MongoDB Store', () => {
   })
 
   const createTestClassWithIdStore = (injector: Injector) => {
-    const mongoOptions = { ...getMongoOptions(injector), model: TestClassWithId, primaryKey: '_id' as const }
-    useMongoDb(mongoOptions)
+    const mongoOptions = { ...getMongoOptions(), model: TestClassWithId, primaryKey: '_id' as const }
+    const token = defineMongoDbStore<TestClassWithId, '_id'>({
+      name: `mongodb-store/${mongoOptions.collection}`,
+      ...mongoOptions,
+    })
     const oldDispose = injector[Symbol.asyncDispose]
     injector[Symbol.asyncDispose] = async () => {
-      const client = injector.getInstance(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
+      const client = injector.get(MongoClientFactory).getClientFor(mongoOptions.url, mongoOptions.options)
       const db = client.db(mongoOptions.db)
       await db.dropDatabase()
       await oldDispose.call(injector)
     }
-    return injector.getInstance(StoreManager).getStoreFor(TestClassWithId, '_id')
+    return injector.get(token)
   }
 
   it('Should retrieve an entity with its id', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' })
 
@@ -71,7 +77,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should retrieve more entities with theis ids', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' }, { value: 'value3' })
       const retrieved = await store.find({ filter: { _id: { $in: created.map((c) => c._id) } } })
@@ -81,7 +87,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should filter by _id as a string', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' })
       const retrieved = await store.find({ filter: { _id: { $eq: created[0]._id } } })
@@ -91,7 +97,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should filter by _id.$eq as a string', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' })
       const retrieved = await store.find({ filter: { _id: { $eq: created[0]._id } } })
@@ -101,7 +107,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should filter by _id.$in as array of strings', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' })
       const ids = created.map((c) => c._id)
@@ -112,7 +118,7 @@ describe('MongoDB Store', () => {
   })
 
   it('Should filter by _id.$nin as array of strings', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const store = createTestClassWithIdStore(injector)
       const { created } = await store.add({ value: 'value1' }, { value: 'value2' })
       const ids = created.map((c) => c._id)
@@ -123,44 +129,12 @@ describe('MongoDB Store', () => {
   })
 
   it('Should filter by a non-_id field', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const store = createTestClassWithIdStore(injector)
       await store.add({ value: 'value1' }, { value: 'value2' })
       const retrieved = await store.find({ filter: { value: { $eq: 'value2' } } })
       expect(retrieved.length).toBe(1)
       expect(retrieved[0].value).toBe('value2')
     })
-  })
-})
-
-describe('MongoClientFactory EventHub', () => {
-  it('should emit onClientCreated when a new client is created', async () => {
-    const factory = new MongoClientFactory()
-    try {
-      const handler = vi.fn()
-      factory.addListener('onClientCreated', handler)
-
-      factory.getClientFor('mongodb://localhost:27017/test-db')
-
-      expect(handler).toHaveBeenCalledTimes(1)
-      expect(handler).toHaveBeenCalledWith({ url: 'mongodb://localhost:27017/test-db' })
-    } finally {
-      await factory[Symbol.asyncDispose]()
-    }
-  })
-
-  it('should not emit onClientCreated when returning an existing client', async () => {
-    const factory = new MongoClientFactory()
-    try {
-      const handler = vi.fn()
-
-      factory.getClientFor('mongodb://localhost:27017/test-db')
-      factory.addListener('onClientCreated', handler)
-      factory.getClientFor('mongodb://localhost:27017/test-db')
-
-      expect(handler).not.toHaveBeenCalled()
-    } finally {
-      await factory[Symbol.asyncDispose]()
-    }
   })
 })

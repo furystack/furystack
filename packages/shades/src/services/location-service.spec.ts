@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { deserializeQueryString, serializeToQueryString, serializeValue } from '@furystack/rest'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -13,16 +13,17 @@ describe('LocationService', () => {
   })
 
   it('Shuld be constructed', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const s = i.getInstance(LocationService)
-      expect(s).toBeInstanceOf(LocationService)
+    await usingAsync(createInjector(), async (i) => {
+      const s = i.get(LocationService)
+      expect(s).toBeDefined()
+      expect(typeof s.navigate).toBe('function')
     })
   })
 
   it('Shuld update state on events', async () => {
-    await usingAsync(new Injector(), async (i) => {
+    await usingAsync(createInjector(), async (i) => {
       const onLocaionChanged = vi.fn()
-      const s = i.getInstance(LocationService)
+      const s = i.get(LocationService)
       s.onLocationPathChanged.subscribe(onLocaionChanged)
       expect(onLocaionChanged).toBeCalledTimes(0)
       history.pushState(null, '', '/loc1')
@@ -39,9 +40,9 @@ describe('LocationService', () => {
   })
 
   it('Should update location path when navigate is called', async () => {
-    await usingAsync(new Injector(), async (i) => {
+    await usingAsync(createInjector(), async (i) => {
       const onLocationChanged = vi.fn()
-      const s = i.getInstance(LocationService)
+      const s = i.get(LocationService)
       s.onLocationPathChanged.subscribe(onLocationChanged)
       s.navigate('/dashboard')
       expect(s.onLocationPathChanged.getValue()).toBe('/dashboard')
@@ -51,8 +52,8 @@ describe('LocationService', () => {
 
   describe('replace', () => {
     it('Should update the observable path without pushing a new history entry', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(LocationService)
         const lengthBefore = history.length
         s.replace('/replaced')
         expect(s.onLocationPathChanged.getValue()).toBe('/replaced')
@@ -61,8 +62,8 @@ describe('LocationService', () => {
     })
 
     it('Should call history.replaceState rather than pushState', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(LocationService)
         const pushSpy = vi.spyOn(history, 'pushState')
         const replaceSpy = vi.spyOn(history, 'replaceState')
 
@@ -78,8 +79,8 @@ describe('LocationService', () => {
     })
 
     it('Should notify path subscribers after replace', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const s = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const s = i.get(LocationService)
         const onLocationChanged = vi.fn()
         s.onLocationPathChanged.subscribe(onLocationChanged)
         s.replace('/notify')
@@ -90,8 +91,8 @@ describe('LocationService', () => {
 
   describe('useSearchParam', () => {
     it('Should create observables lazily', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const service = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const service = i.get(LocationService)
         const observables = service.searchParamObservables
 
         const testSearchParam = service.useSearchParam('test', null)
@@ -110,16 +111,16 @@ describe('LocationService', () => {
     })
 
     it('Should return the default value, if not present in the query string', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const service = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const service = i.get(LocationService)
         const testSearchParam = service.useSearchParam('test', { value: 'foo' })
         expect(testSearchParam.getValue()).toEqual({ value: 'foo' })
       })
     })
 
     it('Should return the value from the query string', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const service = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const service = i.get(LocationService)
         history.pushState(null, '', `/loc1?test=${serializeValue(1)}`)
         const testSearchParam = service.useSearchParam('test', 123)
         expect(testSearchParam.getValue()).toBe(1)
@@ -127,8 +128,8 @@ describe('LocationService', () => {
     })
 
     it('should update the observable value on push / replace states', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const service = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const service = i.get(LocationService)
         history.pushState(null, '', `/loc1?test=${serializeValue(1)}`)
         const testSearchParam = service.useSearchParam('test', 234)
         expect(testSearchParam.getValue()).toBe(1)
@@ -138,8 +139,8 @@ describe('LocationService', () => {
     })
 
     it('Should update the URL based on search value change', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        const service = i.getInstance(LocationService)
+      await usingAsync(createInjector(), async (i) => {
+        const service = i.get(LocationService)
         history.pushState(null, '', `/loc1?test=${serializeValue('2')}`)
         const testSearchParam = service.useSearchParam('test', '')
         testSearchParam.setValue('2')
@@ -147,25 +148,28 @@ describe('LocationService', () => {
       })
     })
 
-    it('Should throw an error when trying to use a custom serializer after LocationService has been instantiated', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('Should throw when called after LocationService has been resolved', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
         const customDeserializer = vi.fn((value: string) => deserializeQueryString(value))
-        i.getInstance(LocationService)
-        expect(() => useCustomSearchStateSerializer(i, customSerializer, customDeserializer)).toThrowError(
-          'useCustomSearchStateSerializer must be called before the LocationService is instantiated',
+
+        // Eagerly resolve once so the service patches history / adds listeners.
+        i.get(LocationService)
+
+        expect(() => useCustomSearchStateSerializer(i, customSerializer, customDeserializer)).toThrow(
+          /before LocationService is resolved/,
         )
       })
     })
 
     it('Should use custom serializer and deserializer', async () => {
-      await usingAsync(new Injector(), async (i) => {
+      await usingAsync(createInjector(), async (i) => {
         const customSerializer = vi.fn((value: any) => serializeToQueryString(value))
         const customDeserializer = vi.fn((value: string) => deserializeQueryString(value))
 
         useCustomSearchStateSerializer(i, customSerializer, customDeserializer)
 
-        const locationService = i.getInstance(LocationService)
+        const locationService = i.get(LocationService)
         const testSearchParam = locationService.useSearchParam('test', { value: 'foo' })
 
         testSearchParam.setValue({ value: 'bar' })

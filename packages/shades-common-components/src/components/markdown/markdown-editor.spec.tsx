@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +15,7 @@ describe('MarkdownEditor', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -33,7 +33,7 @@ describe('MarkdownEditor', () => {
 
   describe('side-by-side layout (default)', () => {
     it('should render input and preview panes side by side', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -59,7 +59,7 @@ describe('MarkdownEditor', () => {
 
   describe('above-below layout', () => {
     it('should render with above-below layout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -79,7 +79,7 @@ describe('MarkdownEditor', () => {
 
   describe('tabs layout', () => {
     it('should render with tabs layout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -99,7 +99,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should show the edit tab by default', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -117,7 +117,7 @@ describe('MarkdownEditor', () => {
   })
 
   it('should pass value to both input and display', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const mdContent = '# Test Content'
 
@@ -142,7 +142,7 @@ describe('MarkdownEditor', () => {
 
   describe('form integration', () => {
     it('should render a label when labelTitle is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -160,7 +160,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should not render a label when labelTitle is not provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -177,7 +177,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should set data-invalid when required and value is empty', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -194,7 +194,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should not set data-invalid when required and value is provided', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -211,7 +211,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should show "Value is required" helper text when required and empty', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -229,7 +229,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should set data-invalid when getValidationResult returns invalid', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -254,7 +254,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should not set data-invalid when getValidationResult returns valid', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -278,7 +278,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should display helper text from getHelperText', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -296,7 +296,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should forward name prop to the inner textarea', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -313,7 +313,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should forward required prop to the inner textarea', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -330,7 +330,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should forward disabled prop to the inner textarea', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -347,7 +347,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should forward placeholder prop to the inner textarea', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -364,7 +364,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should forward rows prop to the inner textarea', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -381,7 +381,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should set hideChrome on the inner MarkdownInput', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -403,7 +403,7 @@ describe('MarkdownEditor', () => {
 
   describe('keyboard navigation', () => {
     it('should have a focusable textarea in side-by-side layout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -423,7 +423,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should have focusable tab buttons in tabs layout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -446,7 +446,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should use tabIndex to indicate active tab in controlled tabs layout', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -470,7 +470,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should switch tabs when tab button is clicked via keyboard activation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -495,7 +495,7 @@ describe('MarkdownEditor', () => {
     })
 
     it('should have focusable interactive elements in preview pane', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({

@@ -57,7 +57,7 @@ const _ShowcaseReplaceRoute = Shade<ShowcaseReplaceRouteProps>({
   customElementName: 'showcase-replace-route',
   render: ({ props, injector, useDisposable }) => {
     useDisposable('showcase-replace-route', () => {
-      const locationService = injector.getInstance(LocationService)
+      const locationService = injector.get(LocationService)
       const targetUrl = buildNestedNavigateUrl(props)
       const currentPath = locationService.onLocationPathChanged.getValue()
       const currentSearch = locationService.onLocationSearchChanged.getValue()

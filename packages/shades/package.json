@@ -46,6 +46,7 @@
     "vitest": "^4.1.4"
   },
   "dependencies": {
+    "@furystack/core": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/rest": "workspace:^",
     "@furystack/utils": "workspace:^",

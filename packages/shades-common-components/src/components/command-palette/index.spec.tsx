@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector, Injector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -52,7 +52,7 @@ describe('CommandPalette', () => {
 
   describe('rendering', () => {
     it('should render the shade-command-palette custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -70,7 +70,7 @@ describe('CommandPalette', () => {
     })
 
     it('should render the default prefix', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -86,7 +86,7 @@ describe('CommandPalette', () => {
     })
 
     it('should render input component', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -103,7 +103,7 @@ describe('CommandPalette', () => {
     })
 
     it('should render suggestion list component', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -137,7 +137,7 @@ describe('CommandPalette', () => {
     }
 
     it('should navigate down with ArrowDown key', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([
           createSuggestion('Item 1', 100),
           createSuggestion('Item 2', 90),
@@ -174,7 +174,7 @@ describe('CommandPalette', () => {
     })
 
     it('should navigate up with ArrowUp key', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([
           createSuggestion('Item 1', 100),
           createSuggestion('Item 2', 90),
@@ -213,7 +213,7 @@ describe('CommandPalette', () => {
     })
 
     it('should not navigate below the last item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([createSuggestion('Item 1', 100), createSuggestion('Item 2', 90)])
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -247,7 +247,7 @@ describe('CommandPalette', () => {
     })
 
     it('should not navigate above the first item', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([createSuggestion('Item 1', 100), createSuggestion('Item 2', 90)])
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -279,7 +279,7 @@ describe('CommandPalette', () => {
     })
 
     it('should select suggestion on Enter key', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const onSelected = vi.fn()
         const provider = createMockProvider([createSuggestion('Item 1', 100, onSelected)])
 
@@ -329,7 +329,7 @@ describe('CommandPalette', () => {
     }
 
     it('should close palette when clicking a suggestion', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([createSuggestion('Item 1', 100), createSuggestion('Item 2', 90)])
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -370,7 +370,7 @@ describe('CommandPalette', () => {
     })
 
     it('should close palette after selection', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([createSuggestion('Item 1', 100)])
 
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -419,7 +419,7 @@ describe('CommandPalette', () => {
     }
 
     it('should call all command providers when searching', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider1 = createMockProvider([createSuggestion('Provider 1 Result', 100)])
         const provider2 = createMockProvider([createSuggestion('Provider 2 Result', 90)])
 
@@ -448,7 +448,7 @@ describe('CommandPalette', () => {
     })
 
     it('should aggregate results from multiple providers', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider1 = createMockProvider([createSuggestion('Provider 1 Result', 100)])
         const provider2 = createMockProvider([createSuggestion('Provider 2 Result', 90)])
 
@@ -479,7 +479,7 @@ describe('CommandPalette', () => {
     })
 
     it('should sort results by score', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([
           createSuggestion('Low Score', 50),
           createSuggestion('High Score', 100),
@@ -518,7 +518,7 @@ describe('CommandPalette', () => {
 
   describe('opening and closing', () => {
     it('should open when clicking the prefix icon', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -541,7 +541,7 @@ describe('CommandPalette', () => {
     })
 
     it('should close when clicking the close button', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -570,7 +570,7 @@ describe('CommandPalette', () => {
     })
 
     it('should add loading class when fetching suggestions', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = vi.fn(
           () =>
             new Promise<CommandPaletteSuggestionResult[]>((resolve) => {
@@ -609,7 +609,7 @@ describe('CommandPalette', () => {
 
   describe('spatial navigation attributes', () => {
     it('should have data-spatial-nav-target on the host element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -626,7 +626,7 @@ describe('CommandPalette', () => {
     })
 
     it('should have tabIndex of -1 on the host element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -643,7 +643,7 @@ describe('CommandPalette', () => {
     })
 
     it('should delegate focus to the inner input when the host is focused', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -668,7 +668,7 @@ describe('CommandPalette', () => {
 
   describe('click away', () => {
     it('should close when clicking outside the component', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -704,7 +704,7 @@ describe('CommandPalette', () => {
 
   describe('styling', () => {
     it('should apply custom style to input container', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -723,7 +723,7 @@ describe('CommandPalette', () => {
     })
 
     it('should pass fullScreenSuggestions to suggestion list', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const provider = createMockProvider([createSuggestion('Item', 100)])
 
         const rootElement = document.getElementById('root') as HTMLDivElement

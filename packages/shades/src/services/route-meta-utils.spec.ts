@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector, Injector } from '@furystack/inject'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import type { MatchChainEntry, NestedRoute } from '../components/nested-router.js'
 import {
@@ -12,7 +12,7 @@ import {
 type TestRoute = Pick<NestedRoute<unknown, any, any>, 'component'>
 
 describe('resolveRouteTitle', () => {
-  const injector = new Injector()
+  const injector = createInjector()
 
   it('should return undefined when no meta is configured', async () => {
     const entry: MatchChainEntry = {
@@ -92,7 +92,7 @@ describe('resolveRouteTitle', () => {
 })
 
 describe('resolveRouteTitles', () => {
-  const injector = new Injector()
+  const injector = createInjector()
 
   it('should resolve all titles in a mixed chain', async () => {
     const chain: MatchChainEntry[] = [

@@ -1,30 +1,24 @@
-import type { Constructable } from '@furystack/inject'
+import type { DataSetToken } from '@furystack/repository'
 import type { GetEntityEndpoint } from '@furystack/rest'
 import { RequestError } from '@furystack/rest'
-import type { RequestAction } from '../request-action-implementation.js'
-import { JsonResult } from '../request-action-implementation.js'
-import { getRepository } from '@furystack/repository'
+import { JsonResult, type RequestAction } from '../request-action-implementation.js'
 
 /**
- * Creates a simple Get Entity endpoint for a specified model.
- * @param options The options for endpoint creation
- * @param options.model The entity model, should have a Repository DataSet
- * @param options.primaryKey The field name used as primary key on the model
- * @returns The generated endpoint
+ * Creates a GET entity endpoint backed by the DataSet resolved from the
+ * provided {@link DataSetToken}. Throws a 404 `RequestError` when the
+ * entity cannot be found.
  */
-export const createGetEntityEndpoint = <T extends object, TPrimaryKey extends keyof T>(options: {
-  model: Constructable<T>
-  primaryKey: TPrimaryKey
-}) => {
-  const endpoint: RequestAction<GetEntityEndpoint<T, TPrimaryKey>> = async ({ injector, getUrlParams, getQuery }) => {
+export const createGetEntityEndpoint = <T extends object, TPrimaryKey extends keyof T>(
+  dataSet: DataSetToken<T, TPrimaryKey>,
+): RequestAction<GetEntityEndpoint<T, TPrimaryKey>> => {
+  return async ({ injector, getUrlParams, getQuery }) => {
     const { id } = getUrlParams()
     const { select } = getQuery()
-    const dataSet = getRepository(injector).getDataSetFor(options.model, options.primaryKey)
-    const entry = await dataSet.get(injector, id, select)
+    const ds = injector.get(dataSet)
+    const entry = await ds.get(injector, id, select)
     if (!entry) {
       throw new RequestError('Entity not found', 404)
     }
     return JsonResult(entry)
   }
-  return endpoint
 }

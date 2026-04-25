@@ -1,8 +1,9 @@
-import { Injectable } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { defineService } from '@furystack/inject'
 import type { ChildrenList, PartialElement } from '@furystack/shades'
 import { Shade, createComponent } from '@furystack/shades'
-import { cssVariableTheme } from '../services/css-variable-theme.js'
 import { ObservableValue } from '@furystack/utils'
+import { cssVariableTheme } from '../services/css-variable-theme.js'
 import type { InputValidationResult } from './inputs/input.js'
 
 type UnknownFormValidationResult = { isValid: null }
@@ -16,37 +17,81 @@ type InvalidFormValidationResult = {
 
 type FormValidationResult = ValidFormValidationResult | InvalidFormValidationResult | UnknownFormValidationResult
 
-@Injectable({ lifetime: 'scoped' })
-export class FormService<T> {
-  public validatedFormData = new ObservableValue<T | null>(null)
+/**
+ * Per-form state shared between the `<Form>` host and its child inputs.
+ */
+export interface FormService<T = unknown> extends Disposable {
+  readonly validatedFormData: ObservableValue<T | null>
+  readonly rawFormData: ObservableValue<{ [k: string]: FormDataEntryValue } | null>
+  readonly validationResult: ObservableValue<FormValidationResult>
+  readonly fieldErrors: ObservableValue<{
+    [K in string]?: { validationResult: InputValidationResult; validity: ValidityState }
+  }>
+  readonly inputs: Set<HTMLInputElement>
+  readonly isSubmitting: ObservableValue<boolean>
+  readonly submitError: ObservableValue<unknown>
+  setFieldState(key: keyof T, validationResult: InputValidationResult, validity: ValidityState): void
+}
 
-  public rawFormData = new ObservableValue<{ [k: string]: FormDataEntryValue } | null>(null)
-
-  public validationResult = new ObservableValue<FormValidationResult>({ isValid: null })
-
-  public fieldErrors = new ObservableValue<{
+/**
+ * Creates a fresh {@link FormService} instance. Called by `<Form>` to populate
+ * the `FormContextToken` on the form's child scope so descendant inputs can
+ * discover it.
+ */
+export const createFormService = <T,>(): FormService<T> => {
+  const validatedFormData = new ObservableValue<T | null>(null)
+  const rawFormData = new ObservableValue<{ [k: string]: FormDataEntryValue } | null>(null)
+  const validationResult = new ObservableValue<FormValidationResult>({ isValid: null })
+  const fieldErrors = new ObservableValue<{
     [K in string]?: { validationResult: InputValidationResult; validity: ValidityState }
   }>({})
+  const inputs = new Set<HTMLInputElement>()
+  const isSubmitting = new ObservableValue<boolean>(false)
+  const submitError = new ObservableValue<unknown>(undefined)
 
-  public inputs = new Set<HTMLInputElement>()
-
-  public isSubmitting = new ObservableValue<boolean>(false)
-
-  public submitError = new ObservableValue<unknown>(undefined)
-
-  public setFieldState = (key: keyof T, validationResult: InputValidationResult, validity: ValidityState) => {
-    this.fieldErrors.setValue({ ...this.fieldErrors.getValue(), [key]: { validationResult, validity } })
+  const setFieldState = (key: keyof T, fieldValidationResult: InputValidationResult, validity: ValidityState): void => {
+    fieldErrors.setValue({
+      ...fieldErrors.getValue(),
+      [key]: { validationResult: fieldValidationResult, validity },
+    })
   }
 
-  public [Symbol.dispose]() {
-    this.validatedFormData[Symbol.dispose]()
-    this.rawFormData[Symbol.dispose]()
-    this.validationResult[Symbol.dispose]()
-    this.fieldErrors[Symbol.dispose]()
-    this.isSubmitting[Symbol.dispose]()
-    this.submitError[Symbol.dispose]()
+  return {
+    validatedFormData,
+    rawFormData,
+    validationResult,
+    fieldErrors,
+    inputs,
+    isSubmitting,
+    submitError,
+    setFieldState,
+    [Symbol.dispose](): void {
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <Form> via useDisposable.
+      validatedFormData[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <Form> via useDisposable.
+      rawFormData[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <Form> via useDisposable.
+      validationResult[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <Form> via useDisposable.
+      fieldErrors[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <Form> via useDisposable.
+      isSubmitting[Symbol.dispose]()
+      // eslint-disable-next-line furystack/prefer-using-wrapper -- Disposal is triggered by the owning <Form> via useDisposable.
+      submitError[Symbol.dispose]()
+    },
   }
 }
+
+/**
+ * Scoped token used by `<Form>` to publish a {@link FormService} instance to
+ * descendant inputs. Defaults to `null` so inputs rendered outside a `<Form>`
+ * can gracefully skip form integration.
+ */
+export const FormContextToken: Token<FormService | null, 'scoped'> = defineService({
+  name: '@furystack/shades-common-components/FormContextToken',
+  lifetime: 'scoped',
+  factory: () => null,
+})
 
 type FormProps<T> = {
   onSubmit: (formData: T) => void | Promise<void>
@@ -61,9 +106,12 @@ export const Form: <T>(props: FormProps<T>, children: ChildrenList) => JSX.Eleme
   elementBaseName: 'form',
   css: { fontFamily: cssVariableTheme.typography.fontFamily },
   render: ({ props, children, useDisposable, injector, useHostProps }) => {
-    const formInjector = useDisposable('formInjector', () => injector.createChild())
-    const formService = new FormService()
-    formInjector.setExplicitInstance(formService)
+    const formService = useDisposable('formService', () => createFormService())
+    const formInjector = useDisposable('formInjector', () => {
+      const scope = injector.createScope({ owner: 'form' })
+      scope.bind(FormContextToken, () => formService)
+      return scope
+    })
 
     // Propagate the scoped injector on the host element so child Shade components
     // can discover it via getInjectorFromParent(). This works because useHostProps

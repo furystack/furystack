@@ -21,22 +21,18 @@ type ThemeBlockProps = {
 
 const ThemeBlock = Shade<ThemeBlockProps>({
   customElementName: 'theme-showcase-block',
-  render: ({ props, injector, useDisposable, useHostProps, useRef }) => {
+  render: ({ props, injector, useDisposable, useRef }) => {
     const wrapperRef = useRef<HTMLDivElement>('wrapper')
-
-    const childInjector = useDisposable('childInjector', () => {
-      const child = injector.createChild()
-      child.setExplicitInstance(new ThemeProviderService(), ThemeProviderService)
-      return child
-    })
-
-    useHostProps({ injector: childInjector })
 
     useDisposable('loadTheme', () => {
       const controller = new AbortController()
       void props.entry.loader().then((theme) => {
         if (!controller.signal.aborted && wrapperRef.current) {
-          const themeProvider = childInjector.getInstance(ThemeProviderService)
+          // Scope the theme's CSS variables to the wrapper element — the
+          // global ThemeProviderService singleton manages only CSS-variable
+          // emission, so this keeps each block visually isolated without
+          // requiring a per-block service instance.
+          const themeProvider = injector.get(ThemeProviderService)
           themeProvider.setAssignedTheme(theme, wrapperRef.current)
         }
       })
@@ -44,7 +40,7 @@ const ThemeBlock = Shade<ThemeBlockProps>({
     })
 
     const handleApply = () => {
-      const globalThemeProvider = injector.getInstance(ThemeProviderService)
+      const globalThemeProvider = injector.get(ThemeProviderService)
       void applyTheme(props.entry.key, globalThemeProvider).then(() => {
         localStorage.setItem('theme', JSON.stringify(props.entry.key))
       })

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -20,7 +20,7 @@ describe('Carousel', () => {
   ]
 
   it('should render all slides', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -38,7 +38,7 @@ describe('Carousel', () => {
   })
 
   it('should render dot indicators by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -55,7 +55,7 @@ describe('Carousel', () => {
   })
 
   it('should hide dots when dots prop is false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -72,7 +72,7 @@ describe('Carousel', () => {
   })
 
   it('should render prev and next arrow buttons', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -91,7 +91,7 @@ describe('Carousel', () => {
   })
 
   it('should not render arrows or dots for a single slide', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -110,7 +110,7 @@ describe('Carousel', () => {
   })
 
   it('should set the first dot as active by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -130,7 +130,7 @@ describe('Carousel', () => {
   })
 
   it('should respect defaultActiveIndex', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -148,7 +148,7 @@ describe('Carousel', () => {
   })
 
   it('should set the vertical data attribute', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -165,7 +165,7 @@ describe('Carousel', () => {
   })
 
   it('should use slide effect by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -183,7 +183,7 @@ describe('Carousel', () => {
   })
 
   it('should use fade effect when specified', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -201,7 +201,7 @@ describe('Carousel', () => {
   })
 
   it('should mark the first fade slide as active by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -219,7 +219,7 @@ describe('Carousel', () => {
   })
 
   it('should have proper ARIA attributes on host element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -238,7 +238,7 @@ describe('Carousel', () => {
   })
 
   it('should render slide groups with role attribute', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -258,7 +258,7 @@ describe('Carousel', () => {
   it('should call onChange when navigating via dots', async () => {
     const handleChange = vi.fn()
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -279,7 +279,7 @@ describe('Carousel', () => {
   it('should call onChange when navigating via arrows', async () => {
     const handleChange = vi.fn()
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -300,7 +300,7 @@ describe('Carousel', () => {
   it('should wrap around when navigating past the last slide', async () => {
     const handleChange = vi.fn()
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -321,7 +321,7 @@ describe('Carousel', () => {
   it('should wrap around when navigating before the first slide', async () => {
     const handleChange = vi.fn()
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -340,7 +340,7 @@ describe('Carousel', () => {
   })
 
   it('should render horizontal arrows with correct symbols', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -359,7 +359,7 @@ describe('Carousel', () => {
   })
 
   it('should render vertical arrows with correct symbols', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -378,7 +378,7 @@ describe('Carousel', () => {
   })
 
   it('should clamp defaultActiveIndex to valid range', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -396,7 +396,7 @@ describe('Carousel', () => {
   })
 
   it('should apply custom style', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -413,7 +413,7 @@ describe('Carousel', () => {
   })
 
   it('should handle empty slides array gracefully', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -435,7 +435,7 @@ describe('Carousel', () => {
     it('should navigate to next slide on ArrowRight', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -456,7 +456,7 @@ describe('Carousel', () => {
     it('should navigate to previous slide on ArrowLeft', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -477,7 +477,7 @@ describe('Carousel', () => {
     it('should navigate with ArrowDown in vertical mode', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -498,7 +498,7 @@ describe('Carousel', () => {
     it('should navigate with ArrowUp in vertical mode', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -519,7 +519,7 @@ describe('Carousel', () => {
     it('should not react to ArrowDown/ArrowUp in horizontal mode', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -551,7 +551,7 @@ describe('Carousel', () => {
     it('should go to next slide on horizontal left swipe', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -573,7 +573,7 @@ describe('Carousel', () => {
     it('should go to previous slide on horizontal right swipe', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -595,7 +595,7 @@ describe('Carousel', () => {
     it('should not navigate on small swipe distance', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -617,7 +617,7 @@ describe('Carousel', () => {
     it('should handle vertical swipe in vertical mode', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -641,7 +641,7 @@ describe('Carousel', () => {
     it('should auto-advance slides when autoplay is enabled', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -661,7 +661,7 @@ describe('Carousel', () => {
     it('should not autoplay for a single slide', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -681,7 +681,7 @@ describe('Carousel', () => {
     it('should update active fade slide when navigating', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -704,7 +704,7 @@ describe('Carousel', () => {
     })
 
     it('should update dots when navigating in fade mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -729,7 +729,7 @@ describe('Carousel', () => {
 
   describe('slide effect DOM updates', () => {
     it('should update track transform when navigating', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -751,7 +751,7 @@ describe('Carousel', () => {
     })
 
     it('should update dots when navigating in slide mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -775,7 +775,7 @@ describe('Carousel', () => {
   })
 
   it('should not remove data-vertical when set to false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -795,7 +795,7 @@ describe('Carousel', () => {
     it('should update track transform with translateY when navigating vertically', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -829,7 +829,7 @@ describe('Carousel', () => {
     it('should go to previous slide on vertical swipe down', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -851,7 +851,7 @@ describe('Carousel', () => {
     it('should not navigate on small vertical swipe', async () => {
       const handleChange = vi.fn()
 
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -873,7 +873,7 @@ describe('Carousel', () => {
 
   describe('fade effect with defaultActiveIndex', () => {
     it('should set correct initial active slide for fade effect with non-zero index', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({

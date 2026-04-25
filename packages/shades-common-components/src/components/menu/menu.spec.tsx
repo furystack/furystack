@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -22,7 +22,7 @@ describe('Menu', () => {
   ]
 
   const renderMenu = async (props: Parameters<typeof Menu>[0]) => {
-    const injector = new Injector()
+    const injector = createInjector()
     const root = document.getElementById('root')!
     initializeShadeRoot({
       injector,

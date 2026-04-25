@@ -4,7 +4,7 @@ import { cssVariableTheme } from '../../services/css-variable-theme.js'
 import type { Palette } from '../../services/theme-provider-service.js'
 import { ThemeProviderService } from '../../services/theme-provider-service.js'
 import type { ComponentSize } from '../component-size.js'
-import { FormService } from '../form.js'
+import { FormContextToken } from '../form.js'
 
 export type RadioProps = {
   /**
@@ -165,7 +165,7 @@ export const Radio = Shade<RadioProps>({
     const inputRef = useRef<HTMLInputElement>('formInput')
 
     useDisposable('form-registration', () => {
-      const formService = injector.cachedSingletons.has(FormService) ? injector.getInstance(FormService) : null
+      const formService = injector.get(FormContextToken)
 
       queueMicrotask(() => {
         if (inputRef.current && formService) {
@@ -200,7 +200,7 @@ export const Radio = Shade<RadioProps>({
       }
     })
 
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
 
     // Read group-level overrides from parent RadioGroup (inputRef is set after first mount)
     const group = inputRef.current ? inputRef.current.closest('shade-radio-group') : null

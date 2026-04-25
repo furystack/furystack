@@ -1,14 +1,24 @@
-import { InMemoryStore, StoreManager, User, addStore, useSystemIdentityContext } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { getDataSetFor, getRepository } from '@furystack/repository'
-import { PasswordCredential, UnauthenticatedError } from '@furystack/security'
+import type { User } from '@furystack/core'
+import { InMemoryStore, User as UserModel, useSystemIdentityContext } from '@furystack/core'
+import { createInjector, type Injector } from '@furystack/inject'
+import { getDataSetFor } from '@furystack/repository'
+import {
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  UnauthenticatedError,
+  usePasswordPolicy,
+} from '@furystack/security'
+import { DefaultSession, SessionStore, UserDataSet, UserStore, useHttpAuthentication } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage } from 'http'
 import { describe, expect, it } from 'vitest'
-import type { FingerprintCookieSettings } from '../jwt-authentication-settings.js'
-import { JwtAuthenticationSettings } from '../jwt-authentication-settings.js'
+import { useJwtAuthentication } from '../helpers.js'
+import type { FingerprintCookieSettings, JwtAuthenticationSettings } from '../jwt-authentication-settings.js'
 import { JwtTokenService } from '../jwt-token-service.js'
 import { RefreshToken } from '../models/refresh-token.js'
+import { RefreshTokenStore } from '../refresh-token-store.js'
 import { createJwtAuthProvider } from './jwt-auth-provider.js'
 
 const SECRET = 'a-very-secret-key-at-least-32-bytes-long!'
@@ -20,30 +30,28 @@ const FINGERPRINT_DISABLED: FingerprintCookieSettings = {
   path: '/',
 }
 
-const setupInjector = (i: Injector, overrides?: Partial<JwtAuthenticationSettings>) => {
-  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-  getRepository(i).createDataSet(User, 'username')
-  getRepository(i).createDataSet(RefreshToken, 'token')
-  const settings = Object.assign(new JwtAuthenticationSettings(), {
-    secret: SECRET,
-    fingerprintCookie: FINGERPRINT_DISABLED,
-    ...overrides,
-  })
-  i.setExplicitInstance(settings, JwtAuthenticationSettings)
+const prepareInjector = (i: Injector, overrides?: Partial<JwtAuthenticationSettings>): void => {
+  i.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  i.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  i.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  i.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+  i.bind(RefreshTokenStore, () => new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
+
+  usePasswordPolicy(i)
+  useHttpAuthentication(i)
+  useJwtAuthentication(i, { secret: SECRET, fingerprintCookie: FINGERPRINT_DISABLED, ...overrides })
 }
 
 describe('createJwtAuthProvider', () => {
   const testUser: User = { username: 'testuser', roles: ['admin'] }
 
   it('Should return null for requests without Bearer header', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-      const userDataSet = getDataSetFor(systemInjector, User, 'username')
+      const userDataSet = getDataSetFor(systemInjector, UserDataSet)
       const provider = createJwtAuthProvider({
-        jwtTokenService: i.getInstance(JwtTokenService),
+        jwtTokenService: i.get(JwtTokenService),
         userDataSet,
         injector: systemInjector,
       })
@@ -53,12 +61,12 @@ describe('createJwtAuthProvider', () => {
   })
 
   it('Should return null for requests with non-Bearer authorization', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-      const userDataSet = getDataSetFor(systemInjector, User, 'username')
+      const userDataSet = getDataSetFor(systemInjector, UserDataSet)
       const provider = createJwtAuthProvider({
-        jwtTokenService: i.getInstance(JwtTokenService),
+        jwtTokenService: i.get(JwtTokenService),
         userDataSet,
         injector: systemInjector,
       })
@@ -70,14 +78,13 @@ describe('createJwtAuthProvider', () => {
   })
 
   it('Should return the user for a valid Bearer token', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
-      const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-      await userStore.add(testUser)
-      const tokenService = i.getInstance(JwtTokenService)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
+      await i.get(UserStore).add(testUser)
+      const tokenService = i.get(JwtTokenService)
       const { token } = tokenService.signAccessToken(testUser)
       const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-      const userDataSet = getDataSetFor(systemInjector, User, 'username')
+      const userDataSet = getDataSetFor(systemInjector, UserDataSet)
       const provider = createJwtAuthProvider({
         jwtTokenService: tokenService,
         userDataSet,
@@ -91,11 +98,11 @@ describe('createJwtAuthProvider', () => {
   })
 
   it('Should throw UnauthenticatedError for invalid Bearer token', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-      const userDataSet = getDataSetFor(systemInjector, User, 'username')
-      const tokenService = i.getInstance(JwtTokenService)
+      const userDataSet = getDataSetFor(systemInjector, UserDataSet)
+      const tokenService = i.get(JwtTokenService)
       const provider = createJwtAuthProvider({
         jwtTokenService: tokenService,
         userDataSet,
@@ -110,11 +117,11 @@ describe('createJwtAuthProvider', () => {
   })
 
   it('Should throw UnauthenticatedError when user not found', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-      const userDataSet = getDataSetFor(systemInjector, User, 'username')
-      const tokenService = i.getInstance(JwtTokenService)
+      const userDataSet = getDataSetFor(systemInjector, UserDataSet)
+      const tokenService = i.get(JwtTokenService)
       const { token } = tokenService.signAccessToken(testUser)
       const provider = createJwtAuthProvider({
         jwtTokenService: tokenService,
@@ -139,14 +146,13 @@ describe('createJwtAuthProvider', () => {
     }
 
     it('Should authenticate when fingerprint cookie matches', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
-        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        await userStore.add(testUser)
-        const tokenService = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
+        await i.get(UserStore).add(testUser)
+        const tokenService = i.get(JwtTokenService)
         const { token, fingerprint } = tokenService.signAccessToken(testUser)
         const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        const userDataSet = getDataSetFor(systemInjector, UserDataSet)
         const provider = createJwtAuthProvider({
           jwtTokenService: tokenService,
           userDataSet,
@@ -161,14 +167,13 @@ describe('createJwtAuthProvider', () => {
     })
 
     it('Should reject when fingerprint cookie is missing', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
-        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        await userStore.add(testUser)
-        const tokenService = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
+        await i.get(UserStore).add(testUser)
+        const tokenService = i.get(JwtTokenService)
         const { token } = tokenService.signAccessToken(testUser)
         const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        const userDataSet = getDataSetFor(systemInjector, UserDataSet)
         const provider = createJwtAuthProvider({
           jwtTokenService: tokenService,
           userDataSet,
@@ -184,14 +189,13 @@ describe('createJwtAuthProvider', () => {
     })
 
     it('Should reject when fingerprint cookie has wrong value', async () => {
-      await usingAsync(new Injector(), async (i) => {
-        setupInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
-        const userStore = i.getInstance(StoreManager).getStoreFor(User, 'username')
-        await userStore.add(testUser)
-        const tokenService = i.getInstance(JwtTokenService)
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i, { fingerprintCookie: FINGERPRINT_ENABLED })
+        await i.get(UserStore).add(testUser)
+        const tokenService = i.get(JwtTokenService)
         const { token } = tokenService.signAccessToken(testUser)
         const systemInjector = useSystemIdentityContext({ injector: i, username: 'test' })
-        const userDataSet = getDataSetFor(systemInjector, User, 'username')
+        const userDataSet = getDataSetFor(systemInjector, UserDataSet)
         const provider = createJwtAuthProvider({
           jwtTokenService: tokenService,
           userDataSet,

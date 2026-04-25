@@ -1,7 +1,4 @@
-import type { Injector } from '@furystack/inject'
-import { Injectable } from '@furystack/inject'
-import { getDataSetFor } from '@furystack/repository'
-import { RefreshToken } from './models/refresh-token.js'
+import { defineService, type Token } from '@furystack/inject'
 
 /**
  * Settings for the fingerprint cookie used to prevent token sidejacking (XSS token theft).
@@ -25,13 +22,16 @@ export type FingerprintCookieSettings = {
   path: string
 }
 
-const DEFAULT_FINGERPRINT_COOKIE_SETTINGS: FingerprintCookieSettings = {
+/**
+ * Returns a fresh copy of the default fingerprint cookie settings.
+ */
+export const defaultFingerprintCookieSettings = (): FingerprintCookieSettings => ({
   enabled: true,
   name: 'fpt',
   sameSite: 'Strict',
   secure: true,
   path: '/',
-}
+})
 
 /**
  * Configuration for JWT Bearer token authentication.
@@ -39,46 +39,75 @@ const DEFAULT_FINGERPRINT_COOKIE_SETTINGS: FingerprintCookieSettings = {
  * @important HTTPS is strongly recommended when using JWT Bearer tokens,
  * as tokens transmitted over plain HTTP are vulnerable to interception.
  */
-@Injectable({ lifetime: 'singleton' })
-export class JwtAuthenticationSettings {
+export interface JwtAuthenticationSettings {
   /**
    * HMAC secret for HS256 signing. Must be at least 32 bytes (256 bits) of entropy.
    * Validated at setup time by {@link useJwtAuthentication}.
    * @see https://datatracker.ietf.org/doc/html/rfc7518#section-3.2
    */
-  public secret!: string
-
+  secret: string
   /** Access token lifetime in seconds. Default: 900 (15 minutes). */
-  public accessTokenExpirationSeconds = 900
-
+  accessTokenExpirationSeconds: number
   /** Refresh token lifetime in seconds. Default: 604800 (7 days). */
-  public refreshTokenExpirationSeconds = 604800
-
+  refreshTokenExpirationSeconds: number
   /**
    * Seconds of clock skew tolerance for exp validation. Default: 5.
    * Prevents spurious rejections in distributed deployments with minor clock drift.
    */
-  public clockSkewToleranceSeconds = 5
-
+  clockSkewToleranceSeconds: number
   /**
    * Grace period in seconds during which a revoked refresh token is still accepted
    * (returns the same replacement token). Handles the network-loss race condition
    * where the client never receives the new token pair. Default: 30.
    */
-  public refreshTokenRotationGracePeriodSeconds = 30
-
+  refreshTokenRotationGracePeriodSeconds: number
   /** JWT 'iss' claim. If set, tokens are signed with this issuer and verified against it. */
-  public issuer?: string
-
+  issuer?: string
   /** JWT 'aud' claim. If set, tokens are signed with this audience and verified against it. */
-  public audience?: string
-
+  audience?: string
   /**
    * Fingerprint cookie settings for OWASP token sidejacking prevention.
    * Enabled by default. Set `enabled: false` to opt out (e.g. for non-browser clients).
    */
-  public fingerprintCookie: FingerprintCookieSettings = { ...DEFAULT_FINGERPRINT_COOKIE_SETTINGS }
-
-  /** Returns the DataSet for refresh tokens. */
-  public getRefreshTokenDataSet = (injector: Injector) => getDataSetFor(injector, RefreshToken, 'token')
+  fingerprintCookie: FingerprintCookieSettings
 }
+
+/**
+ * Returns a fresh copy of the default {@link JwtAuthenticationSettings}
+ * apart from `secret`, which must be supplied by the caller via
+ * {@link useJwtAuthentication}. The default factory for the
+ * {@link JwtAuthenticationSettings} token throws until rebound.
+ */
+export const defaultJwtAuthenticationSettings = (): Omit<JwtAuthenticationSettings, 'secret'> => ({
+  accessTokenExpirationSeconds: 900,
+  refreshTokenExpirationSeconds: 604800,
+  clockSkewToleranceSeconds: 5,
+  refreshTokenRotationGracePeriodSeconds: 30,
+  fingerprintCookie: defaultFingerprintCookieSettings(),
+})
+
+/**
+ * Error thrown by the default {@link JwtAuthenticationSettings} factory when
+ * it is resolved without first calling {@link useJwtAuthentication}.
+ */
+export class JwtAuthenticationNotConfiguredError extends Error {
+  constructor() {
+    super(
+      'JwtAuthenticationSettings has not been configured. Call useJwtAuthentication(injector, { secret, ... }) before resolving JwtTokenService or any JWT action.',
+    )
+    this.name = 'JwtAuthenticationNotConfiguredError'
+  }
+}
+
+/**
+ * DI token carrying the current {@link JwtAuthenticationSettings}. The default
+ * factory throws — bind via {@link useJwtAuthentication} (preferred) or
+ * directly through {@link Injector.bind} before resolving JWT services.
+ */
+export const JwtAuthenticationSettings: Token<JwtAuthenticationSettings, 'singleton'> = defineService({
+  name: 'furystack/auth-jwt/JwtAuthenticationSettings',
+  lifetime: 'singleton',
+  factory: () => {
+    throw new JwtAuthenticationNotConfiguredError()
+  },
+})

@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -69,7 +69,7 @@ describe('Suggest', () => {
 
   describe('rendering', () => {
     it('should render as custom element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -94,7 +94,7 @@ describe('Suggest', () => {
     })
 
     it('should render the default prefix', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -120,7 +120,7 @@ describe('Suggest', () => {
     })
 
     it('should render the input container', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -146,7 +146,7 @@ describe('Suggest', () => {
     })
 
     it('should apply custom styles', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -175,7 +175,7 @@ describe('Suggest', () => {
 
   describe('keyboard navigation', () => {
     it('should handle ArrowDown to move selection down', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -216,7 +216,7 @@ describe('Suggest', () => {
     })
 
     it('should handle ArrowUp to move selection up', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -261,7 +261,7 @@ describe('Suggest', () => {
     })
 
     it('should handle Enter to select current suggestion', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -301,7 +301,7 @@ describe('Suggest', () => {
     })
 
     it('should prevent default on Enter key', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -341,7 +341,7 @@ describe('Suggest', () => {
     })
 
     it('should prevent default on ArrowUp key when suggestions are open', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -379,7 +379,7 @@ describe('Suggest', () => {
     })
 
     it('should prevent default on ArrowDown key when suggestions are open', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -417,7 +417,7 @@ describe('Suggest', () => {
     })
 
     it('should not prevent default on arrow keys when dropdown is closed', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -450,7 +450,7 @@ describe('Suggest', () => {
     })
 
     it('should not move selection below 0', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -492,7 +492,7 @@ describe('Suggest', () => {
 
   describe('open/close behavior', () => {
     it('should open when clicking term icon', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -523,7 +523,7 @@ describe('Suggest', () => {
     })
 
     it('should close when clicking close button', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -558,7 +558,7 @@ describe('Suggest', () => {
     })
 
     it('should trigger animation when opening', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -590,7 +590,7 @@ describe('Suggest', () => {
     })
 
     it('should trigger animation when closing', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -629,7 +629,7 @@ describe('Suggest', () => {
 
   describe('suggestions loading', () => {
     it('should fetch suggestions when typing', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
         const getEntriesSpy = vi.fn(getTestEntries)
@@ -663,7 +663,7 @@ describe('Suggest', () => {
     })
 
     it('should show loader animation while loading', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -706,7 +706,7 @@ describe('Suggest', () => {
     })
 
     it('should render suggestions after loading', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -742,7 +742,7 @@ describe('Suggest', () => {
 
   describe('suggestion selection', () => {
     it('should call onSelectSuggestion when selecting via Enter', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -782,7 +782,7 @@ describe('Suggest', () => {
     })
 
     it('should close after selecting a suggestion', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -826,7 +826,7 @@ describe('Suggest', () => {
 
   describe('sub-components', () => {
     it('should render SuggestInput component', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -852,7 +852,7 @@ describe('Suggest', () => {
     })
 
     it('should render SuggestionList component', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -878,7 +878,7 @@ describe('Suggest', () => {
     })
 
     it('should render Loader component', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -906,7 +906,7 @@ describe('Suggest', () => {
 
   describe('spatial navigation attributes', () => {
     it('should have data-spatial-nav-target on the host element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -931,7 +931,7 @@ describe('Suggest', () => {
     })
 
     it('should have tabIndex of -1 on the host element', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -956,7 +956,7 @@ describe('Suggest', () => {
     })
 
     it('should delegate focus to the inner input when the host is focused', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -989,7 +989,7 @@ describe('Suggest', () => {
 
   describe('synchronous suggestions mode', () => {
     it('should render with string[] suggestions', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -1013,7 +1013,7 @@ describe('Suggest', () => {
     })
 
     it('should render input in sync mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 
@@ -1038,7 +1038,7 @@ describe('Suggest', () => {
     })
 
     it('should show filtered suggestions in sync mode', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onSelectSuggestion = vi.fn()
 

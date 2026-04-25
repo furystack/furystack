@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +15,7 @@ describe('InputNumber', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -32,7 +32,7 @@ describe('InputNumber', () => {
   })
 
   it('should render the inner input, decrement and increment buttons', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -54,7 +54,7 @@ describe('InputNumber', () => {
   })
 
   it('should render the label title', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -73,7 +73,7 @@ describe('InputNumber', () => {
 
   describe('increment and decrement', () => {
     it('should increment value when + button is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -96,7 +96,7 @@ describe('InputNumber', () => {
     })
 
     it('should decrement value when - button is clicked', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -119,7 +119,7 @@ describe('InputNumber', () => {
     })
 
     it('should use custom step value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -144,7 +144,7 @@ describe('InputNumber', () => {
 
   describe('min and max', () => {
     it('should clamp value to max', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -167,7 +167,7 @@ describe('InputNumber', () => {
     })
 
     it('should clamp value to min', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -190,7 +190,7 @@ describe('InputNumber', () => {
     })
 
     it('should disable decrement button when value equals min', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -209,7 +209,7 @@ describe('InputNumber', () => {
     })
 
     it('should disable increment button when value equals max', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -230,7 +230,7 @@ describe('InputNumber', () => {
 
   describe('precision', () => {
     it('should display value with specified precision', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -249,7 +249,7 @@ describe('InputNumber', () => {
     })
 
     it('should round to precision when stepping', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -274,7 +274,7 @@ describe('InputNumber', () => {
 
   describe('keyboard support', () => {
     it('should increment on ArrowUp', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -297,7 +297,7 @@ describe('InputNumber', () => {
     })
 
     it('should decrement on ArrowDown', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -320,7 +320,7 @@ describe('InputNumber', () => {
     })
 
     it('should not respond to keyboard when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -345,7 +345,7 @@ describe('InputNumber', () => {
 
   describe('formatter and parser', () => {
     it('should display formatted value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -364,7 +364,7 @@ describe('InputNumber', () => {
     })
 
     it('should use parser to interpret input text', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -401,7 +401,7 @@ describe('InputNumber', () => {
 
   describe('direct text input', () => {
     it('should parse typed value on blur', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -426,7 +426,7 @@ describe('InputNumber', () => {
     })
 
     it('should handle empty input on blur', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -453,7 +453,7 @@ describe('InputNumber', () => {
 
   describe('disabled state', () => {
     it('should set data-disabled attribute when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -470,7 +470,7 @@ describe('InputNumber', () => {
     })
 
     it('should disable both step buttons when disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -490,7 +490,7 @@ describe('InputNumber', () => {
     })
 
     it('should not change value when clicking buttons while disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -515,7 +515,7 @@ describe('InputNumber', () => {
 
   describe('variants', () => {
     it('should set data-variant for outlined', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -532,7 +532,7 @@ describe('InputNumber', () => {
     })
 
     it('should set data-variant for contained', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -551,7 +551,7 @@ describe('InputNumber', () => {
 
   describe('helper text', () => {
     it('should render helper text', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -571,7 +571,7 @@ describe('InputNumber', () => {
     })
 
     it('should not render helper text container when no helper text', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -592,7 +592,7 @@ describe('InputNumber', () => {
 
   describe('accessibility', () => {
     it('should set role=spinbutton on the input', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -615,7 +615,7 @@ describe('InputNumber', () => {
     })
 
     it('should set aria-label on step buttons', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -638,7 +638,7 @@ describe('InputNumber', () => {
 
   describe('no initial value', () => {
     it('should start from min when incrementing with no value', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -661,7 +661,7 @@ describe('InputNumber', () => {
     })
 
     it('should start from 0 when incrementing with no value and no min', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onValueChange = vi.fn()
 
@@ -686,7 +686,7 @@ describe('InputNumber', () => {
 
   describe('size', () => {
     it('should not set data-size when size is not specified', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <InputNumber /> })
         await flushUpdates()
@@ -696,7 +696,7 @@ describe('InputNumber', () => {
     })
 
     it('should not set data-size for medium size (default)', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <InputNumber size="medium" /> })
         await flushUpdates()
@@ -706,7 +706,7 @@ describe('InputNumber', () => {
     })
 
     it('should set data-size="small" for small size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <InputNumber size="small" /> })
         await flushUpdates()
@@ -716,7 +716,7 @@ describe('InputNumber', () => {
     })
 
     it('should set data-size="large" for large size', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         initializeShadeRoot({ injector, rootElement, jsxElement: <InputNumber size="large" /> })
         await flushUpdates()

@@ -177,7 +177,7 @@ export const createLogger = (name: string) => {
 };
 
 // ✅ Good - explicit for public API contracts
-export function getInstance<T>(constructor: Constructor<T>): T {
+export function get<TService>(token: Token<TService>): TService {
   // Explicit generic ensures type safety
 }
 
@@ -207,7 +207,7 @@ const isActive: boolean = true;
 
 ```typescript
 // ✅ Good - type guard for library users
-export function isInjectable(value: unknown): value is { new (...args: unknown[]): unknown } {
+export function isConstructable(value: unknown): value is { new (...args: unknown[]): unknown } {
   return typeof value === 'function' && 'prototype' in value
 }
 
@@ -271,23 +271,29 @@ type CacheState<T> =
   | { status: 'loaded'; value: T }
   | { status: 'error'; error: string }
 
-@Injectable({ lifetime: 'singleton' })
-export class DataService {
-  private dataState = new ObservableValue<CacheState<Data>>({ status: 'idle' })
-
-  public async loadData() {
-    this.dataState.setValue({ status: 'loading' })
-    try {
-      const data = await this.fetchData()
-      this.dataState.setValue({ status: 'loaded', value: data })
-    } catch (error) {
-      this.dataState.setValue({
-        status: 'error',
-        error: (error as Error).message,
-      })
+export const DataServiceToken = defineService({
+  name: 'my-app/DataService',
+  lifetime: 'singleton',
+  factory: ({ onDispose }) => {
+    const dataState = new ObservableValue<CacheState<Data>>({ status: 'idle' })
+    onDispose(() => dataState[Symbol.dispose]())
+    return {
+      state: dataState,
+      loadData: async () => {
+        dataState.setValue({ status: 'loading' })
+        try {
+          const data = await fetchData()
+          dataState.setValue({ status: 'loaded', value: data })
+        } catch (error) {
+          dataState.setValue({
+            status: 'error',
+            error: (error as Error).message,
+          })
+        }
+      },
     }
-  }
-}
+  },
+})
 
 // Usage with type narrowing
 const state = dataState.getValue()

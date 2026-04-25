@@ -94,7 +94,7 @@ export const NotyComponent = Shade<{ model: NotyModel; onDismiss: () => void }>(
       return { [Symbol.dispose]: () => {} }
     })
 
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     const colors = themeProvider.theme.palette[props.model.type]
 
     const removeSelf = async () => {
@@ -151,7 +151,7 @@ export const NotyList = Shade({
     flexDirection: 'column',
   },
   render: ({ useDisposable, injector, useRef }) => {
-    const notyService = injector.getInstance(NotyService)
+    const notyService = injector.get(NotyService)
     const containerRef = useRef<HTMLDivElement>('container')
 
     const currentNotys = notyService.getNotyList()
@@ -178,7 +178,7 @@ export const NotyList = Shade({
     return (
       <div ref={containerRef} style={{ display: 'contents' }}>
         {currentNotys.map((n) => (
-          <NotyComponent model={n} onDismiss={() => injector.getInstance(NotyService).emit('onNotyRemoved', n)} />
+          <NotyComponent model={n} onDismiss={() => injector.get(NotyService).emit('onNotyRemoved', n)} />
         ))}
       </div>
     )

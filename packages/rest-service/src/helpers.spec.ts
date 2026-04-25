@@ -1,56 +1,57 @@
-import { InMemoryStore, User, addStore } from '@furystack/core'
+import type { User } from '@furystack/core'
+import { InMemoryStore, User as UserModel } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
-import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
+import { createInjector, type Injector } from '@furystack/inject'
+import {
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  usePasswordPolicy,
+} from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
-import { ApiManager } from './api-manager.js'
 import { useHttpAuthentication, useProxy, useRestService, useStaticFiles } from './helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import { HttpServerPoolToken } from './http-server-pool.js'
 import { DefaultSession } from './models/default-session.js'
-import { ProxyManager } from './proxy-manager.js'
-import { StaticServerManager } from './static-server-manager.js'
+import { SessionStore, UserStore } from './user-store.js'
 
 const setupAuthStores = (i: Injector) => {
-  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-  const repo = getRepository(i)
-  repo.createDataSet(User, 'username')
-  repo.createDataSet(DefaultSession, 'sessionId')
-  repo.createDataSet(PasswordCredential, 'userName')
-  repo.createDataSet(PasswordResetToken, 'token')
+  i.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  i.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  i.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  i.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
   usePasswordPolicy(i)
 }
 
-describe('Injector extensions', () => {
+describe('rest-service setup helpers', () => {
   describe('useHttpAuthentication', () => {
-    it('Should set up HTTP Authentication', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('binds HttpAuthenticationSettings on the injector', async () => {
+      await usingAsync(createInjector(), async (i) => {
         setupAuthStores(i)
         useHttpAuthentication(i)
-        expect(i.cachedSingletons.get(HttpAuthenticationSettings)).toBeDefined()
+        const settings = i.get(HttpAuthenticationSettings)
+        expect(settings).toBeDefined()
       })
     })
 
-    it('Should register basic-auth and cookie-auth providers by default', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('registers basic-auth and cookie-auth providers by default', async () => {
+      await usingAsync(createInjector(), async (i) => {
         setupAuthStores(i)
         useHttpAuthentication(i)
-        const settings = i.getInstance(HttpAuthenticationSettings)
+        const settings = i.get(HttpAuthenticationSettings)
         const providerNames = settings.authenticationProviders.map((p) => p.name)
         expect(providerNames).toContain('basic-auth')
         expect(providerNames).toContain('cookie-auth')
       })
     })
 
-    it('Should not register basic-auth provider when disabled', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('omits the basic-auth provider when enableBasicAuth is false', async () => {
+      await usingAsync(createInjector(), async (i) => {
         setupAuthStores(i)
         useHttpAuthentication(i, { enableBasicAuth: false })
-        const settings = i.getInstance(HttpAuthenticationSettings)
+        const settings = i.get(HttpAuthenticationSettings)
         const providerNames = settings.authenticationProviders.map((p) => p.name)
         expect(providerNames).not.toContain('basic-auth')
         expect(providerNames).toContain('cookie-auth')
@@ -59,41 +60,50 @@ describe('Injector extensions', () => {
   })
 
   describe('useRestService()', () => {
-    it('Should set up a REST service', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('acquires a pooled HTTP server and attaches a serverApi', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const port = getPort()
-
-        await useRestService({ injector: i, api: {}, root: '/', port })
-        expect(i.cachedSingletons.get(ApiManager)).toBeDefined()
+        const serverApi = await useRestService({ injector: i, api: {}, root: '/', port })
+        expect(serverApi).toBeDefined()
+        const pool = i.get(HttpServerPoolToken)
+        const record = await pool.acquire({ port })
+        expect(record.apis).toContain(serverApi)
       })
     })
   })
 
   describe('useStaticFiles()', () => {
-    it('Should set up a static file server', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('attaches a static-file serverApi to the pooled HTTP server', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const port = getPort()
-
-        await useStaticFiles({ injector: i, baseUrl: '/', path: '.', port })
-        expect(i.cachedSingletons.get(StaticServerManager)).toBeDefined()
+        const serverApi = await useStaticFiles({ injector: i, baseUrl: '/', path: '.', port })
+        expect(serverApi).toBeDefined()
+        const pool = i.get(HttpServerPoolToken)
+        const record = await pool.acquire({ port })
+        expect(record.apis).toContain(serverApi)
       })
     })
   })
 
   describe('useProxy()', () => {
-    it('Should set up a proxy server', async () => {
-      await usingAsync(new Injector(), async (i) => {
+    it('attaches a proxy serverApi to the pooled HTTP server', async () => {
+      await usingAsync(createInjector(), async (i) => {
         const sourcePort = getPort()
         const targetPort = getPort()
-
-        await useProxy({
+        const serverApi = await useProxy({
           injector: i,
           sourceBaseUrl: '/api',
           targetBaseUrl: `http://localhost:${targetPort}`,
           sourcePort,
         })
-        expect(i.cachedSingletons.get(ProxyManager)).toBeDefined()
+        expect(serverApi).toBeDefined()
+        const pool = i.get(HttpServerPoolToken)
+        const record = await pool.acquire({ port: sourcePort })
+        expect(record.apis).toContain(serverApi)
       })
     })
   })
 })
+
+// Re-export to keep ESLint happy about unused User import elsewhere.
+export type { User }

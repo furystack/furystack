@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +15,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -32,7 +32,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render a heading', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -51,7 +51,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render a paragraph', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -69,7 +69,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render a code block', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -87,7 +87,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render a list', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -106,7 +106,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render checkboxes as disabled when readOnly (default)', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -124,7 +124,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render checkboxes as enabled when readOnly is false', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
       const onChange = vi.fn()
 
@@ -152,7 +152,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render a blockquote', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -170,7 +170,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render a horizontal rule', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -187,7 +187,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render links', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -206,7 +206,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render images', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -224,7 +224,7 @@ describe('MarkdownDisplay', () => {
   })
 
   it('should render empty for empty content', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -243,7 +243,7 @@ describe('MarkdownDisplay', () => {
 
   describe('keyboard navigation', () => {
     it('should make links focusable', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -266,7 +266,7 @@ describe('MarkdownDisplay', () => {
     })
 
     it('should make code blocks focusable via tabIndex', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -287,7 +287,7 @@ describe('MarkdownDisplay', () => {
     })
 
     it('should make checkbox inputs focusable when not disabled', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         initializeShadeRoot({
@@ -310,7 +310,7 @@ describe('MarkdownDisplay', () => {
     })
 
     it('should toggle checkbox via keyboard activation', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
         const onChange = vi.fn()
 
@@ -339,7 +339,7 @@ describe('MarkdownDisplay', () => {
     })
 
     it('should have correct focus order for mixed interactive elements', async () => {
-      await usingAsync(new Injector(), async (injector) => {
+      await usingAsync(createInjector(), async (injector) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
         const content = [

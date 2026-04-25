@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { serializeValue } from '@furystack/rest'
 import { sleepAsync, usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -438,7 +438,7 @@ describe('NestedRouter lifecycle hooks', () => {
       callOrder.push('leave-other')
     })
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -556,7 +556,7 @@ describe('NestedRouter query / hash re-render', () => {
     const onLeave = vi.fn(async () => {})
     const componentFn = vi.fn(({ hash }: { hash: string | undefined }) => <div id="content">hash={hash ?? 'none'}</div>)
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -581,7 +581,7 @@ describe('NestedRouter query / hash re-render', () => {
       expect(onVisit).toBeCalledTimes(1)
       expect(onLeave).not.toBeCalled()
 
-      const locationService = injector.getInstance(LocationService)
+      const locationService = injector.get(LocationService)
       locationService.navigate('/tabs#a')
       await flushUpdates()
       await flushUpdates()
@@ -609,7 +609,7 @@ describe('NestedRouter query / hash re-render', () => {
       <div id="content">page={query?.page ?? 'none'}</div>
     ))
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -633,7 +633,7 @@ describe('NestedRouter query / hash re-render', () => {
       expect(document.getElementById('content')?.innerHTML).toBe('page=none')
       expect(onVisit).toBeCalledTimes(1)
 
-      const locationService = injector.getInstance(LocationService)
+      const locationService = injector.get(LocationService)
       locationService.navigate(`/list?page=${serializeValue(2)}`)
       await flushUpdates()
       await flushUpdates()
@@ -662,7 +662,7 @@ describe('NestedRouter query / hash re-render', () => {
       </div>
     ))
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -686,7 +686,7 @@ describe('NestedRouter query / hash re-render', () => {
       expect(document.getElementById('content')?.innerHTML).toBe('a')
       bComponent.mockClear()
 
-      injector.getInstance(LocationService).navigate(`/b?page=${serializeValue(7)}#x`)
+      injector.get(LocationService).navigate(`/b?page=${serializeValue(7)}#x`)
       await flushUpdates()
       await flushUpdates()
 
@@ -731,7 +731,7 @@ describe('NestedRouter latest-wins on rapid navigation', () => {
       callOrder.push('leave-c')
     })
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -813,7 +813,7 @@ describe('NestedRouter lifecycle element scope', () => {
     const visitElements: Array<{ route: string; element: JSX.Element }> = []
     const leaveElements: Array<{ route: string; element: JSX.Element }> = []
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -906,7 +906,7 @@ describe('NestedRouter flat routes', () => {
   it('should render and navigate between flat (non-nested) Record routes', async () => {
     history.pushState(null, '', '/')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -967,7 +967,7 @@ describe('NestedRouter outlet composition', () => {
   it('should compose parent layout wrapping child content via outlet', async () => {
     history.pushState(null, '', '/dashboard/settings')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1012,7 +1012,7 @@ describe('NestedRouter outlet composition', () => {
   it('should render parent with fallback when navigating to parent URL without a child match', async () => {
     history.pushState(null, '', '/dashboard')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1065,7 +1065,7 @@ describe('NestedRouter route param changes', () => {
       callOrder.push('leave-user')
     })
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1141,7 +1141,7 @@ describe('NestedRouter route param changes', () => {
     const onVisitDash = vi.fn()
     const onLeaveDash = vi.fn()
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1214,9 +1214,9 @@ describe('NestedRouter + RouteMatchService integration', () => {
   it('should update RouteMatchService with the current match chain on navigation', async () => {
     history.pushState(null, '', '/parent/child-a')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       const parentRoute: NestedRoute = {
         meta: { title: 'Parent' },
@@ -1278,9 +1278,9 @@ describe('NestedRouter + RouteMatchService integration', () => {
   it('should expose match params through RouteMatchService', async () => {
     history.pushState(null, '', '/users/42')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
-      const routeMatchService = injector.getInstance(RouteMatchService)
+      const routeMatchService = injector.get(RouteMatchService)
 
       initializeShadeRoot({
         injector,
@@ -1378,7 +1378,7 @@ describe('NestedRouter view transitions', () => {
   it('should call startViewTransition when viewTransition is enabled', async () => {
     history.pushState(null, '', '/')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1414,7 +1414,7 @@ describe('NestedRouter view transitions', () => {
   it('should not call startViewTransition when viewTransition is not set', async () => {
     history.pushState(null, '', '/')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1449,7 +1449,7 @@ describe('NestedRouter view transitions', () => {
   it('should pass types to startViewTransition when configured', async () => {
     history.pushState(null, '', '/')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1484,7 +1484,7 @@ describe('NestedRouter view transitions', () => {
   it('should respect per-route viewTransition: false override', async () => {
     history.pushState(null, '', '/')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({
@@ -1525,7 +1525,7 @@ describe('NestedRouter view transitions', () => {
 
     history.pushState(null, '', '/')
 
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       const rootElement = document.getElementById('root') as HTMLDivElement
 
       initializeShadeRoot({

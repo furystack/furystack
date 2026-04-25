@@ -1,11 +1,17 @@
-import { addStore, InMemoryStore, User } from '@furystack/core'
+import { defineStore, InMemoryStore, type StoreToken, User as UserModel } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
-import { getRepository, Repository } from '@furystack/repository'
-import { DefaultSession, useHttpAuthentication, useRestService, ServerManager } from '@furystack/rest-service'
-import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
+import { createInjector } from '@furystack/inject'
+import { defineDataSet, type DataSetToken } from '@furystack/repository'
+import { DefaultSession, SessionStore, UserStore, useHttpAuthentication, useRestService } from '@furystack/rest-service'
+import {
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  usePasswordPolicy,
+} from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
-import { useWebsockets } from '@furystack/websocket-api'
+import { useWebSocketApi } from '@furystack/websocket-api'
 import { describe, expect, it } from 'vitest'
 import { WebSocket } from 'ws'
 import type { ClientSyncMessage, FilterType, ServerSyncMessage } from '@furystack/entity-sync'
@@ -20,14 +26,37 @@ class TestEntity {
   declare category: string
 }
 
+const TestEntityStore: StoreToken<TestEntity, 'id'> = defineStore({
+  name: 'entity-sync-service-integration/TestEntityStore',
+  model: TestEntity,
+  primaryKey: 'id',
+  factory: () => new InMemoryStore({ model: TestEntity, primaryKey: 'id' }),
+})
+
+const TestEntityDataSet: DataSetToken<TestEntity, 'id'> = defineDataSet({
+  name: 'entity-sync-service-integration/TestEntityDataSet',
+  store: TestEntityStore,
+})
+
 describe('Entity Sync Integration tests', () => {
   const host = 'localhost'
   const wsPath = '/sync'
 
   const setupServer = async () => {
-    const injector = new Injector()
+    const injector = createInjector()
     const port = getPort()
     const createdClients: WebSocket[] = []
+
+    injector.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+    injector.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+    injector.bind(
+      PasswordCredentialStore,
+      () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }),
+    )
+    injector.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+
+    usePasswordPolicy(injector)
+    useHttpAuthentication(injector)
 
     await useRestService({
       injector,
@@ -37,48 +66,28 @@ describe('Entity Sync Integration tests', () => {
       hostName: host,
     })
 
-    addStore(injector, new InMemoryStore({ model: User, primaryKey: 'username' }))
-      .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-      .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-      .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-    getRepository(injector)
-      .createDataSet(User, 'username')
-      .createDataSet(DefaultSession, 'sessionId')
-      .createDataSet(PasswordCredential, 'userName')
-      .createDataSet(PasswordResetToken, 'token')
-    usePasswordPolicy(injector)
-    useHttpAuthentication(injector, {})
-
-    addStore(injector, new InMemoryStore({ model: TestEntity, primaryKey: 'id' }))
-    injector.getInstance(Repository).createDataSet(TestEntity, 'id')
-
-    await useWebsockets(injector, {
+    await useWebSocketApi({
+      injector,
       actions: [SyncSubscribeAction, SyncUnsubscribeAction],
       path: wsPath,
       port,
-      host,
+      hostName: host,
     })
 
     useEntitySync(injector, {
-      models: [{ model: TestEntity, primaryKey: 'id' }],
+      models: [{ dataSet: TestEntityDataSet as unknown as DataSetToken<unknown, never> }],
     })
 
     const createClient = async (): Promise<WebSocket> => {
       return new Promise<WebSocket>((resolve, reject) => {
-        injector
-          .getInstance(ServerManager)
-          .getOrCreate({ port })
-          .then(() => {
-            const ws = new WebSocket(`ws://${host}:${port}${wsPath}`)
-            createdClients.push(ws)
-            ws.on('open', () => resolve(ws)).on('error', reject)
-          })
-          .catch(reject)
+        const ws = new WebSocket(`ws://${host}:${port}${wsPath}`)
+        createdClients.push(ws)
+        ws.on('open', () => resolve(ws)).on('error', reject)
       })
     }
 
-    const dataSet = injector.getInstance(Repository).getDataSetFor(TestEntity, 'id')
-    const manager = injector.getInstance(SubscriptionManager)
+    const dataSet = injector.get(TestEntityDataSet)
+    const manager = injector.get(SubscriptionManager)
 
     return {
       injector,
@@ -122,7 +131,6 @@ describe('Entity Sync Integration tests', () => {
     })
   }
 
-  /** Polls until the condition is met or timeout */
   const waitUntil = async (condition: () => boolean, timeoutMs = 2000, intervalMs = 10): Promise<void> => {
     const start = Date.now()
     while (!condition()) {
@@ -136,7 +144,7 @@ describe('Entity Sync Integration tests', () => {
   describe('entity subscriptions', () => {
     it('should subscribe and receive a snapshot for an existing entity', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const client = await createClient()
         const response = await sendAndReceive(client, {
@@ -191,7 +199,7 @@ describe('Entity Sync Integration tests', () => {
 
     it('should receive entity-updated notification after a server-side update', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const client = await createClient()
         await sendAndReceive(client, {
@@ -202,7 +210,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const updatePromise = waitForMessage(client)
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        await dataSet.update(injector, '1', { name: 'Bob' })
 
         const notification = await updatePromise
         expect(notification.type).toBe('entity-updated')
@@ -215,7 +223,7 @@ describe('Entity Sync Integration tests', () => {
 
     it('should receive entity-removed notification after a server-side removal', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const client = await createClient()
         await sendAndReceive(client, {
@@ -226,7 +234,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const removePromise = waitForMessage(client)
-        await dataSet.remove(injector, '1' as TestEntity['id'])
+        await dataSet.remove(injector, '1')
 
         const notification = await removePromise
         expect(notification.type).toBe('entity-removed')
@@ -247,7 +255,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const addPromise = waitForMessage(client)
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const notification = await addPromise
         expect(notification.type).toBe('entity-added')
@@ -259,7 +267,7 @@ describe('Entity Sync Integration tests', () => {
 
     it('should stop receiving notifications after unsubscribe', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, manager, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const client = await createClient()
         const subscribeResponse = await sendAndReceive(client, {
@@ -281,7 +289,7 @@ describe('Entity Sync Integration tests', () => {
           manager.getActiveSubscriptions().filter((s) => s.modelName === 'TestEntity' && s.key === '1'),
         ).toHaveLength(0)
 
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        await dataSet.update(injector, '1', { name: 'Bob' })
 
         await expect(waitForMessage(client, 200)).rejects.toThrow('Timed out')
 
@@ -291,8 +299,8 @@ describe('Entity Sync Integration tests', () => {
 
     it('should notify multiple clients independently', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
+        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' })
 
         const client1 = await createClient()
         const client2 = await createClient()
@@ -312,7 +320,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const update1Promise = waitForMessage(client1)
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Alice Updated' } as Partial<TestEntity>)
+        await dataSet.update(injector, '1', { name: 'Alice Updated' })
 
         const notification1 = await update1Promise
         expect(notification1.type).toBe('entity-updated')
@@ -323,8 +331,8 @@ describe('Entity Sync Integration tests', () => {
 
     it('should support multiple subscriptions from a single client', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
+        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' })
 
         const client = await createClient()
 
@@ -343,7 +351,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const update1Promise = waitForMessage(client)
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Alice Updated' } as Partial<TestEntity>)
+        await dataSet.update(injector, '1', { name: 'Alice Updated' })
         const notification1 = await update1Promise
         expect(notification1.type).toBe('entity-updated')
         if (notification1.type === 'entity-updated') {
@@ -351,7 +359,7 @@ describe('Entity Sync Integration tests', () => {
         }
 
         const update2Promise = waitForMessage(client)
-        await dataSet.update(injector, '2' as TestEntity['id'], { name: 'Bob Updated' } as Partial<TestEntity>)
+        await dataSet.update(injector, '2', { name: 'Bob Updated' })
         const notification2 = await update2Promise
         expect(notification2.type).toBe('entity-updated')
         if (notification2.type === 'entity-updated') {
@@ -362,8 +370,8 @@ describe('Entity Sync Integration tests', () => {
 
     it('should support delta sync with lastSeq', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Bob' } as Partial<TestEntity>)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
+        await dataSet.update(injector, '1', { name: 'Bob' })
 
         const client = await createClient()
         const response = await sendAndReceive(client, {
@@ -384,7 +392,7 @@ describe('Entity Sync Integration tests', () => {
 
     it('should clean up subscriptions when a client disconnects', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, manager, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const countBeforeSubscribe = manager.activeSubscriptionCount
 
@@ -413,8 +421,8 @@ describe('Entity Sync Integration tests', () => {
   describe('collection subscriptions', () => {
     it('should subscribe and receive a snapshot of all entities', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
+        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' })
 
         const client = await createClient()
         const response = await sendAndReceive(client, {
@@ -434,9 +442,9 @@ describe('Entity Sync Integration tests', () => {
 
     it('should subscribe with a filter and receive matching entities', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
-        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' } as TestEntity)
-        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
+        await dataSet.add(injector, { id: '2', name: 'Bob', category: 'B' })
+        await dataSet.add(injector, { id: '3', name: 'Charlie', category: 'A' })
 
         const client = await createClient()
         const response = await sendAndReceive(client, {
@@ -481,7 +489,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const addPromise = waitForMessage(client)
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const notification = await addPromise
         expect(notification.type).toBe('collection-snapshot')
@@ -494,7 +502,7 @@ describe('Entity Sync Integration tests', () => {
 
     it('should receive collection-snapshot when a collection entity is updated', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const client = await createClient()
         await sendAndReceive(client, {
@@ -504,7 +512,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const updatePromise = waitForMessage(client)
-        await dataSet.update(injector, '1' as TestEntity['id'], { name: 'Updated' } as Partial<TestEntity>)
+        await dataSet.update(injector, '1', { name: 'Updated' })
 
         const notification = await updatePromise
         expect(notification.type).toBe('collection-snapshot')
@@ -517,7 +525,7 @@ describe('Entity Sync Integration tests', () => {
 
     it('should receive collection-snapshot when a collection entity is removed', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const client = await createClient()
         await sendAndReceive(client, {
@@ -527,7 +535,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const removePromise = waitForMessage(client)
-        await dataSet.remove(injector, '1' as TestEntity['id'])
+        await dataSet.remove(injector, '1')
 
         const notification = await removePromise
         expect(notification.type).toBe('collection-snapshot')
@@ -540,7 +548,7 @@ describe('Entity Sync Integration tests', () => {
 
     it('should handle entity leaving a filtered collection', async () => {
       await usingAsync(await setupServer(), async ({ injector, dataSet, createClient }) => {
-        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' } as TestEntity)
+        await dataSet.add(injector, { id: '1', name: 'Alice', category: 'A' })
 
         const client = await createClient()
         await sendAndReceive(client, {
@@ -551,8 +559,7 @@ describe('Entity Sync Integration tests', () => {
         })
 
         const removePromise = waitForMessage(client)
-        // Update category to no longer match
-        await dataSet.update(injector, '1' as TestEntity['id'], { category: 'B' } as Partial<TestEntity>)
+        await dataSet.update(injector, '1', { category: 'B' })
 
         const notification = await removePromise
         expect(notification.type).toBe('collection-snapshot')

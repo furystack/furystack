@@ -1,63 +1,101 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
 import { getCurrentUser, isAuthenticated, isAuthorized } from './helpers.js'
+import type { IdentityContext as IdentityContextType } from './identity-context.js'
 import { IdentityContext } from './identity-context.js'
 
-describe('IdentityContext', () => {
-  it('Should throw when no explicit instance is set', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      expect(() => i.getInstance(IdentityContext)).toThrow("'IdentityContext'")
+describe('IdentityContext default implementation', () => {
+  it('reports isAuthenticated as false', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      expect(await i.get(IdentityContext).isAuthenticated()).toBe(false)
     })
   })
 
-  it('Should be retrieved from an Injector after setExplicitInstance', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const ctx = new IdentityContext()
-      i.setExplicitInstance(ctx, IdentityContext)
-      expect(i.getInstance(IdentityContext)).toBe(ctx)
+  it('reports isAuthorized as false', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      expect(await i.get(IdentityContext).isAuthorized('admin')).toBe(false)
     })
   })
 
-  it('Should be inherited by a child injector', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const ctx = new IdentityContext()
-      i.setExplicitInstance(ctx, IdentityContext)
-      await usingAsync(i.createChild(), async (child) => {
-        expect(child.getInstance(IdentityContext)).toBe(ctx)
+  it('rejects getCurrentUser because no identity is bound', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      await expect(i.get(IdentityContext).getCurrentUser()).rejects.toThrowError('No IdentityContext')
+    })
+  })
+
+  it('returns the bound context after rebinding on an injector', async () => {
+    const custom: IdentityContextType = {
+      isAuthenticated: () => Promise.resolve(true),
+      isAuthorized: () => Promise.resolve(true),
+      getCurrentUser: () => Promise.resolve({ username: 'alice', roles: [] } as never),
+    }
+    await usingAsync(createInjector(), async (i) => {
+      i.bind(IdentityContext, () => custom)
+      expect(i.get(IdentityContext)).toBe(custom)
+    })
+  })
+
+  it('keeps scoped bindings isolated to the scope they were declared on', async () => {
+    const custom: IdentityContextType = {
+      isAuthenticated: () => Promise.resolve(true),
+      isAuthorized: () => Promise.resolve(true),
+      getCurrentUser: () => Promise.resolve({ username: 'root', roles: [] } as never),
+    }
+    await usingAsync(createInjector(), async (root) => {
+      root.bind(IdentityContext, () => custom)
+      expect(root.get(IdentityContext)).toBe(custom)
+      // `IdentityContext` is a scoped token -- each scope resolves its own
+      // instance. A binding installed on the parent is *not* inherited by
+      // child scopes; consumers that want the elevated context for a whole
+      // subtree should use `useSystemIdentityContext` (which creates the
+      // scope and binds on it) or bind explicitly on the resolving scope.
+      await usingAsync(root.createScope(), async (child) => {
+        expect(child.get(IdentityContext)).not.toBe(custom)
+        expect(await child.get(IdentityContext).isAuthenticated()).toBe(false)
       })
     })
   })
 
-  it('isAuthenticated should be called from helper', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const ctx = new IdentityContext()
-      i.setExplicitInstance(ctx, IdentityContext)
+  it('resolves a child-specific context without affecting the parent', async () => {
+    await usingAsync(createInjector(), async (root) => {
+      await usingAsync(root.createScope(), async (child) => {
+        const childCtx: IdentityContextType = {
+          isAuthenticated: () => Promise.resolve(true),
+          isAuthorized: () => Promise.resolve(true),
+          getCurrentUser: () => Promise.resolve({ username: 'child', roles: [] } as never),
+        }
+        child.bind(IdentityContext, () => childCtx)
+        expect(await isAuthenticated(child)).toBe(true)
+        expect(await isAuthenticated(root)).toBe(false)
+      })
+    })
+  })
+
+  it('is invoked by the isAuthenticated helper', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const ctx = i.get(IdentityContext)
       const spy = vi.spyOn(ctx, 'isAuthenticated')
-      const isAuth = await isAuthenticated(i)
-      expect(isAuth).toBeFalsy()
-      expect(spy).toBeCalledTimes(1)
+      expect(await isAuthenticated(i)).toBe(false)
+      expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 
-  it('isAuthorized should be called from helper', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const ctx = new IdentityContext()
-      i.setExplicitInstance(ctx, IdentityContext)
+  it('is invoked by the isAuthorized helper', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const ctx = i.get(IdentityContext)
       const spy = vi.spyOn(ctx, 'isAuthorized')
-      const isAuth = await isAuthorized(i)
-      expect(isAuth).toBeFalsy()
-      expect(spy).toBeCalledTimes(1)
+      expect(await isAuthorized(i, 'admin')).toBe(false)
+      expect(spy).toHaveBeenCalledWith('admin')
     })
   })
 
-  it('getCurrentUser should be called from helper', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const ctx = new IdentityContext()
-      i.setExplicitInstance(ctx, IdentityContext)
+  it('is invoked by the getCurrentUser helper', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const ctx = i.get(IdentityContext)
       const spy = vi.spyOn(ctx, 'getCurrentUser')
       await expect(getCurrentUser(i)).rejects.toThrowError('No IdentityContext')
-      expect(spy).toBeCalledTimes(1)
+      expect(spy).toHaveBeenCalledTimes(1)
     })
   })
 })

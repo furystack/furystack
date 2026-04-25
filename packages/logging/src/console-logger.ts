@@ -1,7 +1,8 @@
-import { Injectable } from '@furystack/inject'
-import { AbstractLogger } from './abstract-logger.js'
-import type { LeveledLogEntry } from './log-entries.js'
-import type { LogLevel } from './log-entries.js'
+import { defineService } from '@furystack/inject'
+import type { Token } from '@furystack/inject'
+import { createLogger } from './create-logger.js'
+import type { LeveledLogEntry, LogLevel } from './log-entries.js'
+import type { Logger } from './logger.js'
 
 /**
  * Resets the console color
@@ -31,7 +32,7 @@ export const FgYellow = '\x1b[33m'
  */
 export const FgBlue = '\x1b[34m'
 /**
- * Magentaa console foreground color
+ * Magenta console foreground color
  */
 export const FgMagenta = '\x1b[35m'
 /**
@@ -47,7 +48,7 @@ export const FgWhite = '\x1b[37m'
  * @param level the log level
  * @returns an associated color to a specific log level
  */
-export const getLevelColor = (level: LogLevel) => {
+export const getLevelColor = (level: LogLevel): string => {
   switch (level) {
     case 'verbose':
       return FgCyan
@@ -59,6 +60,8 @@ export const getLevelColor = (level: LogLevel) => {
       return FgYellow
     case 'error':
       return FgRed
+    case 'fatal':
+      return FgMagenta
     default:
       return FgRed
   }
@@ -68,7 +71,7 @@ export const getLevelColor = (level: LogLevel) => {
  * @param entry the log entry to be formatted
  * @returns the formatted message
  */
-export const defaultFormat = <T>(entry: LeveledLogEntry<T>) => {
+export const defaultFormat = <T>(entry: LeveledLogEntry<T>): unknown[] => {
   const fontColor = getLevelColor(entry.level)
   return [`${fontColor}%s${Reset}`, entry.scope, entry.message]
 }
@@ -77,7 +80,7 @@ export const defaultFormat = <T>(entry: LeveledLogEntry<T>) => {
  * @param entry the log entry
  * @returns the formatted message
  */
-export const verboseFormat = <T>(entry: LeveledLogEntry<T>) => {
+export const verboseFormat = <T>(entry: LeveledLogEntry<T>): unknown[] => {
   const fontColor = getLevelColor(entry.level)
   return entry.data
     ? [`${fontColor}%s${Reset}`, entry.scope, entry.message, entry.data]
@@ -85,20 +88,30 @@ export const verboseFormat = <T>(entry: LeveledLogEntry<T>) => {
 }
 
 /**
- * A logger implementation that dumps log messages to the console
+ * Token for a {@link Logger} that writes each entry to the console using
+ * {@link defaultFormat}. Stateless and therefore registered as a singleton.
  */
-@Injectable({ lifetime: 'scoped' })
-export class ConsoleLogger extends AbstractLogger {
-  public async addEntry<T>(entry: LeveledLogEntry<T>) {
-    const data = defaultFormat(entry)
-    console.log(...data)
-  }
-}
+export const ConsoleLogger: Token<Logger, 'singleton'> = defineService({
+  name: '@furystack/logging/ConsoleLogger',
+  lifetime: 'singleton',
+  factory: () =>
+    createLogger(async (entry) => {
+      const data = defaultFormat(entry)
+      console.log(...data)
+      await Promise.resolve()
+    }),
+})
 
-@Injectable({ lifetime: 'scoped' })
-export class VerboseConsoleLogger extends AbstractLogger {
-  public async addEntry<T>(entry: LeveledLogEntry<T>) {
-    const data = verboseFormat(entry)
-    console.log(...data)
-  }
-}
+/**
+ * Like {@link ConsoleLogger} but prints additional entry data when present.
+ */
+export const VerboseConsoleLogger: Token<Logger, 'singleton'> = defineService({
+  name: '@furystack/logging/VerboseConsoleLogger',
+  lifetime: 'singleton',
+  factory: () =>
+    createLogger(async (entry) => {
+      const data = verboseFormat(entry)
+      console.log(...data)
+      await Promise.resolve()
+    }),
+})

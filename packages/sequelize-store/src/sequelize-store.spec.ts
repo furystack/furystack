@@ -1,12 +1,12 @@
 import { TestClass, createStoreTest } from '@furystack/core/create-physical-store-tests'
-import { StoreManager } from '@furystack/core'
-import { useSequelize } from './store-manager-helpers.js'
-import { DataTypes, Model } from 'sequelize'
+import { createInjector } from '@furystack/inject'
 import { sleepAsync, usingAsync } from '@furystack/utils'
-import { Injector } from '@furystack/inject'
+import type { Sequelize } from 'sequelize'
+import { DataTypes, Model } from 'sequelize'
+import { describe, expect, it } from 'vitest'
+import { defineSequelizeStore } from './define-sequelize-store.js'
 import { SequelizeClientFactory } from './sequelize-client-factory.js'
 import type { SequelizeStore } from './sequelize-store.js'
-import { describe, it, expect } from 'vitest'
 
 class TestSequelizeClass extends Model<TestClass, TestClass> implements TestClass {
   declare id: number
@@ -18,13 +18,28 @@ class TestSequelizeClass extends Model<TestClass, TestClass> implements TestClas
   declare dateValue: Date
 }
 
+const initTestModel = async (sequelize: Sequelize) => {
+  TestSequelizeClass.init(
+    {
+      id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+      stringValue1: { type: DataTypes.STRING },
+      stringValue2: { type: DataTypes.STRING },
+      numberValue1: { type: DataTypes.INTEGER },
+      numberValue2: { type: DataTypes.INTEGER },
+      booleanValue: { type: DataTypes.BOOLEAN },
+      dateValue: { type: DataTypes.DATE },
+    },
+    { sequelize, timestamps: false },
+  )
+}
+
 describe('Sequelize Store', () => {
   createStoreTest({
     typeName: 'sequelize-store',
     skipRegexTests: true,
     createStore: (i) => {
-      useSequelize({
-        injector: i,
+      const token = defineSequelizeStore<TestClass, TestSequelizeClass, 'id'>({
+        name: 'sequelize-store/TestClass',
         model: TestClass,
         sequelizeModel: TestSequelizeClass,
         primaryKey: 'id',
@@ -33,45 +48,15 @@ describe('Sequelize Store', () => {
           storage: ':memory:',
           logging: false,
         },
-        initModel: async (sequelize) => {
-          TestSequelizeClass.init(
-            {
-              id: {
-                type: DataTypes.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-              },
-              stringValue1: {
-                type: DataTypes.STRING,
-              },
-              stringValue2: {
-                type: DataTypes.STRING,
-              },
-              numberValue1: {
-                type: DataTypes.INTEGER,
-              },
-              numberValue2: {
-                type: DataTypes.INTEGER,
-              },
-              booleanValue: {
-                type: DataTypes.BOOLEAN,
-              },
-              dateValue: {
-                type: DataTypes.DATE,
-              },
-            },
-            { sequelize, timestamps: false },
-          )
-        },
+        initModel: initTestModel,
       })
-      const store = i.getInstance(StoreManager).getStoreFor(TestClass, 'id')
-      return store
+      return i.get(token)
     },
   })
 
   it('should return the cached sequelize client instance from the factory', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      const factory = i.getInstance(SequelizeClientFactory)
+    await usingAsync(createInjector(), async (i) => {
+      const factory = i.get(SequelizeClientFactory)
       const settings = {
         dialect: 'sqlite',
         storage: ':memory:',
@@ -84,9 +69,9 @@ describe('Sequelize Store', () => {
   })
 
   it('should return the cached model from the store class', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      useSequelize({
-        injector: i,
+    await usingAsync(createInjector(), async (i) => {
+      const token = defineSequelizeStore<TestClass, TestSequelizeClass, 'id'>({
+        name: 'sequelize-store/TestClass/cached-model',
         model: TestClass,
         sequelizeModel: TestSequelizeClass,
         primaryKey: 'id',
@@ -97,39 +82,10 @@ describe('Sequelize Store', () => {
         },
         initModel: async (sequelize) => {
           await sleepAsync(100)
-          TestSequelizeClass.init(
-            {
-              id: {
-                type: DataTypes.INTEGER,
-                autoIncrement: true,
-                primaryKey: true,
-              },
-              stringValue1: {
-                type: DataTypes.STRING,
-              },
-              stringValue2: {
-                type: DataTypes.STRING,
-              },
-              numberValue1: {
-                type: DataTypes.INTEGER,
-              },
-              numberValue2: {
-                type: DataTypes.INTEGER,
-              },
-              booleanValue: {
-                type: DataTypes.BOOLEAN,
-              },
-              dateValue: {
-                type: DataTypes.DATE,
-              },
-            },
-            { sequelize, timestamps: false },
-          )
+          await initTestModel(sequelize)
         },
       })
-      const store: SequelizeStore<TestClass, TestSequelizeClass, 'id'> = i
-        .getInstance(StoreManager)
-        .getStoreFor(TestClass, 'id')
+      const store = i.get(token) as SequelizeStore<TestClass, TestSequelizeClass, 'id'>
 
       const model1Promise = store.getModel()
       const model2 = await store.getModel()
@@ -143,9 +99,9 @@ describe('Sequelize Store', () => {
   })
 
   it('should throw if the sequelize model is not initialized', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      useSequelize({
-        injector: i,
+    await usingAsync(createInjector(), async (i) => {
+      const token = defineSequelizeStore<TestClass, TestSequelizeClass, 'id'>({
+        name: 'sequelize-store/TestClass/no-init',
         model: TestClass,
         sequelizeModel: TestSequelizeClass,
         primaryKey: 'id',
@@ -158,15 +114,13 @@ describe('Sequelize Store', () => {
           // won't init the model here
         },
       })
-      const store: SequelizeStore<TestClass, TestSequelizeClass, 'id'> = i
-        .getInstance(StoreManager)
-        .getStoreFor(TestClass, 'id')
+      const store = i.get(token) as SequelizeStore<TestClass, TestSequelizeClass, 'id'>
 
       expect.assertions(1)
       try {
         await store.getModel()
       } catch (error) {
-        expect((error as Error).message).toBe('TestSequelizeClass has not been defined') // will be thrown by sequelize
+        expect((error as Error).message).toBe('TestSequelizeClass has not been defined')
       }
     })
   })

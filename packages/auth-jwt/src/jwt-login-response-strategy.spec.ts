@@ -1,15 +1,22 @@
-import { InMemoryStore, User, addStore } from '@furystack/core'
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
-import { DefaultSession, useHttpAuthentication } from '@furystack/rest-service'
-import { PasswordCredential, PasswordResetToken, usePasswordPolicy } from '@furystack/security'
+import type { User } from '@furystack/core'
+import { InMemoryStore, User as UserModel } from '@furystack/core'
+import { createInjector, type Injector } from '@furystack/inject'
+import {
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  usePasswordPolicy,
+} from '@furystack/security'
+import { DefaultSession, SessionStore, UserStore, useHttpAuthentication } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 
+import { useJwtAuthentication } from './helpers.js'
 import type { FingerprintCookieSettings } from './jwt-authentication-settings.js'
 import { createJwtLoginStrategy } from './jwt-login-response-strategy.js'
-import { useJwtAuthentication } from './helpers.js'
 import { RefreshToken } from './models/refresh-token.js'
+import { RefreshTokenDataSet, RefreshTokenStore } from './refresh-token-store.js'
 
 const SECRET = 'test-secret-that-is-at-least-32-bytes-long!'
 
@@ -29,19 +36,12 @@ const FINGERPRINT_ENABLED: FingerprintCookieSettings = {
   path: '/',
 }
 
-const setupInjector = (i: Injector, fingerprintCookie: FingerprintCookieSettings = FINGERPRINT_DISABLED) => {
-  addStore(i, new InMemoryStore({ model: User, primaryKey: 'username' }))
-    .addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-    .addStore(new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
-    .addStore(new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
-    .addStore(new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
-
-  const repo = getRepository(i)
-  repo.createDataSet(User, 'username')
-  repo.createDataSet(DefaultSession, 'sessionId')
-  repo.createDataSet(PasswordCredential, 'userName')
-  repo.createDataSet(PasswordResetToken, 'token')
-  repo.createDataSet(RefreshToken, 'token')
+const prepareInjector = (i: Injector, fingerprintCookie: FingerprintCookieSettings = FINGERPRINT_DISABLED): void => {
+  i.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  i.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  i.bind(PasswordCredentialStore, () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }))
+  i.bind(PasswordResetTokenStore, () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }))
+  i.bind(RefreshTokenStore, () => new InMemoryStore({ model: RefreshToken, primaryKey: 'token' }))
 
   usePasswordPolicy(i)
   useHttpAuthentication(i)
@@ -52,8 +52,8 @@ describe('createJwtLoginStrategy', () => {
   const testUser: User = { username: 'testuser', roles: ['admin'] }
 
   it('Should return accessToken and refreshToken in the response body', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const strategy = createJwtLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
       expect(result.chunk.accessToken).toBeTruthy()
@@ -62,8 +62,8 @@ describe('createJwtLoginStrategy', () => {
   })
 
   it('Should return status code 200', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const strategy = createJwtLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
       expect(result.statusCode).toBe(200)
@@ -71,8 +71,8 @@ describe('createJwtLoginStrategy', () => {
   })
 
   it('Should return a valid JWT access token with 3 parts', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const strategy = createJwtLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
       expect(result.chunk.accessToken.split('.')).toHaveLength(3)
@@ -80,13 +80,12 @@ describe('createJwtLoginStrategy', () => {
   })
 
   it('Should persist the refresh token in the DataSet', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const strategy = createJwtLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
 
-      const repo = getRepository(i)
-      const refreshTokenDataSet = repo.getDataSetFor(RefreshToken, 'token')
+      const refreshTokenDataSet = i.get(RefreshTokenDataSet)
       const tokens = await refreshTokenDataSet.find(i, { filter: { token: { $eq: result.chunk.refreshToken } } })
       expect(tokens).toHaveLength(1)
       expect(tokens[0].username).toBe('testuser')
@@ -94,8 +93,8 @@ describe('createJwtLoginStrategy', () => {
   })
 
   it('Should include fingerprint cookie header when fingerprinting is enabled', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i, FINGERPRINT_ENABLED)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i, FINGERPRINT_ENABLED)
       const strategy = createJwtLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
       const setCookie = result.headers['Set-Cookie']
@@ -105,8 +104,8 @@ describe('createJwtLoginStrategy', () => {
   })
 
   it('Should not include fingerprint cookie header when fingerprinting is disabled', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i, FINGERPRINT_DISABLED)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i, FINGERPRINT_DISABLED)
       const strategy = createJwtLoginStrategy(i)
       const result = await strategy.createLoginResponse(testUser, i)
       const setCookie = result.headers['Set-Cookie']
@@ -115,8 +114,8 @@ describe('createJwtLoginStrategy', () => {
   })
 
   it('Should generate unique refresh tokens for each call', async () => {
-    await usingAsync(new Injector(), async (i) => {
-      setupInjector(i)
+    await usingAsync(createInjector(), async (i) => {
+      prepareInjector(i)
       const strategy = createJwtLoginStrategy(i)
       const result1 = await strategy.createLoginResponse(testUser, i)
       const result2 = await strategy.createLoginResponse(testUser, i)

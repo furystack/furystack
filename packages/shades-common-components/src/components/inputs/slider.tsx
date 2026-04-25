@@ -559,7 +559,7 @@ export const Slider = Shade<SliderProps>({
       }
     })
 
-    const themeProvider = injector.getInstance(ThemeProviderService)
+    const themeProvider = injector.get(ThemeProviderService)
     const min = props.min ?? 0
     const max = props.max ?? 100
     const step = props.step ?? 1

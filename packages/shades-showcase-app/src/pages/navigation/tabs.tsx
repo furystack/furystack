@@ -27,7 +27,7 @@ const { getTypedQuery, getTypedHash } = createNestedHooks(appRoutes)
 const TypedRouteDemo = Shade({
   customElementName: 'typed-route-demo',
   render: ({ injector, useObservable }) => {
-    const locationService = injector.getInstance(LocationService)
+    const locationService = injector.get(LocationService)
     useObservable('tabsHash', locationService.onLocationHashChanged)
     useObservable('tabsSearch', locationService.onDeserializedLocationSearchChanged)
 

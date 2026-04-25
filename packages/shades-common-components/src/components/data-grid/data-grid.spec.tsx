@@ -1,5 +1,6 @@
 import type { FindOptions } from '@furystack/core'
-import { Injector } from '@furystack/inject'
+import type { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -39,7 +40,7 @@ describe('DataGrid', () => {
     }) => Promise<void>,
     opts?: { createService?: () => CollectionService<TestEntry> },
   ) => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(opts?.createService?.() ?? createTestService(), async (service) => {
         const findOptions: FindOptions<TestEntry, Array<keyof TestEntry>> = {}
         const onFindOptionsChange = vi.fn<(options: FindOptions<TestEntry, Array<keyof TestEntry>>) => void>()

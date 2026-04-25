@@ -1,4 +1,4 @@
-import { Injector } from '@furystack/inject'
+import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { usingAsync } from '@furystack/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -55,7 +55,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should render as custom element', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -74,7 +74,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should render suggestion items container', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -94,7 +94,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should render suggestions from manager', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.currentSuggestions.setValue([createSuggestion('Command 1', 100), createSuggestion('Command 2', 90)])
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -115,7 +115,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should render suggestion content', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.currentSuggestions.setValue([createSuggestion('Test Command', 100)])
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -136,7 +136,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should mark first item as selected by default', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.currentSuggestions.setValue([createSuggestion('Command 1', 100), createSuggestion('Command 2', 90)])
         manager.selectedIndex.setValue(0)
@@ -159,7 +159,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should update selected class when selectedIndex changes', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.currentSuggestions.setValue([createSuggestion('Command 1', 100), createSuggestion('Command 2', 90)])
         manager.selectedIndex.setValue(0)
@@ -185,7 +185,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should call selectSuggestion when item is clicked while opened', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const suggestion = createSuggestion('Click Me', 100)
         manager.currentSuggestions.setValue([suggestion])
@@ -212,7 +212,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should not call selectSuggestion when item is clicked while closed', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const suggestion = createSuggestion('Click Me', 100)
         manager.currentSuggestions.setValue([suggestion])
@@ -239,7 +239,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should animate slide-in when opening', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -271,7 +271,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should animate slide-out when closing', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(true)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -302,7 +302,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should set container display to initial when opening', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -326,7 +326,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should set container display to none when closing', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(true)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -350,7 +350,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should render empty list when no suggestions', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.currentSuggestions.setValue([])
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -371,7 +371,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should support fullScreenSuggestions prop', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(true)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -393,7 +393,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should set max height based on window height', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(true)
         const rootElement = document.getElementById('root') as HTMLDivElement
@@ -415,7 +415,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should have correct CSS styles for suggestion items container', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         const rootElement = document.getElementById('root') as HTMLDivElement
 
@@ -439,7 +439,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should call selectSuggestion with correct index for second item', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.currentSuggestions.setValue([
           createSuggestion('First', 100),
@@ -469,7 +469,7 @@ describe('CommandPaletteSuggestionList', () => {
   })
 
   it('should update container z-index when opening and closing', async () => {
-    await usingAsync(new Injector(), async (injector) => {
+    await usingAsync(createInjector(), async (injector) => {
       await usingAsync(createManager(), async (manager) => {
         manager.isOpened.setValue(false)
         const rootElement = document.getElementById('root') as HTMLDivElement

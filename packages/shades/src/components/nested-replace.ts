@@ -18,7 +18,7 @@ import type { NestedRoute } from './nested-router.js'
  * @param args - The navigation arguments
  */
 export const nestedReplace = (injector: Injector, args: NestedNavigateArgs): void => {
-  injector.getInstance(LocationService).replace(buildNestedNavigateUrl(args))
+  injector.get(LocationService).replace(buildNestedNavigateUrl(args))
 }
 
 /**

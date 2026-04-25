@@ -1,10 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { getStoreManager, InMemoryStore, User } from '@furystack/core'
+import { InMemoryStore, User as UserModel } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
-import { getRepository } from '@furystack/repository'
+import { createInjector } from '@furystack/inject'
 import type { OpenApiDocument, WithSchemaAction } from '@furystack/rest'
 import { createClient, ResponseError } from '@furystack/rest-client-fetch'
+import {
+  PasswordCredential,
+  PasswordCredentialStore,
+  PasswordResetToken,
+  PasswordResetTokenStore,
+  usePasswordPolicy,
+} from '@furystack/security'
 import { usingAsync } from '@furystack/utils'
 import type Ajv from 'ajv'
 import { describe, expect, it } from 'vitest'
@@ -13,10 +19,11 @@ import { createGetCollectionEndpoint } from './endpoint-generators/create-get-co
 import { createGetEntityEndpoint } from './endpoint-generators/create-get-entity-endpoint.js'
 import { createPatchEndpoint } from './endpoint-generators/create-patch-endpoint.js'
 import { createPostEndpoint } from './endpoint-generators/create-post-endpoint.js'
-import { MockClass } from './endpoint-generators/utils.js'
+import { MockDataSet, setupContext } from './endpoint-generators/utils.js'
 import { useHttpAuthentication, useRestService } from './helpers.js'
 import { DefaultSession } from './models/default-session.js'
 import { JsonResult } from './request-action-implementation.js'
+import { SessionStore, UserStore } from './user-store.js'
 import type { ValidationApi } from './validate.integration.schema.js'
 import schema from './validate.integration.spec.schema.json' with { type: 'json' }
 import { Validate } from './validate.js'
@@ -28,15 +35,12 @@ const description = crypto.randomUUID()
 const version = crypto.randomUUID()
 
 const createValidateApi = async (options = { enableGetSchema: false }) => {
-  const injector = new Injector()
+  const injector = createInjector()
   const port = getPort()
 
-  getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-  getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-  getStoreManager(injector).addStore(new InMemoryStore({ model: MockClass, primaryKey: 'id' }))
-  getRepository(injector).createDataSet(MockClass, 'id')
-  getRepository(injector).createDataSet(User, 'username')
-  getRepository(injector).createDataSet(DefaultSession, 'sessionId')
+  injector.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+  injector.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+  setupContext(injector)
 
   const api = await useRestService<ValidationApi>({
     injector,
@@ -61,11 +65,11 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
         '/mock': Validate({
           schema,
           schemaName: 'GetMockCollectionEndpoint',
-        })(createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' })),
+        })(createGetCollectionEndpoint(MockDataSet)),
         '/mock/:id': Validate({
           schema,
           schemaName: 'GetMockEntityEndpoint',
-        })(createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' })),
+        })(createGetEntityEndpoint(MockDataSet)),
       },
       POST: {
         '/validate-body': Validate({
@@ -78,19 +82,19 @@ const createValidateApi = async (options = { enableGetSchema: false }) => {
         '/mock': Validate({
           schema,
           schemaName: 'PostMockEndpoint',
-        })(createPostEndpoint({ model: MockClass, primaryKey: 'id' })),
+        })(createPostEndpoint(MockDataSet)),
       },
       PATCH: {
         '/mock/:id': Validate({
           schema,
           schemaName: 'PatchMockEndpoint',
-        })(createPatchEndpoint({ model: MockClass, primaryKey: 'id' })),
+        })(createPatchEndpoint(MockDataSet)),
       },
       DELETE: {
         '/mock/:id': Validate({
           schema,
           schemaName: 'DeleteMockEndpoint',
-        })(createDeleteEndpoint({ model: MockClass, primaryKey: 'id' })),
+        })(createDeleteEndpoint(MockDataSet)),
       },
     },
     port,
@@ -447,16 +451,22 @@ describe('Validation integration tests', () => {
 
   describe('OpenAPI security schemes from authentication providers', () => {
     const createApiWithAuth = async () => {
-      const injector = new Injector()
+      const injector = createInjector()
       const port = getPort()
 
-      getStoreManager(injector).addStore(new InMemoryStore({ model: User, primaryKey: 'username' }))
-      getStoreManager(injector).addStore(new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
-      getStoreManager(injector).addStore(new InMemoryStore({ model: MockClass, primaryKey: 'id' }))
-      getRepository(injector).createDataSet(MockClass, 'id')
-      getRepository(injector).createDataSet(User, 'username')
-      getRepository(injector).createDataSet(DefaultSession, 'sessionId')
+      injector.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))
+      injector.bind(SessionStore, () => new InMemoryStore({ model: DefaultSession, primaryKey: 'sessionId' }))
+      injector.bind(
+        PasswordCredentialStore,
+        () => new InMemoryStore({ model: PasswordCredential, primaryKey: 'userName' }),
+      )
+      injector.bind(
+        PasswordResetTokenStore,
+        () => new InMemoryStore({ model: PasswordResetToken, primaryKey: 'token' }),
+      )
+      setupContext(injector)
 
+      usePasswordPolicy(injector)
       useHttpAuthentication(injector)
 
       await useRestService<ValidationApi>({
@@ -477,10 +487,10 @@ describe('Validation integration tests', () => {
               JsonResult({ ...headers }),
             ),
             '/mock': Validate({ schema, schemaName: 'GetMockCollectionEndpoint' })(
-              createGetCollectionEndpoint({ model: MockClass, primaryKey: 'id' }),
+              createGetCollectionEndpoint(MockDataSet),
             ),
             '/mock/:id': Validate({ schema, schemaName: 'GetMockEntityEndpoint' })(
-              createGetEntityEndpoint({ model: MockClass, primaryKey: 'id' }),
+              createGetEntityEndpoint(MockDataSet),
             ),
           },
           POST: {
@@ -488,19 +498,13 @@ describe('Validation integration tests', () => {
               const body = await getBody()
               return JsonResult({ ...body })
             }),
-            '/mock': Validate({ schema, schemaName: 'PostMockEndpoint' })(
-              createPostEndpoint({ model: MockClass, primaryKey: 'id' }),
-            ),
+            '/mock': Validate({ schema, schemaName: 'PostMockEndpoint' })(createPostEndpoint(MockDataSet)),
           },
           PATCH: {
-            '/mock/:id': Validate({ schema, schemaName: 'PatchMockEndpoint' })(
-              createPatchEndpoint({ model: MockClass, primaryKey: 'id' }),
-            ),
+            '/mock/:id': Validate({ schema, schemaName: 'PatchMockEndpoint' })(createPatchEndpoint(MockDataSet)),
           },
           DELETE: {
-            '/mock/:id': Validate({ schema, schemaName: 'DeleteMockEndpoint' })(
-              createDeleteEndpoint({ model: MockClass, primaryKey: 'id' }),
-            ),
+            '/mock/:id': Validate({ schema, schemaName: 'DeleteMockEndpoint' })(createDeleteEndpoint(MockDataSet)),
           },
         },
         port,

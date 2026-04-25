@@ -1,42 +1,35 @@
 import { getPort } from '@furystack/core/port-generator'
-import { Injector } from '@furystack/inject'
-import { getDataSetFor } from '@furystack/repository'
+import { createInjector } from '@furystack/inject'
 import type { PatchEndpoint } from '@furystack/rest'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it } from 'vitest'
 import { useRestService } from '../helpers.js'
 import { createPatchEndpoint } from './create-patch-endpoint.js'
-import { MockClass, setupContext } from './utils.js'
+import type { MockClass } from './utils.js'
+import { MockDataSet, setupContext } from './utils.js'
 
 describe('createPatchEndpoint', () => {
-  it('Should update the entity and report the success', async () => {
-    await usingAsync(new Injector(), async (i) => {
+  it('updates the entity and responds 200', async () => {
+    await usingAsync(createInjector(), async (i) => {
       setupContext(i)
       const port = getPort()
       await useRestService<{ PATCH: { '/:id': PatchEndpoint<MockClass, 'id'> } }>({
         injector: i,
         root: '/api',
         port,
-        api: {
-          PATCH: {
-            '/:id': createPatchEndpoint({ model: MockClass, primaryKey: 'id' }),
-          },
-        },
+        api: { PATCH: { '/:id': createPatchEndpoint(MockDataSet) } },
       })
-      await getDataSetFor(i, MockClass, 'id').add(i, { id: 'mock', value: 'mock' })
-
-      const countBeforeDelete = await getDataSetFor(i, MockClass, 'id').count(i)
-      expect(countBeforeDelete).toBe(1)
+      const dataSet = i.get(MockDataSet)
+      await dataSet.add(i, { id: 'mock', value: 'mock' })
+      expect(await dataSet.count(i)).toBe(1)
 
       const response = await fetch(`http://127.0.0.1:${port}/api/mock`, {
         method: 'PATCH',
         body: JSON.stringify({ value: 'updated' }),
       })
       expect(response.status).toBe(200)
-      const body = (await response.json()) as { value: string }
-      expect(body).toEqual({})
-      const updated = await getDataSetFor(i, MockClass, 'id').get(i, 'mock')
-      expect(updated?.value).toBe('updated')
+      expect(await response.json()).toEqual({})
+      expect((await dataSet.get(i, 'mock'))?.value).toBe('updated')
     })
   })
 })
