@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.0] - 2026-04-25
+
+### 💥 Breaking Changes
+
+- `createShadesMicroFrontend` and `MicroFrontend` now call `injector.createScope(...)` instead of the removed `injector.createChild(...)`. No changes to the exported API surface. See the [v7 migration guide](../../docs/migrations/v7-functional-di.md) for the monorepo-wide DI changes.
+
 ## [4.0.0] - 2026-04-22
 
 ### 💥 Breaking Changes

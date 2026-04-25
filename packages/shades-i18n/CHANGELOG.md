@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.0] - 2026-04-25
+
+### 💥 Breaking Changes
+
+Version bumped to align with the monorepo-wide functional DI migration. See the [v7 migration guide](../../docs/migrations/v7-functional-di.md) for rationale and patterns.
+
+- No runtime API changes. Test fixtures now import the concrete `I18NServiceImpl` class from `@furystack/i18n` (the `I18NService` interface is no longer constructable).
+
 ## [4.0.0] - 2026-04-22
 
 ### 💥 Breaking Changes
