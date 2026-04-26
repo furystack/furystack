@@ -1,0 +1,60 @@
+---
+name: Cache Handling
+description: CacheView component for rendering cache state in Shades UIs
+globs:
+  - '**/*.tsx'
+alwaysApply: false
+---
+
+# Cache Handling
+
+`CacheView` (`@furystack/shades-common-components`) renders cache state. Subscribes to the observable and handles loading / loaded / obsolete / error automatically.
+
+## Props
+
+| Prop | Type | Required | Default | Notes |
+|---|---|---|---|---|
+| `cache` | `Cache<TData, TArgs>` | yes | | the cache instance |
+| `args` | `TArgs` | yes | | cache entry key |
+| `content` | `ShadeComponent<TContentProps>` | yes | | rendered when value present |
+| `contentProps` | `Omit<TContentProps, 'data'>` | yes when content has extra props | | forwarded |
+| `loader` | `JSX.Element` | no | `null` | shown when loading and no value yet |
+| `error` | `(error, retry) => JSX.Element` | no | default | custom error UI |
+
+## Evaluation order
+
+1. **Error first** — `isFailedCacheResult(result)`: error UI, never content.
+2. **Value next** — `hasCacheValue(result)`: render content. Obsolete triggers `cache.reload(...args)` once per cycle.
+3. **Loading last** — no value, no error: `loader` or null.
+
+## Usage
+
+```tsx
+import { CacheView } from '@furystack/shades-common-components'
+import type { CacheWithValue } from '@furystack/cache'
+
+const UserContent = Shade<{ data: CacheWithValue<User> }>({
+  customElementName: 'user-content',
+  render: ({ props }) => <div>{props.data.value.name}</div>,
+})
+
+<CacheView
+  cache={userCache}
+  args={[userId]}
+  content={UserContent}
+  loader={<Skeleton />}
+  error={(err, retry) => (
+    <Alert severity="error" title="Failed to load user">
+      <Button onclick={retry}>Retry</Button>
+    </Alert>
+  )}
+/>
+```
+
+## Key behaviors
+
+- **Retry**: `cache.reload(...args)` internally; passed to error UI as `retry`. No callback prop needed.
+- **Revalidation**: obsolete triggers one `cache.reload(...args)` per obsolete cycle, content keeps rendering with stale value.
+- **Args reactivity**: changing `args` re-subscribes to the new cache entry.
+- **Type contract**: content receives `CacheWithValue<TData>` — `.value` and `.updatedAt` guaranteed. Check `result.status` to distinguish `'loaded'` vs `'obsolete'`.
+- **Custom content props**: pass via `contentProps` when content declares props beyond `data`. TS enforces requirement and types.

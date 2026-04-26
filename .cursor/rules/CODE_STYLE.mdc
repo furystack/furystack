@@ -1,666 +1,131 @@
 ---
 name: Code Style
-description: Formatting, naming conventions, import ordering, and file organization for FuryStack monorepo
+description: Naming, formatting, imports, file/code organization for the FuryStack monorepo
 globs:
   - '**/*.ts'
   - '**/*.tsx'
-  - '**/*.js'
-  - '**/*.jsx'
 alwaysApply: true
 ---
 
-# Code Style Guidelines
+# Code Style
 
-## Formatting Standards
+Prettier + ESLint enforced. Run `yarn prettier` and `yarn lint`. Generate code that satisfies `@furystack/eslint-plugin` from the start — don't rely on the linter to catch violations.
 
-### Prettier Configuration
+## Naming
 
-This project uses Prettier for code formatting. **Always use the project's Prettier configuration**.
+| Kind | Convention | Example |
+|---|---|---|
+| Package | `@furystack/*` kebab-case | `@furystack/rest-service` |
+| File | kebab-case `.ts` / `.tsx` | `define-service.ts` |
+| Spec | co-located, `.spec.ts` | `define-service.spec.ts` |
+| Class / type / component | PascalCase | `ObservableValue`, `RequestAction` |
+| Function / variable | camelCase, verb-led | `getCurrentUser`, `validateEmail` |
+| Constant | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
+| Boolean | `is*` / `has*` / `should*` / `can*` prefix | `isLoading` |
+| Event handler (internal) | `handle*` | `handleSubmit` |
+| Event prop callback | `on*` | `onSave` |
+| Type alias | prefer `type` over `interface`. No `I` prefix, no `Type` suffix | `type User = { ... }` |
+| Component props | PascalCase + `Props` suffix | `type UserProfileProps` |
 
-**Configuration file:** `prettier.config.js`
+## Imports
 
-```bash
-# ✅ Good - format code
-yarn prettier
+Order, blank line between groups:
 
-# ✅ Good - check formatting
-yarn prettier:check
-```
-
-### ESLint Configuration
-
-This project uses ESLint for code quality. **Always use the project's ESLint configuration**.
-
-**Configuration file:** `eslint.config.js`
-
-The project includes `@furystack/eslint-plugin` with FuryStack-specific rules in four configs: `recommended`, `recommendedStrict`, `shades`, and `shadesStrict`. These enforce patterns around DI consistency, observable disposal, Shades rendering, REST actions, and data access. Generate code that satisfies these rules from the start -- do not rely on the linter to catch violations after the fact.
-
-```bash
-# ✅ Good - lint code
-yarn lint
-```
-
-### Automated Formatting
-
-Code is automatically formatted on commit via Husky:
-
-```json
-{
-  "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix", "prettier --write", "git add"]
-  }
-}
-```
-
-## Naming Conventions
-
-### Package Names
-
-- **kebab-case** with `@furystack/` scope
-- Descriptive and concise
-
-```
-✅ Good:
-@furystack/core
-@furystack/rest-service
-@furystack/shades
-@furystack/logging
-
-❌ Avoid:
-@furystack/Core
-@furystack/rest_service
-@furystack/RestService
-```
-
-### Files and Directories
-
-#### Source Files
-
-- **kebab-case** for all files
-- `.ts` for TypeScript, `.tsx` for JSX
-- One main export per file
-
-```
-✅ Good:
-packages/inject/src/define-service.ts
-packages/shades/src/shade.tsx
-packages/rest-service/src/request-error.ts
-
-❌ Avoid:
-packages/inject/src/DefineService.ts
-packages/shades/src/Shade.tsx
-packages/rest-service/src/RequestError.ts
-```
-
-#### Test Files
-
-- **Same name as source** with `.spec.ts` suffix
-- Co-located with source file
-
-```
-✅ Good:
-packages/inject/src/define-service.ts
-packages/inject/src/define-service.spec.ts
-
-❌ Avoid:
-packages/inject/test/define-service.spec.ts (not co-located)
-packages/inject/src/define-service.test.ts (use .spec.ts)
-```
-
-### Exported Classes and Types
-
-- **PascalCase** for classes, interfaces, types
-- Descriptive and clear purpose
+1. Node built-ins
+2. External deps
+3. `@furystack/*` packages
+4. Relative imports
+5. Type-only imports last in each group
 
 ```typescript
-// ✅ Good
-export class ObservableValue<T> {}
-export type RequestAction<T> = {}
-export type InjectorOptions = {}
-
-// ❌ Avoid
-export class observableValue {} // Wrong case
-export class IObservableThing {} // Hungarian notation
-```
-
-### Functions and Variables
-
-- **camelCase** for functions and variables
-- **UPPER_SNAKE_CASE** for constants
-- Verb-based names for functions
-- Descriptive and clear purpose
-
-```typescript
-// ✅ Good
-export function getCurrentUser() {}
-export function calculateTotal() {}
-export function validateEmail() {}
-export const isAuthenticated = true
-export const MAX_RETRY_COUNT = 3
-
-// ❌ Avoid
-export function GetCurrentUser() {}
-export function user() {} // Not verb-based
-export const IsAuthenticated = true
-export const maxRetryCount = 3 // Should be UPPER_SNAKE_CASE for constants
-```
-
-#### Event Handlers
-
-- **Prefix with `handle`** for internal handlers
-- **Prefix with `on`** for prop callbacks
-
-```typescript
-// ✅ Good - Shades component with event handlers
-const MyComponent = Shade({
-  customElementName: 'my-component',
-  render: ({ props, injector }) => {
-    const handleButtonClick = () => {
-      // Internal logic
-      props.onSave?.();
-    };
-
-    const handleFormSubmit = (ev: Event) => {
-      ev.preventDefault();
-      // Submit logic
-    };
-
-    return (
-      <form onsubmit={handleFormSubmit}>
-        <button onclick={handleButtonClick}>Save</button>
-        <button onclick={props.onCancel}>Cancel</button>
-      </form>
-    );
-  },
-});
-```
-
-#### Boolean Variables
-
-- Prefix with `is`, `has`, `should`, or `can`
-
-```typescript
-// ✅ Good
-const isAuthenticated = true
-const hasPermission = false
-const shouldRender = true
-const canEdit = false
-const isLoading = true
-const hasError = false
-
-// ❌ Avoid
-const authenticated = true
-const permission = false
-const render = true
-const edit = false
-```
-
-### Shades Components
-
-#### Component Names
-
-- **PascalCase** for components
-- Descriptive and specific
-
-```typescript
-// ✅ Good
-export const UserProfile = Shade({
-  /* ... */
-})
-export const MediaLibrary = Shade({
-  /* ... */
-})
-export const NavigationSidebar = Shade({
-  /* ... */
-})
-
-// ❌ Avoid
-export const userProfile = Shade({
-  /* ... */
-})
-export const Component = Shade({
-  /* ... */
-}) // Too generic
-export const UP = Shade({
-  /* ... */
-}) // Unclear abbreviation
-```
-
-#### Component Props Types
-
-- **PascalCase** with `Props` suffix
-- Use `type` instead of `interface`
-
-```typescript
-// ✅ Good
-type UserProfileProps = {
-  userId: string;
-  onEdit?: () => void;
-  onDelete?: () => void;
-};
-
-export const UserProfile = Shade<UserProfileProps>({
-  customElementName: 'user-profile',
-  render: ({ props }) => {
-    // Component implementation
-  },
-});
-
-// ❌ Avoid
-interface UserProfileProps { }  // Use type instead
-type UserProfileProperties { }  // Wrong suffix
-type Props { }  // Not specific enough
-```
-
-### TypeScript Types
-
-- **PascalCase** for types and interfaces
-- **Prefer `type` over `interface`**
-- Descriptive names
-
-```typescript
-// ✅ Good
-type User = {
-  id: string
-  name: string
-  email: string
-}
-
-type UserWithProfile = User & {
-  avatar?: string
-  bio?: string
-}
-
-type RequestState<T> =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'success'; data: T }
-  | { status: 'error'; error: string }
-
-// ❌ Avoid
-interface User {} // Use type instead (per project guidelines)
-type user = {} // Wrong case
-type UserType = {} // Redundant suffix
-type T = {} // Not descriptive
-```
-
-### Enums and Constants
-
-- **PascalCase** for enum names
-- **UPPER_SNAKE_CASE** for enum values
-- **UPPER_SNAKE_CASE** for constants
-
-```typescript
-// ✅ Good
-enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-  GUEST = 'GUEST',
-}
-
-const MAX_RETRY_COUNT = 3
-const API_BASE_URL = 'https://api.example.com'
-const DEFAULT_PAGE_SIZE = 10
-
-// ❌ Avoid
-enum userRole {} // Wrong case
-enum UserRole {
-  admin = 'admin', // Wrong case for values
-}
-const maxRetryCount = 3 // Should be UPPER_SNAKE_CASE
-```
-
-## Package Structure
-
-### Monorepo Organization
-
-```
-packages/
-├── core/
-│   ├── src/
-│   │   ├── index.ts          # Main export
-│   │   ├── injectable.ts
-│   │   ├── injectable.spec.ts
-│   │   └── types.ts
-│   ├── package.json
-│   └── tsconfig.json
-├── shades/
-│   ├── src/
-│   │   ├── index.ts
-│   │   ├── shade.tsx
-│   │   └── shade.spec.ts
-│   └── package.json
-└── rest-service/
-    ├── src/
-    │   ├── index.ts
-    │   ├── request-error.ts
-    │   └── request-action.ts
-    └── package.json
-```
-
-### Package Exports
-
-Each package should have a clear `index.ts`:
-
-```typescript
-// ✅ Good - packages/inject/src/index.ts
-export { defineService, defineServiceAsync, isToken } from './define-service.js'
-export { createInjector, Injector, withScope } from './injector.js'
-export type { Lifetime, ServiceContext, Token } from './types.js'
-```
-
-## Import Ordering
-
-### Import Order for Packages
-
-1. **Node built-ins**
-2. **External dependencies**
-3. **Other FuryStack packages** (`@furystack/*`)
-4. **Relative imports from same package**
-5. **Type imports** (if separated)
-
-```typescript
-// ✅ Good - organized imports
 import { EventEmitter } from 'events'
-
-import type { Logger } from 'winston'
 
 import { defineService } from '@furystack/inject'
 import { ObservableValue } from '@furystack/utils'
 
 import { getUserData } from './user-data.js'
 import type { UserOptions } from './types.js'
-
-// ❌ Avoid - random ordering
-import { getUserData } from './user-data.js'
-import { EventEmitter } from 'events'
-import { defineService } from '@furystack/inject'
 ```
 
-### Import Grouping
+Group same-package imports together. Sort alphabetically when many.
 
-Separate import groups with blank lines:
+## File structure
 
 ```typescript
-// ✅ Good - separated groups
-import { EventEmitter } from 'events'
-
-import type { Logger } from 'winston'
-
+// 1. imports
 import { defineService } from '@furystack/inject'
 
-import { getUserData } from './user-data.js'
-```
+// 2. types
+type DataService = { load: () => Promise<void> }
 
-### Named Imports
-
-Use named imports and group them logically:
-
-```typescript
-// ✅ Good - grouped FuryStack imports
-import { createInjector, defineService } from '@furystack/inject'
-import { ObservableValue, usingAsync } from '@furystack/utils'
-
-// ✅ Good - alphabetically sorted when many imports
-import { Cache } from '@furystack/cache'
-import { useSystemIdentityContext } from '@furystack/core'
-import { getLogger } from '@furystack/logging'
-import { JsonResult, RequestError } from '@furystack/rest-service'
-
-// ❌ Avoid - separate imports for same package
-import { createInjector } from '@furystack/inject'
-import { defineService } from '@furystack/inject'
-```
-
-## Code Organization
-
-### Class Structure
-
-```typescript
-// ✅ Good - organized class
-export class MyService {
-  // 1. Static properties
-  private static instance: MyService
-
-  // 2. Public properties
-  public data: string
-
-  // 3. Private properties
-  private internalState: number
-
-  // 4. Constructor
-  constructor(options: MyServiceOptions) {
-    this.data = options.data
-    this.internalState = 0
-  }
-
-  // 5. Public methods
-  public getData(): string {
-    return this.data
-  }
-
-  // 6. Private methods
-  private updateInternalState(value: number): void {
-    this.internalState = value
-  }
-
-  // 7. Disposal
-  public [Symbol.dispose](): void {
-    // Cleanup
-  }
-}
-```
-
-### File Structure
-
-```typescript
-// 1. Imports
-import { defineService } from '@furystack/inject'
-import { ObservableValue } from '@furystack/utils'
-
-// 2. Types
-type DataService = {
-  load: () => Promise<void>
-}
-
-// 3. Constants
+// 3. constants
 const DEFAULT_TIMEOUT = 5000
 
-// 4. Helper functions
-const formatData = (data: unknown): string => {
-  return JSON.stringify(data)
-}
+// 4. helpers
+const formatData = (data: unknown): string => JSON.stringify(data)
 
-// 5. Main exports
+// 5. main export
 export const DataServiceToken = defineService({
   name: 'my-app/DataService',
   lifetime: 'singleton',
-  factory: () => ({
-    load: async () => {
-      /* ... */
-    },
-  }) satisfies DataService,
+  factory: () => ({ load: async () => { /* ... */ } } satisfies DataService),
 })
 ```
 
-### Component File Structure
+## Class structure
 
-Organize Shades components with this structure:
+Order: static → public fields → private fields → constructor → public methods → private methods → `[Symbol.dispose]`.
 
-```typescript
-// 1. Imports
-import { Shade } from '@furystack/shades';
-import { ObservableValue } from '@furystack/utils';
+## JSX
 
-// 2. Types
-type UserProfileProps = {
-  userId: string;
-  onEdit?: () => void;
-};
-
-// 3. Constants (if any)
-const MAX_BIO_LENGTH = 500;
-
-// 4. Helper functions (if any)
-const formatDate = (date: Date): string => {
-  // ...
-};
-
-// 5. Main component
-export const UserProfile = Shade<UserProfileProps>({
-  customElementName: 'user-profile',
-  render: ({ props, injector, useObservable, useDisposable, useHostProps, useRef }) => {
-    // Services
-    const userService = injector.get(UserService);
-
-    // Host element attributes/styles
-    useHostProps({
-      'data-testid': 'user-profile',
-      'data-user-id': props.userId,
-    });
-
-    // Refs for child DOM access
-    const bioRef = useRef<HTMLTextAreaElement>('bio');
-
-    // Observable subscriptions
-    const [user] = useObservable('user', userService.getUserById(props.userId));
-
-    // Local state
-    const isEditing = useDisposable('isEditing', () => new ObservableValue(false));
-
-    // Handlers
-    const handleEditClick = () => {
-      isEditing.setValue(true);
-      props.onEdit?.();
-      queueMicrotask(() => bioRef.current?.focus());
-    };
-
-    // Render
-    return (
-      <div>
-        <textarea ref={bioRef} />
-        {/* Component content */}
-      </div>
-    );
-  },
-});
-```
-
-## JSX/TSX Code Style
-
-### JSX Formatting
+Multi-line for >2 attrs. Single-line for trivial cases. No nested ternaries — use early returns for >2 branches.
 
 ```tsx
-// ✅ Good - multi-line for readability
-<button
-  type="button"
-  onclick={handleClick}
-  style={{ padding: '8px 16px' }}
->
-  Save Changes
+// ✅
+<button type="button" onclick={handleClick} style={{ padding: '8px' }}>
+  Save
 </button>
 
-// ✅ Good - single line for simple cases
-<button onclick={handleClick}>Save</button>
-
-// ❌ Avoid - hard to read
-<button type="button" onclick={handleClick} style={{ padding: '8px 16px' }}>Save Changes</button>
+// ❌ nested ternary
+{isLoading ? <Loading /> : error ? <Err /> : <Content />}
 ```
 
-### Conditional Rendering
+## JSDoc
 
-```tsx
-// ✅ Good - logical AND for simple cases
-{
-  isLoading && <div>Loading...</div>
-}
-
-// ✅ Good - ternary for if-else
-{
-  isLoading ? <div>Loading...</div> : <div>Content</div>
-}
-
-// ✅ Good - early return for complex cases
-if (isLoading) return <div>Loading...</div>
-if (error) return <div>Error: {error}</div>
-return <div>Content</div>
-
-// ❌ Avoid - nested ternaries
-{
-  isLoading ? <div>Loading...</div> : error ? <div>Error</div> : <div>Content</div>
-}
-```
-
-## Comments and Documentation
-
-### JSDoc for Public APIs
-
-All exported functions, classes, and types should have JSDoc:
+Required on all exported APIs. Include `@example` when usage isn't obvious.
 
 ```typescript
 /**
  * Defines a synchronous service token.
- * @param options - Configuration options for the service
  * @returns A token resolvable via `injector.get(...)`
  */
-export const defineService: <TService, TLifetime extends Lifetime>(
-  options: DefineServiceOptions<TService, TLifetime>,
-) => Token<TService, TLifetime, false>
-
-/**
- * Observable value container for reactive state management
- * @typeParam T - The type of value stored in the observable
- */
-export class ObservableValue<T> {
-  /**
-   * Creates a new ObservableValue
-   * @param initialValue - The initial value
-   */
-  constructor(private initialValue: T) {}
-
-  /**
-   * Gets the current value
-   * @returns The current value
-   */
-  public getValue(): T {
-    return this.initialValue
-  }
-}
+export const defineService: <T>(...) => Token<T>
 ```
 
-### Inline Comments
+## Comments
 
-Use inline comments sparingly and only for complex logic:
+Only for non-obvious intent / trade-offs / constraints. Never narrate what code does.
 
 ```typescript
-// ✅ Good - explaining complex logic
-// Calculate exponential backoff: 1s, 2s, 4s, 8s...
+// ✅ explains intent
+// Exponential backoff: 1s, 2s, 4s, 8s, capped at 30s
 const delay = Math.min(1000 * 2 ** attempt, 30000)
 
-// ❌ Avoid - stating the obvious
+// ❌ obvious narration
 // Set count to 0
 const count = 0
 ```
 
-## Summary
+## Monorepo layout
 
-**Key Principles:**
+```
+packages/<pkg>/
+├── src/
+│   ├── index.ts           # public exports
+│   ├── <feature>.ts
+│   └── <feature>.spec.ts
+├── package.json
+└── tsconfig.json
+```
 
-1. **Follow project's Prettier and ESLint configs**
-2. **Use consistent naming:**
-   - PascalCase: Classes, types, interfaces, components
-   - camelCase: Functions, variables
-   - kebab-case: File names, package names
-   - UPPER_SNAKE_CASE: Constants
-3. **Organize packages** with clear exports
-4. **Order imports** by category with blank lines
-5. **Document public APIs** with JSDoc
-6. **Structure code** consistently
-7. **Monorepo conventions** for package organization
-8. **Format JSX** for readability
-
-**Tools:**
-
-- Prettier: `yarn prettier`
-- ESLint: `yarn lint`
-- Type Check: `yarn build`
+`index.ts` is the only public surface. Use `.js` import suffix for relative paths (NodeNext ESM).

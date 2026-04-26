@@ -51,6 +51,7 @@ git diff origin/develop...HEAD --name-only
 | `reviewer-typescript`   | Conditional | Skip ONLY if NO `.ts`/`.tsx` in `packages/` changed |
 | `reviewer-eslint`       | Conditional | Skip ONLY if NO `.ts`/`.tsx` in `packages/` changed |
 | `reviewer-tests`        | Conditional | Skip ONLY if NO `.ts`/`.tsx` in `packages/` changed |
+| `reviewer-complexity`   | Conditional | Skip ONLY if NO `.ts`/`.tsx` in `packages/` changed |
 
 **When in doubt, run the check.** Fast failures are better than missed issues.
 
@@ -68,6 +69,7 @@ In one tool call batch, launch all applicable reviewers:
 - `reviewer-typescript` (if `.ts`/`.tsx` in `packages/` changed)
 - `reviewer-eslint` (if `.ts`/`.tsx` in `packages/` changed)
 - `reviewer-tests` (if `.ts`/`.tsx` in `packages/` changed)
+- `reviewer-complexity` (if `.ts`/`.tsx` in `packages/` changed)
 
 **Note:** `reviewer-dependencies` checks changelog documentation but does NOT create/modify changelogs. If both changelog and dependency changes exist, both reviewers run in parallel - the dependency reviewer only reads existing changelogs.
 
@@ -120,6 +122,10 @@ Check for:
 - Flag usage of `onAttach` or `onDetach` in `ShadeOptions` -- they were removed, use `useDisposable` instead
 - Flag direct DOM manipulation inside `render()` that should use `useHostProps` (e.g. `this.setAttribute(...)`, `this.style.xxx = ...`)
 - Recommend `useRef` + `queueMicrotask` for deferred child element access instead of direct DOM queries
+
+**Complexity Audit:**
+
+- Delegate to `reviewer-complexity` subagent to flag overgrown components, services, and REST actions introduced or worsened by the branch (heuristics from `.cursor/rules/COMPLEXITY.mdc`)
 
 **Testing & Coverage:**
 
@@ -174,6 +180,7 @@ When evaluating a potential rule:
 - If `reviewer-versioning` passes → Do NOT mention it in the output
 - If `reviewer-changelog` passes → Do NOT mention it in the output
 - If `reviewer-dependencies` passes → Do NOT mention it in the output
+- If `reviewer-complexity` passes → Do NOT mention it in the output
 
 Only report subagent findings when they detect actual problems.
 

@@ -197,5 +197,4 @@ This validates:
 
 For detailed guidelines, see:
 
-- `.cursor/rules/VERSIONING_AND_CHANGELOG.md`
 - `.cursor/agents/reviewer-changelog.md` (will review the filled entries)
