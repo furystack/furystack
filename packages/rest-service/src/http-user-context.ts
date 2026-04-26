@@ -25,11 +25,14 @@ export type HttpUserContextEvents = {
  * Request-scoped authentication/authorization facade.
  *
  * `HttpUserContext` consolidates identity lookup, authentication-provider
- * walk-through and cookie session helpers behind a single object. Resolved
- * users are memoized per `request.headers` via a {@link WeakMap} so repeated
- * calls within the same request skip re-authentication — and so ancestor
- * scopes caching the same `HttpUserContext` instance cannot leak an
- * authenticated user into sibling requests.
+ * walk-through and cookie session helpers behind a single object.
+ * Successful resolutions are memoized in the singleton
+ * {@link UserResolutionCache} keyed by the cache key produced by the
+ * matching {@link AuthenticationProvider} (e.g. `cookie:${sessionId}`
+ * for cookie auth) and expire after
+ * {@link HttpAuthenticationSettings.userCacheTtlMs}. Requests whose
+ * providers all opt out of caching (Basic Auth, JWT Bearer, anonymous
+ * traffic) bypass the cache and walk the provider chain on every call.
  */
 export interface HttpUserContext extends EventHub<HttpUserContextEvents> {
   /** The active {@link HttpAuthenticationSettings} captured at resolve time. */

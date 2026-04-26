@@ -25,6 +25,7 @@ Built-in providers:
 
 - **`createCookieAuthProvider`** — keys requests by `cookie:${sessionId}`. Cache hits skip both the session-store and user-store lookups.
 - **`createBasicAuthProvider`** — intentionally does **not** opt in. Caching by username would skip password verification on every cache hit.
+- **`createJwtAuthProvider`** (in `@furystack/auth-jwt`) — also intentionally does **not** opt in. See the `@furystack/auth-jwt` changelog for the rationale (token expiry / revocation must be re-checked per request).
 
 ### `UserResolutionCache` token
 
@@ -46,3 +47,7 @@ injector.get(UserResolutionCache).invalidate(`cookie:${sessionId}`)
 ### `HttpUserContext` no longer maintains a per-request `WeakMap`
 
 The previous `WeakMap<headers, Promise<User>>` cache (per-`HttpUserContext`-instance) has been removed in favor of the shared `UserResolutionCache`. With the request-scoped HUC, the WeakMap was effectively single-shot per request anyway. Anonymous-style requests (no provider yields a key) now bypass the cache entirely instead of being dedup-cached for the lifetime of the HUC instance.
+
+## 📦 Dependencies
+
+- Added `@furystack/cache` as a runtime dependency (`workspace:^`). Used internally by `UserResolutionCache`; not part of `@furystack/rest-service`'s public API surface.

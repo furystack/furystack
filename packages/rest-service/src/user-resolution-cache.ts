@@ -2,7 +2,11 @@ import type { User } from '@furystack/core'
 import { Cache } from '@furystack/cache'
 import { defineService, type Token } from '@furystack/inject'
 import type { IncomingMessage } from 'http'
-import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import {
+  DEFAULT_USER_CACHE_CAPACITY,
+  DEFAULT_USER_CACHE_TTL_MS,
+  HttpAuthenticationSettings,
+} from './http-authentication-settings.js'
 
 /**
  * Singleton TTL cache that memoizes successful identity resolutions across
@@ -108,7 +112,9 @@ export const UserResolutionCache: Token<UserResolutionCache, 'singleton'> = defi
   lifetime: 'singleton',
   factory: ({ inject, onDispose }): UserResolutionCache => {
     const settings = inject(HttpAuthenticationSettings)
-    const impl = new UserResolutionCacheImpl(settings.userCacheTtlMs, settings.userCacheCapacity)
+    const ttlMs = settings.userCacheTtlMs ?? DEFAULT_USER_CACHE_TTL_MS
+    const capacity = settings.userCacheCapacity ?? DEFAULT_USER_CACHE_CAPACITY
+    const impl = new UserResolutionCacheImpl(ttlMs, capacity)
     onDispose(() => {
       // eslint-disable-next-line furystack/prefer-using-wrapper -- onDispose is the teardown hook
       impl[Symbol.dispose]()

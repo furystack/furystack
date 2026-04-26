@@ -6,6 +6,11 @@ interface CacheStateManagerOptions {
   capacity?: number
 }
 
+/**
+ * @internal
+ * Thrown by {@link CacheStateManager.setObsoleteState} when invoked on an
+ * entry that is not in the `loaded` state.
+ */
 export class CannotObsoleteUnloadedError<T> extends Error {
   constructor(public readonly cacheResult: CacheResult<T>) {
     super('Cannot set obsolete state for a non-loaded value')
@@ -17,6 +22,19 @@ interface CacheStoreEntry<T, TArgs extends any[]> {
   args: TArgs
 }
 
+/**
+ * @internal
+ * Low-level storage primitive used by {@link Cache}. Tracks per-key
+ * `ObservableValue<CacheResult<T>>` plus the most recent `args` that
+ * produced it, so range predicates (`obsoleteRange` / `removeRange`)
+ * receive the actual call args even when {@link Cache} uses a custom
+ * `getKey` resolver.
+ *
+ * **Not part of the public API.** Method signatures may change without
+ * a major version bump. Use {@link Cache} from `@furystack/cache`
+ * instead — it owns the load/dedupe/timer lifecycle on top of this
+ * primitive.
+ */
 export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   private readonly store = new Map<string, CacheStoreEntry<T, TArgs>>()
 

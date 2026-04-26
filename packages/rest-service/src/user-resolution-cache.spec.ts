@@ -82,6 +82,28 @@ describe('UserResolutionCache', () => {
       })
     })
 
+    it('dedupes concurrent loaders for the same key', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        i.bind(HttpAuthenticationSettings, () => ({
+          ...defaultHttpAuthenticationSettings(),
+          userCacheTtlMs: 30_000,
+        }))
+        const cache = i.get(UserResolutionCache)
+        const loader = vi.fn(
+          () =>
+            new Promise<User>((resolve) => {
+              setTimeout(() => resolve(testUser), 100)
+            }),
+        )
+        const both = Promise.all([cache.resolve('cookie:dedupe', loader), cache.resolve('cookie:dedupe', loader)])
+        await vi.advanceTimersByTimeAsync(150)
+        const [a, b] = await both
+        expect(a).toBe(testUser)
+        expect(b).toBe(testUser)
+        expect(loader).toHaveBeenCalledTimes(1)
+      })
+    })
+
     it('rejects (without caching) when the loader throws', async () => {
       await usingAsync(createInjector(), async (i) => {
         i.bind(HttpAuthenticationSettings, () => ({
