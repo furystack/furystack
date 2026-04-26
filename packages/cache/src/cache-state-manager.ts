@@ -6,17 +6,40 @@ interface CacheStateManagerOptions {
   capacity?: number
 }
 
+/**
+ * @internal
+ * Thrown by {@link CacheStateManager.setObsoleteState} when invoked on an
+ * entry that is not in the `loaded` state.
+ */
 export class CannotObsoleteUnloadedError<T> extends Error {
   constructor(public readonly cacheResult: CacheResult<T>) {
     super('Cannot set obsolete state for a non-loaded value')
   }
 }
 
+interface CacheStoreEntry<T, TArgs extends any[]> {
+  observable: ObservableValue<CacheResult<T>>
+  args: TArgs
+}
+
+/**
+ * @internal
+ * Low-level storage primitive used by {@link Cache}. Tracks per-key
+ * `ObservableValue<CacheResult<T>>` plus the most recent `args` that
+ * produced it, so range predicates (`obsoleteRange` / `removeRange`)
+ * receive the actual call args even when {@link Cache} uses a custom
+ * `getKey` resolver.
+ *
+ * **Not part of the public API.** Method signatures may change without
+ * a major version bump. Use {@link Cache} from `@furystack/cache`
+ * instead — it owns the load/dedupe/timer lifecycle on top of this
+ * primitive.
+ */
 export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
-  private readonly store = new Map<string, ObservableValue<CacheResult<T>>>()
+  private readonly store = new Map<string, CacheStoreEntry<T, TArgs>>()
 
   public [Symbol.dispose]() {
-    ;[...this.store.values()].forEach((value) => value[Symbol.dispose]())
+    ;[...this.store.values()].forEach((entry) => entry.observable[Symbol.dispose]())
     this.store.clear()
   }
 
@@ -26,56 +49,58 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
   public getObservable(
     key: string,
+    args: TArgs,
     initialState: CacheResult<T> = { status: 'loading', updatedAt: new Date() },
   ): ObservableValue<CacheResult<T>> {
-    const oldValue = this.store.get(key)
-    if (oldValue) {
+    const existing = this.store.get(key)
+    if (existing) {
       this.store.delete(key)
-      this.store.set(key, oldValue)
+      existing.args = args
+      this.store.set(key, existing)
     } else {
-      this.store.set(key, new ObservableValue<CacheResult<T>>(initialState))
+      this.store.set(key, { observable: new ObservableValue<CacheResult<T>>(initialState), args })
     }
 
     if (this.store.size > (this.options.capacity || Infinity)) {
       const [firstKey] = this.store.keys()
-      this.store.get(firstKey)?.[Symbol.dispose]()
+      this.store.get(firstKey)?.observable[Symbol.dispose]()
       this.store.delete(firstKey)
     }
 
-    return this.store.get(key) as ObservableValue<CacheResult<T>>
+    return (this.store.get(key) as CacheStoreEntry<T, TArgs>).observable
   }
 
-  private getLastValue(key: string): T | undefined {
-    return this.getObservable(key).getValue().value
+  private peekValue(key: string): T | undefined {
+    return this.store.get(key)?.observable.getValue().value
   }
 
-  public setValue(key: string, value: CacheResult<T>) {
-    this.getObservable(key).setValue(value)
+  public setValue(key: string, args: TArgs, value: CacheResult<T>) {
+    this.getObservable(key, args).setValue(value)
   }
 
-  public setLoadingState(key: string) {
-    this.setValue(key, { status: 'loading', value: this.getLastValue(key), updatedAt: new Date() })
+  public setLoadingState(key: string, args: TArgs) {
+    this.setValue(key, args, { status: 'loading', value: this.peekValue(key), updatedAt: new Date() })
   }
 
-  public setLoadedState(key: string, value: T) {
+  public setLoadedState(key: string, args: TArgs, value: T) {
     const newValue: LoadedCacheResult<T> = { status: 'loaded', value, updatedAt: new Date() }
-    this.setValue(key, newValue)
+    this.setValue(key, args, newValue)
     return newValue
   }
 
-  public setFailedState(key: string, error: unknown) {
+  public setFailedState(key: string, args: TArgs, error: unknown) {
     const newState: FailedCacheResult<T> = {
       status: 'failed',
       error,
-      value: this.getLastValue(key),
+      value: this.peekValue(key),
       updatedAt: new Date(),
     }
-    this.setValue(key, newState)
+    this.setValue(key, args, newState)
     return newState
   }
 
-  public setObsoleteState(key: string): ObsoleteCacheResult<T> {
-    const currentValue = this.getObservable(key).getValue()
+  public setObsoleteState(key: string, args: TArgs): ObsoleteCacheResult<T> {
+    const currentValue = this.getObservable(key, args).getValue()
 
     if (isObsoleteCacheResult(currentValue)) {
       return currentValue // Already obsolete
@@ -83,7 +108,7 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
 
     if (isLoadedCacheResult(currentValue)) {
       const newValue: ObsoleteCacheResult<T> = { ...currentValue, status: 'obsolete' }
-      this.setValue(key, newValue)
+      this.setValue(key, args, newValue)
       return newValue
     } else {
       throw new CannotObsoleteUnloadedError(currentValue)
@@ -97,36 +122,34 @@ export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   public remove(key: string) {
     const existing = this.store.get(key)
     if (existing) {
-      existing[Symbol.dispose]()
+      existing.observable[Symbol.dispose]()
     }
     return this.store.delete(key)
   }
 
   public flushAll() {
-    this.store.forEach((value) => value[Symbol.dispose]())
+    this.store.forEach((entry) => entry.observable[Symbol.dispose]())
     this.store.clear()
   }
 
   public obsoleteRange(predicate: (value: T, args: TArgs) => boolean) {
-    ;[...this.store.entries()].forEach(([key, value]) => {
-      const currentState = value.getValue()
+    ;[...this.store.entries()].forEach(([key, { observable, args }]) => {
+      const currentState = observable.getValue()
       if (!isLoadedCacheResult(currentState)) {
         return
       }
-      const args = JSON.parse(key) as TArgs
       if (predicate(currentState.value, args)) {
-        this.setObsoleteState(key)
+        this.setObsoleteState(key, args)
       }
     })
   }
 
   public removeRange(predicate: (value: T, args: TArgs) => boolean) {
-    ;[...this.store.entries()].forEach(([key, value]) => {
-      const currentState = value.getValue()
+    ;[...this.store.entries()].forEach(([key, { observable, args }]) => {
+      const currentState = observable.getValue()
       if (!isLoadedCacheResult(currentState)) {
         return
       }
-      const args = JSON.parse(key) as TArgs
       if (predicate(currentState.value, args)) {
         this.remove(key)
       }

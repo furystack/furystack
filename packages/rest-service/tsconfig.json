@@ -9,6 +9,7 @@
   },
   "include": ["src", "src/**/*.json"],
   "references": [
+    { "path": "../cache" },
     { "path": "../core" },
     { "path": "../inject" },
     { "path": "../rest" },

@@ -32,7 +32,32 @@ export interface HttpAuthenticationSettings {
    * `useJwtAuthentication`.
    */
   authenticationProviders: AuthenticationProvider[]
+  /**
+   * TTL applied to the user-resolution cache. Every authenticated request
+   * runs at most one provider chain walk per cache key per TTL window;
+   * subsequent calls within the window return the cached `User`.
+   *
+   * Bounds the staleness window for out-of-band identity changes
+   * (session invalidation on a sibling instance, role mutation in storage,
+   * etc.) when the application is deployed across multiple nodes.
+   *
+   * Set to `0` to disable caching entirely. When omitted, the default
+   * {@link DEFAULT_USER_CACHE_TTL_MS} is used by `UserResolutionCache`.
+   */
+  userCacheTtlMs?: number
+  /**
+   * Maximum number of entries in the user-resolution cache before LRU
+   * eviction kicks in. When omitted, the default
+   * {@link DEFAULT_USER_CACHE_CAPACITY} is used by `UserResolutionCache`.
+   */
+  userCacheCapacity?: number
 }
+
+/** Default TTL applied to the user-resolution cache (30 seconds). */
+export const DEFAULT_USER_CACHE_TTL_MS = 30_000
+
+/** Default LRU capacity ceiling for the user-resolution cache. */
+export const DEFAULT_USER_CACHE_CAPACITY = 10_000
 
 /**
  * Returns a fresh copy of the default {@link HttpAuthenticationSettings}.
@@ -44,6 +69,8 @@ export const defaultHttpAuthenticationSettings = (): HttpAuthenticationSettings 
   cookieName: 'fss',
   enableBasicAuth: true,
   authenticationProviders: [],
+  userCacheTtlMs: DEFAULT_USER_CACHE_TTL_MS,
+  userCacheCapacity: DEFAULT_USER_CACHE_CAPACITY,
 })
 
 /**

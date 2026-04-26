@@ -25,6 +25,23 @@ export interface CacheSettings<TData, TArgs extends any[]> {
    * The entity will be removed from the cache after this time has passed since it was last loaded
    */
   cacheTimeMs?: number
+
+  /**
+   * Optional cache-key resolver. Receives the same arguments as {@link load}
+   * and must return a stable string identifying the entry.
+   *
+   * Defaults to `JSON.stringify(args)` — sufficient for primitives and
+   * plain objects but unusable when the args include large or non-stringifiable
+   * values (e.g. `IncomingMessage`). Override when you only want a subset of
+   * the args to participate in cache lookup.
+   *
+   * **Note:** the predicates passed to {@link Cache.obsoleteRange} and
+   * {@link Cache.removeRange} receive the args reference from the most recent
+   * `get`/`reload`/`setExplicitValue` call for that entry. Do not mutate the
+   * args object after caching; if you need a snapshot, clone before passing
+   * them in.
+   */
+  getKey?: (...args: TArgs) => string
 }
 
 export class Cache<TData, TArgs extends any[]>
@@ -64,7 +81,7 @@ export class Cache<TData, TArgs extends any[]>
     super[Symbol.dispose]()
   }
 
-  private getIndex = (...args: TArgs) => JSON.stringify(args)
+  private getIndex = (...args: TArgs) => (this.options.getKey ? this.options.getKey(...args) : JSON.stringify(args))
 
   private readonly stateManager: CacheStateManager<TData, TArgs>
 
@@ -84,7 +101,7 @@ export class Cache<TData, TArgs extends any[]>
   public async get(...args: TArgs): Promise<TData> {
     const index = this.getIndex(...args)
 
-    const observable = this.stateManager.getObservable(index)
+    const observable = this.stateManager.getObservable(index, args)
 
     const fromCache = observable.getValue()
     if (fromCache && isLoadedCacheResult(fromCache)) {
@@ -151,13 +168,13 @@ export class Cache<TData, TArgs extends any[]>
 
   private async loadEntry(index: string, args: TArgs): Promise<TData> {
     try {
-      this.stateManager.setLoadingState(index)
+      this.stateManager.setLoadingState(index, args)
       const loaded = await this.options.load(...args)
-      this.stateManager.setLoadedState(index, loaded)
+      this.stateManager.setLoadedState(index, args, loaded)
       this.setupTimers(index, args)
       return loaded
     } catch (error) {
-      this.stateManager.setFailedState(index, error)
+      this.stateManager.setFailedState(index, args, error)
       throw error
     }
   }
@@ -178,14 +195,22 @@ export class Cache<TData, TArgs extends any[]>
   }
 
   /**
-   * Sets an explicit value for the entity in the cache
+   * Sets an explicit value for the entity in the cache.
+   *
+   * When `value.status === 'loaded'`, the configured stale/cache TTL timers
+   * are (re-)armed for that entry — same behavior as a successful
+   * {@link Cache.get} or {@link Cache.reload}. Other statuses leave timers
+   * untouched, matching prior behavior.
    * @param param0 The Options for setting the entity
    * @param param0.loadArgs The arguments for getting the entity
    * @param param0.value The value to set (with state)
    */
   public setExplicitValue({ loadArgs, value }: { loadArgs: TArgs; value: CacheResult<TData> }) {
     const index = this.getIndex(...loadArgs)
-    this.stateManager.setValue(index, value)
+    this.stateManager.setValue(index, loadArgs, value)
+    if (isLoadedCacheResult(value)) {
+      this.setupTimers(index, loadArgs)
+    }
   }
 
   /**
@@ -195,7 +220,7 @@ export class Cache<TData, TArgs extends any[]>
    */
   public setObsolete(...args: TArgs) {
     const index = this.getIndex(...args)
-    return this.stateManager.setObsoleteState(index)
+    return this.stateManager.setObsoleteState(index, args)
   }
 
   /**
@@ -216,7 +241,7 @@ export class Cache<TData, TArgs extends any[]>
    */
   public getObservable(...args: TArgs) {
     const index = this.getIndex(...args)
-    const observable = this.stateManager.getObservable(index)
+    const observable = this.stateManager.getObservable(index, args)
     if (observable.getValue().status === 'loading' && !this.pendingLoads.has(index)) {
       this.get(...args)
         .then(() => {

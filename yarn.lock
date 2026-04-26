@@ -884,6 +884,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/rest-service@workspace:packages/rest-service"
   dependencies:
+    "@furystack/cache": "workspace:^"
     "@furystack/core": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/repository": "workspace:^"

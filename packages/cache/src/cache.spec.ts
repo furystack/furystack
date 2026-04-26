@@ -469,6 +469,96 @@ describe('Cache', () => {
     })
   })
 
+  describe('getKey option', () => {
+    it('Should use the supplied resolver for cache lookup instead of JSON.stringify(args)', async () => {
+      const loader = vi.fn((id: string, _payload: { ignored: string }) => Promise.resolve(`loaded-${id}`))
+      await usingAsync(
+        new Cache({
+          load: loader,
+          getKey: (id) => id,
+        }),
+        async (cache) => {
+          const first = await cache.get('a', { ignored: 'one' })
+          const second = await cache.get('a', { ignored: 'two' })
+          expect(first).toEqual('loaded-a')
+          expect(second).toEqual('loaded-a')
+          expect(loader).toHaveBeenCalledTimes(1)
+        },
+      )
+    })
+
+    it('Should arm cacheTime timers when setExplicitValue is called with a loaded value', async () => {
+      await usingAsync(
+        new Cache<string, [string]>({
+          load: () => Promise.reject(new Error('should not be called')),
+          cacheTimeMs: 100,
+          getKey: (id) => id,
+        }),
+        async (cache) => {
+          cache.setExplicitValue({
+            loadArgs: ['session-1'],
+            value: { status: 'loaded', value: 'user-payload', updatedAt: new Date() },
+          })
+          expect(cache.has('session-1')).toBe(true)
+          await vi.advanceTimersByTimeAsync(150)
+          expect(cache.has('session-1')).toBe(false)
+        },
+      )
+    })
+
+    it('Should not arm timers when setExplicitValue is called with a non-loaded value', async () => {
+      await usingAsync(
+        new Cache<string, [string]>({
+          load: () => Promise.reject(new Error('should not be called')),
+          cacheTimeMs: 100,
+          getKey: (id) => id,
+        }),
+        async (cache) => {
+          cache.setExplicitValue({
+            loadArgs: ['session-1'],
+            value: { status: 'failed', error: new Error('boom'), updatedAt: new Date() },
+          })
+          await vi.advanceTimersByTimeAsync(150)
+          expect(cache.has('session-1')).toBe(true)
+        },
+      )
+    })
+
+    it('Should expose the original args in obsoleteRange / removeRange predicates with a custom getKey', async () => {
+      type Payload = { tenant: string; ignored: object }
+      const loader = vi.fn((p: Payload) => Promise.resolve(`loaded-${p.tenant}`))
+      await usingAsync(
+        new Cache<string, [Payload]>({
+          load: loader,
+          getKey: (p) => p.tenant,
+        }),
+        async (cache) => {
+          await cache.get({ tenant: 'a', ignored: {} })
+          await cache.get({ tenant: 'b', ignored: {} })
+
+          const seenObsoleteArgs: Payload[] = []
+          cache.obsoleteRange((_value, [args]) => {
+            seenObsoleteArgs.push(args)
+            return args.tenant === 'a'
+          })
+          expect(seenObsoleteArgs.map((a) => a.tenant).sort()).toEqual(['a', 'b'])
+          expect(cache.getObservable({ tenant: 'a', ignored: {} }).getValue().status).toEqual('obsolete')
+          expect(cache.getObservable({ tenant: 'b', ignored: {} }).getValue().status).toEqual('loaded')
+
+          await cache.get({ tenant: 'a', ignored: {} })
+          const seenRemoveArgs: Payload[] = []
+          cache.removeRange((_value, [args]) => {
+            seenRemoveArgs.push(args)
+            return args.tenant === 'b'
+          })
+          expect(seenRemoveArgs.map((a) => a.tenant).sort()).toEqual(['a', 'b'])
+          expect(cache.has({ tenant: 'a', ignored: {} })).toBe(true)
+          expect(cache.has({ tenant: 'b', ignored: {} })).toBe(false)
+        },
+      )
+    })
+  })
+
   describe('onLoadError event', () => {
     it('should emit onLoadError when getObservable auto-triggers a failing load', async () => {
       const loadError = new Error('load failed')

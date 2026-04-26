@@ -22,4 +22,21 @@ export type AuthenticationProvider = {
    */
   readonly name: string
   authenticate: (request: Pick<IncomingMessage, 'headers'>) => Promise<User | null>
+  /**
+   * Optional cache-key resolver consulted by the user-resolution cache before
+   * the provider chain is walked.
+   *
+   * Returns a stable, opaque string identifying the authenticated principal
+   * for the given request, or `null` when this provider does not apply to
+   * the request (or refuses to participate in caching — e.g. Basic Auth,
+   * which must verify the password on every request).
+   *
+   * The first non-null key returned by the configured providers is used as
+   * the cache key. Keys returned by different providers must not collide;
+   * built-in providers prefix their keys (`cookie:`, `jwt:`).
+   *
+   * If no provider returns a key, the request bypasses the cache entirely
+   * and the provider chain is walked on every call.
+   */
+  readonly getCacheKey?: (request: Pick<IncomingMessage, 'headers'>) => string | null
 }

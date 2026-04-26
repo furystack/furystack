@@ -37,4 +37,11 @@ export const createJwtAuthProvider = ({
     if (users.length !== 1) throw new UnauthenticatedError()
     return users[0]
   },
+  // Caching is intentionally not implemented for JWT. `verifyAccessToken`
+  // already enforces signature and expiry on every request, so caching the
+  // user lookup would risk serving an expired token's identity for up to a
+  // full TTL window, and out-of-band revocation would silently keep working
+  // until the cache entry ages out. Apps that want to amortize the
+  // user-data-set lookup should put the needed claims into the JWT itself
+  // (the canonical stateless pattern).
 })
