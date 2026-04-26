@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { createInjector, type Injector } from '@furystack/inject'
-import { defineStore, InMemoryStore, type StoreToken } from '@furystack/core'
+import { defineStore, IdentityContext, InMemoryStore, type StoreToken, type User } from '@furystack/core'
 import { defineDataSet, type DataSetToken } from '@furystack/repository'
 import { usingAsync } from '@furystack/utils'
 import type { ServerSyncMessage } from '@furystack/entity-sync'
@@ -855,6 +855,197 @@ describe('SubscriptionManager', () => {
 
       expect(manager.activeSubscriptionCount).toBe(0)
       expect(manager.getModelRegistration('TestEntity')).toBeUndefined()
+    })
+  })
+
+  describe('per-message scope disposal regression', () => {
+    /**
+     * Regression for the websocket-api@14 / entity-sync-service interaction:
+     * the per-message scope passed to subscribe* is disposed by the websocket
+     * action runner as soon as the action returns. Subsequent collection
+     * re-evaluations must keep working — the manager must not retain the
+     * disposable scope.
+     */
+    it('should keep collection notifications working after the caller scope is disposed', async () => {
+      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
+        manager.registerModel(TestEntityDataSet)
+
+        const socket = createMockSocket()
+        const messageScope = injector.createScope({ owner: 'message' })
+        await manager.subscribeCollection(socket as unknown as WebSocket, messageScope, 'req-1', 'TestEntity')
+        await messageScope[Symbol.asyncDispose]()
+        socket.send.mockClear()
+
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await new Promise((r) => setTimeout(r, 50))
+
+        const messages = getSentMessages(socket)
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+        const errorMsg = messages.find((m) => m.type === 'subscription-error')
+        expect(errorMsg).toBeUndefined()
+        if (snapshotMsg?.type === 'collection-snapshot') {
+          expect(snapshotMsg.data).toMatchObject([{ id: '1', name: 'Alice', category: 'A' }])
+        }
+      })
+    })
+
+    it('should re-run authorizeGet against the captured identity, not the disposed caller scope', async () => {
+      const AuthorizedStore: StoreToken<TestEntity, 'id'> = defineStore({
+        name: 'test/AuthorizedStore',
+        model: TestEntity,
+        primaryKey: 'id',
+        factory: () => new InMemoryStore({ model: TestEntity, primaryKey: 'id' }),
+      })
+
+      const AuthorizedDataSet: DataSetToken<TestEntity, 'id'> = defineDataSet({
+        name: 'test/AuthorizedDataSet',
+        store: AuthorizedStore,
+        settings: {
+          authorizeGet: async ({ injector }) => {
+            const ctx = injector.get(IdentityContext)
+            const authenticated = await ctx.isAuthenticated()
+            return authenticated ? { isAllowed: true } : { isAllowed: false, message: 'unauthenticated' }
+          },
+        },
+      })
+
+      await usingAsync(createInjector(), async (injector) => {
+        const manager = injector.get(SubscriptionManager)
+        const dataSet = injector.get(AuthorizedDataSet)
+        manager.registerModel(AuthorizedDataSet)
+
+        const messageScope = injector.createScope({ owner: 'message' })
+        const user: User = { username: 'alice', roles: ['reader'] }
+        messageScope.bind(IdentityContext, () => ({
+          isAuthenticated: () => Promise.resolve(true),
+          isAuthorized: (...roles: string[]) => Promise.resolve(roles.every((r) => user.roles.includes(r))),
+          getCurrentUser: <TUser extends User>() => Promise.resolve(user as unknown as TUser),
+        }))
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(socket as unknown as WebSocket, messageScope, 'req-1', 'TestEntity')
+
+        await messageScope[Symbol.asyncDispose]()
+        socket.send.mockClear()
+
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await new Promise((r) => setTimeout(r, 50))
+
+        const messages = getSentMessages(socket)
+        expect(messages.find((m) => m.type === 'subscription-error')).toBeUndefined()
+        const snapshotMsg = messages.find((m) => m.type === 'collection-snapshot')
+        expect(snapshotMsg).toBeDefined()
+      })
+    })
+
+    it('should send subscription-error when the caller is unauthenticated and authorizeGet rejects', async () => {
+      const RestrictedStore: StoreToken<TestEntity, 'id'> = defineStore({
+        name: 'test/RestrictedStore',
+        model: TestEntity,
+        primaryKey: 'id',
+        factory: () => new InMemoryStore({ model: TestEntity, primaryKey: 'id' }),
+      })
+
+      const RestrictedDataSet: DataSetToken<TestEntity, 'id'> = defineDataSet({
+        name: 'test/RestrictedDataSet',
+        store: RestrictedStore,
+        settings: {
+          authorizeGet: async ({ injector }) => {
+            const ctx = injector.get(IdentityContext)
+            const authenticated = await ctx.isAuthenticated()
+            return authenticated ? { isAllowed: true } : { isAllowed: false, message: 'unauthenticated' }
+          },
+        },
+      })
+
+      await usingAsync(createInjector(), async (injector) => {
+        const manager = injector.get(SubscriptionManager)
+        manager.registerModel(RestrictedDataSet)
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity')
+
+        const messages = getSentMessages(socket)
+        expect(messages).toHaveLength(1)
+        expect(messages[0]).toMatchObject({
+          type: 'subscription-error',
+          requestId: 'req-1',
+        })
+        if (messages[0].type === 'subscription-error') {
+          expect(messages[0].error).toMatch(/unauthenticated/i)
+        }
+        expect(manager.activeSubscriptionCount).toBe(0)
+      })
+    })
+
+    it('should preserve captured user roles for subsequent authorizeGet evaluations', async () => {
+      const RoleAwareStore: StoreToken<TestEntity, 'id'> = defineStore({
+        name: 'test/RoleAwareStore',
+        model: TestEntity,
+        primaryKey: 'id',
+        factory: () => new InMemoryStore({ model: TestEntity, primaryKey: 'id' }),
+      })
+
+      const seenRoles: string[][] = []
+
+      const RoleAwareDataSet: DataSetToken<TestEntity, 'id'> = defineDataSet({
+        name: 'test/RoleAwareDataSet',
+        store: RoleAwareStore,
+        settings: {
+          authorizeGet: async ({ injector }) => {
+            const ctx = injector.get(IdentityContext)
+            const user = await ctx.getCurrentUser<User>().catch(() => undefined)
+            seenRoles.push(user?.roles ?? [])
+            return { isAllowed: true }
+          },
+        },
+      })
+
+      await usingAsync(createInjector(), async (injector) => {
+        const manager = injector.get(SubscriptionManager)
+        const dataSet = injector.get(RoleAwareDataSet)
+        manager.registerModel(RoleAwareDataSet)
+
+        const messageScope = injector.createScope({ owner: 'message' })
+        const user: User = { username: 'alice', roles: ['reader', 'writer'] }
+        messageScope.bind(IdentityContext, () => ({
+          isAuthenticated: () => Promise.resolve(true),
+          isAuthorized: (...roles: string[]) => Promise.resolve(roles.every((r) => user.roles.includes(r))),
+          getCurrentUser: <TUser extends User>() => Promise.resolve(user as unknown as TUser),
+        }))
+
+        const socket = createMockSocket()
+        await manager.subscribeCollection(socket as unknown as WebSocket, messageScope, 'req-1', 'TestEntity')
+        await messageScope[Symbol.asyncDispose]()
+
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+        await new Promise((r) => setTimeout(r, 50))
+
+        expect(seenRoles.length).toBeGreaterThanOrEqual(2)
+        for (const roles of seenRoles) {
+          expect(roles).toEqual(['reader', 'writer'])
+        }
+      })
+    })
+
+    it('should keep entity snapshots working when the caller scope is disposed before subscribe completes is awaited', async () => {
+      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
+        manager.registerModel(TestEntityDataSet)
+        await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
+
+        const socket = createMockSocket()
+        const messageScope = injector.createScope({ owner: 'message' })
+        await manager.subscribeEntity(socket as unknown as WebSocket, messageScope, 'req-1', 'TestEntity', '1')
+        await messageScope[Symbol.asyncDispose]()
+        socket.send.mockClear()
+
+        await updateEntity(dataSet, injector, '1', { name: 'Bob' })
+
+        const messages = getSentMessages(socket)
+        expect(messages).toHaveLength(1)
+        expect(messages[0].type).toBe('entity-updated')
+      })
     })
   })
 })

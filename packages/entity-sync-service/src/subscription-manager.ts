@@ -1,4 +1,4 @@
-import { useSystemIdentityContext, type FilterType } from '@furystack/core'
+import { IdentityContext, useSystemIdentityContext, type FilterType, type User } from '@furystack/core'
 import { defineService, type Injector, type Token } from '@furystack/inject'
 import { type DataSetToken } from '@furystack/repository'
 import type { SyncChangeEntry, ServerSyncMessage, SyncVersion } from '@furystack/entity-sync'
@@ -157,7 +157,53 @@ class SubscriptionManagerImpl implements SubscriptionManager {
   private readonly pendingEntityMessages = new Map<string, ServerSyncMessage[]>()
   private readonly queryCache = new Map<string, QueryCacheEntry>()
 
-  constructor(private readonly systemInjector: Injector) {}
+  constructor(
+    private readonly systemInjector: Injector,
+    private readonly subscriptionScopeParent: Injector,
+  ) {}
+
+  /**
+   * Captures the current identity from `clientInjector` (the per-message
+   * scope provided by the websocket action) and returns a long-lived child
+   * scope of the root injector with that identity bound on a fresh
+   * {@link IdentityContext}.
+   *
+   * The per-message `clientInjector` is disposed by `useWebSocketApi` as
+   * soon as the action returns, so retaining it for the lifetime of a
+   * subscription would break re-evaluation queries that hit `authorizeGet`
+   * (and any other code that resolves `IdentityContext`). Snapshotting the
+   * user once at subscribe time keeps authorization consistent for the
+   * lifetime of the subscription.
+   */
+  private async captureSubscriptionScope(clientInjector: Injector): Promise<Injector> {
+    let capturedUser: User | undefined
+    try {
+      capturedUser = await clientInjector.get(IdentityContext).getCurrentUser<User>()
+    } catch {
+      capturedUser = undefined
+    }
+
+    const scope = this.subscriptionScopeParent.createScope({ owner: 'EntitySyncSubscription' })
+
+    if (capturedUser) {
+      const user = capturedUser
+      const roles = Array.isArray(user.roles) ? [...user.roles] : []
+      scope.bind(IdentityContext, () => ({
+        isAuthenticated: () => Promise.resolve(true),
+        isAuthorized: (...required: string[]) =>
+          Promise.resolve(required.every((role) => roles.some((r) => r === role))),
+        getCurrentUser: <TUser extends User>() => Promise.resolve(user as unknown as TUser),
+      }))
+    }
+
+    return scope
+  }
+
+  private disposeSubscriptionScope(scope: Injector): void {
+    void scope[Symbol.asyncDispose]().catch(() => {
+      /* swallow: scope disposal failures should not break unsubscribe */
+    })
+  }
 
   public registerModel<T, TPrimaryKey extends keyof T>(
     dataSetToken: DataSetToken<T, TPrimaryKey>,
@@ -499,8 +545,10 @@ class SubscriptionManagerImpl implements SubscriptionManager {
       return
     }
 
+    let subscriptionScope: Injector | undefined
     try {
       const subscriptionId = `sub-${++this.subscriptionCounter}`
+      subscriptionScope = await this.captureSubscriptionScope(clientInjector)
 
       if (lastSeq !== undefined && registration.changelog.length > 0) {
         const oldestEntry = registration.changelog[0]
@@ -513,7 +561,14 @@ class SubscriptionManagerImpl implements SubscriptionManager {
             return entry.id === key
           })
 
-          this.storeEntitySubscription(subscriptionId, socket, clientInjector, modelName, key, registration.currentSeq)
+          this.storeEntitySubscription(
+            subscriptionId,
+            socket,
+            subscriptionScope,
+            modelName,
+            key,
+            registration.currentSeq,
+          )
 
           this.sendMessage(socket, {
             type: 'subscribed',
@@ -528,9 +583,9 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         }
       }
 
-      const entity = await registration.getEntity(clientInjector, key)
+      const entity = await registration.getEntity(subscriptionScope, key)
 
-      this.storeEntitySubscription(subscriptionId, socket, clientInjector, modelName, key, registration.currentSeq)
+      this.storeEntitySubscription(subscriptionId, socket, subscriptionScope, modelName, key, registration.currentSeq)
 
       this.sendMessage(socket, {
         type: 'subscribed',
@@ -542,6 +597,9 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {
+      if (subscriptionScope) {
+        this.disposeSubscriptionScope(subscriptionScope)
+      }
       this.sendMessage(socket, {
         type: 'subscription-error',
         requestId,
@@ -570,17 +628,19 @@ class SubscriptionManagerImpl implements SubscriptionManager {
       return
     }
 
+    let subscriptionScope: Injector | undefined
     try {
       const subscriptionId = `sub-${++this.subscriptionCounter}`
+      subscriptionScope = await this.captureSubscriptionScope(clientInjector)
 
       const [results, totalCount] = await Promise.all([
-        registration.findEntities(clientInjector, {
+        registration.findEntities(subscriptionScope, {
           filter,
           top,
           skip,
           order,
         }),
-        registration.countEntities(clientInjector, filter),
+        registration.countEntities(subscriptionScope, filter),
       ])
 
       const currentEntities = new Map<unknown, unknown>()
@@ -592,7 +652,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
       const subscription: CollectionSubscription = {
         subscriptionId,
         socket,
-        clientInjector,
+        clientInjector: subscriptionScope,
         modelName,
         type: 'collection',
         filter,
@@ -619,6 +679,9 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {
+      if (subscriptionScope) {
+        this.disposeSubscriptionScope(subscriptionScope)
+      }
       this.sendMessage(socket, {
         type: 'subscription-error',
         requestId,
@@ -661,6 +724,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
       }
 
       this.cleanupSubscriptionState(subscriptionId)
+      this.disposeSubscriptionScope(sub.clientInjector)
     }
   }
 
@@ -688,8 +752,12 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     const subs = this.socketSubscriptionIds.get(socket)
     if (subs) {
       for (const subId of subs) {
+        const sub = this.subscriptions.get(subId)
         this.subscriptions.delete(subId)
         this.cleanupSubscriptionState(subId)
+        if (sub) {
+          this.disposeSubscriptionScope(sub.clientInjector)
+        }
       }
       this.socketSubscriptionIds.delete(socket)
     }
@@ -735,6 +803,10 @@ class SubscriptionManagerImpl implements SubscriptionManager {
       clearTimeout(timer)
     }
 
+    for (const sub of this.subscriptions.values()) {
+      this.disposeSubscriptionScope(sub.clientInjector)
+    }
+
     this.modelRegistrations.clear()
     this.subscriptions.clear()
     this.socketSubscriptionIds.clear()
@@ -748,16 +820,19 @@ class SubscriptionManagerImpl implements SubscriptionManager {
  * DI token for the singleton {@link SubscriptionManager}.
  *
  * The factory creates a dedicated system-identity child scope that the
- * manager uses to resolve DataSets and subscribe to change events. That
- * scope, and the manager's internal state, are torn down when the owning
- * injector is disposed.
+ * manager uses to resolve DataSets and subscribe to change events, and
+ * also passes the owning injector so per-subscription scopes can be
+ * spawned with the subscriber's captured identity (see
+ * {@link SubscriptionManager.subscribeCollection}). Both scopes, and the
+ * manager's internal state, are torn down when the owning injector is
+ * disposed.
  */
 export const SubscriptionManager: Token<SubscriptionManager, 'singleton'> = defineService({
   name: 'furystack/entity-sync-service/SubscriptionManager',
   lifetime: 'singleton',
   factory: ({ injector, onDispose }): SubscriptionManager => {
     const systemInjector = useSystemIdentityContext({ injector, username: 'SubscriptionManager' })
-    const manager = new SubscriptionManagerImpl(systemInjector)
+    const manager = new SubscriptionManagerImpl(systemInjector, injector)
     onDispose(async () => {
       // eslint-disable-next-line furystack/prefer-using-wrapper -- onDispose is the teardown hook
       manager[Symbol.dispose]()
