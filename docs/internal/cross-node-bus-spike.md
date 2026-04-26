@@ -28,6 +28,25 @@ identity staleness to the configured TTL window. A cross-node bus
 collapses that window from "TTL" (default 30 s) to "bus latency"
 (single-digit ms with Redis pub/sub) for the cases where it matters.
 
+## Constraints
+
+Hard prerequisites the bus does **not** solve and that the
+deployment must satisfy:
+
+- **Sticky load balancing for WebSocket connections.** A WS connection
+  is owned by exactly one node; cross-node WS handover is out of scope
+  for this spike. Drain = brief disconnect; the existing
+  initial-snapshot path on reconnect covers state recovery. HTTP
+  traffic does **not** need to be sticky.
+- **Shared session store across all nodes (and across all services).**
+  `HttpUserContext` is already pluggable on the session store; the
+  multi-node story assumes every process points at the same backing
+  store (Redis, Postgres, etc.). Without this, identity resolution
+  diverges per node and no amount of bus traffic fixes it.
+- **Shared persistent stores per `DataSet`.** Entity-sync notifies of
+  changes; it is not an event-sourced store. The actual entity data
+  must live in a multi-node-safe store (DB, etc.).
+
 ## Architecture: shared transport, specialized facades
 
 ```
@@ -73,6 +92,85 @@ collapses that window from "TTL" (default 30 s) to "bus latency"
 This mirrors how `@furystack/logging` / `@furystack/cache` are
 structured today — pluggable backend behind a typed token, with
 feature-specific consumers.
+
+## Topology — multi-service deployment with a public gateway
+
+The framework target is **N services × M nodes per service behind a
+public gateway**. The bus does not impose a topology, but the
+deployment guidance is:
+
+```
+                    +----------------+
+                    | public gateway |  (rest-service proxy module)
+                    | - L7 routing   |
+                    | - bus consumer |
+                    +-------+--------+
+                            |
+        +-------------------+-------------------+
+        |                   |                   |
+   +----+----+         +----+----+         +----+----+
+   | svc-a   |         | svc-b   |         | svc-c   |
+   | × N pods|         | × N pods|         | × N pods|
+   +----+----+         +----+----+         +----+----+
+        |                   |                   |
+        +---------+---------+---------+---------+
+                  |                   |
+                  v                   v
+            +-----------+       +-------------+
+            | shared    |       | shared      |
+            | session / |       | bus broker  |
+            | identity  |       | (e.g. Redis |
+            | store     |       |  Streams)   |
+            +-----------+       +-------------+
+```
+
+### Single shared bus, per-service topic prefix
+
+One broker instance serves the whole fleet. Each service binds its
+adapter with a topic prefix from configuration:
+
+```ts
+injector.bind(
+  CrossNodeBus,
+  () =>
+    new RedisStreamsBus({
+      url: '…',
+      topicPrefix: 'svc-a/',
+      serviceName: 'svc-a',
+    }),
+)
+```
+
+Facades subscribe/publish under their own sub-namespace
+(`entity/User`, `identity/`, `app/`); the adapter prefixes every
+topic with `topicPrefix` on the wire. Cross-service eavesdropping
+remains possible (single broker), but accidental collisions with
+other services' topics are not.
+
+### `nodeId` convention
+
+`nodeId = ${serviceName}-${random}` (random tail per process start).
+Stable per process, unique across services, debuggable in
+telemetry. The factory should default to this when
+`serviceName` is provided to the adapter.
+
+### Gateway service
+
+The gateway is a Furystack service implemented on top of
+`@furystack/rest-service` plus a routing module. MVP scope:
+
+- L7 path/host routing to backend services.
+- Forwards request as-is — services keep owning auth, no
+  identity-header trust between gateway and services.
+- Itself a participant on the shared bus once it has any local state
+  worth invalidating (e.g. a per-route cache, a session lookup
+  cache). Subscribes to `IdentityEventBroadcaster` events to
+  invalidate the same way every other node does.
+
+Auth-terminating gateway, per-request token exchange, and
+service-to-service signed identity headers are deliberately
+out of scope for the MVP — they duplicate logic that already lives
+behind a shared session store.
 
 ## The bus interface
 
@@ -121,18 +219,38 @@ Deliberately minimal:
 
 Recommended order of implementation:
 
-| Adapter                  | Persistence        | Sequencing    | Replay | Setup cost          | First impl?                   |
-| ------------------------ | ------------------ | ------------- | ------ | ------------------- | ----------------------------- |
-| In-process               | n/a                | local counter | n/a    | none                | ✅ ships with the bus package |
-| Redis Streams            | ✅                 | server        | ✅     | low                 | ✅ first concrete adapter     |
-| Redis pub/sub            | ❌                 | self-managed  | ❌     | low                 | maybe                         |
-| NATS JetStream           | ✅                 | server        | ✅     | medium              | later                         |
-| Postgres `LISTEN/NOTIFY` | ❌ (advisory only) | self-managed  | ❌     | low (already in DB) | later                         |
-| Kafka                    | ✅                 | server        | ✅     | high                | later                         |
+| Adapter                  | Persistence        | Server seq | Replay | Setup cost          | Identity facade | Change facade | First impl?                   |
+| ------------------------ | ------------------ | ---------- | ------ | ------------------- | --------------- | ------------- | ----------------------------- |
+| In-process               | n/a                | local      | yes\*  | none                | yes             | yes           | ✅ ships with the bus package |
+| Redis Streams            | ✅                 | yes        | ✅     | low                 | yes             | yes           | ✅ first concrete adapter     |
+| Redis pub/sub            | ❌                 | no         | ❌     | low                 | yes             | no            | maybe                         |
+| NATS JetStream           | ✅                 | yes        | ✅     | medium              | yes             | yes           | later                         |
+| Kafka                    | ✅                 | yes        | ✅     | high                | yes             | yes           | later                         |
+| RabbitMQ Streams         | ✅                 | yes        | ✅     | medium              | yes             | yes           | later                         |
+| RabbitMQ (classic AMQP)  | ❌                 | no         | ❌     | low                 | yes             | no            | later                         |
+| MQTT                     | ❌                 | no         | ❌     | low                 | yes             | no            | later                         |
+| Postgres `LISTEN/NOTIFY` | ❌ (advisory only) | no         | ❌     | low (already in DB) | yes             | no            | later                         |
+
+\* The in-process adapter is single-process by definition; "replay"
+means the local ring buffer used by reconnecting clients.
 
 Redis Streams is the recommended first concrete adapter — small ops
 surface, native sequencing, native replay, easy local development with
 docker-compose.
+
+**Capability contract per facade:**
+
+- `IdentityEventBroadcaster` works on **any** transport — events are
+  fire-and-forget, all handlers are idempotent, no ordering or
+  replay required.
+- `ChangeBroadcaster` requires `capabilities.replay === true && capabilities.assignsSequence === true`
+  and asserts both at registration; otherwise it refuses to start.
+  Adapters that lack one are fine for `IdentityEventBroadcaster`
+  and app-defined facades but cannot serve entity-sync.
+
+This makes "shared bus across services" workable even when the
+chosen broker (e.g. RabbitMQ AMQP, MQTT) cannot serve entity-sync —
+non-replay-needing facades still ride the same transport.
 
 ### Capability advertisement
 
@@ -223,6 +341,38 @@ each subscriber sees gaps and out-of-order deltas. Options:
 into the broadcaster; the broadcaster stamps `version: SyncVersion` on
 the outbound `ServerSyncMessage` using the bus-assigned seq.
 
+### Server-side seq dedup
+
+The bus is at-least-once; retransmits and reconnect-driven replay can
+deliver the same `BroadcastChange` to a node twice. Rather than rely
+on client-side dedup, the broadcaster tracks `lastSeenSeq` per
+`(topic, originId)` and drops any `seq <= lastSeenSeq` before pushing
+to local WS subscribers. Cheap (one map lookup per message), kills
+retransmit-induced bursts, removes the need for clients to know how
+to deduplicate. ~10 LOC, runs in the bus-subscribe handler before
+the existing `handleBroadcastChange` call.
+
+### Replay window
+
+Drop the per-process `changelog` in favor of bus replay as the single
+source of truth.
+
+- Reconnecting clients with a known last-seen seq → broadcaster asks
+  the bus for messages from that seq onward (`bus.replay(topic, fromSeq)`).
+- The in-process adapter implements `replay` via a local ring buffer —
+  this is what `changelog` is today; same data structure, owned by the
+  bus instead of `SubscriptionManager`.
+- Adapters that don't support replay refuse to host `ChangeBroadcaster`
+  at registration time (capability assertion above), so the broadcaster
+  can rely on `bus.replay` always being available when it runs.
+- If the requested `fromSeq` is older than the bus's retained window,
+  the broadcaster falls back to the existing full-snapshot path.
+
+This removes the "covered by local changelog?" branching that hides
+multi-node correctness bugs single-node tests can't catch — the
+writing node's changelog is the only one that contains a write, so
+any code path that prefers it skips writes from siblings.
+
 ### Open design questions
 
 1. **Payload size.** `onEntityAdded` carries the full entity; for some
@@ -234,14 +384,13 @@ the outbound `ServerSyncMessage` using the bus-assigned seq.
    identity from PR #639). With cross-node fan-out, the writing node
    doesn't know which subscribers exist on which nodes. The receiving
    node must continue to filter by identity. Don't filter on publish.
-3. **Replay window.** The current per-process `changelog` could be
-   retired in favor of bus replay, or kept as a hot read-through cache.
-   Recommend keep + augment: subscribers fetch from local changelog if
-   covered, otherwise fall back to bus replay if the adapter supports
-   it, otherwise full snapshot.
-4. **Backpressure.** Bursty models could flood the bus. Existing
+3. **Backpressure.** Bursty models could flood the bus. Existing
    `debounceMs` / `queryTtlMs` collection-evaluation knobs help;
-   consider exposing a per-model bus-rate-limit too.
+   consider exposing a per-model bus-rate-limit later. Guardrail for
+   the eventual implementer: when a model exceeds bus throughput, the
+   correct strategy is **coalesce** (publish only the latest change
+   per primary key within a window), **not drop** — entity-sync state
+   is a "what's the current value?" channel, not an audit log.
 
 ## Consumer 2 — `IdentityEventBroadcaster` (rest-service)
 
@@ -299,19 +448,25 @@ identityEventBroadcaster.subscribe((event) => {
 })
 ```
 
-### `invalidateByUser` — the cache-API gap
+### `invalidateByUser`
 
-`UserResolutionCache` keys by `cookie:${sessionId}`. Invalidating by
-username requires either:
+`UserResolutionCache` keys by `cookie:${sessionId}`. Invalidate by
+username via `Cache.removeRange` with a predicate over the cached
+value:
 
-- **Option A — secondary index inside the cache.**
-  Maintain `Map<username, Set<cacheKey>>` populated when entries are
-  resolved. `invalidateByUser(username)` walks the set and invalidates
-  each. ~20 LOC. Local concern, doesn't infect the cache API.
-  **Recommended.**
-- **Option B — predicate-based invalidation against the cached value.**
-  Requires fixing `Cache.removeRange` to work with custom `getKey`
-  (today its `JSON.parse(key)` step breaks). Wider blast radius.
+```ts
+public invalidateByUser(username: string): void {
+  this.cache.removeRange((value) => value.username === username)
+}
+```
+
+`Cache.removeRange` already passes `(value, args)` to the predicate
+(see `cache-state-manager.ts` and the spec `Should expose the original
+args in obsoleteRange / removeRange predicates with a custom getKey`),
+so custom `getKey` is a non-issue. The cache is bounded (per-process,
+short TTL, low cardinality) — an O(n) scan on rare invalidation
+events is irrelevant. No secondary index, no extra invariant to
+maintain.
 
 ### Consumers also wire to existing `HttpUserContext` events
 
@@ -383,6 +538,19 @@ fan-out path). Consumers that need to deduplicate local-vs-remote use
 `message.originId === bus.nodeId`. The default is **not** to filter —
 this avoids surprises when a node both writes and serves a subscriber.
 
+For the common "I only care about messages from other nodes" pattern,
+the bus exposes a small helper:
+
+```ts
+bus.subscribeRemoteOnly(topic, (message) => {
+  /* ... */
+})
+```
+
+Equivalent to `bus.subscribe(topic, m => { if (m.originId !== bus.nodeId) handler(m) })`.
+~5 LOC, no semantic change to the bus interface — pure convenience
+for app-defined facades.
+
 ### Security
 
 Adapters that talk to a network broker (Redis, NATS, Kafka) must
@@ -429,7 +597,7 @@ useful signal for tuning replication paths.
          `sessionInvalidated` invalidate the local
          `UserResolutionCache` entry.
    - [ ] Add `invalidateByUser(username)` to `UserResolutionCache`
-         backed by a secondary index.
+         using `Cache.removeRange` with a value-predicate.
    - [ ] (Stretch) on `userLoggedOut` walk the
          `WebSocketApi.clients` map and close any sockets whose
          `request.headers.cookie` carries the invalidated sessionId.
@@ -437,17 +605,51 @@ useful signal for tuning replication paths.
    - [ ] `@furystack/cross-node-bus-redis` package using Redis Streams
          (`XADD` / `XREAD` consumer groups).
    - [ ] Capability flags reflect persistence / replay / sequencing.
+   - [ ] Adapter constructor accepts `{ url, topicPrefix, serviceName }`;
+         `nodeId` defaults to `${serviceName}-${random}`.
    - [ ] Manual smoke-test harness with two Node processes against a
          dockerized Redis verifies entity-sync + identity events flow
          end-to-end.
+5. **Multi-service smoke-test**
+   - [ ] Two services × two nodes each, single Redis, distinct
+         `topicPrefix` per service. Assert: events stay scoped to
+         their prefix; an `IdentityEvent` published by service A's
+         auth path invalidates caches on every node of service A and
+         only there; service B sees nothing on its own subscriptions.
+
+## Known residual risks
+
+These are not blockers but should be called out before implementation:
+
+- **Cold-start ordering on `IdentityEventBroadcaster`.** A node
+  booting after another node has already published an identity event
+  misses that event entirely (no replay required for this facade).
+  Consequence: a freshly booted node serves stale identity until the
+  `UserResolutionCache` TTL expires (default 30 s). This is bounded by
+  design — the cache TTL is the worst-case staleness window. Document
+  but do not fix.
+- **Schema-version skew during rolling deploys.** `BusMessage.v` is a
+  hard pin; mid-rollout, a v1 node and a v2 node share a topic and
+  refuse each other's messages. Two coping strategies:
+  1. Wire-format bumps require a fleet-wide deploy fence (drain
+     everything, deploy v2, resume) — simple, disruptive.
+  2. Always ship one cycle of "v2-aware, v1-emitting" nodes that
+     accept both versions, then a follow-up cycle that emits v2 — no
+     downtime, two deploys per breaking change.
+     Spike does not pick one; the operator does. Pin the choice in
+     release notes when the first v2 lands.
 
 ## Out of scope
 
 - Distributed locks for write coordination (writes still go through
   the underlying store).
 - Cross-node WebSocket handover ("clients on node A should keep their
-  subscriptions when A drains") — sticky load balancing remains a
-  prerequisite.
+  subscriptions when A drains") — see Constraints; sticky load
+  balancing is the assumed deployment shape.
+- Auth-terminating gateway, signed identity headers between gateway
+  and services, per-request token exchange. Gateway MVP forwards
+  requests as-is and lets services own auth via the shared session
+  store.
 - Strongly-consistent state replication (this is a notification bus,
   not a state machine — apps still own their persistent stores).
 - Discovery / membership / health (let the transport handle it; we
