@@ -273,26 +273,33 @@ describe('HttpUserContext', () => {
   })
 
   describe('getCurrentUser', () => {
-    it('caches the result of authenticateRequest within the request scope', async () => {
+    it('caches the result of authenticateRequest by session id when the cookie provider yields a key', async () => {
       await usingAsync(createInjector(), async (i) => {
         prepareInjector(i)
         const ctx = i.get(HttpUserContext)
+        const cookiedRequest = {
+          headers: { cookie: `${ctx.authentication.cookieName}=session-1;` },
+        } as IncomingMessage
         ctx.authenticateRequest = vi.fn(async () => testUser)
-        const first = await ctx.getCurrentUser(request)
-        const second = await ctx.getCurrentUser(request)
+        const first = await ctx.getCurrentUser(cookiedRequest)
+        const second = await ctx.getCurrentUser(cookiedRequest)
         expect(ctx.authenticateRequest).toHaveBeenCalledTimes(1)
         expect(first).toBe(testUser)
         expect(second).toBe(testUser)
       })
     })
 
-    it('does not leak a cached user between distinct requests on the same instance', async () => {
+    it('treats distinct sessions as distinct cache entries', async () => {
       await usingAsync(createInjector(), async (i) => {
         prepareInjector(i)
         const ctx = i.get(HttpUserContext)
         const otherUser: User = { username: 'otherUser', roles: [] }
-        const requestA = { headers: {} } as IncomingMessage
-        const requestB = { headers: {} } as IncomingMessage
+        const requestA = {
+          headers: { cookie: `${ctx.authentication.cookieName}=session-a;` },
+        } as IncomingMessage
+        const requestB = {
+          headers: { cookie: `${ctx.authentication.cookieName}=session-b;` },
+        } as IncomingMessage
         const authenticateRequest = vi
           .fn<(req: Pick<IncomingMessage, 'headers'>) => Promise<User>>()
           .mockResolvedValueOnce(testUser)
@@ -301,6 +308,47 @@ describe('HttpUserContext', () => {
         expect(await ctx.getCurrentUser(requestA)).toBe(testUser)
         expect(await ctx.getCurrentUser(requestB)).toBe(otherUser)
         expect(await ctx.getCurrentUser(requestA)).toBe(testUser)
+        expect(authenticateRequest).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    it('bypasses the cache when no provider yields a key (e.g. Basic Auth, anonymous)', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        const anonRequest = { headers: {} } as IncomingMessage
+        const authenticateRequest = vi
+          .fn<(req: Pick<IncomingMessage, 'headers'>) => Promise<User>>()
+          .mockResolvedValue(testUser)
+        ctx.authenticateRequest = authenticateRequest
+        await ctx.getCurrentUser(anonRequest)
+        await ctx.getCurrentUser(anonRequest)
+        expect(authenticateRequest).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    it('drops the local cache entry on cookieLogout so the next request re-authenticates', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        const sessionId = 'session-logout'
+        const cookiedRequest = {
+          headers: { cookie: `${ctx.authentication.cookieName}=${sessionId};` },
+        } as IncomingMessage
+        await i.get(SessionStore).add({ sessionId, username: testUser.username })
+        await i.get(UserStore).add(testUser)
+
+        const authenticateRequest = vi
+          .fn<(req: Pick<IncomingMessage, 'headers'>) => Promise<User>>()
+          .mockResolvedValue(testUser)
+        ctx.authenticateRequest = authenticateRequest
+
+        await ctx.getCurrentUser(cookiedRequest)
+        expect(authenticateRequest).toHaveBeenCalledTimes(1)
+
+        await ctx.cookieLogout(cookiedRequest, { setHeader: vi.fn() })
+
+        await ctx.getCurrentUser(cookiedRequest)
         expect(authenticateRequest).toHaveBeenCalledTimes(2)
       })
     })

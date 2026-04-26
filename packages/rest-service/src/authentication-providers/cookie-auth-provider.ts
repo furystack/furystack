@@ -23,4 +23,11 @@ export const createCookieAuthProvider = (
     if (!session) throw new UnauthenticatedError()
     return await getUserByName(session.username)
   },
+  // The session id alone uniquely identifies the principal — caching by it is
+  // safe because session invalidation (logout, expiry) drops the session row,
+  // and the TTL on the user-resolution cache bounds staleness across nodes.
+  getCacheKey: (request) => {
+    const sessionId = extractSessionIdFromCookies(request, cookieName)
+    return sessionId ? `cookie:${sessionId}` : null
+  },
 })

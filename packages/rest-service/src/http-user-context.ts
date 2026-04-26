@@ -8,6 +8,7 @@ import { randomBytes } from 'crypto'
 import type { IncomingMessage } from 'http'
 import { extractSessionIdFromCookies } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import { resolveUserCacheKey, UserResolutionCache } from './user-resolution-cache.js'
 
 /**
  * Events emitted by a per-request {@link HttpUserContext} instance. Since
@@ -60,24 +61,20 @@ export interface HttpUserContext extends EventHub<HttpUserContextEvents> {
  */
 class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements HttpUserContext {
   /**
-   * Per-request user cache keyed by the request's `headers` object identity.
-   * Each incoming HTTP/WS message allocates its own `headers` object, so
-   * entries here never leak between requests — even when this
-   * `HttpUserContext` instance happens to be cached by an ancestor scope
-   * (e.g. because setup code resolved it on the root injector before any
-   * per-request child scope existed).
-   */
-  private readonly userCache = new WeakMap<object, Promise<User>>()
-
-  /**
    * `authenticator` is resolved lazily so that tests (and applications) that
    * never invoke `authenticateUser` don't need to bind password-credential
    * stores.
+   *
+   * The shared {@link UserResolutionCache} memoizes successful authentications
+   * across requests within the process. Cache keys are produced by the
+   * configured providers via `getCacheKey`; requests whose providers all
+   * opt out (e.g. Basic Auth, anonymous traffic) bypass the cache.
    */
   constructor(
     public readonly authentication: HttpAuthenticationSettings,
     private readonly resolveAuthenticator: () => PasswordAuthenticator,
     private readonly systemInjector: Injector,
+    private readonly userCache: UserResolutionCache,
   ) {
     super()
   }
@@ -114,19 +111,11 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
   }
 
   public async getCurrentUser(request: Pick<IncomingMessage, 'headers'>): Promise<User> {
-    const key = request.headers
-    const cached = this.userCache.get(key)
-    if (cached) {
-      return cached
+    const cacheKey = resolveUserCacheKey(this.authentication, request)
+    if (!cacheKey) {
+      return this.authenticateRequest(request)
     }
-    const pending = this.authenticateRequest(request)
-    this.userCache.set(key, pending)
-    try {
-      return await pending
-    } catch (error) {
-      this.userCache.delete(key)
-      throw error
-    }
+    return this.userCache.resolve(cacheKey, () => this.authenticateRequest(request))
   }
 
   public getSessionIdFromRequest(request: Pick<IncomingMessage, 'headers'>): string | null {
@@ -157,9 +146,15 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     request: Pick<IncomingMessage, 'headers'>,
     response: { setHeader: (header: string, value: string) => void },
   ): Promise<void> {
-    this.userCache.delete(request.headers)
     const sessionId = this.getSessionIdFromRequest(request)
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
+
+    // Drop any cached identity for this session locally so the very next
+    // request sees the logout immediately. Sibling instances behind a load
+    // balancer still observe the old user until their TTL window elapses.
+    if (sessionId) {
+      this.userCache.invalidate(`cookie:${sessionId}`)
+    }
 
     if (sessionId) {
       const sessionDataSet = this.systemInjector.get(this.authentication.sessionDataSet)
@@ -193,10 +188,11 @@ export const HttpUserContext: Token<HttpUserContext, 'scoped'> = defineService({
   lifetime: 'scoped',
   factory: ({ inject, injector, onDispose }): HttpUserContext => {
     const authentication = inject(HttpAuthenticationSettings)
+    const userCache = inject(UserResolutionCache)
     const systemInjector = useSystemIdentityContext({ injector, username: 'HttpUserContext' })
     onDispose(() => systemInjector[Symbol.asyncDispose]())
     // Password authenticator resolution is deferred: tests that exercise only
     // unauthenticated endpoints never have to bind credential stores.
-    return new HttpUserContextImpl(authentication, () => injector.get(PasswordAuthenticator), systemInjector)
+    return new HttpUserContextImpl(authentication, () => injector.get(PasswordAuthenticator), systemInjector, userCache)
   },
 })

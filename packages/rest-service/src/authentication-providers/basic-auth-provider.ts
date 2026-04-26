@@ -3,6 +3,13 @@ import type { AuthenticationProvider } from './authentication-provider.js'
 
 /**
  * Creates an authentication provider for HTTP Basic Authentication.
+ *
+ * **Caching note:** this provider intentionally does **not** implement
+ * `getCacheKey`. Caching authenticated users by username would bypass
+ * password verification on every cache hit — the cache cannot revalidate the
+ * password without re-running the authenticator. Basic Auth requests
+ * therefore always walk the provider chain, which is also where the password
+ * is verified.
  * @param authenticateUser Callback that verifies credentials and returns a User or throws
  */
 export const createBasicAuthProvider = (

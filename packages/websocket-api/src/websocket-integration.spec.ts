@@ -6,6 +6,7 @@ import {
   HttpUserContext,
   SessionStore,
   UserDataSet,
+  UserResolutionCache,
   UserStore,
   useHttpAuthentication,
   useRestService,
@@ -123,6 +124,12 @@ describe('WebSocket Integration tests', () => {
         const userDataSet = systemScope.get(UserDataSet)
         await userDataSet.update(systemScope, testUser.username, { ...testUser, roles: ['newFancyRole'] })
       })
+
+      // Out-of-band mutations to the user record do not propagate through the
+      // user-resolution cache automatically; apps that mutate roles in
+      // storage must explicitly invalidate the cache so the next request
+      // re-walks the auth providers.
+      injector.get(UserResolutionCache).invalidateAll()
 
       const updatedWhoAmIResult = await getWhoAmIResult(authenticatedClient)
       expect(updatedWhoAmIResult.currentUser.roles).toEqual(['newFancyRole'])
