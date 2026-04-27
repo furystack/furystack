@@ -1,17 +1,14 @@
 import type { ChildrenList } from './models/children-list.js'
 
-/**
- * Props constraint for styled components - must have an optional style property
- */
 type StyledProps = {
   style?: Partial<CSSStyleDeclaration>
 }
 
 /**
- * Creates a shortcut for a specific custom Shade element with additional styles
- * @param element The element instance
- * @param styles The additional styles to add
- * @returns The updated element
+ * Wraps a Shade factory with a baked-in `style` overlay. Baked-in `styles`
+ * win over caller-supplied `style` props (the wrapper merges last). Use to
+ * specialise an existing Shade (e.g. theme variants) without registering
+ * a new custom element.
  */
 export const styledShade = <TProps extends StyledProps>(
   element: (props: TProps, children?: ChildrenList) => JSX.Element,

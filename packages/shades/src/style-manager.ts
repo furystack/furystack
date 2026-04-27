@@ -1,19 +1,16 @@
 import { generateCSS } from './css-generator.js'
 import type { CSSObject } from './models/css-object.js'
+import type { Shade } from './shade.js'
 
 /**
- * Singleton that manages component CSS injection.
- * Creates and maintains a shared `<style>` element in the document head,
- * and tracks registered component styles to avoid duplicates.
+ * Owns a shared `<style data-shades-styles>` element in `document.head`
+ * and dedupes component-style registration. Internal — consumers use
+ * the {@link StyleManager} singleton.
  */
 class StyleManagerClass {
   private styleElement: HTMLStyleElement | null = null
   private registeredComponents = new Set<string>()
 
-  /**
-   * Gets or creates the shared style element
-   * @returns The style element for CSS injection
-   */
   private getStyleElement(): HTMLStyleElement {
     if (!this.styleElement) {
       this.styleElement = document.createElement('style')
@@ -66,26 +63,16 @@ class StyleManagerClass {
     return false
   }
 
-  /**
-   * Checks if a component's styles have already been registered
-   * @param customElementName - The component identifier to check
-   * @returns True if styles are already registered
-   */
   public isRegistered(customElementName: string): boolean {
     return this.registeredComponents.has(customElementName)
   }
 
-  /**
-   * Gets all registered component names (for debugging/testing)
-   * @returns Set of registered component names
-   */
+  /** Snapshot of registered component names. Intended for diagnostics + tests. */
   public getRegisteredComponents(): ReadonlySet<string> {
     return this.registeredComponents
   }
 
-  /**
-   * Clears all registered styles (useful for testing)
-   */
+  /** Removes the shared style element and clears the registration set. Test-only. */
   public clear(): void {
     this.registeredComponents.clear()
     if (this.styleElement) {
@@ -97,8 +84,8 @@ class StyleManagerClass {
 }
 
 /**
- * Singleton instance for managing component CSS styles.
- * Use this to register component-level styles that support
- * pseudo-selectors and nested selectors.
+ * Process-wide CSS injection registry for Shade components. The {@link Shade}
+ * factory calls `registerComponentStyles` automatically; direct use is rare
+ * (e.g. injecting a third-party stylesheet keyed off a component name).
  */
 export const StyleManager = new StyleManagerClass()

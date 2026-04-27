@@ -1,11 +1,11 @@
 import { isAsyncDisposable } from './is-async-disposable.js'
 import { isDisposable } from './is-disposable.js'
+import type { using } from './using.js'
 
 /**
- * Method that accepts a Disposable or AsyncDisposable resource that will be disposed after the callback
- * @param resource The resource that is used in the callback and will be disposed afterwards
- * @param callback The callback that will be executed asynchronously before the resource will be disposed
- * @returns A promise that will be resolved with a return value after the resource is disposed
+ * Async counterpart of {@link using}. Awaits `callback`, then disposes
+ * `resource` in a `finally` block — async disposers are awaited. Resolves to
+ * `callback`'s value.
  */
 export const usingAsync = async <T extends Disposable | AsyncDisposable, TReturns>(
   resource: T,

@@ -1,90 +1,76 @@
-import type { FindOptions, PhysicalStore, WithOptionalId } from '@furystack/core'
+import type { AuthorizationError, FindOptions, PhysicalStore, WithOptionalId } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
+import type { DataSet } from './data-set.js'
 
-/**
- * The result model returned by authorizers
- */
+/** Discriminated union returned by authorizer callbacks. */
 export type AuthorizationResult = SuccessfullyValidationResult | FailedValidationResult
 
 export interface SuccessfullyValidationResult {
-  /**
-   * Indicates if the validation was successful
-   */
   isAllowed: true
 }
 
 export interface FailedValidationResult {
-  /**
-   * Indicates if the validation was successful
-   */
-
   isAllowed: false
-  /**
-   * The error message string
-   */
+  /** Surfaced as the message of the thrown {@link AuthorizationError}. */
   message: string
 }
 
 /**
- * Model for authorizers
+ * Configuration for a {@link DataSet}: backing store + authorization +
+ * modification hooks + filter post-processing. Every callback is optional —
+ * an empty `DataSetSettings` performs no checks and forwards calls straight
+ * to the physical store.
+ *
+ * Authorization callbacks come in two flavours:
+ *
+ * - `authorizeX` — runs **before** the entity is loaded. Use for cheap,
+ *   identity-only checks ("is the user logged in?", "is the user an admin?").
+ *   When omitted, no pre-check is performed.
+ * - `authorizeXEntity` — runs **after** the entity is loaded, with the
+ *   loaded entity in scope. Use for ownership / row-level checks. Missing
+ *   entities skip the per-entity check entirely.
+ *
+ * A callback returning `{ isAllowed: false }` makes the operation throw
+ * {@link AuthorizationError}.
  */
 export interface DataSetSettings<T, TPrimaryKey extends keyof T, TWritableData = WithOptionalId<T, TPrimaryKey>> {
-  /**
-   * An instance of a physical store
-   */
   physicalStore: PhysicalStore<T, TPrimaryKey, TWritableData>
 
-  /**
-   * Authorizes the entity creation
-   */
+  /** Pre-persist authorization for `add`. */
   authorizeAdd?: (options: { injector: Injector; entity: TWritableData }) => Promise<AuthorizationResult>
 
-  /**
-   * modifies an entity before persisting on creation
-   */
+  /** Pre-persist mutation for `add` (default fields, hashing, normalisation). */
   modifyOnAdd?: (options: { injector: Injector; entity: TWritableData }) => Promise<TWritableData>
 
-  /**
-   * Authorizes entity updates (before the entity gets loaded from the store)
-   */
+  /** Pre-load authorization for `update`. Sees the change, not the entity. */
   authorizeUpdate?: (options: { injector: Injector; change: Partial<T> }) => Promise<AuthorizationResult>
 
-  /**
-   * Authorizes entity updates per loaded entity
-   */
+  /** Post-load authorization for `update`. Sees both the loaded entity and the change. */
   authorizeUpdateEntity?: (options: {
     injector: Injector
     entity: T
     change: Partial<T>
   }) => Promise<AuthorizationResult>
 
-  /**
-   * modifies an entity before persisting on update
-   */
+  /** Pre-persist mutation for `update`. */
   modifyOnUpdate?: (options: { injector: Injector; id: T[keyof T]; entity: Partial<T> }) => Promise<Partial<T>>
 
-  /**
-   * Authorizes entity removal (before the entity gets loaded from the store)
-   */
+  /** Pre-load authorization for `remove`. */
   authorizeRemove?: (options: { injector: Injector }) => Promise<AuthorizationResult>
 
-  /**
-   * Authorizes entity removal per loaded entity
-   */
+  /** Post-load authorization for `remove`, per loaded entity. */
   authorizeRemoveEntity?: (options: { injector: Injector; entity: T }) => Promise<AuthorizationResult>
 
-  /**
-   * Authorizes entity retrieval without entity loading
-   */
+  /** Pre-load authorization for `get` / `find` / `count`. No entity in scope. */
   authorizeGet?: (options: { injector: Injector }) => Promise<AuthorizationResult>
 
-  /**
-   * Authorizes entity retrieval
-   */
+  /** Post-load authorization for `get`, per loaded entity. */
   authorizeGetEntity?: (options: { injector: Injector; entity: T }) => Promise<AuthorizationResult>
 
   /**
-   * Additional filter parsing to be appended per filter / query
+   * Filter post-processor. Receives the caller's {@link FindOptions} and
+   * returns a (potentially augmented) one. Use to inject mandatory clauses
+   * (tenant scoping, soft-delete masks) the caller cannot bypass.
    */
   addFilter?: <TFields extends Array<keyof T>>(options: {
     injector: Injector

@@ -3,12 +3,8 @@ import type { RequestAction } from '../request-action-implementation.js'
 import { EmptyResult } from '../request-action-implementation.js'
 
 /**
- * Action that logs out the current user
- * @param root0 The Options object
- * @param root0.injector The injector from the context
- * @param root0.request The current Request object
- * @param root0.response The Response object
- * @returns An empty result that indicates the success
+ * Logs out via {@link HttpUserContext.cookieLogout} — clears the session
+ * cookie and removes the session row from the session DataSet.
  */
 export const LogoutAction: RequestAction<{ result: unknown }> = async ({ injector, request, response }) => {
   await injector.get(HttpUserContext).cookieLogout(request, response)

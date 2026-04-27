@@ -1,13 +1,9 @@
-/**
- * Type that defines a deep partial generic object
- */
 export type DeepPartial<T> = { [K in keyof T]?: DeepPartial<T[K]> }
 
 /**
- * Deep merge two objects.
- * @param target The target object to be merged into
- * @param sources The source objects to merge
- * @returns A new instance with the merged values
+ * Deep-merges plain object branches; non-object values and arrays are
+ * replaced wholesale, not merged. `undefined` values in a source skip the
+ * key (the target's value is preserved). Returns a new top-level object.
  */
 export const deepMerge = <T>(target: T, ...sources: Array<DeepPartial<T> | undefined>) => {
   if (!sources.length) {

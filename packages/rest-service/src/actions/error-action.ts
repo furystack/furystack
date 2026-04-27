@@ -5,10 +5,14 @@ import { JsonResult } from '../request-action-implementation.js'
 import { SchemaValidationError } from '../schema-validator/schema-validation-error.js'
 
 /**
- * Action for unhandled (500) errors
- * Returns a serialized error instance in JSON format.
+ * Default error handler. Maps thrown errors to HTTP responses:
+ *
+ * - {@link SchemaValidationError} → 400 with `{ message, errors }`
+ * - {@link RequestError} → its `responseCode` with `{ message }`
+ * - {@link AuthorizationError} → 403 with `{ message }`
+ * - other `Error` → 500 with `{ message }`
+ * - non-Error throwables → 500 with a generic message
  */
-
 export const ErrorAction: RequestAction<{
   body: unknown
   result: { message: string }

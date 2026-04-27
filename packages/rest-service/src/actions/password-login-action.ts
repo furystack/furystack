@@ -6,18 +6,11 @@ import type { LoginResponseStrategy } from '../login-response-strategy.js'
 import type { RequestAction } from '../request-action-implementation.js'
 
 /**
- * Creates a login {@link RequestAction} that authenticates a user by
- * username + password, then delegates session/token creation to the
- * provided {@link LoginResponseStrategy}.
- *
- * The return type is inferred from the strategy:
- * - Cookie strategy -> `ActionResult<User>`
- * - JWT strategy   -> `ActionResult<{ accessToken: string; refreshToken: string }>`
- *
- * A random delay (0-1 s) is added on failure to mitigate timing attacks.
- *
- * @param strategy The login response strategy that produces the session/token result
- * @returns A `RequestAction` that can be wired into a REST API route
+ * Username + password login action. Authenticates via {@link HttpUserContext},
+ * then delegates session/token creation to `strategy`. The result type is
+ * inferred from the strategy (e.g. `User` for cookies, `{ accessToken,
+ * refreshToken }` for JWT). Adds a 0–1 s random delay on failure to mitigate
+ * timing attacks; rethrows as `RequestError(400)`.
  */
 export const createPasswordLoginAction = <TResult>(
   strategy: LoginResponseStrategy<TResult>,

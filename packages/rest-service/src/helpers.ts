@@ -20,8 +20,9 @@ import { ServerTelemetryToken } from './server-telemetry.js'
 import { buildStaticSiteServerApi, type StaticServerOptions } from './static-site-runtime.js'
 
 /**
- * Options accepted by {@link useRestService}. Mirrors the pre-migration
- * shape, minus fields that have moved to tokens.
+ * Options accepted by {@link useRestService}. Cross-cutting concerns
+ * (authentication, telemetry) have moved to DI tokens — they are not
+ * configured here.
  */
 export interface ImplementApiOptions<T extends RestApi> {
   /** The structure of the implemented API. */
@@ -49,11 +50,10 @@ export interface ImplementApiOptions<T extends RestApi> {
 }
 
 /**
- * Acquires a pooled HTTP server, compiles the user-supplied API definition
+ * Acquires a pooled HTTP server (creating one if needed), compiles `api`
  * and attaches a {@link ServerApi} that dispatches matching requests.
- *
- * Public contract is unchanged from the pre-migration release; internally
- * everything goes through the functional tokens.
+ * Multiple `useRestService` calls on the same `port` + `hostName` share a
+ * single underlying HTTP server.
  */
 export const useRestService = async <T extends RestApi>(options: ImplementApiOptions<T>): Promise<ServerApi> => {
   const {

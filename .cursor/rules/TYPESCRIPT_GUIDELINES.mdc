@@ -44,6 +44,8 @@ export function process(data: any): string { return data.toString() }
 
 Alternatives: `unknown` + type guard, generics, union types, utility types.
 
+`@typescript-eslint/no-explicit-any` is **disabled** in `eslint.config.js` because the rule has no option for the constraint-position exception. Reviewers enforce the rule in code review.
+
 ## Inference
 
 Let TS infer internally. Be explicit at API boundaries, complex switch/case branches, or when inference is ambiguous.

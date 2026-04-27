@@ -5,21 +5,15 @@ import type { ActionResult, RequestAction, RequestActionOptions } from './reques
 import { JsonResult } from './request-action-implementation.js'
 
 /**
- * Higher-order function that wraps a request action to require authentication.
- * If the user is not authenticated, returns a 401 Unauthorized response.
- * Includes a random delay on unauthorized requests to mitigate timing attacks.
+ * Wraps a {@link RequestAction} to require authentication. Unauthenticated
+ * requests return `401 Unauthorized` (with `WWW-Authenticate: Basic` when
+ * the chain includes Basic Auth). Adds a 0–1 s random delay on rejection to
+ * mitigate timing attacks.
  *
- * @returns A function that wraps the provided action with authentication check
  * @example
  * ```ts
- * // Wrap an endpoint to require authentication
- * const protectedEndpoint = Authenticate()(myEndpoint)
- *
- * // Or use directly in API definition
  * api: {
- *   GET: {
- *     '/users': Authenticate()(getUsersEndpoint)
- *   }
+ *   GET: { '/users': Authenticate()(getUsersEndpoint) },
  * }
  * ```
  */

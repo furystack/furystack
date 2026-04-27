@@ -92,14 +92,57 @@ Multi-line for >2 attrs. Single-line for trivial cases. No nested ternaries — 
 
 ## JSDoc
 
-Required on all exported APIs. Include `@example` when usage isn't obvious.
+Required on all exported APIs (anything reachable from `index.ts`). For internal symbols, JsDoc is optional — only add it when it passes the value test below.
+
+### Value test
+
+Before writing or keeping JsDoc, strip the type signature mentally and read the JsDoc alone. If it still tells the reader something the type does not, keep it. If it just narrates the type, delete it.
+
+Keep when JsDoc explains:
+
+- **Intent** — why this exists, what problem it solves
+- **Trade-offs** — design choices that have alternatives (e.g. `Symbol` vs `Symbol.for`)
+- **Constraints** — runtime invariants, ordering, lifecycle, side effects
+- **Non-obvious usage** — patterns the type allows but discourages, or shapes the caller is expected to follow
+
+Delete when JsDoc:
+
+- Restates the function name (`isToken` → "Runtime type guard for `Token`.")
+- Restates parameter or return types already in the signature
+- Says "Factory signature for synchronous services" when the type alias is literally `(ctx) => TService`
+
+### `@example`
+
+Include when usage is not obvious from the signature. Examples must be copy-paste compilable — if you copy the block into a fresh `.ts` file and add the imports shown, `tsc --noEmit` passes. Drift is the main failure mode; treat examples as code, not prose.
+
+Cross-link instead of duplicating. If `defineServiceAsync` documentation mirrors `defineService`, write `See {@link defineService} for the synchronous variant` rather than re-explaining lifetime semantics.
+
+### Cross-file `{@link}` references
+
+When a `{@link Symbol}` references a symbol declared in another file, add a type-only import for that symbol at the top of the referencing file:
 
 ```typescript
+import type { Injector } from './injector.js'
+```
+
+TypeScript recognizes JsDoc references as usage (no `noUnusedLocals` complaint) and IDE navigation works. Type-only imports are erased under `verbatimModuleSyntax: true`, so circular type-only imports between two files are fine.
+
+### Example — value test in practice
+
+```typescript
+// ✅ keeps — explains intent + trade-off, irreplaceable by the type
 /**
- * Defines a synchronous service token.
- * @returns A token resolvable via `injector.get(...)`
+ * Each {@link defineService} call mints a fresh `Symbol` as the token's identity.
+ * Using a plain `Symbol` (not `Symbol.for`) makes cross-author collisions
+ * structurally impossible at the cost of duplicate-module-instance pitfalls.
  */
-export const defineService: <T>(...) => Token<T>
+const createTokenId = (name: string): symbol => Symbol(name)
+
+// ❌ deletes — narrates the type, no extra signal
+/**
+ * Runtime type guard for {@link Token}.
+ */
+export const isToken = (value: unknown): value is Token => { /* ... */ }
 ```
 
 ## Comments

@@ -1,11 +1,9 @@
-/**
- * Base CSS properties - subset of CSSStyleDeclaration
- */
 export type CSSProperties = Partial<CSSStyleDeclaration>
 
 /**
- * Selector key pattern for pseudo-classes and nested selectors
- * Examples: '&:hover', '&:active', '& .className', '& > div'
+ * Selector keys for pseudo-classes and nested selectors. The leading `&`
+ * is replaced with the host selector at registration time
+ * (e.g. `&:hover` → `my-element:hover`).
  */
 export type SelectorKey = `&${string}`
 

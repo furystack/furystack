@@ -34,7 +34,7 @@ export type JwtAuthenticationOverrides = Partial<Omit<JwtAuthenticationSettings,
  * token on the injector before calling this helper — the default factory
  * throws on purpose so refresh tokens are never silently kept in-memory.
  *
- * @important HTTPS is strongly recommended. Bearer tokens transmitted over
+ * **Important:** HTTPS is strongly recommended. Bearer tokens transmitted over
  * plain HTTP are vulnerable to interception and replay attacks.
  *
  * @param injector The Injector instance

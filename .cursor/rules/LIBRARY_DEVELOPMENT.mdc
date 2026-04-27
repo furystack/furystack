@@ -1,6 +1,6 @@
 ---
 name: Library Development
-description: FuryStack library patterns — functional DI, stores, datasets, observables, disposables, Shades rendering, breaking changes
+description: FuryStack library patterns — functional DI, stores, datasets, observables, disposables, breaking changes
 globs:
   - 'packages/**/*.ts'
   - 'packages/**/*.tsx'
@@ -11,17 +11,19 @@ alwaysApply: false
 
 FuryStack uses **functional DI**. No decorators (`@Injectable`, `@Injected` do not exist).
 
-## ESLint plugin enforces these — generate compliant code
+For Shades render-time patterns (hooks, JSX, css, reconciliation), see `SHADES_RENDER.mdc`.
 
-`@furystack/eslint-plugin` covers:
+## Lint enforces
 
-- Observable/cache disposal (`require-disposable-for-observable-owner`, `require-observable-disposal`)
-- `prefer-using-wrapper` over manual create/dispose
-- Shades: no module-level JSX, no removed APIs (`element`, `onAttach`, `onDetach`), no manual `.subscribe()` in render, no `.getValue()` without `useObservable`, prefer `useState` over manual `ObservableValue`, no `useState` for CSS states, valid `customElementName`, `LocationService` + `NestedRouteLink` for navigation
-- REST: throw `RequestError` (not `Error`), wrap endpoints in `Validate()`
-- Data: `getDataSetFor(...)` over direct `injector.get(StoreToken)` (`no-direct-store-token`)
+`@furystack/eslint-plugin` covers most patterns below. When in doubt, run `yarn lint` — the rule message names the canonical pattern.
 
-Verify: `yarn lint`.
+| Topic | Rule(s) |
+|---|---|
+| Disposal of observable owners | `require-disposable-for-observable-owner`, `require-observable-disposal` |
+| Manual `[Symbol.dispose]()` calls | `prefer-using-wrapper` |
+| REST error handling + endpoint wrapping | `rest-action-use-request-error`, `rest-action-validate-wrapper`, `rest-no-type-cast` |
+| DataSet over direct StoreToken | `no-direct-store-token` |
+| Shades render rules | see `SHADES_RENDER.mdc` |
 
 ## defineService
 
@@ -104,17 +106,13 @@ export const UserStore = defineStore({
 })
 ```
 
-### Throw-by-default
+Stores shipped by FuryStack default to a factory that throws `NotConfiguredError`. App must `injector.bind(...)` a real implementation before resolving.
 
-Stores shipped by FuryStack default to a factory that throws `NotConfiguredError`. App must `injector.bind(...)` a real implementation before resolving anything that depends on them.
-
-### Adapters
-
-`defineFileSystemStore`, `defineMongoDbStore`, `defineSequelizeStore`, `defineRedisStore`. If TS widens `TPrimaryKey` to `keyof T`, pass explicit generics: `defineFileSystemStore<User, 'username'>({ ... })`.
+Adapters: `defineFileSystemStore`, `defineMongoDbStore`, `defineSequelizeStore`, `defineRedisStore`. If TS widens `TPrimaryKey` to `keyof T`, pass explicit generics: `defineFileSystemStore<User, 'username'>({ ... })`.
 
 ## defineDataSet — write gateway
 
-DataSets wrap stores with authorization, hooks, change events. **Bypassing the DataSet bypasses authz, hooks, and entity sync.** App code resolves the `DataSetToken`, never the underlying `StoreToken`.
+DataSets wrap stores with authorization, hooks, change events. **Bypassing the DataSet bypasses authz, hooks, and entity sync.** App code resolves the `DataSetToken`, never the underlying `StoreToken` (`no-direct-store-token` enforces).
 
 ```typescript
 import { defineDataSet } from '@furystack/repository'
@@ -131,7 +129,6 @@ export const UserDataSet = defineDataSet({
   },
 })
 
-// Use:
 const dataSet = getDataSetFor(injector, UserDataSet)
 await dataSet.add(injector, { username: 'alice', displayName: 'Alice' })
 ```
@@ -160,114 +157,6 @@ factory: ({ injector, onDispose }) => {
 
 **Warning:** never pass the returned injector to a user-facing request handler — bypasses all authorization.
 
-## ObservableValue + class disposal
-
-If a class owns an `ObservableValue` / `Cache`, it must implement `[Symbol.dispose]` and dispose every owned instance. Enforced by `require-disposable-for-observable-owner`.
-
-```typescript
-export const SessionService = defineService({
-  name: 'my-app/SessionService',
-  lifetime: 'singleton',
-  factory: ({ onDispose }) => {
-    const currentUser = new ObservableValue<User | null>(null)
-    onDispose(() => currentUser[Symbol.dispose]())
-    return { currentUser }
-  },
-})
-```
-
-## Shades rendering essentials
-
-### Removed APIs (forbidden)
-
-- `element` in `RenderOptions` → use `useHostProps` / `useRef`
-- `onAttach` / `onDetach` in `ShadeOptions` → use `useDisposable`
-
-### useHostProps — declarative host attrs/styles
-
-```typescript
-render: ({ props, useHostProps }) => {
-  useHostProps({
-    'data-variant': props.variant,
-    role: 'progressbar',
-    style: { '--btn-color': props.color },
-  })
-  return <div>{props.children}</div>
-}
-```
-
-Strings/booleans/null → `setAttribute`. Objects/functions → property assignment. CSS custom props (`--*`) → `setProperty`.
-
-### useRef — DOM access only when needed
-
-Refs are null on first sync render. Defer access via `queueMicrotask`. Don't create refs you never read from. For `classList.add` toggling, prefer `useState` + declarative JSX.
-
-```typescript
-// ❌ ref used only for classList
-const ref = useRef<HTMLDivElement>('backdrop')
-requestAnimationFrame(() => ref.current?.classList.add('visible'))
-
-// ✅ declarative
-const [isVisible, setIsVisible] = useState('isVisible', false)
-requestAnimationFrame(() => setIsVisible(true))
-return <div className={`backdrop${isVisible ? ' visible' : ''}`}>...</div>
-```
-
-### Local state: `useState` over manual `ObservableValue`
-
-`prefer-use-state` enforces. Reserve `useDisposable` + `ObservableValue` for state crossing component boundaries via a service.
-
-### No module-level JSX
-
-JSX returns a VNode. Reusing the same instance across mounts breaks reconciliation. Use factory functions. Plain data is fine.
-
-### VNode reconciliation is positional
-
-No keys. List reorders patch/replace from the change point. Wrap each list item in a Shade component to isolate inner-DOM churn.
-
-```typescript
-// ❌ raw <li> reorders churn the DOM
-{items.map(item => <li>{item.name}</li>)}
-
-// ✅ component boundary
-{items.map(item => <ListItem item={item} />)}
-```
-
-### Microtask batching
-
-State changes within one sync execution coalesce into a single render. Tests must `await flushUpdates()` before asserting DOM state.
-
-### css over style for component styles
-
-Use the `css` property for defaults + pseudo-selectors. Use `style` only for per-instance dynamic values from props.
-
-```typescript
-const Button = Shade({
-  customElementName: 'my-button',
-  css: {
-    padding: '12px 24px',
-    backgroundColor: 'blue',
-    '&:hover': { backgroundColor: 'darkblue' },
-    '&:disabled': { opacity: '0.5', cursor: 'not-allowed' },
-  },
-  render: ({ props }) => <button>{props.children}</button>,
-})
-```
-
-`no-css-state-hooks` forbids `useState` for hover/focus/active — use `&:hover` etc.
-
-### Type-safe theme variables
-
-```typescript
-import { cssVariableTheme } from '@furystack/shades-common-components'
-
-css: {
-  color: cssVariableTheme.text.primary,
-  backgroundColor: cssVariableTheme.background.paper,
-  borderColor: cssVariableTheme.palette.primary.main,
-}
-```
-
 ## REST actions
 
 ```typescript
@@ -284,7 +173,7 @@ export const getUserAction: GetUserAction = async ({ getUrlParams }) => {
 }
 ```
 
-`rest-action-use-request-error` enforces `RequestError` (not plain `Error`). Wrap endpoints with `Validate()`.
+Throw `RequestError` (not plain `Error`). Wrap endpoints with `Validate()`. Both enforced by lint.
 
 ## Breaking changes
 

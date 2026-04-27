@@ -1,12 +1,20 @@
 import { isAsyncDisposable, isDisposable } from '@furystack/utils'
+import type { disposeOnProcessExit } from './helpers.js'
 
 /**
- * Readonly set that stores references of the disposables that should be disposed on process exit
+ * Disposables registered for shutdown. Side-effecting on import: the
+ * exported set is populated by {@link disposeOnProcessExit} and drained by
+ * {@link exitHandler} on Node lifecycle signals + the browser
+ * `beforeunload` event.
  */
 export const globalDisposables: Set<Disposable | AsyncDisposable> = new Set()
 
 /**
- * Will be triggered via process event listeners
+ * Shutdown handler bound to Node lifecycle signals (`exit`, `SIGINT`,
+ * `SIGTERM`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`) and the browser
+ * `beforeunload` event. Disposes everything in {@link globalDisposables}
+ * concurrently and logs failures without rethrowing — process is already
+ * exiting.
  */
 export const exitHandler = (() =>
   Promise.allSettled(
@@ -29,20 +37,12 @@ export const exitHandler = (() =>
       console.error('Error during disposing global disposables', error)
     })).bind(null) as () => void
 
-// do something when app is closing
 globalThis.process?.on?.('exit', exitHandler)
-
-// catches ctrl+c event
 globalThis.process?.on?.('SIGINT', exitHandler)
-
 globalThis.process?.on?.('SIGTERM', exitHandler)
-
-// catches "kill pid" (for example: nodemon restart)
+// SIGUSR1 / SIGUSR2 catch nodemon-style restarts.
 globalThis.process?.on?.('SIGUSR1', exitHandler)
 globalThis.process?.on?.('SIGUSR2', exitHandler)
-
-// catches uncaught exceptions
 globalThis.process?.on?.('uncaughtException', exitHandler)
 
-// Browser environment
 globalThis.window?.addEventListener('beforeunload', exitHandler)

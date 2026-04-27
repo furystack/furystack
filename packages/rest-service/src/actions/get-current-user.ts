@@ -4,10 +4,7 @@ import { Authenticate } from '../authenticate.js'
 import type { RequestAction } from '../request-action-implementation.js'
 import { JsonResult } from '../request-action-implementation.js'
 
-/**
- * Action that returns the current authenticated user
- * @param injector The injector from the current stack
- */
+/** Returns the current authenticated user; 401 if no user is bound. */
 export const GetCurrentUser: RequestAction<{
   result: User
 }> = Authenticate()(async ({ injector }) => {

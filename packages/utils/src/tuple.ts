@@ -1,6 +1,5 @@
 /**
- * Factory method for creating a Tuple instance.
- * @param args The argument list to create
- * @returns alma asd
+ * Forces tuple inference for a list of string literals.
+ * `tuple('a', 'b')` infers `['a', 'b']` rather than `string[]`.
  */
 export const tuple = <T extends string[]>(...args: T) => args

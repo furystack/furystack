@@ -33,49 +33,30 @@ export const isLogicalOperator = (
 export const isOperator = (propertyString: string): propertyString is (typeof allOperators)[number] =>
   allOperators.includes(propertyString as (typeof allOperators)[number])
 
-export const t: FilterType<{ a: number; b: string; c: boolean }> = {
-  a: { $eq: 3 },
-  b: { $in: ['a', 'b', 'c'] },
-  $and: [{ a: { $eq: 2 } }],
-}
-
 export interface CreateResult<T> {
   created: T[]
 }
 
 export type WithOptionalId<T, TPrimaryKey extends keyof T> = Omit<T, TPrimaryKey> & { [K in TPrimaryKey]?: T[K] }
 /**
- * Type for default filtering model
+ * Find query — `top` / `skip` / `order` / `select` / `filter`. Order keys
+ * are applied in object-iteration order (primary first, then secondary).
  */
 export interface FindOptions<T, TSelect extends Array<keyof T>> {
-  /**
-   * Limits the hits
-   */
   top?: number
-
-  /**
-   * Skips the first N hit
-   */
   skip?: number
-
-  /**
-   * Sets up an order by a field and a direction
-   */
   order?: { [P in keyof T]?: 'ASC' | 'DESC' }
-
-  /**
-   * The result set will be limited to these fields
-   */
   select?: TSelect
-
-  /**
-   * The fields should match this filter
-   */
   filter?: FilterType<T>
 }
 
 export type PartialResult<T, TFields extends Array<keyof T>> = Pick<T, TFields[number]>
 
+/**
+ * Returns a copy of `entry` containing only the keys listed in `fields`.
+ * Used by store implementations to honour the `select` clause of
+ * {@link FindOptions}.
+ */
 export const selectFields = <T extends object, TField extends Array<keyof T>>(entry: T, ...fields: TField) => {
   const returnValue = {} as PartialResult<T, TField>
   Object.keys(entry).map((key) => {
@@ -88,16 +69,18 @@ export const selectFields = <T extends object, TField extends Array<keyof T>>(en
 }
 
 /**
- * Interface that defines a physical store implementation.
+ * The persistence boundary — `add`, `update`, `find`, `get`, `count`,
+ * `remove` — implemented by every adapter (`InMemoryStore`,
+ * `FileSystemStore`, `MongoDbStore`, `SequelizeStore`, `RedisStore`).
+ * Implementations also extend {@link EventHub} so consumers can subscribe to
+ * mutation events for in-process replication.
  *
- * **Recommended:** `DataSet` from `@furystack/repository` is the preferred write gateway for application-level code.
- *
- * **Important:** Writing directly to a physical store bypasses the Repository `DataSet` layer.
- * This means authorization, modification hooks, and DataSet events (used by entity sync) will **not** be triggered.
- * For any write operation that should be observable by other parts of the system (e.g. entity sync, audit logging),
- * use the corresponding `DataSet` method instead via `getDataSetFor()` from `@furystack/repository`.
- *
- * @see `DataSet` from `@furystack/repository` for the authorized, event-emitting write gateway
+ * **Important:** Application code should not resolve `StoreToken` directly.
+ * Writing to a physical store bypasses the `DataSet` layer in
+ * `@furystack/repository`, which means authorization callbacks,
+ * modification hooks, and entity-sync events are **not** triggered. Use
+ * `getDataSetFor(injector, dataSetToken)` from `@furystack/repository`
+ * instead — `furystack/no-direct-store-token` enforces this.
  */
 export interface PhysicalStore<
   T,
@@ -108,52 +91,15 @@ export interface PhysicalStore<
   onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
   onEntityRemoved: { key: T[TPrimaryKey] }
 }> {
-  /**
-   * The Primary key field name
-   */
   readonly primaryKey: TPrimaryKey
-
-  /**
-   * A constructable model
-   */
   readonly model: Constructable<T>
-
-  /**
-   * Adds an entry to the store, returns a promise that will be resolved with the added data
-   * @param entries The data to be added
-   */
   add(...entries: TWriteableData[]): Promise<CreateResult<T>>
-
-  /**
-   * Updates an entry in the store, returns a promise that will be resolved once the update is done
-   * @param id The primary key of the entry
-   * @param data The data to be updated
-   */
   update(id: T[TPrimaryKey], data: Partial<T>): Promise<void>
-
-  /**
-   * Returns a promise that will be resolved with the count of the elements
-   */
   count(filter?: FilterType<T>): Promise<number>
-
-  /**
-   * Returns a promise that will be resolved with an array of elements that matches the filter
-   * @param searchOptions An options object for the Search expression
-   */
   find<TSelect extends Array<keyof T>>(findOptions: FindOptions<T, TSelect>): Promise<Array<PartialResult<T, TSelect>>>
-
-  /**
-   * Returns a promise that will be resolved with an entry with the defined primary key or undefined
-   * @param key The primary key of the entry
-   */
   get<TSelect extends Array<keyof T>>(
     key: T[TPrimaryKey],
     select?: TSelect,
   ): Promise<PartialResult<T, TSelect> | undefined>
-
-  /**
-   * Removes an entry with the defined primary key. Returns a promise that will be resolved once the operation is completed
-   * @param key The primary key of the entry to remove
-   */
   remove(...keys: Array<T[TPrimaryKey]>): Promise<void>
 }

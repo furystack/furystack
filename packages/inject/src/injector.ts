@@ -173,6 +173,11 @@ export class Injector implements AsyncDisposable {
     }
   }
 
+  /**
+   * Resolves a sync token. Throws {@link InjectorDisposedError} if the
+   * injector is already disposed and {@link AsyncTokenInSyncContextError} if
+   * a runtime-async token slips past the compile-time check.
+   */
   public get<TService>(token: SyncToken<TService>): TService {
     this.ensureLive()
     if (token.isAsync) {
@@ -181,6 +186,12 @@ export class Injector implements AsyncDisposable {
     return this.resolveSync<TService>(token, new Set<symbol>())
   }
 
+  /**
+   * Resolves a sync or async token. Sync tokens are wrapped in a resolved
+   * promise. Synchronous failures (disposed injector, sync-throwing async
+   * factory) are normalised to a rejected promise so callers can rely on
+   * `.rejects` / `.catch` uniformly.
+   */
   public getAsync<TService>(token: AnyToken<TService>): Promise<TService> {
     try {
       this.ensureLive()
@@ -378,14 +389,25 @@ export class Injector implements AsyncDisposable {
     return this.findCached(token) !== null
   }
 
+  /**
+   * Creates a child injector. The child has its own cache and bindings;
+   * singleton resolution still walks up to the root. Disposing the child
+   * leaves the parent untouched. Disposing the parent disposes all
+   * descendants reachable through stored references.
+   */
   public createScope(options?: CreateScopeOptions): Injector {
     this.ensureLive()
     return new Injector({ parent: this, owner: options?.owner })
   }
 
+  /**
+   * Disposes the injector: runs registered `onDispose` callbacks in LIFO
+   * order, clears the cache, and marks the injector as disposed. Idempotent —
+   * a second call is a no-op so `await using` and manual teardown paths
+   * don't have to guard. Errors from callbacks are collected and re-thrown
+   * as a single `AggregateError`.
+   */
   public async [Symbol.asyncDispose](): Promise<void> {
-    // Idempotent: double-dispose is a no-op so `await using` / manual
-    // teardown paths don't have to guard.
     if (this.isDisposed) {
       return
     }

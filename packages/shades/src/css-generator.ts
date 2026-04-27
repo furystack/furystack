@@ -1,30 +1,20 @@
 import type { CSSObject, CSSProperties } from './models/css-object.js'
 
 /**
- * Converts a camelCase string to kebab-case
- * @param str - The camelCase string to convert
- * @returns The kebab-case string
  * @example
  * camelToKebab('backgroundColor') // 'background-color'
- * camelToKebab('fontSize') // 'font-size'
  */
 export const camelToKebab = (str: string): string => {
   return str.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)
 }
 
-/**
- * Checks if a key is a selector key (starts with '&')
- * @param key - The key to check
- * @returns True if the key is a selector key
- */
 export const isSelectorKey = (key: string): boolean => {
   return key.startsWith('&')
 }
 
 /**
- * Converts CSS properties to a CSS declaration string
- * @param properties - The CSS properties object
- * @returns A CSS declaration string (e.g., "color: red; padding: 10px;")
+ * Serializes the non-selector entries of a {@link CSSProperties} object as
+ * a CSS declaration body. Selector keys (`&...`) are skipped.
  */
 export const propertiesToCSSString = (properties: CSSProperties): string => {
   const declarations: string[] = []
@@ -41,12 +31,7 @@ export const propertiesToCSSString = (properties: CSSProperties): string => {
   return declarations.join('; ')
 }
 
-/**
- * Generates a CSS rule string from a selector and properties
- * @param selector - The CSS selector
- * @param properties - The CSS properties object
- * @returns A complete CSS rule string (e.g., "selector { color: red; }")
- */
+/** Builds `selector { decls; }` from the non-selector entries. Empty when no decls. */
 export const generateCSSRule = (selector: string, properties: CSSProperties): string => {
   const cssString = propertiesToCSSString(properties)
   if (!cssString) {
@@ -56,10 +41,9 @@ export const generateCSSRule = (selector: string, properties: CSSProperties): st
 }
 
 /**
- * Generates complete CSS from a CSSObject for a given component selector
- * @param selector - The base selector (typically the customElementName)
- * @param cssObject - The CSSObject containing styles and nested selectors
- * @returns A complete CSS string with all rules
+ * Renders a {@link CSSObject} as CSS rules. Base properties become a single
+ * rule against `selector`; each `&...` selector key produces an additional
+ * rule with `&` substituted for `selector`.
  *
  * @example
  * ```typescript
@@ -68,10 +52,9 @@ export const generateCSSRule = (selector: string, properties: CSSProperties): st
  *   '&:hover': { color: 'blue' },
  *   '& .inner': { fontWeight: 'bold' }
  * })
- * // Returns:
- * // "my-component { color: red; }
- * //  my-component:hover { color: blue; }
- * //  my-component .inner { font-weight: bold; }"
+ * // my-component { color: red; }
+ * // my-component:hover { color: blue; }
+ * // my-component .inner { font-weight: bold; }
  * ```
  */
 export const generateCSS = (selector: string, cssObject: CSSObject): string => {

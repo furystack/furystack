@@ -2,8 +2,8 @@ import { EventHub, type ListenerErrorPayload } from './event-hub.js'
 import { ObservableValue } from './observable-value.js'
 
 /**
- * Error thrown when you try to execute on a semaphore that is already disposed,
- * or when pending tasks are rejected due to disposal.
+ * Thrown by {@link Semaphore.execute} on a disposed semaphore, and used as
+ * the rejection reason for pending tasks when the semaphore is disposed.
  */
 export class SemaphoreDisposedError extends Error {
   constructor() {
@@ -11,9 +11,6 @@ export class SemaphoreDisposedError extends Error {
   }
 }
 
-/**
- * Event map for the Semaphore's EventHub.
- */
 export type SemaphoreEvents = {
   /** Fired when a queued task begins execution */
   taskStarted: undefined
@@ -70,31 +67,20 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
 
   private _maxConcurrent: number
 
-  /**
-   * @param maxConcurrent The maximum number of tasks that can run concurrently
-   */
   constructor(maxConcurrent: number) {
     super()
     this._maxConcurrent = maxConcurrent
   }
 
-  /**
-   * Returns the current maximum number of tasks that can run concurrently.
-   * @returns The current concurrency limit
-   */
   public getMaxConcurrent(): number {
     return this._maxConcurrent
   }
 
   /**
-   * Updates the maximum number of tasks that can run concurrently.
-   *
-   * If the new limit is higher than the current one, queued tasks will
-   * be started immediately to fill the new slots.
-   * If the new limit is lower, already-running tasks will not be aborted,
-   * but no new tasks will start until the running count drops below the new limit.
-   *
-   * @param value The new concurrency limit (must be a positive integer)
+   * Updates the concurrency limit. Raising it drains queued tasks into the
+   * new slots immediately. Lowering it leaves running tasks alone — new
+   * tasks queue until running count drops below the new limit. Throws on
+   * non-positive integers.
    */
   public setMaxConcurrent(value: number): void {
     if (!Number.isInteger(value) || value < 1) {
@@ -105,15 +91,11 @@ export class Semaphore extends EventHub<SemaphoreEvents> {
   }
 
   /**
-   * Queues a task for execution. Resolves or rejects with the task's own result.
-   *
-   * The task function receives an `AbortSignal` that is aborted when:
-   * - the caller's signal aborts (if provided via `options.signal`)
-   * - the semaphore is disposed
-   *
-   * @param task The async function to execute
-   * @param options Optional configuration including an AbortSignal
-   * @returns A promise that resolves/rejects with the task's result
+   * Queues `task` for execution. The task receives an `AbortSignal` that
+   * aborts when the caller's signal aborts (if provided) or when the
+   * semaphore is disposed. Returns a promise resolving/rejecting with the
+   * task's own result. Throws {@link SemaphoreDisposedError} synchronously
+   * when called on a disposed semaphore.
    */
   public execute<T>(
     task: (options: { signal: AbortSignal }) => Promise<T>,

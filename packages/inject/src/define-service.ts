@@ -1,3 +1,4 @@
+import type { Injector } from './injector.js'
 import type {
   AsyncServiceFactory,
   DefineServiceAsyncOptions,
@@ -32,12 +33,8 @@ import type {
 const createTokenId = (name: string): symbol => Symbol(name)
 
 /**
- * Defines a synchronous service and returns a {@link Token} that can be used
- * to resolve it.
- *
- * Tokens returned from `defineService` are self-registering: the first call to
- * {@link Injector.get} will run the factory with the appropriate context and
- * cache the result according to the declared {@link Lifetime}.
+ * Defines a sync service and returns a {@link Token} resolvable via
+ * {@link Injector.get}.
  *
  * @example
  * ```ts
@@ -64,13 +61,12 @@ export const defineService = <TService, TLifetime extends Lifetime>(
 }
 
 /**
- * Defines an asynchronous service. Factories return a promise; resolved values
- * are cached after first resolution. Concurrent callers share the same pending
- * promise.
+ * Async counterpart of {@link defineService}. The returned token can only be
+ * resolved via {@link Injector.getAsync} — {@link Injector.get} rejects async
+ * tokens at compile time.
  *
- * Async tokens cannot be resolved via {@link Injector.get} — use
- * {@link Injector.getAsync} instead. This constraint is enforced at the type
- * level by the `true` literal in the returned {@link Token}.
+ * Resolved values are cached after first resolution; concurrent callers share
+ * the same pending promise.
  */
 export const defineServiceAsync = <TService, TLifetime extends Lifetime>(
   options: DefineServiceAsyncOptions<TService, TLifetime>,
@@ -84,9 +80,6 @@ export const defineServiceAsync = <TService, TLifetime extends Lifetime>(
   }
 }
 
-/**
- * Runtime type guard for {@link Token}.
- */
 export const isToken = <TService = unknown>(value: unknown): value is Token<TService> => {
   if (typeof value !== 'object' || value === null) {
     return false

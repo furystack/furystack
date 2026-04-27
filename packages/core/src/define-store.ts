@@ -17,23 +17,19 @@ export type StoreToken<T, TPrimaryKey extends keyof T> = Token<PhysicalStore<T, 
   readonly primaryKey: TPrimaryKey
 }
 
-/**
- * Options accepted by {@link defineStore}.
- */
 export type DefineStoreOptions<T, TPrimaryKey extends keyof T> = {
   /**
-   * Human-readable identifier used for debug/readability. Token identity is
-   * established by the returned {@link StoreToken} object reference.
+   * Debug-only identifier. Token identity is established by the returned
+   * {@link StoreToken} object reference, not this string.
    */
   name: string
-  /** The entity model constructor. */
   model: Constructable<T>
-  /** The primary key field name. */
   primaryKey: TPrimaryKey
   /**
-   * Factory that produces the store instance. Called once per root injector
-   * (singleton lifetime). Use the {@link ServiceContext} to resolve
-   * dependencies or register additional disposal callbacks.
+   * Produces the store instance. Called once per root injector (singleton
+   * lifetime). Use the {@link ServiceContext} to resolve dependencies or
+   * register additional disposal callbacks beyond the auto-disposal that
+   * {@link defineStore} adds.
    */
   factory: (ctx: ServiceContext<'singleton'>) => PhysicalStore<T, TPrimaryKey>
 }

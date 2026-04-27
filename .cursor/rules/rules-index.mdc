@@ -7,7 +7,8 @@ Index of repository rules. Read the linked file when its topic is relevant to th
 - [Naming, formatting, imports, file/code organization](./CODE_STYLE.mdc) — auto-applied to all `.ts` / `.tsx`
 - [Type safety, no `any`, generics, type guards, discriminated unions](./TYPESCRIPT_GUIDELINES.mdc) — auto-applied to all `.ts` / `.tsx`
 - [Complexity thresholds for Shade components, services, REST actions](./COMPLEXITY.mdc) — auto-applied; used in reviews and during implementation
-- [Functional DI, stores, datasets, observables, disposables, Shades rendering, breaking changes](./LIBRARY_DEVELOPMENT.mdc) — auto-applied in `packages/`
+- [Functional DI, stores, datasets, observables, disposables, breaking changes](./LIBRARY_DEVELOPMENT.mdc) — auto-applied in `packages/`
+- [Shades render-time patterns: hooks, JSX, css, reconciliation](./SHADES_RENDER.mdc) — auto-applied to `packages/**/*.tsx`
 - [Public API testing, integration tests, disposable safety, Vitest patterns](./TESTING_GUIDELINES.mdc) — auto-applied to `*.spec.ts` / `*.spec.tsx`
 - [`CacheView` component for rendering cache state in Shades UIs](./CACHE_HANDLING.mdc) — auto-applied to `.tsx`
 
