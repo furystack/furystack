@@ -1,4 +1,5 @@
 import type { Constructable, CreateResult, PhysicalStore } from '@furystack/core'
+import { NotSupportedError } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
 import type { createClient } from 'redis'
 
@@ -66,10 +67,10 @@ export class RedisStore<
     this.emit('onEntityUpdated', { id, change: data })
   }
   public async count(): Promise<number> {
-    throw Error('Not supported :(')
+    throw new NotSupportedError('count is not supported by RedisStore')
   }
   public async find(): Promise<T[]> {
-    throw Error('Not supported :(')
+    throw new NotSupportedError('find is not supported by RedisStore')
   }
   public async get(key: T[TPrimaryKey]): Promise<T | undefined> {
     const value = await this.options.client.get((key as string).toString())

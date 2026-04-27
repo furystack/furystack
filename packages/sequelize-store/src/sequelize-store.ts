@@ -7,6 +7,7 @@ import type {
   PhysicalStore,
   WithOptionalId,
 } from '@furystack/core'
+import { NotFoundError } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
 import type { FindAttributeOptions, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
 import type { SequelizeClientFactory } from './sequelize-client-factory.js'
@@ -108,7 +109,7 @@ export class SequelizeStore<
 
     const result = await model.update(data, { where: { [this.primaryKey]: id } as WhereOptions<T> })
     if (result[0] < 1) {
-      throw Error('Entity not found')
+      throw new NotFoundError(`Entity not found with id '${String(id)}', cannot update`)
     }
     this.emit('onEntityUpdated', { id, change: data })
   }

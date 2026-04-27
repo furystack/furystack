@@ -1,4 +1,5 @@
 import { EventHub } from '@furystack/utils'
+import { NotFoundError } from './errors/not-found-error.js'
 import { filterItems } from './filter-items.js'
 import type { Constructable } from './models/constructable.js'
 import type { CreateResult, FilterType, FindOptions, PartialResult, PhysicalStore } from './models/physical-store.js'
@@ -78,7 +79,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
 
   public async update(id: T[TPrimaryKey], data: T) {
     if (!this.cache.has(id)) {
-      throw Error(`Entity not found with id '${id as string}', cannot update!`)
+      throw new NotFoundError(`Entity not found with id '${id as string}', cannot update`)
     }
     this.cache.set(id, {
       ...this.cache.get(id),

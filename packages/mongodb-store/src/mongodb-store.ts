@@ -7,6 +7,7 @@ import type {
   PhysicalStore,
   WithOptionalId,
 } from '@furystack/core'
+import { NotFoundError } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
 import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort, UpdateFilter } from 'mongodb'
 import { ObjectId } from 'mongodb'
@@ -157,7 +158,7 @@ export class MongodbStore<
     const collection = await this.getCollection()
     const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
     if (updateResult.matchedCount < 1) {
-      throw Error(`Entity not found with id '${String(id)}', cannot update!`)
+      throw new NotFoundError(`Entity not found with id '${String(id)}', cannot update`)
     }
     this.emit('onEntityUpdated', { id, change: data })
   }
