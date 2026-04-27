@@ -43,7 +43,7 @@
     "@types/node": "^25.6.0",
     "@yarnpkg/builder": "^4.2.3",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.5"
   },
   "engines": {
     "node": ">=22.0.0"
