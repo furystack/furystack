@@ -46,38 +46,6 @@ const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
     </Result>
   ) as unknown as JSX.Element
 
-/**
- * CacheView renders the state of a cache entry for the given cache + args.
- *
- * It subscribes to the cache observable and handles all states:
- * 1. **Error first** - If the cache entry has failed, shows the error UI with a retry button.
- * 2. **Value next** - If the entry has a value (loaded or obsolete), renders the content component.
- *    When obsolete, it also triggers a reload automatically.
- * 3. **Loading last** - If there is no value and no error, shows the loader (or null by default).
- *
- * @example
- * ```tsx
- * const MyContent = Shade<{ data: CacheWithValue<User> }>({
- *   customElementName: 'my-content',
- *   render: ({ props }) => <div>{props.data.value.name}</div>,
- * })
- *
- * <CacheView cache={userCache} args={[userId]} content={MyContent} />
- *
- * // With custom content props
- * const MyContentWithLabel = Shade<{ data: CacheWithValue<User>; label: string }>({
- *   customElementName: 'my-content-with-label',
- *   render: ({ props }) => <div>{props.label}: {props.data.value.name}</div>,
- * })
- *
- * <CacheView cache={userCache} args={[userId]} content={MyContentWithLabel} contentProps={{ label: 'User' }} />
- * ```
- */
-/**
- * Ungeneric props used by the Shade runtime; the public generic signature is applied via the export cast.
- *
- * @internal
- */
 type InternalCacheViewProps = {
   cache: Cache<unknown, unknown[]>
   args: unknown[]
@@ -88,6 +56,25 @@ type InternalCacheViewProps = {
   viewTransition?: boolean | ViewTransitionConfig
 }
 
+/**
+ * Renders the state of a cache entry for the given `cache` + `args`.
+ *
+ * Subscribes to the cache observable and dispatches in this order:
+ * 1. **Error** — failed result renders the error UI with a retry callback.
+ * 2. **Value** — loaded or obsolete result renders `content`. Obsolete also
+ *    triggers a single `cache.reload(...args)` per obsolete cycle.
+ * 3. **Loading** — no value, no error: renders `loader` (default `null`).
+ *
+ * @example
+ * ```tsx
+ * const MyContent = Shade<{ data: CacheWithValue<User> }>({
+ *   customElementName: 'my-content',
+ *   render: ({ props }) => <div>{props.data.value.name}</div>,
+ * })
+ *
+ * <CacheView cache={userCache} args={[userId]} content={MyContent} />
+ * ```
+ */
 export const CacheView = Shade<InternalCacheViewProps>({
   customElementName: 'shade-cache-view',
   css: {

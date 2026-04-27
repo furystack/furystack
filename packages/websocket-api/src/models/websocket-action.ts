@@ -28,8 +28,7 @@ export interface WebSocketActionContext extends WebSocketActionMatchContext {
  * instances — deps are resolved from `context.injector` on demand.
  */
 export interface WebSocketAction {
-  /** Synchronous predicate used to match an incoming message. */
   canExecute: (context: WebSocketActionMatchContext) => boolean
-  /** Handles a matched message. Errors are routed to `ServerTelemetryToken#onWebSocketActionFailed`. */
+  /** Errors thrown here are forwarded to `ServerTelemetryToken#onWebSocketActionFailed`. */
   execute: (context: WebSocketActionContext) => Promise<void>
 }

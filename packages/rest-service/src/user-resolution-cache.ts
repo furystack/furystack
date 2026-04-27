@@ -2,11 +2,13 @@ import type { User } from '@furystack/core'
 import { Cache } from '@furystack/cache'
 import { defineService, type Token } from '@furystack/inject'
 import type { IncomingMessage } from 'http'
+import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import {
   DEFAULT_USER_CACHE_CAPACITY,
   DEFAULT_USER_CACHE_TTL_MS,
   HttpAuthenticationSettings,
 } from './http-authentication-settings.js'
+import type { HttpUserContext } from './http-user-context.js'
 
 /**
  * Singleton TTL cache that memoizes successful identity resolutions across

@@ -3,7 +3,21 @@ import { EventHub } from '@furystack/utils'
 import type { createClient } from 'redis'
 
 /**
- * Redis Store implementation for FuryStack
+ * {@link PhysicalStore} backed by a Redis client.
+ *
+ * Each entity is stored as a single `SET` keyed by the entity's primary key,
+ * value is `JSON.stringify(entity)`. The primary key column is constrained to
+ * `string` because Redis keys are strings — the `TWriteableData` generic
+ * narrows the input type accordingly.
+ *
+ * Client ownership stays with the caller — the store never connects or quits
+ * the client. The store has no `[Symbol.asyncDispose]` because there is
+ * nothing to release.
+ *
+ * **Contract deviation:** {@link find} and {@link count} throw — Redis has no
+ * generic query surface and there is no in-memory mirror. Callers that need
+ * collection queries must use a different adapter or maintain a secondary
+ * index outside this store.
  */
 export class RedisStore<
   T,

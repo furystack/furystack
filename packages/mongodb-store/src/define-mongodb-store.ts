@@ -8,19 +8,13 @@ import { MongodbStore } from './mongodb-store.js'
  * Options accepted by {@link defineMongoDbStore}.
  */
 export type DefineMongoDbStoreOptions<T extends object, TPrimaryKey extends keyof T> = {
-  /** Human-readable token name used for debug/readability. */
   name: string
-  /** Entity model constructor. */
   model: Constructable<T>
-  /** Primary key field name. */
   primaryKey: TPrimaryKey
-  /** MongoDB deployment URL (e.g. `mongodb://localhost:27017`). */
+  /** MongoDB deployment URL (e.g. `mongodb://localhost:27017`) — also acts as the pool key. */
   url: string
-  /** MongoDB database name. */
   db: string
-  /** MongoDB collection name. */
   collection: string
-  /** Optional {@link MongoClientOptions}. */
   options?: MongoClientOptions
 }
 

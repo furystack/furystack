@@ -13,12 +13,10 @@ import { SessionDataSet, UserDataSet } from './user-store.js'
  * during application setup and consumed by {@link HttpUserContext},
  * cookie-login strategies and OpenAPI generators.
  *
- * The field shape reflects the functional-DI redesign:
- *
- * - `userDataSet` / `sessionDataSet` are token references (not accessors).
- *   Consumers resolve them through the injector at the appropriate scope.
- * - `authenticationProviders` is a simple ordered list; `HttpUserContext`
- *   walks it on every unauthenticated request.
+ * `userDataSet` / `sessionDataSet` are token references — consumers resolve
+ * them through the injector at the appropriate scope. `authenticationProviders`
+ * is an ordered list walked by {@link HttpUserContext} on every
+ * unauthenticated request.
  */
 export interface HttpAuthenticationSettings {
   /** Data set token for user lookups. */

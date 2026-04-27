@@ -9,33 +9,28 @@ import type {
 } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
 import type { FindAttributeOptions, Identifier, Model, ModelStatic, Sequelize, WhereOptions } from 'sequelize'
+import type { SequelizeClientFactory } from './sequelize-client-factory.js'
 
 export interface SequelizeStoreSettings<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> {
-  /**
-   * The Model to use
-   */
   model: Constructable<T>
-
-  /**
-   * The Sequelize Model class
-   */
   sequelizeModel: ModelStatic<M>
-  /**
-   * The Primary key field
-   */
   primaryKey: TPrimaryKey
-  /**
-   * Callback that returns the Sequelize client (provided by the client factory)
-   */
+  /** Resolves the pooled Sequelize client (typically delegated to {@link SequelizeClientFactory}). */
   getSequelizeClient: () => Sequelize
-  /**
-   * Optional callback that will initialize the Model for the Sequelize instance
-   */
+  /** Runs once before the first DB call (e.g. `Model.init(...)` + `sequelize.sync()`). */
   initModel?: (sequelize: Sequelize) => Promise<void>
 }
 
 /**
- * Sequelize Store implementation for FuryStack
+ * {@link PhysicalStore} backed by a Sequelize Model.
+ *
+ * The Sequelize client is resolved lazily on the first DB call via
+ * {@link getModel}. {@link SequelizeStoreSettings.initModel} runs once and is
+ * memoized; if it throws the cached promise is cleared so the next call retries.
+ *
+ * The store has no `[Symbol.asyncDispose]` — client lifetime belongs to
+ * {@link SequelizeClientFactory}, which closes pooled clients on injector
+ * teardown.
  */
 export class SequelizeStore<
   T extends object,

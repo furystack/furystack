@@ -1,5 +1,6 @@
 import { defineStore, type StoreToken, User } from '@furystack/core'
 import { defineDataSet, type DataSetToken } from '@furystack/repository'
+import type { HttpUserContext } from './http-user-context.js'
 import { DefaultSession } from './models/default-session.js'
 
 /**
