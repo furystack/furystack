@@ -123,8 +123,9 @@ Simply state: "Changelog check passed - all changelog entries are valid and high
 
 ## Reference
 
-See `.cursor/rules/VERSIONING_AND_CHANGELOG.md` for detailed changelog guidelines including:
+The canonical changelog/versioning workflow lives in the `fill-changelog` skill. It documents:
 
-- Section templates (💥 Breaking Changes, ✨ Added, 🔧 Changed, 🐛 Fixed, etc.)
-- Writing style guidelines
+- Section templates (💥 Breaking Changes, ✨ Features, 🐛 Bug Fixes, ♻️ Refactoring, 📚 Documentation, ⬆️ Dependencies, 🔧 Chores, 🗑️ Deprecated, etc.)
+- Writing style guidelines (documentation, not git log)
+- Per-version-bump requirements (major requires breaking changes; patch requires specific fix descriptions)
 - Examples of good vs bad changelog entries
