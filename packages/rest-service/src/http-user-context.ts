@@ -6,6 +6,7 @@ import { PasswordAuthenticator, UnauthenticatedError } from '@furystack/security
 import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import { randomBytes } from 'crypto'
 import type { IncomingMessage } from 'http'
+import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { extractSessionIdFromCookies } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
 import { resolveUserCacheKey, UserResolutionCache } from './user-resolution-cache.js'
@@ -59,8 +60,9 @@ export interface HttpUserContext extends EventHub<HttpUserContextEvents> {
 }
 
 /**
- * Internal concrete EventHub-backed {@link HttpUserContext}. Exposed via
- * the {@link HttpUserContextToken} token; constructed by its factory.
+ * Internal concrete {@link EventHub}-backed implementation of
+ * {@link HttpUserContext}. Exposed via the `HttpUserContext` token;
+ * constructed by its factory.
  */
 class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements HttpUserContext {
   /**

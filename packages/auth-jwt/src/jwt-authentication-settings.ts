@@ -1,4 +1,6 @@
+import type { Injector } from '@furystack/inject'
 import { defineService, type Token } from '@furystack/inject'
+import type { useJwtAuthentication } from './helpers.js'
 
 /**
  * Settings for the fingerprint cookie used to prevent token sidejacking (XSS token theft).

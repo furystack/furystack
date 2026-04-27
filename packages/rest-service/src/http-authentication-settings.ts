@@ -1,7 +1,10 @@
 import type { User } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import { defineService, type Token } from '@furystack/inject'
 import type { DataSetToken } from '@furystack/repository'
 import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
+import type { useHttpAuthentication } from './helpers.js'
+import type { HttpUserContext } from './http-user-context.js'
 import type { DefaultSession } from './models/default-session.js'
 import { SessionDataSet, UserDataSet } from './user-store.js'
 

@@ -1,6 +1,6 @@
 import type { Constructable, StoreToken } from '@furystack/core'
 import { defineStore } from '@furystack/core'
-import type { MongoClientOptions } from 'mongodb'
+import type { MongoClient, MongoClientOptions } from 'mongodb'
 import { MongoClientFactory } from './mongo-client-factory.js'
 import { MongodbStore } from './mongodb-store.js'
 

@@ -1,5 +1,6 @@
 import { defineStore, type StoreToken } from '@furystack/core'
 import { defineDataSet, type DataSetToken } from '@furystack/repository'
+import type { JwtTokenService } from './jwt-token-service.js'
 import { RefreshToken } from './models/refresh-token.js'
 
 /**

@@ -18,6 +18,7 @@ import { buildProxyServerApi, type ProxyOptions } from './proxy-runtime.js'
 import { compileApi, onRestApiMessage, type RestApiImplementation, shouldExecRequest } from './rest-api-runtime.js'
 import { ServerTelemetryToken } from './server-telemetry.js'
 import { buildStaticSiteServerApi, type StaticServerOptions } from './static-site-runtime.js'
+import type { SessionStore, UserStore } from './user-store.js'
 
 /**
  * Options accepted by {@link useRestService}. Cross-cutting concerns

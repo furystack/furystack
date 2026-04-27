@@ -3,6 +3,7 @@ import { defineService, type Injector, type Token } from '@furystack/inject'
 import { type DataSetToken } from '@furystack/repository'
 import type { SyncChangeEntry, ServerSyncMessage, SyncVersion } from '@furystack/entity-sync'
 import type WebSocket from 'ws'
+import type { useEntitySync } from './use-entity-sync.js'
 
 type EntitySubscription = {
   subscriptionId: string
