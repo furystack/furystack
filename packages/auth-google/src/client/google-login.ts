@@ -9,15 +9,10 @@ export type GoogleLoginOptions = {
 }
 
 /**
- * Sends the Google ID token to the backend login endpoint.
- *
- * Uses `credentials: 'include'` so that session cookies set by the
- * server are stored by the browser.
- *
- * @typeParam TResult The shape of the response body (e.g. `User` for cookies,
- *   `{ accessToken: string; refreshToken: string }` for JWT)
- * @param options The endpoint URL and credential to send
- * @returns The parsed JSON response from the backend
+ * POSTs `{ token: credential }` to `endpointUrl` with `credentials:
+ * 'include'` (so the server's session cookie sticks). Result type is
+ * inferred from the call site — `User` for cookie auth,
+ * `{ accessToken, refreshToken }` for JWT, etc.
  */
 export const googleLogin = async <TResult = unknown>(options: GoogleLoginOptions): Promise<TResult> => {
   const response = await fetch(options.endpointUrl, {

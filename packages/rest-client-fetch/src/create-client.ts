@@ -16,11 +16,20 @@ export type TActionReturns<T> = T extends { result: infer U } ? U : never
 export type ReturnType<T> = T extends { result: infer TResult } ? TResult : never
 
 export interface ClientOptions {
+  /** Base URL prepended to every request path. */
   endpointUrl: string
+  /** `fetch` override (e.g. for tests, or for interceptor wrappers). */
   fetch?: typeof fetch
+  /** Forwarded to every underlying `fetch` call (`headers`, `credentials`, `mode`, …). */
   requestInit?: RequestInit
+  /** Override for query-string serialization. Default: `serializeToQueryString` from `@furystack/rest`. */
   serializeQueryParams?: (param: any) => string
-  /** Called when `response.json()` fails during response parsing. The default behavior (returning `null`) is unchanged. */
+  /**
+   * Called when `response.json()` throws during the default response
+   * parser. The result still resolves to `{ result: null }` so callers
+   * don't have to wrap every call in try/catch — use this hook for
+   * telemetry rather than control flow.
+   */
   onResponseParseError?: (options: { response: Response; error: unknown }) => void
 }
 
@@ -68,6 +77,18 @@ const createResponseParser = (onParseError?: ClientOptions['onResponseParseError
     parseResponseCore<T>(response, (error) => onParseError({ response, error }))
 }
 
+/**
+ * Builds a typed REST client from a {@link RestApi} contract. Each call
+ * narrows the `body` / `query` / `url` / `headers` arguments and the
+ * returned `result` against the contract entry chosen by `method` +
+ * `action`. Throws {@link ResponseError} on non-2xx responses.
+ *
+ * @example
+ * ```ts
+ * const client = createClient<MyApi>({ endpointUrl: '/api' })
+ * const { result } = await client({ method: 'GET', action: '/users' })
+ * ```
+ */
 export const createClient = <T extends RestApi>(clientOptions: ClientOptions) => {
   const fetchMethod = clientOptions.fetch || fetch
   const responseParser = createResponseParser(clientOptions.onResponseParseError)

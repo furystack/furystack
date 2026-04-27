@@ -1,22 +1,15 @@
 import type { FindOptions } from '@furystack/core'
 
 /**
- * Response Model for GetCollection
+ * Collection result. `count` is the **total** matching entity count
+ * (ignores `top` / `skip`); `entries` is the page returned for this query.
  */
 export type GetCollectionResult<T> = {
-  /**
-   * The Total count of entities
-   */
   count: number
-  /**
-   * List of the selected entities
-   */
   entries: T[]
 }
 
-/**
- * Rest endpoint model for getting / querying collections
- */
+/** GET-collection endpoint contract. */
 export type GetCollectionEndpoint<T> = {
   query: { findOptions?: FindOptions<T, Array<keyof T>> }
   result: GetCollectionResult<T>

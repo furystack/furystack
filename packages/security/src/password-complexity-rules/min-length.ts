@@ -1,9 +1,6 @@
 import type { PasswordComplexityRule } from '../models/password-complexity-rule.js'
 
-/**
- * @param minLength The minimum password length
- * @returns The created Password Policy object
- */
+/** Builds a complexity rule that fails when the password is shorter than `minLength`. */
 export const createMinLengthComplexityRule = (minLength: number): PasswordComplexityRule => ({
   name: 'minLength' as const,
   check: async (passwordString: string) => {

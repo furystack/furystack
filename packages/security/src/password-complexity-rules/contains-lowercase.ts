@@ -1,8 +1,8 @@
 import type { PasswordComplexityRule } from '../models/password-complexity-rule.js'
 
 /**
- * @param lowerCaseCount The minimum lower case characters length
- * @returns The created Password Policy object
+ * Builds a complexity rule that requires at least `lowerCaseCount` lowercase
+ * characters. Diacritics are stripped before counting.
  */
 export const createContainsLowercasePolicy = (lowerCaseCount: number): PasswordComplexityRule => ({
   name: 'containsLowercase' as const,

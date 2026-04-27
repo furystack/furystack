@@ -1,6 +1,4 @@
-/**
- * Endpoint model for updating entities
- */
+/** PATCH-by-id endpoint contract. `TWritableData` defaults to `Partial<T>`. */
 export type PatchEndpoint<T, TPrimaryKey extends keyof T, TWritableData = Partial<T>> = {
   body: TWritableData
   url: { id: T[TPrimaryKey] }

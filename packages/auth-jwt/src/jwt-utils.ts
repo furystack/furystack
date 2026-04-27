@@ -26,10 +26,16 @@ export type JwtAccessTokenPayload = {
 /** Hashes a raw fingerprint value with SHA-256 for embedding in a JWT claim. */
 export const hashFingerprint = (raw: string): string => createHash('sha256').update(raw).digest('hex')
 
+/** Returns a base64url HMAC-SHA256 signature for the given `headerPayload`. */
 export const signHs256 = (headerPayload: string, secret: string): string => {
   return createHmac('sha256', secret).update(headerPayload).digest('base64url')
 }
 
+/**
+ * Constant-time HMAC-SHA256 verification. Returns `false` (not throws) on
+ * length mismatch, so callers can use the boolean directly without
+ * try/catch around tampered tokens.
+ */
 export const verifyHs256 = (headerPayload: string, signature: string, secret: string): boolean => {
   const expected = createHmac('sha256', secret).update(headerPayload).digest()
   const actual = Buffer.from(signature, 'base64url')
@@ -37,6 +43,7 @@ export const verifyHs256 = (headerPayload: string, signature: string, secret: st
   return timingSafeEqual(expected, actual)
 }
 
+/** Builds a signed HS256 JWT (`header.payload.signature`, all base64url). */
 export const createJwt = (payload: JwtAccessTokenPayload, secret: string): string => {
   const header: JwtHeader = { alg: 'HS256', typ: 'JWT' }
   const encodedHeader = base64UrlEncode(JSON.stringify(header))
@@ -46,6 +53,12 @@ export const createJwt = (payload: JwtAccessTokenPayload, secret: string): strin
   return `${headerPayload}.${signature}`
 }
 
+/**
+ * Splits and base64url-decodes a JWT into its header + payload + signature
+ * parts. Does **not** verify the signature — pass the returned
+ * `headerPayload` and `signature` to {@link verifyHs256}. Throws on
+ * malformed input.
+ */
 export const decodeJwt = (
   token: string,
 ): { header: JwtHeader; payload: JwtAccessTokenPayload; headerPayload: string; signature: string } => {

@@ -31,32 +31,15 @@ export type LogLevel =
    */
   | 'fatal'
 
-/**
- * A log entry representation
- */
+/** A log entry without a level — fed to per-level convenience methods. */
 export interface LogEntry<TData> {
-  /**
-   * A well-defined scope for grouping entries, e.g. a component or service name.
-   */
+  /** Grouping key for entries (component or service name). */
   scope: string
-
-  /**
-   * The message string
-   */
   message: string
-
-  /**
-   * Additional entry data
-   */
   data?: TData
 }
 
-/**
- * Interface that represents a log entry with a specific level
- */
+/** A log entry tagged with its {@link LogLevel}. */
 export interface LeveledLogEntry<T> extends LogEntry<T> {
-  /**
-   * The verbosity level of the log entry
-   */
   level: LogLevel
 }
