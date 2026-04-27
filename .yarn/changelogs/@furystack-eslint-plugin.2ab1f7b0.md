@@ -1,8 +1,8 @@
-<!-- version-type: patch -->
+<!-- version-type: minor -->
 
 # @furystack/eslint-plugin
 
-## ♻️ Refactoring
+## 🗑️ Deprecated
 
 ### Removed `furystack/no-removed-shade-apis`
 
@@ -10,7 +10,25 @@ The rule guarded against APIs that were dropped during the Shades render-time re
 
 The rule, its tests, and its registration have been removed from the plugin and from both bundled configs (`shades` and `shadesStrict`).
 
-**Impact:** Consumers who reference `furystack/no-removed-shade-apis` directly in their own ESLint configs must drop the line. Consumers using the bundled `shades` / `shadesStrict` configs need no change.
+**Impact:** consumers who reference `furystack/no-removed-shade-apis` directly in their own ESLint configs must drop the line. Consumers using the bundled `shades` / `shadesStrict` configs need no change.
+
+**Migration:**
+
+```js
+// ❌ Before
+{
+  rules: {
+    'furystack/no-removed-shade-apis': 'error',
+  },
+}
+
+// ✅ After — drop the line entirely; TypeScript reports the violations
+{
+  rules: {
+    // (removed)
+  },
+}
+```
 
 ## ⬆️ Dependencies
 

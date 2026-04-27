@@ -4,7 +4,11 @@
 
 ## 📚 Documentation
 
-- Rewrote JSDoc across the public API (`ObservableValue`, `ValueObserver`, `EventHub`, `Semaphore`, `PathHelper`, `debounce`, `deepMerge`, `sortBy`, `tuple`, `using` / `usingAsync`, `sleepAsync`, `isDisposable` / `isAsyncDisposable`) to follow the new value-test guidance: dropped restate-the-type narration, kept intent / trade-offs / constraints around disposal, error propagation, and concurrency, and added `@example` blocks where usage is not obvious from the signature (e.g. `ObservableValue`, `Semaphore`).
+JSDoc rewrite across the public API to follow the new value-test guidance — drop restate-the-type narration, keep intent / trade-offs / constraints, add `@example` only where usage is not obvious from the signature.
+
+- **Disposal + concurrency primitives** — `Semaphore`, `using` / `usingAsync`, `sleepAsync`, `isDisposable` / `isAsyncDisposable`. Calls out the `AbortSignal` plumbing on `Semaphore`, the disposal-on-throw guarantees of `using`, and the dispose-error swallow rules.
+- **Observable surface** — `ObservableValue`, `ValueObserver`, `EventHub`. Tightens `subscribe` / `unsubscribe` / `getValue` semantics, documents `ObservableAlreadyDisposedError`, and adds an `@example` for the `using(...)` + `subscribe(...)` flow.
+- **Helpers** — `PathHelper`, `debounce`, `deepMerge`, `sortBy`, `tuple`. Mostly type-restating narration removed; constraint notes kept (e.g. `deepMerge` shallow-copies arrays, `sortBy` is a stable sort).
 
 ## ⬆️ Dependencies
 

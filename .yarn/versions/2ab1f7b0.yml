@@ -6,7 +6,7 @@ releases:
   "@furystack/entity-sync": patch
   "@furystack/entity-sync-client": patch
   "@furystack/entity-sync-service": patch
-  "@furystack/eslint-plugin": patch
+  "@furystack/eslint-plugin": minor
   "@furystack/filesystem-store": patch
   "@furystack/i18n": patch
   "@furystack/inject": patch
