@@ -66,27 +66,14 @@ export class I18NServiceImpl<TKeys extends string> extends EventHub<I18NServiceE
     this._currentLanguage = defaultLanguage.code
   }
 
-  /**
-   * @returns The available language codes
-   */
   public getAvailableLanguageCodes(): string[] {
     return [this.defaultLanguage.code, ...this.additionalLanguages.map((language) => language.code)]
   }
 
-  /**
-   * Adds a new language to the service on-the-fly.
-   * @param language The language to register
-   */
   public registerLanguage(language: PartialLanguage<TKeys>): void {
     this.additionalLanguages.push(language)
   }
 
-  /**
-   * Translates a key to the corresponding value in the specified language
-   * @param key The translation key
-   * @param languageCode An optional language code, will fall back to the current language code if not provided
-   * @returns The translation for the given key in the given language. If the language is not found or does not contain the key, the translation from the default language will be returned.
-   */
   public translate<K extends TKeys>(key: K, languageCode = this.currentLanguage): string {
     if (languageCode === this.defaultLanguage.code) {
       return this.defaultLanguage.values[key]

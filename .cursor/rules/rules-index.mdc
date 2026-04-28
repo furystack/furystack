@@ -2,9 +2,17 @@
 alwaysApply: true
 ---
 
-This file contains a list of helpful information and context that the agent can reference when working in this codebase. Each entry provides specific guidance or rules for different aspects of the project. You can read these files using the readFile tool if the users prompt seems related.
+Index of repository rules. Read the linked file when its topic is relevant to the user's prompt.
 
-- [FuryStack-specific library patterns, dependency injection, Observable, disposable resources, and Repository/DataSet data access](./LIBRARY_DEVELOPMENT.md)
-- [Public API testing, integration tests, and Vitest patterns for library development](./TESTING_GUIDELINES.md)
-- [Semantic versioning, changelog format, version bumps, and release workflow](./VERSIONING_AND_CHANGELOG.md)
-- [Cache state handling in UI with CacheView component](./CACHE_HANDLING.md)
+- [Naming, formatting, imports, file/code organization](./CODE_STYLE.mdc) — auto-applied to all `.ts` / `.tsx`
+- [Type safety, no `any`, generics, type guards, discriminated unions](./TYPESCRIPT_GUIDELINES.mdc) — auto-applied to all `.ts` / `.tsx`
+- [Complexity thresholds for Shade components, services, REST actions](./COMPLEXITY.mdc) — auto-applied; used in reviews and during implementation
+- [Functional DI, stores, datasets, observables, disposables, breaking changes](./LIBRARY_DEVELOPMENT.mdc) — auto-applied in `packages/`
+- [Shades render-time patterns: hooks, JSX, css, reconciliation](./SHADES_RENDER.mdc) — auto-applied to `packages/**/*.tsx`
+- [Public API testing, integration tests, disposable safety, Vitest patterns](./TESTING_GUIDELINES.mdc) — auto-applied to `*.spec.ts` / `*.spec.tsx`
+- [`CacheView` component for rendering cache state in Shades UIs](./CACHE_HANDLING.mdc) — auto-applied to `.tsx`
+
+Skills (on-demand workflows):
+
+- `fill-changelog` — fill changelog entries for the current branch
+- `review-changes` — full code review with reviewer subagents

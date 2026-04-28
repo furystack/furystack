@@ -2,7 +2,7 @@ import { TestClass, createStoreTest } from '@furystack/core/create-physical-stor
 import type { Injector } from '@furystack/inject'
 import { sleepAsync, using, usingAsync } from '@furystack/utils'
 import { promises } from 'fs'
-import { afterAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineFileSystemStore } from './define-filesystem-store.js'
 import { FileSystemStore } from './filesystem-store.js'
 
@@ -88,6 +88,41 @@ describe('FileSystemStore', () => {
           emitSpy.mockRestore()
         },
       )
+    })
+  })
+
+  describe('onLoadError event', () => {
+    beforeEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('emits onLoadError when the initial background reload fails', async () => {
+      const emitSpy = vi.spyOn(FileSystemStore.prototype, 'emit')
+      // Reject the initial readFile call captured by the class field initializer
+      // so the constructor-scheduled `reloadData()` rejects with a non-ENOENT error.
+      vi.spyOn(promises, 'readFile').mockRejectedValueOnce(new Error('boom'))
+      const fileName = `filestore-test-${storeCount++}.json`
+      storeNames.push(fileName)
+      await usingAsync(new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id' }), async () => {
+        await sleepAsync(20)
+        expect(emitSpy).toHaveBeenCalledWith('onLoadError', { error: expect.any(Error) as Error })
+      })
+    })
+
+    it('emits onLoadError when a watcher-triggered reload fails', async () => {
+      const fileName = `filestore-test-${storeCount++}.json`
+      storeNames.push(fileName)
+      await promises.writeFile(fileName, '[]')
+      await usingAsync(new FileSystemStore({ model: TestClass, fileName, primaryKey: 'id' }), async (store) => {
+        const handler = vi.fn()
+        store.addListener('onLoadError', handler)
+        await sleepAsync(20)
+        // Corrupt the file so the watcher-driven reload hits a JSON.parse error
+        await promises.writeFile(fileName, 'not valid json')
+        await vi.waitFor(() => {
+          expect(handler).toHaveBeenCalledWith({ error: expect.any(Error) as Error })
+        })
+      })
     })
   })
 

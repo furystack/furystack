@@ -1,3 +1,4 @@
+import type { InMemoryStore } from './in-memory-store.js'
 import type { FilterType } from './models/physical-store.js'
 import { isLogicalOperator, isOperator } from './models/physical-store.js'
 
@@ -24,12 +25,14 @@ const evaluateLike = (value: string, likeString: string) => {
 }
 
 /**
- * Filters an array of items using a {@link FilterType} expression.
- * Supports field-level operators ($eq, $ne, $in, $nin, $gt, $gte, $lt, $lte, $startsWith, $endsWith, $like, $regex)
- * and logical operators ($and, $or).
- * @param values The array of items to filter
- * @param filter The filter expression to apply
- * @returns The filtered array of items
+ * In-memory evaluation of a {@link FilterType} expression. Used by
+ * {@link InMemoryStore.find} and any consumer that needs to filter without
+ * round-tripping a real store. Throws on unknown operators (defensive — the
+ * type system rejects them at compile time).
+ *
+ * Supported field operators: `$eq`, `$ne`, `$in`, `$nin`, `$gt`, `$gte`,
+ * `$lt`, `$lte`, `$startsWith`, `$endsWith`, `$like` (`%` wildcard, case
+ * insensitive), `$regex`. Logical: `$and`, `$or`.
  */
 export function filterItems<T>(values: T[], filter?: FilterType<T>): T[] {
   if (!filter) {

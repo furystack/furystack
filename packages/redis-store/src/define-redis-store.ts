@@ -7,14 +7,11 @@ import { RedisStore } from './redis-store.js'
  * Options accepted by {@link defineRedisStore}.
  */
 export type DefineRedisStoreOptions<T, TPrimaryKey extends keyof T> = {
-  /** Human-readable token name used for debug/readability. */
   name: string
-  /** Entity model constructor. */
   model: Constructable<T>
-  /** Primary key field name. */
   primaryKey: TPrimaryKey
   /**
-   * The Redis client. Ownership stays with the caller — the store does not
+   * Redis client. Ownership stays with the caller — the store does not
    * connect or quit it. Multiple stores backed by the same client are fine.
    */
   client: ReturnType<typeof createClient>

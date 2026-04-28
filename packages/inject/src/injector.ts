@@ -144,7 +144,7 @@ export class Injector implements AsyncDisposable {
     if (bound) {
       return bound as AnyFactory<TService>
     }
-    return token.factory as AnyFactory<TService>
+    return token.factory
   }
 
   private buildContext(token: AnyToken<unknown>, owningInjector: Injector, resolving: Set<symbol>): ServiceContext {
@@ -165,14 +165,19 @@ export class Injector implements AsyncDisposable {
       owningInjector.disposeCallbacks.push(cb)
     }
     return {
-      inject: inject as ServiceContext['inject'],
-      injectAsync: injectAsync as ServiceContext['injectAsync'],
+      inject,
+      injectAsync,
       injector: owningInjector,
       token,
       onDispose,
     }
   }
 
+  /**
+   * Resolves a sync token. Throws {@link InjectorDisposedError} if the
+   * injector is already disposed and {@link AsyncTokenInSyncContextError} if
+   * a runtime-async token slips past the compile-time check.
+   */
   public get<TService>(token: SyncToken<TService>): TService {
     this.ensureLive()
     if (token.isAsync) {
@@ -181,17 +186,24 @@ export class Injector implements AsyncDisposable {
     return this.resolveSync<TService>(token, new Set<symbol>())
   }
 
+  /**
+   * Resolves a sync or async token. Sync tokens are wrapped in a resolved
+   * promise. Synchronous failures (disposed injector, sync-throwing async
+   * factory) are normalised to a rejected promise so callers can rely on
+   * `.rejects` / `.catch` uniformly.
+   */
   public getAsync<TService>(token: AnyToken<TService>): Promise<TService> {
     try {
       this.ensureLive()
       if (!token.isAsync) {
-        return Promise.resolve(this.resolveSync<TService>(token as SyncToken<TService>, new Set<symbol>()))
+        return Promise.resolve(this.resolveSync<TService>(token, new Set<symbol>()))
       }
       return this.resolveAsync<TService>(token, new Set<symbol>())
     } catch (error) {
       // Normalise synchronous errors (e.g. a disposed injector or an async
       // factory that sync-throws before returning a promise) into a rejected
       // promise so callers can always rely on `.rejects` / `.catch`.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- needed for `prefer-promise-reject-errors`; `error` is `unknown` from catch
       return Promise.reject(error as Error)
     }
   }
@@ -348,7 +360,7 @@ export class Injector implements AsyncDisposable {
   public bind<TService>(token: AnyToken<TService>, factory: AnyFactory<TService>): void {
     this.ensureLive()
     const owning = this.ownerForLifetime(token.lifetime)
-    owning.bindings.set(token.id, factory as AnyFactory<unknown>)
+    owning.bindings.set(token.id, factory)
     owning.cache.delete(token.id)
   }
 
@@ -378,14 +390,25 @@ export class Injector implements AsyncDisposable {
     return this.findCached(token) !== null
   }
 
+  /**
+   * Creates a child injector. The child has its own cache and bindings;
+   * singleton resolution still walks up to the root. Disposing the child
+   * leaves the parent untouched. Disposing the parent disposes all
+   * descendants reachable through stored references.
+   */
   public createScope(options?: CreateScopeOptions): Injector {
     this.ensureLive()
     return new Injector({ parent: this, owner: options?.owner })
   }
 
+  /**
+   * Disposes the injector: runs registered `onDispose` callbacks in LIFO
+   * order, clears the cache, and marks the injector as disposed. Idempotent —
+   * a second call is a no-op so `await using` and manual teardown paths
+   * don't have to guard. Errors from callbacks are collected and re-thrown
+   * as a single `AggregateError`.
+   */
   public async [Symbol.asyncDispose](): Promise<void> {
-    // Idempotent: double-dispose is a no-op so `await using` / manual
-    // teardown paths don't have to guard.
     if (this.isDisposed) {
       return
     }

@@ -1,23 +1,13 @@
+import type { PasswordHasher } from '../password-hasher.js'
+
 /**
- * Entry that stores credential info for password login
+ * Persisted password credential. `passwordHash` and `salt` are produced by
+ * the configured {@link PasswordHasher}; `creationDate` (ISO 8601 string)
+ * is the source of truth for password-expiration policies.
  */
 export class PasswordCredential {
-  /**
-   * The unique name of the user
-   */
   declare userName: string
-  /**
-   * The hashed password value
-   */
   declare passwordHash: string
-
-  /**
-   * Salt value for password hashing // TODO
-   */
   declare salt: string
-
-  /**
-   * The Creation date in ISO String format
-   */
   declare creationDate: string
 }

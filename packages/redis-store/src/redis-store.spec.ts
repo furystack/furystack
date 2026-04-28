@@ -1,3 +1,4 @@
+import { NotSupportedError } from '@furystack/core'
 import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { createClient } from 'redis'
@@ -54,15 +55,15 @@ describe('Redis Store', () => {
     })
   })
 
-  it('Should throw on count', async () => {
+  it('Should throw NotSupportedError on count', async () => {
     await usingAsync(await setupRedisStore(), async ({ store }) => {
-      await expect(store.count()).rejects.toThrow()
+      await expect(store.count()).rejects.toBeInstanceOf(NotSupportedError)
     })
   })
 
-  it('Should throw on search', async () => {
+  it('Should throw NotSupportedError on search', async () => {
     await usingAsync(await setupRedisStore(), async ({ store }) => {
-      await expect(store.find({})).rejects.toThrow()
+      await expect(store.find({})).rejects.toBeInstanceOf(NotSupportedError)
     })
   })
 })

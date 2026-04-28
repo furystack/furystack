@@ -238,7 +238,7 @@ const assignValue = <T extends object>(
       if (source[key] === undefined) {
         removeValue(target[key] as object, root)
       } else {
-        assignValue(target[key] as object, source[key] as object, root, assignFn)
+        assignValue(target[key] as object, source[key], root, assignFn)
       }
     } else if (source[key] === undefined) {
       removeCssVariable(target[key] as string, root)

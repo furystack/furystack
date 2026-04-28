@@ -201,7 +201,7 @@ const createLightbox = (
           title="Close"
           style={toolbarButtonStyle()}
           onclick={async () => {
-            await closeLightbox(backdrop as unknown as HTMLElement)
+            await closeLightbox(backdrop)
           }}
         >
           <Icon icon={close} size="small" />

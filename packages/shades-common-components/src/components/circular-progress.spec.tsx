@@ -34,7 +34,7 @@ describe('CircularProgress', () => {
         }
         return mockAnimation as unknown as Animation
       },
-    ) as typeof Element.prototype.animate
+    )
   })
 
   afterEach(() => {

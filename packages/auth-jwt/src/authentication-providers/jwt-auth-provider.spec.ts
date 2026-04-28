@@ -12,7 +12,6 @@ import {
 } from '@furystack/security'
 import { DefaultSession, SessionStore, UserDataSet, UserStore, useHttpAuthentication } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
-import type { IncomingMessage } from 'http'
 import { describe, expect, it } from 'vitest'
 import { useJwtAuthentication } from '../helpers.js'
 import type { FingerprintCookieSettings, JwtAuthenticationSettings } from '../jwt-authentication-settings.js'
@@ -55,7 +54,7 @@ describe('createJwtAuthProvider', () => {
         userDataSet,
         injector: systemInjector,
       })
-      const result = await provider.authenticate({ headers: {} } as IncomingMessage)
+      const result = await provider.authenticate({ headers: {} })
       expect(result).toBeNull()
     })
   })
@@ -72,7 +71,7 @@ describe('createJwtAuthProvider', () => {
       })
       const result = await provider.authenticate({
         headers: { authorization: 'Basic dXNlcjpwYXNz' },
-      } as IncomingMessage)
+      })
       expect(result).toBeNull()
     })
   })
@@ -92,7 +91,7 @@ describe('createJwtAuthProvider', () => {
       })
       const result = await provider.authenticate({
         headers: { authorization: `Bearer ${token}` },
-      } as IncomingMessage)
+      })
       expect(result).toEqual(testUser)
     })
   })
@@ -111,7 +110,7 @@ describe('createJwtAuthProvider', () => {
       await expect(
         provider.authenticate({
           headers: { authorization: 'Bearer invalid.token.here' },
-        } as IncomingMessage),
+        }),
       ).rejects.toThrow(UnauthenticatedError)
     })
   })
@@ -131,7 +130,7 @@ describe('createJwtAuthProvider', () => {
       await expect(
         provider.authenticate({
           headers: { authorization: `Bearer ${token}` },
-        } as IncomingMessage),
+        }),
       ).rejects.toThrow(UnauthenticatedError)
     })
   })
@@ -161,7 +160,7 @@ describe('createJwtAuthProvider', () => {
         })
         const result = await provider.authenticate({
           headers: { authorization: `Bearer ${token}`, cookie: `fpt=${fingerprint}` },
-        } as unknown as IncomingMessage)
+        })
         expect(result).toEqual(testUser)
       })
     })
@@ -183,7 +182,7 @@ describe('createJwtAuthProvider', () => {
         await expect(
           provider.authenticate({
             headers: { authorization: `Bearer ${token}` },
-          } as IncomingMessage),
+          }),
         ).rejects.toThrow(UnauthenticatedError)
       })
     })
@@ -205,7 +204,7 @@ describe('createJwtAuthProvider', () => {
         await expect(
           provider.authenticate({
             headers: { authorization: `Bearer ${token}`, cookie: 'fpt=stolen-wrong-value' },
-          } as unknown as IncomingMessage),
+          }),
         ).rejects.toThrow(UnauthenticatedError)
       })
     })

@@ -16,14 +16,13 @@ export type ListenerErrorPayload = {
 }
 
 /**
- * A typed event emitter that provides type-safe event subscription and emission.
- * Use this to create strongly-typed pub/sub patterns in your application.
+ * Typed pub/sub. Listener errors (sync throws and async rejections) are
+ * caught automatically: if `onListenerError` listeners are registered they
+ * receive the error, otherwise it is logged via `console.error`. One
+ * listener throwing does not prevent the remaining listeners from running.
  *
- * Listener errors (sync throws and async rejections) are caught automatically.
- * If `onListenerError` listeners are registered, errors are routed there.
- * Otherwise, they are logged via `console.error`.
- *
- * @typeParam EventTypeMap - An object type where keys are event names and values are event payload types
+ * @typeParam EventTypeMap - object whose keys are event names and values are
+ *   the payload types
  * @example
  * ```ts
  * type MyEvents = {
@@ -74,6 +73,11 @@ export class EventHub<EventTypeMap extends object> implements Disposable {
     }
   }
 
+  /**
+   * Subscribes `listener` to `event` and returns a `Disposable` that removes
+   * the listener when disposed — preferred over the `addListener` /
+   * `removeListener` pair for `using` / `useDisposable` integration.
+   */
   public subscribe<TEvent extends keyof EventTypeMap>(
     event: TEvent,
     listener: ListenerFunction<EventTypeMap, TEvent>,

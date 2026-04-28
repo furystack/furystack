@@ -3,6 +3,8 @@ import { defineService } from '@furystack/inject'
 import type { MongoClientOptions } from 'mongodb'
 import { MongoClient } from 'mongodb'
 
+import type { defineMongoDbStore } from './define-mongodb-store.js'
+
 /**
  * Pools {@link MongoClient} instances by URL so every store that targets the
  * same MongoDB deployment shares a single connection.

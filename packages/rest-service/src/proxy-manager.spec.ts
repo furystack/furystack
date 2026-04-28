@@ -897,7 +897,7 @@ describe('ProxyManager', () => {
             targetBaseUrl: `http://localhost:${targetPort}`,
             sourcePort: proxyPort,
             headers: () => ({
-              'X-Array-Header': ['value1', 'value2', 'value3'] as unknown as string,
+              'X-Array-Header': ['value1', 'value2', 'value3'],
             }),
           })
 
@@ -935,7 +935,7 @@ describe('ProxyManager', () => {
             sourcePort: proxyPort,
             headers: () => ({
               'X-Defined-Header': 'defined',
-              'X-Undefined-Header': undefined as unknown as string,
+              'X-Undefined-Header': undefined,
             }),
           })
 
@@ -1135,7 +1135,7 @@ describe('ProxyManager', () => {
         const targetWss = new WebSocketServer({ server: targetServer })
 
         targetWss.on('connection', (ws, req) => {
-          receivedProtocol = req.headers['sec-websocket-protocol'] as string
+          receivedProtocol = req.headers['sec-websocket-protocol']
           ws.send('connected')
         })
 
@@ -1714,9 +1714,9 @@ describe('ProxyManager', () => {
             sourcePort: proxyPort,
             enableWebsockets: true,
             headers: () => ({
-              'X-Number-Header': 42 as unknown as string,
-              'X-Array-Header': ['val1', 'val2'] as unknown as string,
-              'X-Undefined-Header': undefined as unknown as string,
+              'X-Number-Header': 42,
+              'X-Array-Header': ['val1', 'val2'],
+              'X-Undefined-Header': undefined,
               'X-String-Header': 'string-value',
             }),
           })

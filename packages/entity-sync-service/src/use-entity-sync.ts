@@ -1,3 +1,4 @@
+import type { StoreToken } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import type { DataSetToken } from '@furystack/repository'
 import type { ModelSyncOptions } from './subscription-manager.js'

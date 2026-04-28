@@ -22,9 +22,9 @@ export const setRenderMode = (mode: boolean): void => {
 // ---------------------------------------------------------------------------
 
 /**
- * Appends a list of items to an element
- * @param el the root element
- * @param children array of items to append
+ * Appends `children` to `el`. Strings/numbers are wrapped in text nodes;
+ * nested arrays are flattened recursively. Used outside render mode (real
+ * DOM); inside render mode the JSX factory builds VNodes instead.
  */
 export const appendChild = (el: Element | DocumentFragment, children: ChildrenList) => {
   for (const child of children) {
@@ -46,10 +46,7 @@ export const hasStyle = (props: unknown): props is { style: Partial<CSSStyleDecl
   )
 }
 
-/**
- * @param el The Target HTML Element
- * @param props The Properties to fetch The Styles Object
- */
+/** Copies `props.style` (when present) onto `el.style`. No-op for non-styled props. */
 export const attachStyles = (el: HTMLElement, props: unknown) => {
   if (hasStyle(props))
     for (const key in props.style) {
@@ -70,9 +67,9 @@ export const attachDataAttributes = <TProps extends object>(el: HTMLElement, pro
 }
 
 /**
- * Attaches properties to an HTML element
- * @param el The Target HTML Element
- * @param props The Props to attach
+ * Assigns `props` onto `el` as element properties (not attributes). `style`
+ * is forwarded to {@link attachStyles}; `data-*` / `aria-*` are forwarded to
+ * {@link attachDataAttributes}.
  */
 export const attachProps = <TProps extends object>(el: HTMLElement, props: TProps) => {
   if (!props) {
@@ -90,11 +87,9 @@ export const attachProps = <TProps extends object>(el: HTMLElement, props: TProp
 }
 
 /**
- * Attaches properties to an SVG element via setAttribute.
- * SVG attributes are XML-based and must be set via setAttribute,
- * not via property assignment like HTML elements.
- * @param el The target SVG element
- * @param props The props to attach
+ * SVG counterpart of {@link attachProps}. SVG attributes are XML-based and
+ * must be set via `setAttribute` rather than property assignment. Event
+ * handlers (`on*`) and `style` are still set as properties.
  */
 export const attachSvgProps = <TProps extends object>(el: Element, props: TProps) => {
   if (!props) {
@@ -122,8 +117,10 @@ type CreateComponentArgs<TProps> = [
 ]
 
 /**
- * Factory method that creates a component. This should be configured as a default JSX Factory in tsconfig.
- * @returns the created JSX element
+ * JSX factory backing both intrinsic elements (`<div>`, `<svg>`, …) and
+ * Shade components (`<MyShade>`). Configured as `jsxFactory` in tsconfig.
+ * Outside render mode this returns real DOM nodes; the render-mode wrapper
+ * {@link createComponent} swaps in VNode descriptors.
  */
 export const createComponentInner = <TProps extends object>(
   ...[elementType, props, ...children]: CreateComponentArgs<TProps>

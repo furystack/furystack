@@ -1,6 +1,11 @@
 import type { User } from '@furystack/core'
+import type { Injector } from '@furystack/inject'
 import { defineService, type Token } from '@furystack/inject'
+import type { HttpAuthenticationSettings } from '@furystack/rest-service'
 import type { TokenPayload } from 'google-auth-library'
+
+import type { useGoogleAuthentication } from './helpers.js'
+import type { GoogleLoginService } from './login-service.js'
 
 /**
  * Configuration for Google OAuth authentication. Rebound by

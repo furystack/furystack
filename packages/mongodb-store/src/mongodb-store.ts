@@ -7,9 +7,11 @@ import type {
   PhysicalStore,
   WithOptionalId,
 } from '@furystack/core'
+import { NotFoundError } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
-import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort, UpdateFilter } from 'mongodb'
+import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort } from 'mongodb'
 import { ObjectId } from 'mongodb'
+import type { MongoClientFactory } from './mongo-client-factory.js'
 
 // Improved type safety for hasObjectId
 const hasObjectId = <T extends { _id?: unknown }>(value: T): value is T & { _id: ObjectId } => {
@@ -17,7 +19,19 @@ const hasObjectId = <T extends { _id?: unknown }>(value: T): value is T & { _id:
 }
 
 /**
- * MongoDB Store implementation for FuryStack
+ * {@link PhysicalStore} backed by a MongoDB collection.
+ *
+ * The collection handle is resolved lazily on the first call via
+ * {@link getCollection}; if the primary key is not `_id` a unique index is
+ * created on it during init. Init failure clears the cached promise so the
+ * next call retries.
+ *
+ * When `primaryKey` is `_id`, string keys are transparently coerced to
+ * `ObjectId` for filters and back to hex strings on results so callers can
+ * stay in plain string-key territory.
+ *
+ * The store has no `[Symbol.asyncDispose]` — client lifetime belongs to
+ * {@link MongoClientFactory}, which closes pooled clients on injector teardown.
  */
 export class MongodbStore<
   T extends object,
@@ -142,9 +156,9 @@ export class MongodbStore<
 
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
-    const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
+    const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data })
     if (updateResult.matchedCount < 1) {
-      throw Error(`Entity not found with id '${String(id)}', cannot update!`)
+      throw new NotFoundError(`Entity not found with id '${String(id)}', cannot update`)
     }
     this.emit('onEntityUpdated', { id, change: data })
   }

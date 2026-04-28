@@ -6,15 +6,12 @@ import { FileSystemStore } from './filesystem-store.js'
  * Options accepted by {@link defineFileSystemStore}.
  */
 export type DefineFileSystemStoreOptions<T, TPrimaryKey extends keyof T> = {
-  /** Human-readable token name used for debug/readability. */
   name: string
-  /** Entity model constructor. */
   model: Constructable<T>
-  /** Primary key field name. */
   primaryKey: TPrimaryKey
   /** Path of the JSON file backing the store. */
   fileName: string
-  /** How often (in ms) pending changes are flushed to disk. Defaults to 3000. */
+  /** Flush interval in ms. Defaults to 3000. */
   tickMs?: number
 }
 

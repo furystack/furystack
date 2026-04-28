@@ -4,7 +4,7 @@ import { defineDataSet, type DataSetToken } from '@furystack/repository'
 import { usingAsync } from '@furystack/utils'
 import type { WebSocketActionContext, WebSocketActionMatchContext } from '@furystack/websocket-api'
 import type { IncomingMessage } from 'http'
-import type { Data, WebSocket } from 'ws'
+import type { WebSocket } from 'ws'
 import { describe, expect, it, vi } from 'vitest'
 import { SubscriptionManager } from './subscription-manager.js'
 import { SyncUnsubscribeAction } from './sync-unsubscribe-action.js'
@@ -26,7 +26,7 @@ const TestEntityDataSet: DataSetToken<TestEntity, 'id'> = defineDataSet({
 })
 
 const buildMatchContext = (data: string | object): WebSocketActionMatchContext => ({
-  data: (typeof data === 'string' ? data : JSON.stringify(data)) as unknown as Data,
+  data: typeof data === 'string' ? data : JSON.stringify(data),
   request: {} as IncomingMessage,
   socket: {} as WebSocket,
 })

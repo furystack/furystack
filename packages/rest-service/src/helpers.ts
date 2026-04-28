@@ -1,6 +1,5 @@
-import { useSystemIdentityContext, type User } from '@furystack/core'
+import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
-import type { DataSet } from '@furystack/repository'
 import type { RestApi } from '@furystack/rest'
 import { PasswordAuthenticator } from '@furystack/security'
 import { PathHelper } from '@furystack/utils'
@@ -18,10 +17,12 @@ import { buildProxyServerApi, type ProxyOptions } from './proxy-runtime.js'
 import { compileApi, onRestApiMessage, type RestApiImplementation, shouldExecRequest } from './rest-api-runtime.js'
 import { ServerTelemetryToken } from './server-telemetry.js'
 import { buildStaticSiteServerApi, type StaticServerOptions } from './static-site-runtime.js'
+import type { SessionStore, UserStore } from './user-store.js'
 
 /**
- * Options accepted by {@link useRestService}. Mirrors the pre-migration
- * shape, minus fields that have moved to tokens.
+ * Options accepted by {@link useRestService}. Cross-cutting concerns
+ * (authentication, telemetry) have moved to DI tokens — they are not
+ * configured here.
  */
 export interface ImplementApiOptions<T extends RestApi> {
   /** The structure of the implemented API. */
@@ -49,11 +50,10 @@ export interface ImplementApiOptions<T extends RestApi> {
 }
 
 /**
- * Acquires a pooled HTTP server, compiles the user-supplied API definition
+ * Acquires a pooled HTTP server (creating one if needed), compiles `api`
  * and attaches a {@link ServerApi} that dispatches matching requests.
- *
- * Public contract is unchanged from the pre-migration release; internally
- * everything goes through the functional tokens.
+ * Multiple `useRestService` calls on the same `port` + `hostName` share a
+ * single underlying HTTP server.
  */
 export const useRestService = async <T extends RestApi>(options: ImplementApiOptions<T>): Promise<ServerApi> => {
   const {
@@ -71,14 +71,14 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
   } = options
 
   const extendedApi: typeof api = enableGetSchema
-    ? ({
+    ? {
         ...api,
         GET: {
           ...api.GET,
           '/schema': CreateGetSchemaAction(api, name, description, version),
           '/openapi.json': CreateGetOpenApiDocumentAction(api, name, description, version),
         },
-      } as typeof api)
+      }
     : api
 
   const supportedMethods = Object.keys(extendedApi)
@@ -129,7 +129,7 @@ export const useHttpAuthentication = (injector: Injector, overrides?: Partial<Ht
   }
   const systemInjector = useSystemIdentityContext({ injector, username: 'useHttpAuthentication' })
   const passwordAuthenticator = injector.get(PasswordAuthenticator)
-  const userDataSet = systemInjector.get(mergedSettings.userDataSet) as unknown as DataSet<User, 'username'>
+  const userDataSet = systemInjector.get(mergedSettings.userDataSet)
   const sessionDataSet = systemInjector.get(mergedSettings.sessionDataSet)
 
   const providers: AuthenticationProvider[] = []

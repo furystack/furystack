@@ -1,9 +1,16 @@
 import { EventHub } from '@furystack/utils'
+import { NotFoundError } from './errors/not-found-error.js'
 import { filterItems } from './filter-items.js'
 import type { Constructable } from './models/constructable.js'
 import type { CreateResult, FilterType, FindOptions, PartialResult, PhysicalStore } from './models/physical-store.js'
 import { selectFields } from './models/physical-store.js'
 
+/**
+ * In-memory {@link PhysicalStore} backed by a `Map`. Intended for tests, dev
+ * fixtures and small reference datasets — entries are lost on process exit.
+ * Production deployments should bind a real adapter (filesystem, MongoDB,
+ * Sequelize, Redis) via `defineXxxStore`.
+ */
 export class InMemoryStore<T, TPrimaryKey extends keyof T>
   extends EventHub<{
     onEntityAdded: { entity: T }
@@ -12,10 +19,6 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
   }>
   implements PhysicalStore<T, TPrimaryKey, T>
 {
-  /**
-   *
-   * @param keys The keys to remove from the store
-   */
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     keys.forEach((key) => {
       this.cache.delete(key)
@@ -76,7 +79,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
 
   public async update(id: T[TPrimaryKey], data: T) {
     if (!this.cache.has(id)) {
-      throw Error(`Entity not found with id '${id as string}', cannot update!`)
+      throw new NotFoundError(`Entity not found with id '${id as string}', cannot update`)
     }
     this.cache.set(id, {
       ...this.cache.get(id),
@@ -93,22 +96,7 @@ export class InMemoryStore<T, TPrimaryKey extends keyof T>
   public readonly primaryKey: TPrimaryKey
   public readonly model: Constructable<T>
 
-  /**
-   * Creates an InMemoryStore that can be used for testing purposes.
-   * @param options Options for the In Memory Store
-   * @param options.primaryKey The name of the primary key field
-   * @param options.model The Entity Model
-   */
-  constructor(options: {
-    /**
-     * The name of the Primary Key property
-     */
-    primaryKey: TPrimaryKey
-    /**
-     * The model constructor
-     */
-    model: Constructable<T>
-  }) {
+  constructor(options: { primaryKey: TPrimaryKey; model: Constructable<T> }) {
     super()
     this.primaryKey = options.primaryKey
     this.model = options.model

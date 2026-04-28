@@ -8,16 +8,13 @@ export type ViewTransitionConfig = {
 }
 
 /**
- * Wraps a DOM update in `document.startViewTransition()` when the View Transition API
- * is available and `config` is truthy. Falls back to calling `update()` directly otherwise.
+ * Runs `update` inside `document.startViewTransition()` when the API is
+ * available and `config` is truthy; otherwise calls `update` synchronously.
  *
- * Returns the `updateCallbackDone` promise when a transition is started, allowing callers
- * that need to wait for the DOM update (e.g. to run lifecycle hooks) to `await` the result.
- * Returns `undefined` when no transition is used (the update runs synchronously).
- *
- * @param config - The view transition configuration (boolean or object with types)
- * @param update - The synchronous DOM update callback
- * @returns A promise that resolves after the update callback completes inside the transition, or `undefined`
+ * The returned promise (when a transition starts) resolves once the update
+ * callback completes inside the transition — callers that need to chain
+ * lifecycle work after the DOM swap can `await` it. Returns `undefined`
+ * when no transition is used.
  */
 export const maybeViewTransition = (
   config: boolean | ViewTransitionConfig | undefined,
@@ -33,19 +30,10 @@ export const maybeViewTransition = (
 }
 
 /**
- * Keeps a "displayed" copy of `value` that is updated through a view transition
- * whenever the value changes and `shouldTransition` returns true.
- *
- * When the transition is skipped (config is falsy or `shouldTransition` returns false),
- * the displayed value is updated synchronously without an animation.
- *
- * @param useState - The component's `useState` hook
- * @param key - Unique state key for caching the displayed value
- * @param value - The latest source value (e.g. from `useObservable` or derived from props)
- * @param config - View transition configuration forwarded to `maybeViewTransition`
- * @param shouldTransition - Predicate that decides whether a value change warrants a transition.
- *   Defaults to `() => true` (always transition).
- * @returns The currently displayed value
+ * Decouples a component's "displayed" value from its source. When `value`
+ * changes and `shouldTransition(prev, next)` returns true, the swap is
+ * routed through {@link maybeViewTransition}; otherwise the displayed
+ * value updates synchronously. `shouldTransition` defaults to always-true.
  */
 export const transitionedValue = <T>(
   useState: <S>(key: string, initialValue: S) => [S, (v: S) => void],

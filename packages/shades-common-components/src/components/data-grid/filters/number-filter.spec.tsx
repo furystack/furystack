@@ -15,7 +15,7 @@ describe('NumberFilter', () => {
   })
 
   const createFindOptions = (options: Partial<FilterableFindOptions> = {}): FilterableFindOptions => {
-    return options as FilterableFindOptions
+    return options
   }
 
   const renderNumberFilter = async (

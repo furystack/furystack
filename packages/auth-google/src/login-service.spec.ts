@@ -26,21 +26,20 @@ vi.mock('google-auth-library', () => ({
 
 const CLIENT_ID = 'test-client-id.apps.googleusercontent.com'
 
-const createTokenPayload = (overrides?: Partial<TokenPayload>): TokenPayload =>
-  ({
-    iss: 'accounts.google.com',
-    sub: '1234567890',
-    aud: CLIENT_ID,
-    exp: Math.floor(Date.now() / 1000) + 3600,
-    iat: Math.floor(Date.now() / 1000),
-    email: 'user@example.com',
-    email_verified: true,
-    name: 'Test User',
-    picture: 'https://example.com/photo.jpg',
-    given_name: 'Test',
-    family_name: 'User',
-    ...overrides,
-  }) as TokenPayload
+const createTokenPayload = (overrides?: Partial<TokenPayload>): TokenPayload => ({
+  iss: 'accounts.google.com',
+  sub: '1234567890',
+  aud: CLIENT_ID,
+  exp: Math.floor(Date.now() / 1000) + 3600,
+  iat: Math.floor(Date.now() / 1000),
+  email: 'user@example.com',
+  email_verified: true,
+  name: 'Test User',
+  picture: 'https://example.com/photo.jpg',
+  given_name: 'Test',
+  family_name: 'User',
+  ...overrides,
+})
 
 const prepareInjector = (i: Injector): void => {
   i.bind(UserStore, () => new InMemoryStore({ model: UserModel, primaryKey: 'username' }))

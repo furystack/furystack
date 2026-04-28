@@ -1,3 +1,4 @@
+import type { defineService, defineServiceAsync } from './define-service.js'
 import type { Injector } from './injector.js'
 
 /**
@@ -33,30 +34,27 @@ export type Token<TService, TLifetime extends Lifetime = Lifetime, TIsAsync exte
 }
 
 /**
- * A token whose factory is synchronous. This is the default specialisation of
- * {@link Token}. Can be resolved via both {@link Injector.get} and
- * {@link Injector.getAsync}.
+ * Sync-token specialisation of {@link Token}. Resolvable via both
+ * {@link Injector.get} and {@link Injector.getAsync}.
  */
 export type SyncToken<TService, TLifetime extends Lifetime = Lifetime> = Token<TService, TLifetime, false>
 
 /**
- * A token whose factory is asynchronous. Can only be resolved via
- * {@link Injector.getAsync}. Use this type alias when annotating a token
- * variable that comes from {@link defineServiceAsync}.
+ * Async-token specialisation of {@link Token}. Only resolvable via
+ * {@link Injector.getAsync} — {@link Injector.get} rejects async tokens at
+ * compile time.
  */
 export type AsyncToken<TService, TLifetime extends Lifetime = Lifetime> = Token<TService, TLifetime, true>
 
 /**
- * A token of either sync or async variety. Use this type when a generic
- * consumer needs to accept both.
+ * Either {@link SyncToken} or {@link AsyncToken}. Use when a consumer needs
+ * to accept both varieties generically.
  */
 export type AnyToken<TService, TLifetime extends Lifetime = Lifetime> =
   | SyncToken<TService, TLifetime>
   | AsyncToken<TService, TLifetime>
 
-/**
- * Extracts the resolved service type from a {@link Token}.
- */
+/** Extracts the resolved service type from a {@link Token}. */
 export type ServiceOf<TToken> = TToken extends Token<infer T, Lifetime, boolean> ? T : never
 
 /**
@@ -85,13 +83,9 @@ export type InjectAsyncFn<TParentLifetime extends Lifetime = Lifetime> = TParent
   ? <TService>(token: AnyToken<TService, 'singleton'>) => Promise<TService>
   : <TService>(token: AnyToken<TService>) => Promise<TService>
 
-/**
- * Context object passed to a service factory.
- */
+/** Context object passed to a service factory. */
 export type ServiceContext<TLifetime extends Lifetime = Lifetime> = {
-  /** Resolves a sync dependency by token. */
   inject: InjectFn<TLifetime>
-  /** Resolves an async (or sync) dependency. Returns a promise. */
   injectAsync: InjectAsyncFn<TLifetime>
   /** The injector that owns this service's cached instance. */
   injector: Injector
@@ -105,47 +99,37 @@ export type ServiceContext<TLifetime extends Lifetime = Lifetime> = {
   onDispose: (cb: DisposeCallback) => void
 }
 
-/**
- * Factory signature for synchronous services.
- */
 export type ServiceFactory<TService> = (ctx: ServiceContext) => TService
 
 /**
- * Factory signature for asynchronous services. Resolved values are cached after
- * first resolution; concurrent callers share the pending promise.
+ * Factory for an async service. Resolved values are cached after first
+ * resolution; concurrent callers share the same pending promise.
  */
 export type AsyncServiceFactory<TService> = (ctx: ServiceContext) => Promise<TService>
 
 /**
- * Options accepted by {@link defineService}.
- *
- * `lifetime` is required — there is no default. Pick explicitly.
+ * Options accepted by {@link defineService}. `lifetime` is required — there
+ * is no default; pick explicitly.
  */
 export type DefineServiceOptions<TService, TLifetime extends Lifetime> = {
   /**
-   * Human-readable identifier used purely for debug/readability. Identity is
-   * established by the {@link Token} object reference.
+   * Human-readable identifier for debug output only. Token identity is
+   * established by the returned {@link Token} object reference, not this
+   * string.
    */
   name: string
-  /** The lifetime category of the service. */
   lifetime: TLifetime
-  /** The factory that produces the service instance. */
   factory: (ctx: ServiceContext<TLifetime>) => TService
 }
 
-/**
- * Options accepted by {@link defineServiceAsync}.
- */
+/** See {@link DefineServiceOptions} — same shape, async factory return type. */
 export type DefineServiceAsyncOptions<TService, TLifetime extends Lifetime> = {
   name: string
   lifetime: TLifetime
   factory: (ctx: ServiceContext<TLifetime>) => Promise<TService>
 }
 
-/**
- * Options for creating a child injector scope.
- */
 export type CreateScopeOptions = {
-  /** Optional opaque owner reference (e.g. a request, session, element). */
+  /** Opaque owner reference (e.g. a request, session, element). */
   owner?: unknown
 }

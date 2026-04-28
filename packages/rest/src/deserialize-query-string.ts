@@ -1,10 +1,9 @@
 import { RequestError } from './request-error.js'
 
 /**
- * Decodes a URL-safe base64 encoded JSON string back to its original value
- * Decoding steps: See the encoding steps in reverse order
- * @param value The value to decode
- * @returns The decoded value
+ * Reverses the encoding produced by `serializeValue`. Throws a 400
+ * {@link RequestError} on malformed input — surfaces to clients as a
+ * "bad request" rather than crashing the server.
  */
 export const decode = <T>(value: string): T => {
   try {
@@ -14,10 +13,14 @@ export const decode = <T>(value: string): T => {
   }
 }
 
+/**
+ * Decodes a query string into a typed object. Empty keys/values are
+ * skipped. Each surviving value is deserialized via {@link decode}.
+ */
 export const deserializeQueryString = (fullQueryString: string) => {
   const params = [...new URLSearchParams(fullQueryString).entries()]
     .filter(([key, value]) => key && value)
     .map(([key, value]) => [key, decode(value)] as const)
 
-  return Object.fromEntries(params) as Record<string, unknown>
+  return Object.fromEntries(params)
 }

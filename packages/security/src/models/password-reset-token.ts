@@ -1,14 +1,10 @@
+/**
+ * Single-use password reset token. `token` is the URL-safe identifier
+ * shared with the user (e.g. via email). `createdAt` (ISO 8601) is the
+ * expiration anchor honoured by `SecurityPolicyManager.hasTokenExpired`.
+ */
 export class PasswordResetToken {
-  /**
-   * The related user name
-   */
   declare userName: string
-  /**
-   * The Token value - should be some kind of generated UUID that can be included e.g. in URLs
-   */
   declare token: string
-  /**
-   * The creation date in an ISO datetime format
-   */
   declare createdAt: string
 }

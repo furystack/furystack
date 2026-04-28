@@ -15,7 +15,7 @@ describe('StringFilter', () => {
   })
 
   const createFindOptions = (options: Partial<FilterableFindOptions> = {}): FilterableFindOptions => {
-    return options as FilterableFindOptions
+    return options
   }
 
   const renderStringFilter = async (

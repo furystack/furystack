@@ -545,7 +545,7 @@ describe('vnode', () => {
         ;(fakeShadeEl as unknown as Record<string, unknown>).props = { count: 1 }
         ;(fakeShadeEl as unknown as Record<string, unknown>).shadeChildren = undefined
 
-        const factory = vi.fn(() => fakeShadeEl as unknown as JSX.Element)
+        const factory = vi.fn(() => fakeShadeEl)
 
         const old: VChild[] = [{ _brand: 'vnode', type: factory, props: { count: 1 }, children: [], _el: fakeShadeEl }]
         parent.appendChild(fakeShadeEl)
@@ -566,7 +566,7 @@ describe('vnode', () => {
         ;(fakeShadeEl as unknown as Record<string, unknown>).props = { elevation: 2 }
         ;(fakeShadeEl as unknown as Record<string, unknown>).shadeChildren = undefined
 
-        const factory = vi.fn(() => fakeShadeEl as unknown as JSX.Element)
+        const factory = vi.fn(() => fakeShadeEl)
 
         const old: VChild[] = [
           { _brand: 'vnode', type: factory, props: { elevation: 2 }, children: [], _el: fakeShadeEl },
@@ -591,7 +591,7 @@ describe('vnode', () => {
         ;(fakeShadeEl as unknown as Record<string, unknown>).props = props
         ;(fakeShadeEl as unknown as Record<string, unknown>).shadeChildren = undefined
 
-        const factory = vi.fn(() => fakeShadeEl as unknown as JSX.Element)
+        const factory = vi.fn(() => fakeShadeEl)
 
         const old: VChild[] = [{ _brand: 'vnode', type: factory, props: { count: 1 }, children: [], _el: fakeShadeEl }]
         parent.appendChild(fakeShadeEl)

@@ -44,6 +44,6 @@ export const NotyService: Token<NotyService, 'singleton'> = defineService({
       getNotyList: () => [...notyList],
     })
 
-    return service as NotyService
+    return service
   },
 })

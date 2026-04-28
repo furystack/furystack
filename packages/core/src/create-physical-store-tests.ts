@@ -2,6 +2,7 @@ import type { Injector } from '@furystack/inject'
 import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
 import { describe, expect, it, vi } from 'vitest'
+import { NotFoundError } from './errors/not-found-error.js'
 import type { PhysicalStore } from './models/physical-store.js'
 
 export class TestClass {
@@ -179,6 +180,7 @@ export const createStoreTest = (options: StoreTestOptions<TestClass, 'id'>) => {
           store.addListener('onEntityUpdated', updateListener)
 
           const entity = createMockEntity()
+          await expect(store.update(entity.id, entity)).rejects.toBeInstanceOf(NotFoundError)
           await expect(store.update(entity.id, entity)).rejects.toThrow('Entity not found')
 
           expect(updateListener).not.toHaveBeenCalled()

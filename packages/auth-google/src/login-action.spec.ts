@@ -18,7 +18,7 @@ const mockPayload: TokenPayload = {
   iat: 0,
   email: 'user@example.com',
   email_verified: true,
-} as TokenPayload
+}
 
 const createMockService = (user: User | undefined, enableCsrfCheck = false): GoogleLoginService => ({
   clientId: 'test',

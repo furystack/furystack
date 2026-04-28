@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion -- false positives: discriminated `AuthorizationResult` mocks need explicit casts so vi.fn return types match the union (rule's tsutils-based check disagrees with tsc) */
 import type { StoreToken, WithOptionalId } from '@furystack/core'
 import { AuthorizationError, defineStore, InMemoryStore } from '@furystack/core'
 import { createInjector, type Injector } from '@furystack/inject'

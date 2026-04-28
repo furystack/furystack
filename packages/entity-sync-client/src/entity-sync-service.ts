@@ -1,6 +1,7 @@
 import type { Constructable } from '@furystack/core'
 import type { ClientSyncMessage, FilterType, ServerSyncMessage, SyncState } from '@furystack/entity-sync'
 import { EventHub, ObservableValue, type ListenerErrorPayload } from '@furystack/utils'
+import type { defineEntitySyncService } from './define-entity-sync-service.js'
 import type { LiveCollection } from './live-collection.js'
 import type { LiveEntity } from './live-entity.js'
 import type { SyncCacheEntry, SyncCacheStore } from './sync-cache-entry.js'

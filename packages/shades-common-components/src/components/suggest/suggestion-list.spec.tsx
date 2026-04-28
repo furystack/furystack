@@ -15,7 +15,7 @@ const createTestEntries = (): TestEntry[] => [
 ]
 
 const createSuggestionResult = (entry: TestEntry): SuggestionResult => ({
-  element: (<span>{entry.name}</span>) as unknown as JSX.Element,
+  element: <span>{entry.name}</span>,
   score: entry.id,
 })
 
@@ -39,7 +39,7 @@ describe('SuggestionList', () => {
         removeEventListener: vi.fn(),
       }
       return mockAnimation as unknown as Animation
-    }) as typeof Element.prototype.animate
+    })
   })
 
   afterEach(() => {

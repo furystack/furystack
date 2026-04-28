@@ -1,5 +1,5 @@
 import { createComponent, Shade } from '@furystack/shades'
-import type { IconDefinition, Palette } from '@furystack/shades-common-components'
+import type { IconDefinition, IconProps, Palette } from '@furystack/shades-common-components'
 import {
   Button,
   Icon,
@@ -55,10 +55,14 @@ const iconCellStyle: Partial<CSSStyleDeclaration> = {
 export const IconsPage = Shade({
   customElementName: 'shades-icons-page',
   render: ({ useSearchState }) => {
-    const [state, setState] = useSearchState('icons', {
-      selectedSize: 'medium' as 'small' | 'medium' | 'large',
-      selectedColor: '' as string,
-      search: '' as string,
+    const [state, setState] = useSearchState<{
+      selectedSize: Exclude<IconProps['size'], number>
+      selectedColor: string
+      search: string
+    }>('icons', {
+      selectedSize: 'medium',
+      selectedColor: '',
+      search: '',
     })
 
     const size = state.selectedSize

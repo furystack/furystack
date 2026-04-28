@@ -1,9 +1,6 @@
 import type { PasswordComplexityRule } from '../models/password-complexity-rule.js'
 
-/**
- * @param maxLength The maximum password length
- * @returns The created Password Policy object
- */
+/** Builds a complexity rule that fails when the password is longer than `maxLength`. */
 export const createMaxLengthComplexityRule = (maxLength: number): PasswordComplexityRule => ({
   name: 'maxLength' as const,
   check: async (passwordString: string) => {

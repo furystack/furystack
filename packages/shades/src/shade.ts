@@ -19,18 +19,18 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
    */
   customElementName: string
 
-  /**
-   * Render hook, this method will be executed on each and every render.
-   */
   render: (options: RenderOptions<TProps, TElementBase>) => JSX.Element | string | null
 
   /**
-   * Name of the HTML Element's base class. Needs to be defined if the elementBase is set. E.g.: 'div', 'button', 'input'
+   * Tag name of the base built-in element when extending one (e.g. `'a'`,
+   * `'button'`, `'input'`). Required when {@link ShadeOptions.elementBase}
+   * is set; passed to `customElements.define` as `{ extends }`.
    */
   elementBaseName?: string
 
   /**
-   * Base class for the custom element. Defaults to HTMLElement. E.g. HTMLButtonElement
+   * Constructor of the built-in element to extend (e.g. `HTMLButtonElement`).
+   * Defaults to `HTMLElement`. Pair with {@link ShadeOptions.elementBaseName}.
    */
   elementBase?: Constructable<TElementBase>
 
@@ -61,9 +61,14 @@ export type ShadeOptions<TProps, TElementBase extends HTMLElement> = {
 }
 
 /**
- * Factory method for creating Shade components
- * @param o The options object for component creation
- * @returns the JSX element
+ * Defines and registers a Shade component as a custom element. Returns a
+ * JSX-callable factory `(props, children?) => JSX.Element`. Throws when a
+ * component with the same {@link ShadeOptions.customElementName} has
+ * already been registered — registration is global and process-wide.
+ *
+ * The returned factory is the entry point for downstream code. The custom
+ * element class itself is installed via `customElements.define` and never
+ * directly exposed.
  */
 export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
   o: ShadeOptions<TProps, TElementBase>,
@@ -84,9 +89,6 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
       class extends (ElementBase as Constructable<HTMLElement>) implements JSX.Element {
         private _renderCount = 0
 
-        /**
-         * @returns the current render count
-         */
         public getRenderCount() {
           return this._renderCount
         }
@@ -128,28 +130,15 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
           await this.resourceManager[Symbol.asyncDispose]()
         }
 
-        /**
-         * Will be triggered when updating the external props object
-         */
         public props!: TProps & { children?: JSX.Element[] } & PartialElement<TElementBase>
 
-        /**
-         * Will be updated when on children change
-         */
         public shadeChildren?: ChildrenList
 
-        /**
-         * @param options Options for rendering the component
-         * @returns the JSX element
-         */
         public render = (options: RenderOptions<TProps, TElementBase>) => {
           this._renderCount++
           return o.render(options)
         }
 
-        /**
-         * @returns values for the current render options
-         */
         private getRenderOptions = (): RenderOptions<TProps, TElementBase> => {
           const renderOptions: RenderOptions<TProps, TElementBase> = {
             props: this.props,
@@ -163,8 +152,8 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
               const existingRef = this._refs.get(key) as RefObject<T> | undefined
               if (existingRef) return existingRef
               const refObject = { current: null } as { current: T | null }
-              this._refs.set(key, refObject as unknown as RefObject<Element>)
-              return refObject as RefObject<T>
+              this._refs.set(key, refObject)
+              return refObject
             },
             useObservable: (key, observable, options) => {
               const onChange = options?.onChange || (() => this.updateComponent())
@@ -308,7 +297,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
                 this.removeAttribute(key)
               }
               if (this._prevHostProps.style) {
-                for (const sk of Object.keys(this._prevHostProps.style as Record<string, string>)) {
+                for (const sk of Object.keys(this._prevHostProps.style)) {
                   if (sk.startsWith('--')) {
                     this.style.removeProperty(sk)
                   } else {
@@ -464,11 +453,9 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
 }
 
 /**
- * Flushes any pending microtask-based component updates.
- * Useful in tests to wait for batched renders to complete before asserting DOM state.
- *
- * Child component updates during reconciliation are performed synchronously, so a single
- * `await flushUpdates()` is sufficient to settle the entire component tree after a state change.
- * @returns a promise that resolves after the current microtask queue has been processed
+ * Awaits the next microtask tick — long enough for `updateComponent`'s
+ * batching microtask to drain. A single `await flushUpdates()` settles the
+ * entire component tree because child reconciliation is synchronous within
+ * the parent's render. Use in tests before asserting on DOM state.
  */
 export const flushUpdates = (): Promise<void> => new Promise<void>((resolve) => queueMicrotask(resolve))

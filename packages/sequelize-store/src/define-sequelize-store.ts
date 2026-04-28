@@ -8,17 +8,13 @@ import { SequelizeStore } from './sequelize-store.js'
  * Options accepted by {@link defineSequelizeStore}.
  */
 export type DefineSequelizeStoreOptions<T extends object, M extends Model<T>, TPrimaryKey extends keyof T> = {
-  /** Human-readable token name used for debug/readability. */
   name: string
-  /** Entity model constructor. */
   model: Constructable<T>
-  /** The Sequelize Model class. */
   sequelizeModel: ModelStatic<M>
-  /** Primary key field name. */
   primaryKey: TPrimaryKey
-  /** Sequelize client options (dialect, storage, etc.). */
+  /** Sequelize client options (dialect, storage, etc.) — also acts as the pool key. */
   options: Options
-  /** Optional callback that initializes the Sequelize model. Runs once per store. */
+  /** Runs once per store before the first DB call (e.g. `Model.init(...)` + `sequelize.sync()`). */
   initModel?: (sequelize: Sequelize) => Promise<void>
 }
 

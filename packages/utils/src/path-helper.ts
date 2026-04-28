@@ -1,14 +1,4 @@
-/**
- * Helper class for path-related functions and methods
- *
- * The class contains general helper methods for joining, splitting, modifying and validating paths.
- */
 export class PathHelper {
-  /**
-   * Trims the slash characters from the beginning and from the end of the path to avoid duplicated slashes
-   * @param {string} path The source path that should be trimmed
-   * @returns the trimmed path
-   */
   public static trimSlashes(path: string) {
     while (path.endsWith('/')) {
       path = path.substring(0, path.length - 1)
@@ -19,42 +9,23 @@ export class PathHelper {
     return path
   }
 
-  /**
-   * Splits a full path into path segments,
-   * e.g.: /Root/Example/stuff
-   * @param path The path to be splitted
-   * @returns {string[]} the segments for the path
-   */
+  /** Empty / whitespace-only segments are filtered out. */
   public static getSegments(path: string): string[] {
     return path.split('/').filter((segment) => segment && segment.length)
   }
 
-  /**
-   * Method that allows to join paths without multiple or missing slashes
-   * @param args The list of the paths to join
-   * @returns the joined path string
-   */
+  /** Joins paths, collapsing duplicate and missing slashes between segments. */
   public static joinPaths(...args: string[]) {
     return args.map((path) => this.trimSlashes(path)).join('/')
   }
 
-  /**
-   * Checks if the ancestorPath is really the ancestor of the descendantPath
-   * @param {string} ancestorPath the ancestor path
-   * @param {string} descendantPath the descendant path
-   * @returns {boolean} if the provided path is the ancestor of the descendant
-   */
   public static isAncestorOf(ancestorPath: string, descendantPath: string): boolean {
     return descendantPath.indexOf(`${this.joinPaths(ancestorPath)}/`) === 0
   }
 
   /**
-   * Returns the parent path from a specified path.
-   * e.g. "/Root/Example/Content" will return "/Root/Example"
-   *
-   * "Root" will always return "Root"
-   * @param path The content path
-   * @returns the parent path
+   * Returns the parent path. Single-segment paths return themselves
+   * (e.g. `'Root'` → `'Root'`).
    */
   public static getParentPath(path: string): string {
     const segments = this.getSegments(path)
@@ -69,9 +40,6 @@ export class PathHelper {
   }
 
   /**
-   * Trims only the trailing slash from a URL or path
-   * @param url The URL or path to trim
-   * @returns The URL/path without trailing slash
    * @example
    * PathHelper.trimTrailingSlash('/api/') // '/api'
    * PathHelper.trimTrailingSlash('http://example.com/') // 'http://example.com'
@@ -81,9 +49,6 @@ export class PathHelper {
   }
 
   /**
-   * Trims only the leading slash from a path
-   * @param path The path to trim
-   * @returns The path without leading slash
    * @example
    * PathHelper.trimLeadingSlash('/api') // 'api'
    * PathHelper.trimLeadingSlash('api') // 'api'
@@ -93,9 +58,6 @@ export class PathHelper {
   }
 
   /**
-   * Ensures a path has a leading slash
-   * @param path The path to check
-   * @returns The path with a leading slash
    * @example
    * PathHelper.ensureLeadingSlash('api') // '/api'
    * PathHelper.ensureLeadingSlash('/api') // '/api'
@@ -104,29 +66,17 @@ export class PathHelper {
     return path.startsWith('/') ? path : `/${path}`
   }
 
-  /**
-   * Normalizes a base URL by ensuring it has no trailing slash
-   * @param baseUrl The base URL to normalize (e.g., 'http://example.com/' or '/api/')
-   * @returns The normalized base URL without trailing slash
-   * @example
-   * PathHelper.normalizeBaseUrl('http://example.com/') // 'http://example.com'
-   * PathHelper.normalizeBaseUrl('/api/') // '/api'
-   * PathHelper.normalizeBaseUrl('/api') // '/api'
-   */
+  /** Strips trailing slash from a base URL. Idempotent. */
   public static normalizeBaseUrl(baseUrl: string): string {
     return this.trimTrailingSlash(baseUrl)
   }
 
   /**
-   * Joins a base URL with a path, handling slashes correctly
-   * Preserves protocols (http://, https://, etc.)
-   * @param baseUrl The base URL (with or without trailing slash)
-   * @param path The path to append (with or without leading slash)
-   * @returns The combined URL with correct slash handling
+   * Joins a base URL with a path, collapsing slashes. Preserves protocols
+   * (`http://`, `https://`, …).
+   *
    * @example
    * PathHelper.joinUrl('http://example.com', '/path') // 'http://example.com/path'
-   * PathHelper.joinUrl('http://example.com/', 'path') // 'http://example.com/path'
-   * PathHelper.joinUrl('/api', '/users') // '/api/users'
    * PathHelper.joinUrl('/api/', 'users') // '/api/users'
    * PathHelper.joinUrl('http://example.com', '') // 'http://example.com'
    */
@@ -140,16 +90,11 @@ export class PathHelper {
   }
 
   /**
-   * Checks if a request URL matches a base URL pattern
-   * Handles trailing slash variations correctly
-   * @param requestUrl The incoming request URL
-   * @param baseUrl The base URL pattern to match against
-   * @returns true if the request URL matches the base URL
+   * Boundary-aware prefix match — `/api2` does not match `/api`. Trailing
+   * slashes on `baseUrl` are tolerated.
+   *
    * @example
    * PathHelper.matchesBaseUrl('/api/users', '/api') // true
-   * PathHelper.matchesBaseUrl('/api', '/api') // true
-   * PathHelper.matchesBaseUrl('/api', '/api/') // true
-   * PathHelper.matchesBaseUrl('/other', '/api') // false
    * PathHelper.matchesBaseUrl('/api2', '/api') // false (not a path match)
    */
   public static matchesBaseUrl(requestUrl: string, baseUrl: string): boolean {
@@ -167,16 +112,14 @@ export class PathHelper {
   }
 
   /**
-   * Extracts the remaining path after a base URL
-   * Always returns a path with a leading slash (or empty string for exact matches)
-   * @param requestUrl The full request URL
-   * @param baseUrl The base URL to remove
-   * @returns The remaining path with leading slash, or empty string if exact match
+   * Returns the path remainder after stripping `baseUrl`. Exact matches
+   * return `''`. When `requestUrl` does not match `baseUrl`, returns
+   * `requestUrl` unchanged.
+   *
    * @example
    * PathHelper.extractPath('/api/users', '/api') // '/users'
    * PathHelper.extractPath('/api', '/api') // ''
    * PathHelper.extractPath('/api/users?id=1', '/api') // '/users?id=1'
-   * PathHelper.extractPath('/api/', '/api') // '/'
    */
   public static extractPath(requestUrl: string, baseUrl: string): string {
     const normalizedBase = this.normalizeBaseUrl(baseUrl)
@@ -196,13 +139,11 @@ export class PathHelper {
   }
 
   /**
-   * Normalizes a URL by removing consecutive slashes (except after protocol)
-   * @param url The URL to normalize
-   * @returns The normalized URL
+   * Collapses consecutive slashes. The `://` after a protocol is preserved.
+   *
    * @example
    * PathHelper.normalizeUrl('http://example.com//path') // 'http://example.com/path'
    * PathHelper.normalizeUrl('/api//users///123') // '/api/users/123'
-   * PathHelper.normalizeUrl('http://example.com/') // 'http://example.com/'
    */
   public static normalizeUrl(url: string): string {
     // Handle protocol separately to preserve ://

@@ -23,12 +23,27 @@ export interface ObsoleteCacheResult<T> {
   updatedAt: Date
 }
 
+/**
+ * Discriminated union over a cache entry's lifecycle:
+ *
+ * - `loading` — entry is being fetched. May carry the previous `value` while
+ *   refreshing (stale-while-revalidate); set to `undefined` on first load.
+ * - `loaded` — fresh value present. Stays `loaded` until the stale timer
+ *   fires (→ `obsolete`) or a new `reload` runs (→ `loading`).
+ * - `obsolete` — value is still present but should be refreshed; consumers
+ *   like `CacheView` trigger a reload on first observation.
+ * - `failed` — load rejected. May still carry the previous `value` so
+ *   consumers can decide between showing stale data or surfacing the error.
+ *
+ * Discriminate on `status`. Use the type-guards below to narrow.
+ */
 export type CacheResult<T> =
   | LoadedCacheResult<T>
   | LoadingCacheResult<T>
   | FailedCacheResult<T>
   | ObsoleteCacheResult<T>
 
+/** Narrowing intersection: a {@link CacheResult} that definitely carries a value. */
 export type CacheWithValue<T> = CacheResult<T> & {
   value: T
   updatedAt: Date
@@ -46,5 +61,10 @@ export const isFailedCacheResult = <T>(result: CacheResult<T>): result is Failed
 export const isObsoleteCacheResult = <T>(result: CacheResult<T>): result is ObsoleteCacheResult<T> =>
   result.status === 'obsolete'
 
+/**
+ * Narrows to {@link CacheWithValue}. Returns `true` for any status whose
+ * `value` is present — i.e. `loaded` / `obsolete` always, `loading` /
+ * `failed` only when stale-while-revalidate has populated `value`.
+ */
 export const hasCacheValue = <T>(result: CacheResult<T>): result is CacheWithValue<T> =>
   result.value !== undefined && result.updatedAt instanceof Date

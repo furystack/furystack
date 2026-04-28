@@ -1,7 +1,8 @@
 /**
- * @param method The method that should be debounced
- * @param debounceMs The timeout in millisecs
- * @returns a method that wraps the original one with an async debounce
+ * Trailing-edge debounce. Each call resets the timer; `method` runs once
+ * after `debounceMs` of inactivity. The returned wrapper is fire-and-forget
+ * — its declared return type matches the wrapped method's signature for
+ * callers, but the wrapper actually returns `void` at runtime.
  */
 export const debounce = <TArgs extends unknown[], TReturns>(method: (...args: TArgs) => TReturns, debounceMs = 250) => {
   let timeout: ReturnType<typeof setTimeout> | undefined

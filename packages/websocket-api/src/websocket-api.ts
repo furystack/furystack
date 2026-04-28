@@ -16,11 +16,9 @@ import type { WebSocketAction } from './models/websocket-action.js'
  * `ServerTelemetryToken` under `onWebSocketActionFailed`.
  */
 export type WebSocketApiEvents = {
-  /** Emitted when a client WebSocket connects and is registered. */
   onClientConnected: { ws: WebSocket; message: IncomingMessage }
-  /** Emitted when a client WebSocket disconnects and its scope has been disposed. */
+  /** Fires after the per-connection scope has been disposed. */
   onClientDisconnected: { ws: WebSocket }
-  /** Emitted when a registered listener throws or rejects. */
   onListenerError: ListenerErrorPayload
 }
 

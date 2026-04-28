@@ -185,7 +185,7 @@ describe('HttpUserContext', () => {
         await setupUser(i, 'testuser', 'password')
         const result = await i.get(HttpUserContext).authenticateRequest({
           headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
-        } as IncomingMessage)
+        })
         expect(result.username).toBe('testuser')
       })
     })
@@ -197,7 +197,7 @@ describe('HttpUserContext', () => {
         await expect(
           i.get(HttpUserContext).authenticateRequest({
             headers: { authorization: `Basic dGVzdHVzZXI6cGFzc3dvcmQ=` },
-          } as IncomingMessage),
+          }),
         ).rejects.toBeInstanceOf(UnauthenticatedError)
       })
     })
@@ -209,7 +209,7 @@ describe('HttpUserContext', () => {
         await expect(
           ctx.authenticateRequest({
             headers: { cookie: `${ctx.authentication.cookieName}=666;` },
-          } as IncomingMessage),
+          }),
         ).rejects.toBeInstanceOf(UnauthenticatedError)
       })
     })
@@ -223,7 +223,7 @@ describe('HttpUserContext', () => {
 
         const result = await ctx.authenticateRequest({
           headers: { cookie: `${ctx.authentication.cookieName}=666;` },
-        } as IncomingMessage)
+        })
         expect(result).toEqual(testUser)
       })
     })
@@ -406,7 +406,7 @@ describe('HttpUserContext', () => {
 
         const logoutSetHeader = vi.fn()
         await ctx.cookieLogout(
-          { headers: { cookie: `${ctx.authentication.cookieName}=${sessionId};` } } as IncomingMessage,
+          { headers: { cookie: `${ctx.authentication.cookieName}=${sessionId};` } },
           { setHeader: logoutSetHeader },
         )
         expect(logoutSetHeader).toHaveBeenCalledWith(

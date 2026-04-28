@@ -138,7 +138,7 @@ const isFollowedByExpect = (node: TSESTree.CallExpression): boolean => {
   if (!container || !('body' in container) || !Array.isArray(container.body)) return false
 
   const statements = container.body as TSESTree.Statement[]
-  const idx = statements.indexOf(current as TSESTree.Statement)
+  const idx = statements.indexOf(current)
   if (idx === -1 || idx >= statements.length - 1) return false
 
   const next = statements[idx + 1]

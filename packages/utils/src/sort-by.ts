@@ -1,13 +1,8 @@
 declare global {
-  /**
-   * Defines an array of elements
-   */
   export interface Array<T> {
     /**
-     * Sorts the array by a specified field and direction
-     * @param field The field to sort by
-     * @param direction The sort direction, either 'asc' or 'desc' (default: 'asc')
-     * @returns A new sorted array
+     * Sorts the array in place by `field`. Direction defaults to `'asc'`.
+     * Mutates and returns the array (matches `Array.prototype.sort`).
      */
     sortBy: (field: keyof T, direction?: 'asc' | 'desc') => T[]
   }

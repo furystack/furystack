@@ -197,9 +197,9 @@ export const toVChildArray = (renderResult: unknown): VChild[] => {
   // Real DOM element (from async code that ran outside renderMode)
   if (renderResult instanceof DocumentFragment) {
     return Array.from(renderResult.childNodes).map((node) => ({
-      _brand: VNODE_BRAND as typeof VNODE_BRAND,
+      _brand: VNODE_BRAND,
       type: EXISTING_NODE,
-      props: {} as Record<string, unknown>,
+      props: {},
       children: [] as VChild[],
       _el: node,
     }))

@@ -1,4 +1,5 @@
 import { ObservableValue } from '@furystack/utils'
+import type { Cache } from './cache.js'
 import type { CacheResult, FailedCacheResult, LoadedCacheResult, ObsoleteCacheResult } from './cache-result.js'
 import { isLoadedCacheResult, isObsoleteCacheResult } from './cache-result.js'
 
@@ -7,9 +8,10 @@ interface CacheStateManagerOptions {
 }
 
 /**
- * @internal
  * Thrown by {@link CacheStateManager.setObsoleteState} when invoked on an
  * entry that is not in the `loaded` state.
+ *
+ * @internal
  */
 export class CannotObsoleteUnloadedError<T> extends Error {
   constructor(public readonly cacheResult: CacheResult<T>) {
@@ -23,7 +25,6 @@ interface CacheStoreEntry<T, TArgs extends any[]> {
 }
 
 /**
- * @internal
  * Low-level storage primitive used by {@link Cache}. Tracks per-key
  * `ObservableValue<CacheResult<T>>` plus the most recent `args` that
  * produced it, so range predicates (`obsoleteRange` / `removeRange`)
@@ -34,6 +35,8 @@ interface CacheStoreEntry<T, TArgs extends any[]> {
  * a major version bump. Use {@link Cache} from `@furystack/cache`
  * instead — it owns the load/dedupe/timer lifecycle on top of this
  * primitive.
+ *
+ * @internal
  */
 export class CacheStateManager<T, TArgs extends any[]> implements Disposable {
   private readonly store = new Map<string, CacheStoreEntry<T, TArgs>>()

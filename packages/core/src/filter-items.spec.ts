@@ -32,7 +32,7 @@ describe('filterItems', () => {
     })
 
     it('should return all items when filter is an empty object', () => {
-      expect(filterItems(items, {} as FilterType<TestItem>)).toEqual(items)
+      expect(filterItems(items, {})).toEqual(items)
     })
   })
 
@@ -150,7 +150,7 @@ describe('filterItems', () => {
     it('should escape regex metacharacters in the pattern', () => {
       type Item = { value: string }
       const testItems: Item[] = [{ value: 'foo.bar' }, { value: 'fooXbar' }]
-      const result = filterItems(testItems, { value: { $like: 'foo.bar' } } as FilterType<Item>)
+      const result = filterItems(testItems, { value: { $like: 'foo.bar' } })
       expect(result).toEqual([{ value: 'foo.bar' }])
     })
   })

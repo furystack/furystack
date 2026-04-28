@@ -21,49 +21,27 @@ import type { RestApi } from './rest-api.js'
 export type Schema = unknown
 
 /**
- * Represents the definition of an API endpoint, including its path, schema, and schema name.
- * The HTTP method is now implicit in the structure key.
+ * Reflection metadata for a single endpoint. Populated by the wrappers
+ * applied at definition time (`Validate()`, `Authenticate()`) and read by
+ * `generateOpenApiDocument` and the `/schema` action. The HTTP method is
+ * implicit in the parent {@link ApiEndpointSchema} structure key.
  */
 export type ApiEndpointDefinition = {
-  /**
-   * The path of the endpoint, which is the URL pattern that the endpoint responds to.
-   */
   path: string
-  /**
-   * The JSON schema that defines the structure of the request and response for this endpoint.
-   * To include a schema, wrap your endpoint with a Validate({...}) call during the implementation.
-   */
+  /** Populated by `Validate({ schema })`. Empty string when missing. */
   schema: Schema
-  /**
-   * The name of the schema, which can be used to reference this schema in documentation or other contexts.
-   * To include a schema name, wrap your endpoint with a Validate({...}) call during the implementation.
-   */
+  /** Populated by `Validate({ schemaName })`. Empty string when missing. */
   schemaName: string
-  /**
-   * Indicates whether the endpoint requires authentication.
-   * To include the flag, wrap your endpoint with an Authenticate() call during the implementation.
-   */
+  /** Populated by `Authenticate()` wrapping the action. */
   isAuthenticated: boolean
-  /**
-   * Tags for API documentation grouping.
-   */
   tags?: string[]
-  /**
-   * Marks the endpoint as deprecated.
-   */
   deprecated?: boolean
-  /**
-   * A short summary of the endpoint.
-   */
   summary?: string
-  /**
-   * A longer description of the endpoint.
-   */
   description?: string
   /**
-   * The OpenAPI security scheme names required for this endpoint.
-   * When present, used by `generateOpenApiDocument` to emit accurate per-operation `security`.
-   * When absent, falls back to the `isAuthenticated` boolean behavior.
+   * OpenAPI security scheme names required for this endpoint. Populated by
+   * `Authorize()` and friends. When present overrides the
+   * `isAuthenticated` boolean fallback in `generateOpenApiDocument`.
    */
   securitySchemes?: string[]
 }

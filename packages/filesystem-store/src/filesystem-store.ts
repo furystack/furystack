@@ -1,4 +1,4 @@
-import type { Constructable, FilterType, FindOptions, PhysicalStore } from '@furystack/core'
+import type { Constructable, defineStore, FilterType, FindOptions, PhysicalStore } from '@furystack/core'
 import { InMemoryStore } from '@furystack/core'
 import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { FSWatcher } from 'fs'
@@ -7,7 +7,24 @@ import { promises, watch } from 'fs'
 const DEFAULT_TICK_MS = 3000
 
 /**
- * Store implementation that stores info in a simple JSON file
+ * {@link PhysicalStore} backed by a JSON file on disk.
+ *
+ * Reads on construction, holds entities in an {@link InMemoryStore}, and flushes
+ * pending writes on a `tickMs` interval (default 3000 ms). External edits to the
+ * file are picked up via an `fs.watch` watcher that triggers {@link reloadData}.
+ *
+ * Disposal is async — `[Symbol.asyncDispose]` flushes pending changes, closes
+ * the watcher, and clears the interval. Owners must `await` disposal or rely on
+ * `await using` / {@link defineStore}'s `onDispose` hook to avoid lost writes.
+ *
+ * **Init race:** the constructor schedules the initial reload in the
+ * background. Calls to `get` / `find` / `count` issued before the reload
+ * resolves see an empty cache. Failures during the background reload (other
+ * than `ENOENT`) are surfaced via `onLoadError` rather than thrown.
+ *
+ * Re-emits `onEntityAdded` / `onEntityUpdated` / `onEntityRemoved` from the
+ * underlying in-memory store, plus `onWatcherError` (sync watcher setup
+ * failure) and `onLoadError` (async file-load failure) for diagnostics.
  */
 export class FileSystemStore<T, TPrimaryKey extends keyof T>
   extends EventHub<{
@@ -15,6 +32,7 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     onEntityUpdated: { id: T[TPrimaryKey]; change: Partial<T> }
     onEntityRemoved: { key: T[TPrimaryKey] }
     onWatcherError: { error: unknown }
+    onLoadError: { error: unknown }
     onListenerError: ListenerErrorPayload
   }>
   implements PhysicalStore<T, TPrimaryKey, T>
@@ -33,18 +51,22 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
 
   public async remove(...keys: Array<T[TPrimaryKey]>): Promise<void> {
     await this.inMemoryStore.remove(...keys)
-    this.hasChanges = true
+    this._hasChanges = true
   }
 
-  public tick: ReturnType<typeof setInterval>
-  public hasChanges = false
+  private tick: ReturnType<typeof setInterval>
+  private _hasChanges = false
+  /** Whether the in-memory cache has unflushed mutations. Read-only externally. */
+  public get hasChanges(): boolean {
+    return this._hasChanges
+  }
   public async get(key: T[TPrimaryKey], select?: Array<keyof T>) {
     return await this.inMemoryStore.get(key, select)
   }
 
   public async add(...entries: T[]) {
     const result = await this.inMemoryStore.add(...entries)
-    this.hasChanges = true
+    this._hasChanges = true
     return result
   }
 
@@ -56,6 +78,11 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     return this.inMemoryStore.count(filter)
   }
 
+  /**
+   * Writes the in-memory cache to disk if {@link hasChanges} is set. No-op
+   * otherwise — the periodic tick calls this on every interval but only the
+   * first call after a mutation actually touches the filesystem.
+   */
   public async saveChanges() {
     if (!this.hasChanges) {
       return
@@ -65,9 +92,13 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
       values.push(this.cache.get(key) as T)
     }
     await this.writeFile(this.options.fileName, JSON.stringify(values))
-    this.hasChanges = false
+    this._hasChanges = false
   }
 
+  /**
+   * Flushes pending changes, closes the FS watcher and clears the tick interval.
+   * Must be awaited — skipping `await` risks losing the final write.
+   */
   public async [Symbol.asyncDispose]() {
     await this.saveChanges()
     this.watcher?.close()
@@ -75,6 +106,11 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
     super[Symbol.dispose]()
   }
 
+  /**
+   * Replaces the in-memory cache with the contents of the backing file. Called
+   * on construction and on every FS watcher event. Missing file (`ENOENT`) is
+   * silently ignored so first-run writes succeed against a fresh path.
+   */
   public async reloadData() {
     try {
       const data = await this.readFile(this.options.fileName)
@@ -93,10 +129,18 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
 
   public async update(id: T[TPrimaryKey], data: T) {
     await this.inMemoryStore.update(id, data)
-    this.hasChanges = true
+    this._hasChanges = true
   }
 
+  /**
+   * Test seam — overridable to fault-inject the read path. Defaults to
+   * `fs.promises.readFile`. Production code should not reassign.
+   */
   public readFile = promises.readFile
+  /**
+   * Test seam — overridable to fault-inject the write path. Defaults to
+   * `fs.promises.writeFile`. Production code should not reassign.
+   */
   public writeFile = promises.writeFile
 
   constructor(
@@ -123,10 +167,14 @@ export class FileSystemStore<T, TPrimaryKey extends keyof T>
       this.emit('onEntityRemoved', { key })
     })
 
+    void this.reloadData().catch((error: unknown) => {
+      this.emit('onLoadError', { error })
+    })
     try {
-      void this.reloadData()
       this.watcher = watch(this.options.fileName, { encoding: 'buffer' }, () => {
-        void this.reloadData()
+        void this.reloadData().catch((error: unknown) => {
+          this.emit('onLoadError', { error })
+        })
       })
     } catch (error) {
       this.emit('onWatcherError', { error })

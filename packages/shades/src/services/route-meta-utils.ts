@@ -108,7 +108,7 @@ export const extractNavTree = <TRoutes extends Record<string, NestedRoute<any, a
         fullPath,
         meta: route.meta,
         children: route.children ? build(route.children, fullPath) : undefined,
-      } as NavTreeNode<TRoutes>
+      }
     })
   return build(routes, parentPath)
 }

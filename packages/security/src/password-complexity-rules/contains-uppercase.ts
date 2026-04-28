@@ -1,8 +1,8 @@
 import type { PasswordComplexityRule } from '../models/password-complexity-rule.js'
 
 /**
- * @param upperCaseCount The minimum upper case characters length
- * @returns The created Password Policy object
+ * Builds a complexity rule that requires at least `upperCaseCount` uppercase
+ * characters. Diacritics are stripped before counting (`Á` counts as `A`).
  */
 export const createContainsUppercasePolicy = (upperCaseCount: number): PasswordComplexityRule => ({
   name: 'containsUppercase' as const,

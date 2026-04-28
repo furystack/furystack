@@ -44,6 +44,14 @@ export default defineConfig(
     plugins: {
       jsdoc,
     },
+    settings: {
+      jsdoc: {
+        mode: 'typescript',
+        tagNamePreference: {
+          template: 'typeParam',
+        },
+      },
+    },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off', // Use Typescript own check for this
       '@typescript-eslint/explicit-member-accessibility': [
@@ -67,6 +75,17 @@ export default defineConfig(
       '@typescript-eslint/no-unsafe-assignment': 'error',
       'jsdoc/require-param-type': 'off',
       'jsdoc/require-returns-type': 'off',
+      'jsdoc/check-alignment': 'error',
+      'jsdoc/check-tag-names': 'error',
+      'jsdoc/empty-tags': 'error',
+      // 'jsdoc/no-undefined-types' is intentionally not enabled: the plugin
+      // resolves types in the JSDoc namespace only, while TypeScript's own
+      // {@link} validation (since 4.9) understands cross-module references
+      // and surfaces broken links in editor hover.
+      // 'jsdoc/require-jsdoc' is intentionally not enabled: `publicOnly`
+      // overshoots the actual rule (JsDoc required only on `index.ts`-
+      // reachable exports per CODE_STYLE.mdc), and the resulting noise
+      // outweighs any value during the audit pass.
       'object-shorthand': 'error',
       'dot-notation': 'error',
       'no-caller': 'error',

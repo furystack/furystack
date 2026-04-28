@@ -8,13 +8,12 @@ import { RouteBreadcrumb } from './route-breadcrumb.js'
 const createMatchChainEntry = (
   path: string,
   title?: string | (({ match, injector }: { match: unknown; injector: unknown }) => Promise<string>),
-): MatchChainEntry =>
-  ({
-    route: { meta: title != null ? { title } : undefined, component: () => <div /> },
-    match: { path, params: {} },
-    query: null,
-    hash: undefined,
-  }) as MatchChainEntry
+): MatchChainEntry => ({
+  route: { meta: title != null ? { title } : undefined, component: () => <div /> },
+  match: { path, params: {} },
+  query: null,
+  hash: undefined,
+})
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
 

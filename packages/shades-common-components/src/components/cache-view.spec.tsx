@@ -141,10 +141,9 @@ describe('CacheView', () => {
           } catch {
             // expected
           }
-          const customError = vi.fn(
-            (err: unknown, _retry: () => void) =>
-              (<span className="custom-error">{String(err)}</span>) as unknown as JSX.Element,
-          )
+          const customError = vi.fn((err: unknown, _retry: () => void) => (
+            <span className="custom-error">{String(err)}</span>
+          ))
           const { cacheView } = await renderCacheView(cache, ['test'], { error: customError })
           expect(customError).toHaveBeenCalledOnce()
           expect(customError.mock.calls[0][0]).toBeInstanceOf(Error)

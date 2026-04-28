@@ -5,6 +5,7 @@ import { HttpAuthenticationSettings } from '@furystack/rest-service'
 import { OAuth2Client, type TokenPayload } from 'google-auth-library'
 
 import { GoogleAuthenticationSettings } from './google-authentication-settings.js'
+import type { useGoogleAuthentication } from './helpers.js'
 
 /**
  * Service for Google OAuth authentication.

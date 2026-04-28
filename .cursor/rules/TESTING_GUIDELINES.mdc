@@ -1,0 +1,117 @@
+---
+name: Testing Guidelines
+description: Public API testing, integration tests, disposable safety, Vitest patterns for FuryStack libraries
+globs:
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
+alwaysApply: false
+---
+
+# Testing Guidelines
+
+Vitest. Tests live next to source as `*.spec.ts` / `*.spec.tsx`.
+
+## Cover all public API
+
+100% statement coverage on exports. Test integration between packages.
+
+### When to test null / undefined / "wrong type" inputs
+
+**Rationale:** older guidance asked for blanket null/undefined/error tests on every export. That is wasted effort. Such tests assert that TypeScript works — which it does — and they encourage code to add runtime guards for inputs the types already forbid, polluting the implementation with dead branches. Trust the TS type system and assume callers also use it. The exceptions below cover the cases where types alone are not sufficient, and those cases **must** be tested.
+
+You **MUST** test null / undefined / malformed values when:
+
+- **External boundary, no schema validation upstream** — REST handlers, WebSocket message handlers, file parsers, env-var consumers, anything reading `unknown` or `JSON.parse` output. At runtime nothing prevents a bad payload, so the function is the line of defense. If a `Validate(...)` (or equivalent JSON schema / zod / ajv) wrapper sits ahead of the function, the wrapper enforces the contract and the inner function does **not** need to retest it.
+- **The type signature itself allows the case** — `T | null`, `T | undefined`, `unknown`, optional `T?`. The function declared the case as legal, so its documented behavior for each branch must be exercised.
+
+Outside those cases, do **not** add such tests. They assert that TypeScript works, not that your code does.
+
+```typescript
+// ✅ singleton vs transient lifetime
+describe('defineService', () => {
+  it('caches singleton instances', async () => {
+    await usingAsync(createInjector(), async (injector) => {
+      const Service = defineService({
+        name: 'test/Service',
+        lifetime: 'singleton',
+        factory: () => ({ id: Math.random() }),
+      })
+      expect(injector.get(Service)).toBe(injector.get(Service))
+    })
+  })
+})
+```
+
+## Disposable safety — wrap everything in `using` / `usingAsync`
+
+All disposable resources in tests **must** be wrapped. Manual `[Symbol.dispose]()` at the end leaks if the test throws first.
+
+```typescript
+import { using, usingAsync } from '@furystack/utils'
+import { createInjector } from '@furystack/inject'
+
+// ✅
+await usingAsync(createInjector(), async (injector) => {
+  const service = injector.get(MyService)
+  expect(service.getData()).toBe('expected')
+})
+
+// ❌ leaks on throw
+const cache = new Cache({ load: ... })
+expect(cache.has(1)).toBe(false)
+cache[Symbol.dispose]()
+```
+
+Common disposables: `Injector`, `ObservableValue`, `Cache`, `*Store`, `EventHub`, list/tree/grid/layout services.
+
+**Exception:** when the test verifies post-dispose behavior itself, manual disposal is required.
+
+## Mocking — minimal, via `injector.bind`
+
+Keep mocks rare. Substitute services using the same mechanism production uses for bootstrap overrides.
+
+```typescript
+// ✅
+await usingAsync(createInjector(), async (injector) => {
+  injector.bind(Greeter, () => ({ greet: () => 'stubbed' }))
+  expect(injector.get(Greeter).greet()).toBe('stubbed')
+})
+```
+
+## Shade component tests
+
+Renders are batched via `queueMicrotask`. Await `flushUpdates()` before asserting DOM state.
+
+```typescript
+import { flushUpdates } from '@furystack/shades'
+
+it('updates DOM after state change', async () => {
+  // trigger state change
+  await flushUpdates()
+  expect(element.textContent).toBe('updated')
+})
+```
+
+If a render triggers cascaded `updateComponent()` calls, await `flushUpdates()` again.
+
+## Structure
+
+```typescript
+describe('PackageName', () => {
+  describe('ClassName', () => {
+    describe('methodName', () => {
+      it('behaves X when Y', () => {
+        // arrange / act / assert
+      })
+    })
+  })
+})
+```
+
+## Coverage targets
+
+- Public APIs: 100%
+- Internal helpers: 80%+
+- All error paths covered
+
+Run: `yarn test`, `yarn test --coverage`.

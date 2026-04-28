@@ -275,7 +275,7 @@ describe('generateOpenApiDocument', () => {
     it('Should use generic object schema when no schemaName', () => {
       const api: ApiEndpointSchema['endpoints'] = {
         GET: {
-          '/test': { path: '/test', isAuthenticated: false, schemaName: '', schema: null as unknown },
+          '/test': { path: '/test', isAuthenticated: false, schemaName: '', schema: null },
         },
       }
 
@@ -300,7 +300,7 @@ describe('generateOpenApiDocument', () => {
     it('Should not add schema to components when schema is falsy', () => {
       const api: ApiEndpointSchema['endpoints'] = {
         GET: {
-          '/test': { path: '/test', isAuthenticated: false, schemaName: 'Empty', schema: null as unknown },
+          '/test': { path: '/test', isAuthenticated: false, schemaName: 'Empty', schema: null },
         },
       }
 

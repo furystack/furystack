@@ -1,9 +1,7 @@
 import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation.js'
+import type { SchemaValidationError } from './schema-validator/schema-validation-error.js'
 import { SchemaValidator } from './schema-validator/schema-validator.js'
 
-/**
- * Represents a JSON Schema definition structure
- */
 type JsonSchemaDefinition = {
   required?: string[]
   additionalProperties?: boolean
@@ -17,22 +15,26 @@ type JsonSchemaDefinition = {
   [key: string]: unknown
 }
 
-/**
- * Represents a JSON Schema with definitions
- */
 type JsonSchemaWithDefinitions = {
   definitions: Record<string, JsonSchemaDefinition>
 }
 
+/**
+ * Wraps a {@link RequestAction} with JSON Schema validation. The wrapper
+ * pre-validates `query`, `body`, `url` and `headers` against the named
+ * schema entry, throws {@link SchemaValidationError} on failure (caught by
+ * `ErrorAction` to return 400), then forwards the validated values to the
+ * inner action.
+ *
+ * The wrapped function exposes `schema` and `schemaName` so OpenAPI
+ * generators can reflect on the action without re-parsing the source.
+ *
+ * `furystack/rest-action-validate-wrapper` enforces this on REST actions.
+ */
 export const Validate =
   <TSchema extends JsonSchemaWithDefinitions>(validationOptions: {
-    /**
-     * The Schema object
-     */
     schema: TSchema
-    /**
-     * Entity key from the JSON Schema object
-     */
+    /** Entry under `schema.definitions` describing this endpoint's request shape. */
     schemaName: keyof TSchema['definitions']
   }) =>
   <T extends { result: unknown }>(

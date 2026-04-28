@@ -1,8 +1,6 @@
 /**
- * Method that accepts a Disposable resource that will be disposed after the callback
- * @param resource The resource that is used in the callback and will be disposed afterwards
- * @param callback The callback that will be executed synchronously before the resource will be disposed
- * @returns the value that will be returned by the callback method
+ * Runs `callback` with `resource`, then disposes `resource` in a `finally`
+ * block — including when `callback` throws. Returns `callback`'s value.
  */
 export const using = <T extends Disposable, TReturns>(resource: T, callback: (r: T) => TReturns) => {
   try {

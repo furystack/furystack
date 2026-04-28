@@ -1,34 +1,36 @@
-import type { CreateResult, FilterType, FindOptions, PartialResult, WithOptionalId } from '@furystack/core'
+import type {
+  CreateResult,
+  FilterType,
+  FindOptions,
+  PartialResult,
+  PhysicalStore,
+  WithOptionalId,
+} from '@furystack/core'
 import { AuthorizationError, selectFields } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { DataSetSettings } from './data-set-setting.js'
 
 /**
- * An authorized Repository Store instance that wraps a {@link PhysicalStore} with authorization,
- * modification hooks, and event dispatching.
+ * Authorization-enforcing wrapper around a {@link PhysicalStore}. The
+ * recommended write gateway for application code — `furystack/no-direct-store-token`
+ * enforces this. Each mutation runs the relevant `authorize*` and
+ * `modify*` callbacks from {@link DataSetSettings}, persists, then emits
+ * `onEntityAdded` / `onEntityUpdated` / `onEntityRemoved` (consumed by
+ * entity sync, audit logs).
  *
- * The DataSet is the **recommended write gateway** for all entity mutations. Writing through the DataSet
- * ensures that authorization rules are enforced, modification hooks are applied, and change events
- * (`onEntityAdded`, `onEntityUpdated`, `onEntityRemoved`) are emitted -- which are required for features
- * like entity sync to function correctly.
- *
- * All mutating methods require an `injector` parameter that provides the caller's context (e.g. the current
- * user's identity). For server-side or background operations that don't originate from an HTTP request,
- * use {@link useSystemIdentityContext} to create a scoped child injector with elevated privileges.
+ * Mutating methods take an `injector` parameter to surface caller identity
+ * to the authorizers. For server-side / background work without an HTTP
+ * request, wrap the injector with `useSystemIdentityContext` from
+ * `@furystack/core`.
  *
  * @example
  * ```ts
- * import { useSystemIdentityContext } from '@furystack/core'
- * import { getDataSetFor } from '@furystack/repository'
- * import { usingAsync } from '@furystack/utils'
- *
- * // Server-side write with an elevated identity
  * await usingAsync(
  *   useSystemIdentityContext({ injector, username: 'background-job' }),
  *   async (systemInjector) => {
- *     const dataSet = getDataSetFor(systemInjector, MyModel, 'id')
- *     await dataSet.add(systemInjector, newEntity)
+ *     const dataSet = getDataSetFor(systemInjector, UserDataSet)
+ *     await dataSet.add(systemInjector, { username: 'alice', roles: [] })
  *   },
  * )
  * ```
@@ -42,20 +44,8 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
   }>
   implements Disposable
 {
-  /**
-   * Primary key of the contained entity
-   */
   public primaryKey: TPrimaryKey
 
-  /**
-   * Adds an entity to the DataSet.
-   * Runs authorization checks, applies modification hooks, persists to the physical store,
-   * and emits an `onEntityAdded` event for each created entity.
-   * @param injector The injector from the caller's context. For server-side or background operations
-   *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
-   * @param entities The entities to add
-   * @returns The CreateResult with the created entities
-   */
   public async add(injector: Injector, ...entities: TWritableData[]): Promise<CreateResult<T>> {
     await Promise.all(
       entities.map(async (entity) => {
@@ -81,15 +71,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
     return createResult
   }
 
-  /**
-   * Updates an entity in the store.
-   * Runs authorization checks, applies modification hooks, persists to the physical store,
-   * and emits an `onEntityUpdated` event.
-   * @param injector The injector from the caller's context. For server-side or background operations
-   *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
-   * @param id The identifier of the entity
-   * @param change The update
-   */
   public async update(injector: Injector, id: T[TPrimaryKey], change: Partial<T>): Promise<void> {
     if (this.settings.authorizeUpdate) {
       const result = await this.settings.authorizeUpdate({ injector, change })
@@ -113,12 +94,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
     this.emit('onEntityUpdated', { injector, change: parsed, id })
   }
 
-  /**
-   * Returns a Promise with the entity count
-   * @param injector The Injector from the context
-   * @param filter The Filter that will be applied
-   * @returns the Count
-   */
   public async count(injector: Injector, filter?: FilterType<T>): Promise<number> {
     if (this.settings.authorizeGet) {
       const result = await this.settings.authorizeGet({ injector })
@@ -129,12 +104,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
     return await this.settings.physicalStore.count(filter)
   }
 
-  /**
-   * Returns a filtered subset of the entity
-   * @param injector The Injector from the context
-   * @param filter The Filter definition
-   * @returns A result with the current items
-   */
   public async find<TFields extends Array<keyof T>>(
     injector: Injector,
     filter: FindOptions<T, TFields>,
@@ -149,13 +118,6 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
     return this.settings.physicalStore.find(parsedFilter)
   }
 
-  /**
-   * Returns an entity based on its primary key
-   * @param injector The injector from the context
-   * @param key The identifier of the entity
-   * @param select A field list used for projection
-   * @returns An item with the current unique key or Undefined
-   */
   public async get<TSelect extends Array<keyof T>>(
     injector: Injector,
     key: T[TPrimaryKey],
@@ -172,30 +134,24 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
       if (!fullEntity) {
         return undefined
       }
-      const result = await this.settings.authorizeGetEntity({ injector, entity: fullEntity as T })
+      const result = await this.settings.authorizeGetEntity({ injector, entity: fullEntity })
       if (!result.isAllowed) {
         throw new AuthorizationError(result.message)
       }
       if (select) {
         return selectFields(fullEntity as T & object, ...select)
       }
-      return fullEntity as PartialResult<T, TSelect>
+      return fullEntity
     }
     return await this.settings.physicalStore.get(key, select)
   }
 
   /**
-   * Removes one or more entities based on their primary keys.
-   * Runs authorization checks (all-or-nothing), persists to the physical store,
-   * and emits an `onEntityRemoved` event for each removed entity.
-   *
-   * When `authorizeRemoveEntity` is configured, only entities that exist in the store
-   * are authorized. Keys that don't match any entity are silently forwarded to the
-   * physical store's `remove()` call.
-   * @param injector The injector from the caller's context. For server-side or background operations
-   *   without an HTTP request, use a child injector with an elevated {@link IdentityContext}.
-   * @param keys The primary keys of the entities to remove
-   * @returns A promise that will be resolved / rejected based on the remove success
+   * Removes by primary key. Pre-load `authorizeRemove` and per-entity
+   * `authorizeRemoveEntity` are all-or-nothing — any rejection aborts the
+   * whole batch before any persist call. When `authorizeRemoveEntity` is
+   * configured, missing keys are silently forwarded to the physical store
+   * (no entity to authorize).
    */
   public async remove(injector: Injector, ...keys: Array<T[TPrimaryKey]>): Promise<void> {
     if (keys.length === 0) {
@@ -213,7 +169,7 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
       })
       await Promise.all(
         entities.map(async (entity) => {
-          const removeResult = await this.settings.authorizeRemoveEntity!({ injector, entity: entity as T })
+          const removeResult = await this.settings.authorizeRemoveEntity!({ injector, entity })
           if (!removeResult.isAllowed) {
             throw new AuthorizationError(removeResult.message)
           }

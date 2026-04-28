@@ -289,7 +289,7 @@ describe('JwtTokenService', () => {
         await store.update(oldToken, {
           revokedAt: new Date(Date.now() - 10000).toISOString(),
           replacedByToken: newToken,
-        } as Partial<RefreshToken>)
+        })
 
         await expect(service.verifyRefreshToken(oldToken)).rejects.toThrow(UnauthenticatedError)
       })

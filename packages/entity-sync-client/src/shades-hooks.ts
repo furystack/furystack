@@ -2,6 +2,7 @@ import type { Constructable } from '@furystack/core'
 import type { Injector, Token } from '@furystack/inject'
 import type { ObservableValue } from '@furystack/utils'
 import type { FilterType, SyncState } from '@furystack/entity-sync'
+import type { defineEntitySyncService } from './define-entity-sync-service.js'
 import type { EntitySyncService } from './entity-sync-service.js'
 
 /**

@@ -23,7 +23,7 @@ export type JwtClientOptions = ClientOptions & {
  * All token lifecycle operations (login, logout, setTokens) live on the
  * token store, not on this client.
  *
- * @important HTTPS is strongly recommended. Bearer tokens transmitted over
+ * **Important:** HTTPS is strongly recommended. Bearer tokens transmitted over
  * plain HTTP are vulnerable to interception and replay attacks.
  *
  * @typeParam TApi The REST API type definition

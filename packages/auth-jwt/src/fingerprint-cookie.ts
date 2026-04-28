@@ -2,12 +2,7 @@ import type { IncomingMessage } from 'http'
 
 import type { FingerprintCookieSettings } from './jwt-authentication-settings.js'
 
-/**
- * Builds a `Set-Cookie` header value for the fingerprint cookie.
- * @param fingerprint The raw fingerprint value
- * @param settings Fingerprint cookie settings
- * @returns The `Set-Cookie` header string
- */
+/** Builds the `Set-Cookie` header value that installs the fingerprint cookie. */
 export const buildFingerprintSetCookie = (fingerprint: string, settings: FingerprintCookieSettings): string => {
   const parts = [`${settings.name}=${encodeURIComponent(fingerprint)}`, `Path=${settings.path}`, 'HttpOnly']
   if (settings.secure) {
@@ -17,11 +12,7 @@ export const buildFingerprintSetCookie = (fingerprint: string, settings: Fingerp
   return parts.join('; ')
 }
 
-/**
- * Builds a `Set-Cookie` header value that clears the fingerprint cookie.
- * @param settings Fingerprint cookie settings
- * @returns The `Set-Cookie` header string with Max-Age=0
- */
+/** Builds the `Set-Cookie` header value that clears the fingerprint cookie (`Max-Age=0`). */
 export const clearFingerprintSetCookie = (settings: FingerprintCookieSettings): string => {
   const parts = [`${settings.name}=`, `Path=${settings.path}`, 'HttpOnly', 'Max-Age=0']
   if (settings.secure) {
@@ -53,10 +44,9 @@ export const fingerprintClearCookieHeaders = (
 }
 
 /**
- * Extracts the fingerprint value from the request's `Cookie` header.
- * @param request The incoming HTTP request
- * @param cookieName The name of the fingerprint cookie
- * @returns The fingerprint value, or `null` if not found
+ * Reads the fingerprint cookie value from the request's `Cookie` header.
+ * Returns `null` when absent or empty. Decoded with `decodeURIComponent`;
+ * malformed values are returned raw rather than throwing.
  */
 export const extractFingerprintCookie = (
   request: Pick<IncomingMessage, 'headers'>,

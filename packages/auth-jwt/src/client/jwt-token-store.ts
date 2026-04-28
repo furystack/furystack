@@ -31,12 +31,7 @@ const decodeTokenExp = (token: string): number | null => {
     const parts = token.split('.')
     if (parts.length !== 3) return null
     const payload: unknown = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
-    if (
-      typeof payload === 'object' &&
-      payload !== null &&
-      'exp' in payload &&
-      typeof (payload as { exp: unknown }).exp === 'number'
-    ) {
+    if (typeof payload === 'object' && payload !== null && 'exp' in payload && typeof payload.exp === 'number') {
       return (payload as { exp: number }).exp
     }
     return null

@@ -1,5 +1,6 @@
 import type { Injector } from '@furystack/inject'
 import type { ObservableValue, ValueObserverOptions } from '@furystack/utils'
+import type { LocationService } from '../services/location-service.js'
 import type { ChildrenList } from './children-list.js'
 import type { PartialElement } from './partial-element.js'
 
@@ -79,13 +80,11 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
   useRef: <T extends Element = HTMLElement>(key: string) => RefObject<T>
 
   /**
-   * Creates and disposes a resource after the component has been detached from the DOM.
-   * When `deps` is provided, the resource is re-created (and the old one disposed) whenever
-   * the serialized deps value changes.
-   * @param key The key for caching the disposable resource
-   * @param factory A factory method for creating the disposable resource
-   * @param deps Optional dependency array — when deps change, the old resource is disposed and a new one is created
-   * @returns The Disposable instance
+   * Creates a disposable resource the first time it is requested per `key`,
+   * caches it across renders, and disposes it on `disconnectedCallback`.
+   * When `deps` is provided, the cached resource is disposed + re-created
+   * whenever the serialized deps change (use for `key`-stable resources
+   * that depend on dynamic inputs).
    */
   useDisposable: <T extends Disposable | AsyncDisposable>(key: string, factory: () => T, deps?: readonly unknown[]) => T
 
@@ -121,27 +120,25 @@ export type RenderOptions<TProps, TElementBase extends HTMLElement = HTMLElement
   ) => [value: T, setValue: (newValue: T) => void]
 
   /**
-   * Creates a state object that will trigger a component re-render on change
-   * @param key The Key for caching the observable value
-   * @param initialValue The initial value for the observable
-   * @returns tuple with the current value and a setter function
+   * Local component state. Returns `[value, setValue]`; calling the setter
+   * with a new value triggers a re-render. Preferred over manually wiring
+   * an `ObservableValue` + `useObservable` (`furystack/prefer-use-state`
+   * enforces this).
    */
   useState: <T>(key: string, initialValue: T) => [value: T, setValue: (newValue: T) => void]
 
   /**
-   * Creates a state object that will use a value from the search string of the current location. Triggers a component re-render on change
-   * @param key The Key for caching the observable value
-   * @param initialValue The initial value - if the value is not found in the search string
-   * @returns a tuple with the current value and a setter function
+   * State backed by a URL search-string parameter via {@link LocationService}.
+   * Bidirectional: setting the value pushes a history entry; navigating
+   * (back/forward, manual edit) updates the value. `initialValue` applies
+   * when the key is absent from the current URL.
    */
   useSearchState: <T>(key: string, initialValue: T) => [value: T, setValue: (newValue: T) => void]
 
   /**
-   * Creates a state object that will use a value from the storage area. Triggers a component re-render on change
-   * @param key The key in the storage area
-   * @param initialValue The initial value that will be used if the key is not found in the storage area
-   * @param storageArea The storage area to use
-   * @returns a tuple with the current value and a setter function
+   * State backed by `localStorage` (or a custom `Storage`). Synchronizes
+   * across tabs via the `storage` event and a `BroadcastChannel`.
+   * `initialValue` applies when the key is absent from `storageArea`.
    */
   useStoredState: <T>(
     key: string,

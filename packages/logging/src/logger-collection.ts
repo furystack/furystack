@@ -1,6 +1,7 @@
 import type { Token } from '@furystack/inject'
 import { defineService } from '@furystack/inject'
 import { createLogger } from './create-logger.js'
+import type { useLogging } from './helpers.js'
 import type { Logger } from './logger.js'
 
 /**

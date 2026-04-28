@@ -1703,7 +1703,7 @@ describe('EntitySyncService', () => {
           const live = service.subscribeEntity(User, '123')
           subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' })
 
-          service.applyOptimisticEntityUpdate(User, '123', { name: 'Jane' } as Partial<User>)
+          service.applyOptimisticEntityUpdate(User, '123', { name: 'Jane' })
 
           const state = live.state.getValue()
           expect(state.status).toBe('synced')
@@ -1719,7 +1719,7 @@ describe('EntitySyncService', () => {
           const live = service.subscribeEntity(User, '123')
           subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' })
 
-          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'Jane' } as Partial<User>)
+          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'Jane' })
           expect(rollback).toBeDefined()
 
           rollback!()
@@ -1738,7 +1738,7 @@ describe('EntitySyncService', () => {
           const live = service.subscribeEntity(User, '123')
           subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 1)
 
-          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'Optimistic' } as Partial<User>)
+          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'Optimistic' })
 
           // Server sends an update
           mockWs.simulateMessage({
@@ -1763,7 +1763,7 @@ describe('EntitySyncService', () => {
       it('should return undefined for non-existent entity', async () => {
         await usingAsync(setupClient(), async ({ mockWs, service }) => {
           mockWs.simulateOpen()
-          const rollback = service.applyOptimisticEntityUpdate(User, 'nonexistent', { name: 'X' } as Partial<User>)
+          const rollback = service.applyOptimisticEntityUpdate(User, 'nonexistent', { name: 'X' })
           expect(rollback).toBeUndefined()
         })
       })
@@ -1773,7 +1773,7 @@ describe('EntitySyncService', () => {
           mockWs.simulateOpen()
           service.subscribeEntity(User, '123')
           // Don't respond to subscription -- no data yet
-          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'X' } as Partial<User>)
+          const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'X' })
           expect(rollback).toBeUndefined()
         })
       })
@@ -1790,7 +1790,7 @@ describe('EntitySyncService', () => {
             id: 'msg-temp',
             text: 'Optimistic',
             roomId: 'room-1',
-          } as ChatMessage)
+          })
 
           const state = live.state.getValue()
           expect(state.status).toBe('synced')
@@ -1811,7 +1811,7 @@ describe('EntitySyncService', () => {
             id: 'msg-temp',
             text: 'Optimistic',
             roomId: 'room-1',
-          } as ChatMessage)
+          })
 
           rollback!()
 
@@ -1832,7 +1832,7 @@ describe('EntitySyncService', () => {
 
           service.applyOptimisticCollectionUpdate(ChatMessage, 'msg-1', {
             text: 'Updated',
-          } as Partial<ChatMessage>)
+          })
 
           const state = live.state.getValue()
           if (state.status === 'synced') {
@@ -1849,7 +1849,7 @@ describe('EntitySyncService', () => {
 
           const rollback = service.applyOptimisticCollectionUpdate(ChatMessage, 'msg-1', {
             text: 'Updated',
-          } as Partial<ChatMessage>)
+          })
 
           rollback!()
 

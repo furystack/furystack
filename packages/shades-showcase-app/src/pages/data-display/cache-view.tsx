@@ -171,13 +171,11 @@ export const CacheViewPage = Shade({
               args={DEMO_ARGS}
               content={DemoContent}
               loader={
-                (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px' }}>
-                    <Skeleton delay={0} />
-                    <Skeleton delay={0} />
-                    <Skeleton delay={0} />
-                  </div>
-                ) as unknown as JSX.Element
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px' }}>
+                  <Skeleton delay={0} />
+                  <Skeleton delay={0} />
+                  <Skeleton delay={0} />
+                </div>
               }
             />
           </Paper>
@@ -191,18 +189,16 @@ export const CacheViewPage = Shade({
               args={DEMO_ARGS}
               content={DemoContent}
               loader={
-                (
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '80px',
-                    }}
-                  >
-                    <Loader style={{ width: '40px', height: '40px' }} delay={0} />
-                  </div>
-                ) as unknown as JSX.Element
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '80px',
+                  }}
+                >
+                  <Loader style={{ width: '40px', height: '40px' }} delay={0} />
+                </div>
               }
             />
           </Paper>
@@ -215,16 +211,14 @@ export const CacheViewPage = Shade({
               cache={demoCache}
               args={DEMO_ARGS}
               content={DemoContent}
-              error={(err, retry) =>
-                (
-                  <Alert severity="error" title="Cache load failed">
-                    <span>{String(err)}</span>
-                    <Button variant="outlined" color="error" size="small" onclick={retry}>
-                      Retry
-                    </Button>
-                  </Alert>
-                ) as unknown as JSX.Element
-              }
+              error={(err, retry) => (
+                <Alert severity="error" title="Cache load failed">
+                  <span>{String(err)}</span>
+                  <Button variant="outlined" color="error" size="small" onclick={retry}>
+                    Retry
+                  </Button>
+                </Alert>
+              )}
             />
           </Paper>
 

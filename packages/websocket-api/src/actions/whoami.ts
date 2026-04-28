@@ -2,8 +2,9 @@ import { HttpUserContext } from '@furystack/rest-service'
 import type { WebSocketAction } from '../models/websocket-action.js'
 
 /**
- * Example action that replies with the current user resolved from the
- * per-connection `HttpUserContext`. Handles `whoami` and `whoami /claims`.
+ * Built-in action that responds to `whoami` and `whoami /claims` messages
+ * with the current user resolved from the per-connection `HttpUserContext`.
+ * Replies with `{ currentUser: null }` if resolution fails (e.g. unauthenticated).
  */
 export const WhoAmI: WebSocketAction = {
   canExecute: ({ data }) => {

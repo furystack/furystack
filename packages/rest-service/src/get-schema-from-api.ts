@@ -61,6 +61,7 @@ export const getSchemaFromApi = <T extends RestApiImplementation<RestApi>>({
     if (!endpoints[methodKey]) {
       endpoints[methodKey] = {}
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- false positive: TS narrows `endpointList` to a union the iterator can't index without this cast
     Object.entries(endpointList as Record<string, RequestAction<{ result: unknown }>>).forEach(
       ([url, requestAction]) => {
         if (method && url && requestAction) {

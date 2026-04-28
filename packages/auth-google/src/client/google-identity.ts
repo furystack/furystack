@@ -20,10 +20,9 @@ const GIS_SCRIPT_URL = 'https://accounts.google.com/gsi/client'
 let loadPromise: Promise<void> | null = null
 
 /**
- * Dynamically loads the Google Identity Services script.
- * Idempotent -- returns immediately if the script is already loaded.
- *
- * @returns A promise that resolves once `google.accounts.id` is available
+ * Idempotently loads the Google Identity Services script. Returns the same
+ * promise across calls; resolves once `google.accounts.id` is available.
+ * Rejects on missing browser globals or script-load failure.
  */
 export const loadGoogleIdentityServices = (): Promise<void> => {
   if (loadPromise) return loadPromise
@@ -55,10 +54,9 @@ export const loadGoogleIdentityServices = (): Promise<void> => {
 }
 
 /**
- * Loads the GIS script (if needed) and initialises `google.accounts.id`.
- *
- * @param options GIS initialization options (must include `client_id` and `callback`)
- * @returns Controls for rendering buttons and showing the prompt
+ * Lazy-loads the GIS script and initialises `google.accounts.id` with
+ * `options` (`client_id` and `callback` are required). Returns controls
+ * for rendering buttons and triggering the One Tap prompt.
  */
 export const initializeGoogleAuth = async (options: GoogleIdentityOptions): Promise<GoogleAuthControls> => {
   await loadGoogleIdentityServices()

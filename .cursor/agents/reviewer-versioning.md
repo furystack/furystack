@@ -105,4 +105,4 @@ Simply state: "Version check passed - all package versions are properly staged."
 
 ## Reference
 
-See `.cursor/rules/VERSIONING_AND_CHANGELOG.md` for detailed versioning guidelines.
+Run the `fill-changelog` skill for the canonical changelog/versioning workflow. The reviewer-changelog agent reviews the resulting entries.

@@ -271,8 +271,8 @@ const isShallowEqual = (a: unknown, b: unknown): boolean => {
   }
   if (Array.isArray(b)) return false
 
-  const aKeys = Object.keys(a as Record<string, unknown>)
-  const bKeys = Object.keys(b as Record<string, unknown>)
+  const aKeys = Object.keys(a)
+  const bKeys = Object.keys(b)
   if (aKeys.length !== bKeys.length) return false
   for (const key of aKeys) {
     if (!Object.prototype.hasOwnProperty.call(b, key)) return false

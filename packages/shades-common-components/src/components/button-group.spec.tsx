@@ -52,7 +52,7 @@ describe('ButtonGroup', () => {
 
     it('should render children', async () => {
       await usingAsync(
-        await renderButtonGroup({}, [<Button>First</Button>, <Button>Second</Button>] as unknown as JSX.Element[]),
+        await renderButtonGroup({}, [<Button>First</Button>, <Button>Second</Button>]),
         async ({ group }) => {
           const buttons = group.querySelectorAll('button[is="shade-button"]')
           expect(buttons.length).toBe(2)
@@ -243,7 +243,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="a">A</ToggleButton>,
           <ToggleButton value="b">B</ToggleButton>,
           <ToggleButton value="c">C</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           const buttons = group.querySelectorAll('button[data-value]')
           expect(buttons.length).toBe(3)
@@ -260,7 +260,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="left">Left</ToggleButton>,
           <ToggleButton value="center">Center</ToggleButton>,
           <ToggleButton value="right">Right</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           const centerBtn = group.querySelector('button[data-value="center"]') as HTMLButtonElement
           centerBtn.click()
@@ -276,7 +276,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="left">Left</ToggleButton>,
           <ToggleButton value="center">Center</ToggleButton>,
           <ToggleButton value="right">Right</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           const centerBtn = group.querySelector('button[data-value="center"]') as HTMLButtonElement
           centerBtn.click()
@@ -294,7 +294,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="bold">B</ToggleButton>,
           <ToggleButton value="italic">I</ToggleButton>,
           <ToggleButton value="underline">U</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           const italicBtn = group.querySelector('button[data-value="italic"]') as HTMLButtonElement
           italicBtn.click()
@@ -310,7 +310,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="bold">B</ToggleButton>,
           <ToggleButton value="italic">I</ToggleButton>,
           <ToggleButton value="underline">U</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           const boldBtn = group.querySelector('button[data-value="bold"]') as HTMLButtonElement
           boldBtn.click()
@@ -327,7 +327,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="left">Left</ToggleButton>,
           <ToggleButton value="center">Center</ToggleButton>,
           <ToggleButton value="right">Right</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           await flushUpdates()
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -345,7 +345,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="bold">B</ToggleButton>,
           <ToggleButton value="italic">I</ToggleButton>,
           <ToggleButton value="underline">U</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           await flushUpdates()
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -394,7 +394,7 @@ describe('ToggleButtonGroup', () => {
         await renderToggleGroup({}, [
           <ToggleButton value="a">A</ToggleButton>,
           <ToggleButton value="b">B</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           await flushUpdates()
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -411,7 +411,7 @@ describe('ToggleButtonGroup', () => {
         await renderToggleGroup({ size: 'small' }, [
           <ToggleButton value="a">A</ToggleButton>,
           <ToggleButton value="b">B</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           await flushUpdates()
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -428,7 +428,7 @@ describe('ToggleButtonGroup', () => {
         await renderToggleGroup({ size: 'large' }, [
           <ToggleButton value="a">A</ToggleButton>,
           <ToggleButton value="b">B</ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           await flushUpdates()
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -446,7 +446,7 @@ describe('ToggleButtonGroup', () => {
           <ToggleButton value="a" size="small">
             A
           </ToggleButton>,
-        ] as unknown as JSX.Element[]),
+        ]),
         async ({ group }) => {
           await flushUpdates()
           await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -664,7 +664,7 @@ describe('ToggleButtonGroup edge cases', () => {
       await renderToggleGroup({ value: 'bold', onValueChange: handleChange }, [
         <ToggleButton value="bold">B</ToggleButton>,
         <ToggleButton value="italic">I</ToggleButton>,
-      ] as unknown as JSX.Element[]),
+      ]),
       async ({ group }) => {
         const italicBtn = group.querySelector('button[data-value="italic"]') as HTMLButtonElement
         italicBtn.click()
@@ -678,7 +678,7 @@ describe('ToggleButtonGroup edge cases', () => {
     await usingAsync(
       await renderToggleGroup({ value: undefined, onValueChange: handleChange }, [
         <ToggleButton value="bold">B</ToggleButton>,
-      ] as unknown as JSX.Element[]),
+      ]),
       async ({ group }) => {
         const boldBtn = group.querySelector('button[data-value="bold"]') as HTMLButtonElement
         boldBtn.click()
@@ -693,7 +693,7 @@ describe('ToggleButtonGroup edge cases', () => {
       await renderToggleGroup({ exclusive: true, value: ['center'], onValueChange: handleChange }, [
         <ToggleButton value="left">Left</ToggleButton>,
         <ToggleButton value="center">Center</ToggleButton>,
-      ] as unknown as JSX.Element[]),
+      ]),
       async ({ group }) => {
         const leftBtn = group.querySelector('button[data-value="left"]') as HTMLButtonElement
         leftBtn.click()
@@ -709,7 +709,7 @@ describe('ToggleButtonGroup edge cases', () => {
         <ToggleButton value="a" disabled>
           A
         </ToggleButton>,
-      ] as unknown as JSX.Element[]),
+      ]),
       async ({ group }) => {
         const btn = group.querySelector('button[data-value="a"]') as HTMLButtonElement
         btn.click()
@@ -723,7 +723,7 @@ describe('ToggleButtonGroup edge cases', () => {
       await renderToggleGroup({ disabled: true }, [
         <ToggleButton value="a">A</ToggleButton>,
         <ToggleButton value="b">B</ToggleButton>,
-      ] as unknown as JSX.Element[]),
+      ]),
       async ({ group }) => {
         await flushUpdates()
         await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -740,7 +740,7 @@ describe('ToggleButtonGroup edge cases', () => {
       await renderToggleGroup({ orientation: 'vertical' }, [
         <ToggleButton value="a">A</ToggleButton>,
         <ToggleButton value="b">B</ToggleButton>,
-      ] as unknown as JSX.Element[]),
+      ]),
       async ({ group }) => {
         await flushUpdates()
         // Border-radius is now applied via CSS rules targeting

@@ -1,18 +1,6 @@
-/**
- * Endpoint model for getting a single entity
- */
+/** GET-by-id endpoint contract. `select` narrows the projected fields. */
 export type GetEntityEndpoint<T, TPrimaryKey extends keyof T> = {
-  query: {
-    /**
-     * The list of fields to select
-     */
-    select?: Array<keyof T>
-  }
-  url: {
-    /**
-     * The entity's unique identifier
-     */
-    id: T[TPrimaryKey]
-  }
+  query: { select?: Array<keyof T> }
+  url: { id: T[TPrimaryKey] }
   result: T
 }

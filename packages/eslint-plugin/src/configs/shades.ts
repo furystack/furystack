@@ -3,7 +3,6 @@ import type { Linter } from 'eslint'
 export const shades: Linter.Config = {
   rules: {
     'furystack/no-module-level-jsx': 'error',
-    'furystack/no-removed-shade-apis': 'error',
     'furystack/valid-custom-element-name': 'error',
     'furystack/prefer-use-state': 'warn',
     'furystack/no-css-state-hooks': 'warn',
@@ -19,7 +18,6 @@ export const shades: Linter.Config = {
 export const shadesStrict: Linter.Config = {
   rules: {
     'furystack/no-module-level-jsx': 'error',
-    'furystack/no-removed-shade-apis': 'error',
     'furystack/valid-custom-element-name': 'error',
     'furystack/prefer-use-state': 'error',
     'furystack/no-css-state-hooks': 'error',

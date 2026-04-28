@@ -1,25 +1,14 @@
 import { AuthorizationError, isAuthorized } from '@furystack/core'
 import { sleepAsync } from '@furystack/utils'
+import type { Authenticate } from './authenticate.js'
 import type { ActionResult, RequestAction, RequestActionOptions } from './request-action-implementation.js'
 
 /**
- * Higher-order function that wraps a request action to require specific roles.
- * If the user does not have the required roles, throws an AuthorizationError.
- * Includes a random delay on unauthorized requests to mitigate timing attacks.
- *
- * @param roles - The roles required to access the endpoint
- * @returns A function that wraps the provided action with authorization check
- * @example
- * ```ts
- * // Require 'admin' role
- * const adminEndpoint = Authorize('admin')(myEndpoint)
- *
- * // Require multiple roles (user must have ALL specified roles)
- * const superAdminEndpoint = Authorize('admin', 'superuser')(myEndpoint)
- *
- * // Chain with Authenticate for authentication + authorization
- * const protectedEndpoint = Authenticate()(Authorize('admin')(myEndpoint))
- * ```
+ * Wraps a {@link RequestAction} to require **all** specified roles. Throws
+ * {@link AuthorizationError} (translated to 403 by `ErrorAction`) when any
+ * role is missing. Adds a 0–1 s random delay on rejection to mitigate
+ * timing attacks. Compose with {@link Authenticate} to require both:
+ * `Authenticate()(Authorize('admin')(myEndpoint))`.
  */
 export const Authorize =
   (...roles: string[]) =>

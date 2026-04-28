@@ -3,6 +3,7 @@ import { useSystemIdentityContext } from '@furystack/core'
 import type { Injector } from '@furystack/inject'
 import { randomBytes } from 'crypto'
 
+import type { createPasswordLoginAction } from './actions/password-login-action.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
 import type { ActionResult } from './request-action-implementation.js'
 import { JsonResult } from './request-action-implementation.js'

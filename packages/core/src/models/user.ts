@@ -1,14 +1,8 @@
 /**
- * Class model that represents an application user
+ * Minimal user model. Most application code will extend this with additional
+ * profile fields and re-export the augmented type.
  */
 export class User {
-  /**
-   * Name of the user
-   */
   declare username: string
-
-  /**
-   * List of roles
-   */
   declare roles: string[]
 }

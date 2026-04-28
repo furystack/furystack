@@ -1,0 +1,109 @@
+---
+name: Shades Render
+description: Shade component render-time patterns — hooks, JSX, css, reconciliation, host element handling
+globs:
+  - 'packages/**/*.tsx'
+alwaysApply: false
+---
+
+# Shades Render
+
+Render-time patterns for components built with `@furystack/shades`. For DI / stores / datasets / disposal in non-render code, see `LIBRARY_DEVELOPMENT.mdc`.
+
+## Lint enforces
+
+| Topic | Rule |
+|---|---|
+| No module-level JSX | `no-module-level-jsx` |
+| No manual `.subscribe()` in render | `no-manual-subscribe-in-render` |
+| No `.getValue()` without `useObservable` | `no-direct-get-value-in-render` |
+| Prefer `useState` over manual `ObservableValue` | `prefer-use-state` |
+| No `useState` for CSS states | `no-css-state-hooks` |
+| Valid `customElementName` | `valid-custom-element-name` |
+| `LocationService` + `NestedRouteLink` for navigation | `prefer-location-service`, `prefer-nested-route-link` |
+| `tabindex` with spatial nav targets | `require-tabindex-with-spatial-nav-target` |
+
+## useHostProps — declarative host attrs/styles
+
+```typescript
+render: ({ props, useHostProps }) => {
+  useHostProps({
+    'data-variant': props.variant,
+    role: 'progressbar',
+    style: { '--btn-color': props.color },
+  })
+  return <div>{props.children}</div>
+}
+```
+
+Strings/booleans/null → `setAttribute`. Objects/functions → property assignment. CSS custom props (`--*`) → `setProperty`.
+
+## useRef — DOM access only when needed
+
+Refs are null on first sync render. Defer access via `queueMicrotask`. Don't create refs you never read from. For `classList.add` toggling, prefer `useState` + declarative JSX.
+
+```typescript
+// ❌ ref used only for classList
+const ref = useRef<HTMLDivElement>('backdrop')
+requestAnimationFrame(() => ref.current?.classList.add('visible'))
+
+// ✅ declarative
+const [isVisible, setIsVisible] = useState('isVisible', false)
+requestAnimationFrame(() => setIsVisible(true))
+return <div className={`backdrop${isVisible ? ' visible' : ''}`}>...</div>
+```
+
+## Local state: `useState` over manual `ObservableValue`
+
+`prefer-use-state` enforces. Reserve `useDisposable` + `ObservableValue` for state crossing component boundaries via a service.
+
+## No module-level JSX
+
+JSX returns a VNode. Reusing the same instance across mounts breaks reconciliation. Use factory functions. Plain data is fine.
+
+## VNode reconciliation is positional
+
+No keys. List reorders patch/replace from the change point. Wrap each list item in a Shade component to isolate inner-DOM churn.
+
+```typescript
+// ❌ raw <li> reorders churn the DOM
+{items.map(item => <li>{item.name}</li>)}
+
+// ✅ component boundary
+{items.map(item => <ListItem item={item} />)}
+```
+
+## Microtask batching
+
+State changes within one sync execution coalesce into a single render. Tests must `await flushUpdates()` before asserting DOM state.
+
+## css over style
+
+Use the `css` property for defaults + pseudo-selectors. Use `style` only for per-instance dynamic values from props.
+
+```typescript
+const Button = Shade({
+  customElementName: 'my-button',
+  css: {
+    padding: '12px 24px',
+    backgroundColor: 'blue',
+    '&:hover': { backgroundColor: 'darkblue' },
+    '&:disabled': { opacity: '0.5', cursor: 'not-allowed' },
+  },
+  render: ({ props }) => <button>{props.children}</button>,
+})
+```
+
+`no-css-state-hooks` forbids `useState` for hover/focus/active — use `&:hover` etc.
+
+## Type-safe theme variables
+
+```typescript
+import { cssVariableTheme } from '@furystack/shades-common-components'
+
+css: {
+  color: cssVariableTheme.text.primary,
+  backgroundColor: cssVariableTheme.background.paper,
+  borderColor: cssVariableTheme.palette.primary.main,
+}
+```

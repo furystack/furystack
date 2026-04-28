@@ -1,4 +1,6 @@
+import type { Injector } from '@furystack/inject'
 import { defineService, type Token } from '@furystack/inject'
+import type { useJwtAuthentication } from './helpers.js'
 
 /**
  * Settings for the fingerprint cookie used to prevent token sidejacking (XSS token theft).
@@ -36,7 +38,7 @@ export const defaultFingerprintCookieSettings = (): FingerprintCookieSettings =>
 /**
  * Configuration for JWT Bearer token authentication.
  *
- * @important HTTPS is strongly recommended when using JWT Bearer tokens,
+ * **Important:** HTTPS is strongly recommended when using JWT Bearer tokens,
  * as tokens transmitted over plain HTTP are vulnerable to interception.
  */
 export interface JwtAuthenticationSettings {

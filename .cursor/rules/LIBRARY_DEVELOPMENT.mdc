@@ -1,0 +1,198 @@
+---
+name: Library Development
+description: FuryStack library patterns — functional DI, stores, datasets, observables, disposables, breaking changes
+globs:
+  - 'packages/**/*.ts'
+  - 'packages/**/*.tsx'
+alwaysApply: false
+---
+
+# Library Development
+
+FuryStack uses **functional DI**. No decorators (`@Injectable`, `@Injected` do not exist).
+
+For Shades render-time patterns (hooks, JSX, css, reconciliation), see `SHADES_RENDER.mdc`.
+
+## Lint enforces
+
+`@furystack/eslint-plugin` covers most patterns below. When in doubt, run `yarn lint` — the rule message names the canonical pattern.
+
+| Topic | Rule(s) |
+|---|---|
+| Disposal of observable owners | `require-disposable-for-observable-owner`, `require-observable-disposal` |
+| Manual `[Symbol.dispose]()` calls | `prefer-using-wrapper` |
+| REST error handling + endpoint wrapping | `rest-action-use-request-error`, `rest-action-validate-wrapper`, `rest-no-type-cast` |
+| DataSet over direct StoreToken | `no-direct-store-token` |
+| Shades render rules | see `SHADES_RENDER.mdc` |
+
+## defineService
+
+```typescript
+import { defineService } from '@furystack/inject'
+
+export const Counter = defineService({
+  name: 'my-app/Counter',
+  lifetime: 'singleton',
+  factory: ({ inject, onDispose }) => {
+    const logger = inject(Logger)
+    let value = 0
+    onDispose(() => logger.log('counter disposed'))
+    return { increment: () => ++value, getValue: () => value }
+  },
+})
+```
+
+- `name` is debug only — token identity is the returned object reference.
+- `lifetime` required: `singleton` / `scoped` / `transient`. No default.
+- Singleton factories can only `inject` other singletons (compile-time enforced).
+
+## Lifetimes
+
+| Case | Lifetime |
+|---|---|
+| Config / settings / shared stateless | `singleton` |
+| Stateful + disposable manager | `singleton` + `onDispose` |
+| Per-request / per-connection / per-test | `scoped` |
+| Short-lived factory output | `transient` |
+
+## Injector API
+
+| Method | Purpose |
+|---|---|
+| `get(token)` | sync resolve (rejects async tokens at compile time) |
+| `getAsync(token)` | resolves sync or async tokens |
+| `bind(token, factory)` | install override on this injector; drops cached instance |
+| `invalidate(token)` | drop cached instance so next `get` re-runs the factory |
+| `createScope({ owner })` | child injector with independent lifetime |
+| `withScope(parent, async (scope) => ...)` | scope wrapper, disposes in `finally` |
+| `[Symbol.asyncDispose]()` | disposes injector + LIFO `onDispose` callbacks |
+
+## Scope caching gotcha
+
+`findCached` walks the parent chain. If setup resolves a scoped token on an ancestor, every descendant scope gets that same instance. Two fixes:
+
+1. Run setup inside a short-lived scope so the cache lives there.
+2. Store per-scope state in a `WeakMap` keyed by per-scope identity (e.g. request `headers`). `HttpUserContext.userCache` does this.
+
+## Disposal in factories
+
+```typescript
+factory: ({ onDispose }) => {
+  const clients = new Map<string, Client>()
+  onDispose(async () => {
+    await Promise.all([...clients.values()].map((c) => c.close()))
+    clients.clear()
+  })
+  return { /* ... */ }
+}
+```
+
+LIFO order on `injector[Symbol.asyncDispose]()`. Always prefer `onDispose` over storing cleanup state outside.
+
+Helpers (`useRestService`, `useHttpAuthentication`, etc.) don't run in a factory context — they push into a scoped `CleanupRegistry`. See `packages/websocket-api/src/use-websocket-api.ts`.
+
+## defineStore — physical store
+
+```typescript
+import { defineStore, InMemoryStore } from '@furystack/core'
+
+class User { declare username: string }
+
+export const UserStore = defineStore({
+  name: 'my-app/UserStore',
+  model: User,
+  primaryKey: 'username',
+  factory: () => new InMemoryStore({ model: User, primaryKey: 'username' }),
+})
+```
+
+Stores shipped by FuryStack default to a factory that throws `NotConfiguredError`. App must `injector.bind(...)` a real implementation before resolving.
+
+Adapters: `defineFileSystemStore`, `defineMongoDbStore`, `defineSequelizeStore`, `defineRedisStore`. If TS widens `TPrimaryKey` to `keyof T`, pass explicit generics: `defineFileSystemStore<User, 'username'>({ ... })`.
+
+## defineDataSet — write gateway
+
+DataSets wrap stores with authorization, hooks, change events. **Bypassing the DataSet bypasses authz, hooks, and entity sync.** App code resolves the `DataSetToken`, never the underlying `StoreToken` (`no-direct-store-token` enforces).
+
+```typescript
+import { defineDataSet } from '@furystack/repository'
+
+export const UserDataSet = defineDataSet({
+  name: 'my-app/UserDataSet',
+  store: UserStore,
+  settings: {
+    onEntityAdded: ({ injector, entity }) => { /* ... */ },
+    authorizeUpdate: async ({ entity }) => ({
+      isAllowed: entity.username !== 'system',
+      message: 'Cannot update the system user',
+    }),
+  },
+})
+
+const dataSet = getDataSetFor(injector, UserDataSet)
+await dataSet.add(injector, { username: 'alice', displayName: 'Alice' })
+```
+
+Endpoint generators take `DataSetToken` directly: `createGetCollectionEndpoint(UserDataSet)`, `useEntitySync(injector, { models: [UserDataSet] })`.
+
+### When direct StoreToken is OK
+
+- Store implementations testing themselves
+- Inside a DataSet factory
+- Test data seeding
+
+## System identity context
+
+Server-internal ops (password hashing, token refresh, background jobs) need elevated identity that bypasses authorization. Always dispose.
+
+```typescript
+import { useSystemIdentityContext } from '@furystack/core'
+
+factory: ({ injector, onDispose }) => {
+  const sys = useSystemIdentityContext({ injector, username: 'MyService' })
+  onDispose(() => sys[Symbol.asyncDispose]())
+  // ...
+}
+```
+
+**Warning:** never pass the returned injector to a user-facing request handler — bypasses all authorization.
+
+## REST actions
+
+```typescript
+import type { RequestAction } from '@furystack/rest-service'
+
+export type GetUserAction = RequestAction<{
+  method: 'GET'; url: { id: string }; result: User
+}>
+
+export const getUserAction: GetUserAction = async ({ getUrlParams }) => {
+  const { id } = await getUrlParams()
+  if (!id) throw new RequestError('id is required', 400)
+  return JsonResult(await fetchUser(id))
+}
+```
+
+Throw `RequestError` (not plain `Error`). Wrap endpoints with `Validate()`. Both enforced by lint.
+
+## Breaking changes
+
+SemVer strict. Major = breaking, minor = additive, patch = fix. Deprecate before removing:
+
+```typescript
+/** @deprecated Use `newFn` instead. Removed in v8.0.0 */
+export function oldFn(): void {
+  console.warn('oldFn deprecated; use newFn')
+  return newFn()
+}
+```
+
+Changelog filling: see `fill-changelog` skill.
+
+## Exports
+
+`index.ts` is the only public surface. No side effects on import (no top-level `console.log`, no global mutation). Use `.js` import suffix on relative paths (NodeNext ESM).
+
+## Disposable lint exception
+
+`prefer-using-wrapper` flags manual `instance[Symbol.dispose]()`. Inside a factory paired with `onDispose`, manual dispose is correct — disable on that line with a short reason comment.

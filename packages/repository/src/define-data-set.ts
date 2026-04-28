@@ -58,39 +58,21 @@ export type DefineDataSetSettings<
  */
 export type DefineDataSetOptions<T, TPrimaryKey extends keyof T, TWritableData = WithOptionalId<T, TPrimaryKey>> = {
   /**
-   * Human-readable identifier used for debug/readability. Token identity is
-   * established by the returned {@link DataSetToken} object reference.
+   * Debug-only identifier. Token identity is established by the returned
+   * {@link DataSetToken} object reference, not this string.
    */
   name: string
-  /**
-   * The store this data set is backed by. Its `model` and `primaryKey` are
-   * propagated onto the returned token.
-   */
+  /** Backing store; its `model` and `primaryKey` propagate to the returned token. */
   store: StoreToken<T, TPrimaryKey>
-  /**
-   * Authorizers, modification hooks and filter post-processors. Optional —
-   * a data set without settings performs no authorization and forwards
-   * operations straight to the physical store.
-   */
   settings?: NoInfer<DefineDataSetSettings<T, TPrimaryKey, TWritableData>>
 }
 
 /**
- * Defines a {@link DataSet} as a first-class DI token backed by a
- * {@link StoreToken}.
- *
- * The returned token resolves to a singleton `DataSet`. On the first
- * resolution the factory:
- *
- * 1. Resolves the backing physical store through the injector.
- * 2. Constructs a {@link DataSet} with the supplied {@link DefineDataSetSettings}
- *    and that store.
- * 3. Registers a disposal callback that clears the DataSet's event
- *    subscriptions when the owning injector is disposed.
- *
- * The token also carries the `model` and `primaryKey` of the backing store so
- * that downstream tooling (entity sync, OpenAPI generators, test harnesses)
- * can discover the dataset's shape without additional wiring.
+ * Defines a singleton {@link DataSet} token backed by a {@link StoreToken}.
+ * The token mirrors the store's `model` and `primaryKey` so reflection
+ * tools (entity sync, OpenAPI generators, test harnesses) can discover the
+ * dataset's shape from the token alone. Disposal of the owning injector
+ * tears down the dataset's event subscriptions.
  *
  * @example
  * ```ts
@@ -124,7 +106,7 @@ export const defineDataSet = <T, const TPrimaryKey extends keyof T, TWritableDat
       const dataSet = new DataSet<T, TPrimaryKey, TWritableData>({
         ...options.settings,
         physicalStore,
-      } as DataSetSettings<T, TPrimaryKey, TWritableData>)
+      })
       // Disposal is delegated to the injector via `onDispose`; the dataset
       // outlives this factory invocation and is torn down on scope teardown.
       // eslint-disable-next-line furystack/prefer-using-wrapper

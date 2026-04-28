@@ -5,41 +5,16 @@ export type ValueObserverOptions<T> = {
 }
 
 /**
- * Defines a generic ValueObserver instance
- *
- * A ValueObserver is created whenever you subscribe for an *ObservableValue* changes.
- *
- * Usage example:
- * ```ts
- *
- * const observableValue = new ObservableValue<number>(0);
- * const observer = observableValue.subscribe((newValue) => {
- * console.log("Value changed:", newValue);
- * });
- *
- * // To update the value
- * observableValue.setValue(Math.random());
- * // if you want to dispose a single observer
- * observer[Symbol.dispose]();
- * // if you want to dispose the whole observableValue with all of its observers:
- * observableValue[Symbol.dispose]();
- * ```
- * @param T This type parameter is the value type to observe
+ * Subscription handle returned by {@link ObservableValue.subscribe}. Disposing
+ * the observer unsubscribes the callback from the observable; disposing the
+ * underlying {@link ObservableValue} drops every observer and renders all
+ * existing handles inert.
  */
 export class ValueObserver<T> implements Disposable {
-  /**
-   * Disposes the ValueObserver instance. Unsubscribes from the observable
-   */
   public [Symbol.dispose]() {
     this.observable.unsubscribe(this)
   }
 
-  /**
-   * Creates a ValueObserver instance
-   * @param observable The related Observable object
-   * @param callback The callback that will be fired on change
-   * @param options Additional options
-   */
   constructor(
     public readonly observable: ObservableValue<T>,
     public callback: ValueChangeCallback<T>,
