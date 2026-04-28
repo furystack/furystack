@@ -60,7 +60,7 @@ describe('NotyComponent', () => {
         }
         return mockAnimation as unknown as Animation
       },
-    ) as typeof Element.prototype.animate
+    )
   })
 
   afterEach(() => {
@@ -170,7 +170,7 @@ describe('NotyComponent', () => {
         }, 10)
         return mockAnimation as unknown as Animation
       },
-    ) as typeof Element.prototype.animate
+    )
 
     await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
@@ -251,7 +251,7 @@ describe('NotyComponent', () => {
         }, 10)
         return mockAnimation as unknown as Animation
       },
-    ) as typeof Element.prototype.animate
+    )
 
     await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
@@ -299,7 +299,7 @@ describe('NotyComponent', () => {
         }, 10)
         return mockAnimation as unknown as Animation
       },
-    ) as typeof Element.prototype.animate
+    )
 
     await usingAsync(createInjector(), async (injector) => {
       setupTheme(injector)
@@ -427,7 +427,7 @@ describe('NotyList', () => {
         }
         return mockAnimation as unknown as Animation
       },
-    ) as typeof Element.prototype.animate
+    )
   })
 
   afterEach(() => {

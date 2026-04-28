@@ -5,7 +5,6 @@ import { UnauthenticatedError } from '@furystack/security'
 import { randomBytes, timingSafeEqual } from 'crypto'
 import { JwtAuthenticationSettings } from './jwt-authentication-settings.js'
 import { createJwt, decodeJwt, hashFingerprint, verifyHs256 } from './jwt-utils.js'
-import type { RefreshToken } from './models/refresh-token.js'
 import { RefreshTokenDataSet } from './refresh-token-store.js'
 
 /**
@@ -201,7 +200,7 @@ export const JwtTokenService: Token<JwtTokenService, 'singleton'> = defineServic
       await refreshTokenDataSet.update(systemInjector, oldToken, {
         revokedAt: new Date().toISOString(),
         replacedByToken: newToken,
-      } as Partial<RefreshToken>)
+      })
     }
 
     const revokeRefreshToken = async (token: string): Promise<void> => {

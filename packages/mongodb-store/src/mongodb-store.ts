@@ -9,7 +9,7 @@ import type {
 } from '@furystack/core'
 import { NotFoundError } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
-import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort, UpdateFilter } from 'mongodb'
+import type { Collection, Filter, MongoClient, OptionalUnlessRequiredId, Sort } from 'mongodb'
 import { ObjectId } from 'mongodb'
 import type { MongoClientFactory } from './mongo-client-factory.js'
 
@@ -156,7 +156,7 @@ export class MongodbStore<
 
   public async update(id: T[TPrimaryKey], data: Partial<T>): Promise<void> {
     const collection = await this.getCollection()
-    const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data } as UpdateFilter<T>)
+    const updateResult = await collection.updateOne(this.createIdFilter(id), { $set: data })
     if (updateResult.matchedCount < 1) {
       throw new NotFoundError(`Entity not found with id '${String(id)}', cannot update`)
     }

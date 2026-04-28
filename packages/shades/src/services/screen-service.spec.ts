@@ -101,7 +101,7 @@ describe('ScreenService', () => {
 
       await usingAsync(createInjector(), async (i) => {
         // Set initial orientation to landscape
-        matchMediaMock.mockReturnValue({ matches: true } as MediaQueryList)
+        matchMediaMock.mockReturnValue({ matches: true })
         const s = i.get(ScreenService)
 
         // Verify initial landscape
@@ -109,7 +109,7 @@ describe('ScreenService', () => {
         expect(s.orientation.getValue()).toBe('landscape')
 
         // Change to portrait
-        matchMediaMock.mockReturnValue({ matches: false } as MediaQueryList)
+        matchMediaMock.mockReturnValue({ matches: false })
         window.dispatchEvent(new Event('resize'))
         expect(s.orientation.getValue()).toBe('portrait')
       })

@@ -9,7 +9,7 @@ import type { SuggestionResult } from './suggestion-result.js'
 type TestEntry = { id: number; name: string }
 
 const createSuggestionResult = (entry: TestEntry): SuggestionResult => ({
-  element: (<div>{entry.name}</div>) as unknown as JSX.Element,
+  element: <div>{entry.name}</div>,
   score: entry.id,
 })
 
@@ -32,7 +32,7 @@ describe('SuggestInput', () => {
         removeEventListener: vi.fn(),
       }
       return mockAnimation as unknown as Animation
-    }) as typeof Element.prototype.animate
+    })
   })
 
   afterEach(() => {

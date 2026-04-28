@@ -21,7 +21,7 @@ describe('EnumFilter', () => {
   })
 
   const createFindOptions = (options: Partial<FilterableFindOptions> = {}): FilterableFindOptions => {
-    return options as FilterableFindOptions
+    return options
   }
 
   const renderEnumFilter = async (

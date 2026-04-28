@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion -- false positives: `vi.fn` mocks for `fetch` widen to `any`, then need a bridge cast back to `fetchType` so `createClient` typechecks */
 import { describe, expect, it, vi } from 'vitest'
 import { createClient } from './create-client.js'
 

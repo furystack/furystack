@@ -15,7 +15,7 @@ type SampleApi = {
 const buildImplementation = (): RestApiImplementation<SampleApi> => ({
   GET: {
     '/items': async () => JsonResult({ items: [1, 2, 3] }),
-    '/items/:id': async ({ getUrlParams }) => JsonResult({ id: (getUrlParams() as { id: string }).id }),
+    '/items/:id': async ({ getUrlParams }) => JsonResult({ id: getUrlParams().id }),
   },
   POST: {
     '/items': async ({ getBody }) => JsonResult(await getBody()),

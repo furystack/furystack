@@ -22,7 +22,7 @@ export const styledShade = <TProps extends StyledProps>(
           ...props.style,
           ...styles,
         },
-      } as TProps,
+      },
       childrenList,
     )
   }

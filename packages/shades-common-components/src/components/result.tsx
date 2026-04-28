@@ -50,8 +50,7 @@ const defaultIconDefs: Record<ResultStatus, typeof checkCircle> = {
   '500': serverError,
 }
 
-const getDefaultIcon = (status: ResultStatus): JSX.Element =>
-  (<Icon icon={defaultIconDefs[status]} size={64} />) as unknown as JSX.Element
+const getDefaultIcon = (status: ResultStatus): JSX.Element => <Icon icon={defaultIconDefs[status]} size={64} />
 
 const defaultTitles: Record<ResultStatus, string> = {
   success: 'Success',

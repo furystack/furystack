@@ -111,7 +111,7 @@ export const Breadcrumb = Shade<BreadcrumbProps>({
     const allItems = homeItem ? [homeItem, ...items] : items
 
     const renderItem = (item: BreadcrumbItem, _index: number, isLast: boolean) => {
-      const compiledPath = (item as BreadcrumbItem & { params?: Record<string, string> }).params
+      const compiledPath = item.params
         ? compileRoute(item.path, (item as BreadcrumbItem & { params: Record<string, string> }).params)
         : item.path
 

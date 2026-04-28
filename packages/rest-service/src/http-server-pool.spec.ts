@@ -179,7 +179,7 @@ describe('HttpServerPool', () => {
       cb?.(closeError)
       return record.server
     })
-    record.server.close = closeSpy as unknown as typeof record.server.close
+    record.server.close = closeSpy
     ;(record.server as unknown as { off: (...args: unknown[]) => void }).off = () => undefined
 
     await expect(injector[Symbol.asyncDispose]()).resolves.toBeUndefined()

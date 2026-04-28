@@ -1,12 +1,5 @@
 import type { Injector } from './injector.js'
-import type {
-  AsyncServiceFactory,
-  DefineServiceAsyncOptions,
-  DefineServiceOptions,
-  Lifetime,
-  ServiceFactory,
-  Token,
-} from './types.js'
+import type { DefineServiceAsyncOptions, DefineServiceOptions, Lifetime, Token } from './types.js'
 
 /**
  * Each {@link defineService} call mints a fresh {@link Symbol} as the token's
@@ -56,7 +49,7 @@ export const defineService = <TService, TLifetime extends Lifetime>(
     name: options.name,
     lifetime: options.lifetime,
     isAsync: false,
-    factory: options.factory as ServiceFactory<TService>,
+    factory: options.factory,
   }
 }
 
@@ -76,7 +69,7 @@ export const defineServiceAsync = <TService, TLifetime extends Lifetime>(
     name: options.name,
     lifetime: options.lifetime,
     isAsync: true,
-    factory: options.factory as AsyncServiceFactory<TService>,
+    factory: options.factory,
   }
 }
 

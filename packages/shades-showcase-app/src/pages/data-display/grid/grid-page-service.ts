@@ -63,7 +63,7 @@ export const GridPageService: Token<GridPageService, 'singleton', true> = define
       if (requestId !== latestRequestId) return
       collectionService.data.setValue({
         count,
-        entries: entries as GameItem[],
+        entries,
       })
     }
 

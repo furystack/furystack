@@ -22,5 +22,5 @@ export const deserializeQueryString = (fullQueryString: string) => {
     .filter(([key, value]) => key && value)
     .map(([key, value]) => [key, decode(value)] as const)
 
-  return Object.fromEntries(params) as Record<string, unknown>
+  return Object.fromEntries(params)
 }

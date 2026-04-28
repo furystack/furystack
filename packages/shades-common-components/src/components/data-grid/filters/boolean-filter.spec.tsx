@@ -15,7 +15,7 @@ describe('BooleanFilter', () => {
   })
 
   const createFindOptions = (options: Partial<FilterableFindOptions> = {}): FilterableFindOptions => {
-    return options as FilterableFindOptions
+    return options
   }
 
   const renderBooleanFilter = async (

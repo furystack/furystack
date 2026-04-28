@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion -- false positives: `client` is typed for a narrow `RestApi`; casts to `ReturnType<typeof createClient<...>>` widen it so this test can exercise endpoints (e.g. `/openapi.json`) the production type intentionally hides */
 import { InMemoryStore, User as UserModel } from '@furystack/core'
 import { getPort } from '@furystack/core/port-generator'
 import { createInjector } from '@furystack/inject'

@@ -405,6 +405,6 @@ export const ThemeProviderService: Token<ThemeProviderService, 'singleton'> = de
       theme: cssVariableTheme,
       getAssignedTheme: () => assignedTheme,
       setAssignedTheme,
-    }) as ThemeProviderService
+    })
   },
 })

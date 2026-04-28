@@ -1,7 +1,6 @@
 import type { User } from '@furystack/core'
 import { createInjector } from '@furystack/inject'
 import { usingAsync } from '@furystack/utils'
-import type { IncomingMessage } from 'http'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { HttpAuthenticationSettings, defaultHttpAuthenticationSettings } from './http-authentication-settings.js'
 import { resolveUserCacheKey, UserResolutionCache } from './user-resolution-cache.js'
@@ -171,7 +170,7 @@ describe('resolveUserCacheKey', () => {
         { name: 'third', authenticate: async () => null, getCacheKey: () => 'jwt:not-reached' },
       ],
     }
-    expect(resolveUserCacheKey(settings, { headers: {} } as IncomingMessage)).toBe('cookie:matched')
+    expect(resolveUserCacheKey(settings, { headers: {} })).toBe('cookie:matched')
   })
 
   it('returns null when every provider opts out', () => {
@@ -182,6 +181,6 @@ describe('resolveUserCacheKey', () => {
         { name: 'b', authenticate: async () => null, getCacheKey: () => null },
       ],
     }
-    expect(resolveUserCacheKey(settings, { headers: {} } as IncomingMessage)).toBeNull()
+    expect(resolveUserCacheKey(settings, { headers: {} })).toBeNull()
   })
 })

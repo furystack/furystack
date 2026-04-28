@@ -106,7 +106,7 @@ export const defineDataSet = <T, const TPrimaryKey extends keyof T, TWritableDat
       const dataSet = new DataSet<T, TPrimaryKey, TWritableData>({
         ...options.settings,
         physicalStore,
-      } as DataSetSettings<T, TPrimaryKey, TWritableData>)
+      })
       // Disposal is delegated to the injector via `onDispose`; the dataset
       // outlives this factory invocation and is torn down on scope teardown.
       // eslint-disable-next-line furystack/prefer-using-wrapper

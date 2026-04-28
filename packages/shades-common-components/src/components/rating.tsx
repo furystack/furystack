@@ -148,8 +148,8 @@ export const Rating = Shade<RatingProps>({
     const max = props.max ?? 5
     const precision = props.precision ?? 1
     const value = props.value ?? 0
-    const filledIcon = props.icon ?? ((<Icon icon={starIcon} size="small" />) as unknown as JSX.Element)
-    const emptyIcon = props.emptyIcon ?? ((<Icon icon={starOutline} size="small" />) as unknown as JSX.Element)
+    const filledIcon = props.icon ?? <Icon icon={starIcon} size="small" />
+    const emptyIcon = props.emptyIcon ?? <Icon icon={starOutline} size="small" />
     const isInteractive = !props.disabled && !props.readOnly
 
     const color = themeProvider.theme.palette[props.color || 'warning'].main

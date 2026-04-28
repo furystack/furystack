@@ -134,14 +134,14 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
       if (!fullEntity) {
         return undefined
       }
-      const result = await this.settings.authorizeGetEntity({ injector, entity: fullEntity as T })
+      const result = await this.settings.authorizeGetEntity({ injector, entity: fullEntity })
       if (!result.isAllowed) {
         throw new AuthorizationError(result.message)
       }
       if (select) {
         return selectFields(fullEntity as T & object, ...select)
       }
-      return fullEntity as PartialResult<T, TSelect>
+      return fullEntity
     }
     return await this.settings.physicalStore.get(key, select)
   }
@@ -169,7 +169,7 @@ export class DataSet<T, TPrimaryKey extends keyof T, TWritableData = WithOptiona
       })
       await Promise.all(
         entities.map(async (entity) => {
-          const removeResult = await this.settings.authorizeRemoveEntity!({ injector, entity: entity as T })
+          const removeResult = await this.settings.authorizeRemoveEntity!({ injector, entity })
           if (!removeResult.isAllowed) {
             throw new AuthorizationError(removeResult.message)
           }

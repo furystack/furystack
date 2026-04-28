@@ -71,7 +71,7 @@ describe('css-generator', () => {
         color: 'red',
         '&:hover': { color: 'blue' },
       }
-      const result = propertiesToCSSString(mixedObject as unknown as CSSProperties)
+      const result = propertiesToCSSString(mixedObject)
       expect(result).toBe('color: red')
     })
 

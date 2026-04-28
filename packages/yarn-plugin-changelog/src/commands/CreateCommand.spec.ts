@@ -70,7 +70,7 @@ describe('CreateCommand', () => {
     vi.mocked(Project.find).mockResolvedValue({
       project: { cwd: '/test/project' as PortablePath },
     } as never)
-    vi.mocked(xfs.mkdirPromise).mockResolvedValue(undefined as never)
+    vi.mocked(xfs.mkdirPromise).mockResolvedValue(undefined)
     vi.mocked(xfs.writeFilePromise).mockResolvedValue(undefined)
   })
 

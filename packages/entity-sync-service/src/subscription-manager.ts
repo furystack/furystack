@@ -233,15 +233,15 @@ class SubscriptionManagerImpl implements SubscriptionManager {
       debounceMs: options?.debounceMs ?? 0,
       queryTtlMs: options?.queryTtlMs ?? 0,
       eventSubscriptions: [],
-      getEntity: (injector, key) => dataSet.get(injector, key as T[TPrimaryKey]) as Promise<unknown>,
+      getEntity: (injector, key) => dataSet.get(injector, key as T[TPrimaryKey]),
       findEntities: async (injector, findOptions) => {
         const result = await dataSet.find(injector, {
           filter: findOptions.filter as FilterType<T> | undefined,
           top: findOptions.top,
           skip: findOptions.skip,
-          order: findOptions.order as { [P in keyof T]?: 'ASC' | 'DESC' } | undefined,
+          order: findOptions.order,
         })
-        return result as unknown[]
+        return result
       },
       countEntities: (injector, filter) => dataSet.count(injector, filter as FilterType<T> | undefined),
     }
@@ -251,7 +251,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         this.handleEntityAdded(modelName, entity as unknown as AnyEntity, (entity as unknown as AnyEntity)[primaryKey])
       }),
       dataSet.subscribe('onEntityUpdated', ({ id, change }) => {
-        this.handleEntityUpdated(modelName, id, change as unknown as AnyEntity)
+        this.handleEntityUpdated(modelName, id, change)
       }),
       dataSet.subscribe('onEntityRemoved', ({ key }) => {
         this.handleEntityRemoved(modelName, key)

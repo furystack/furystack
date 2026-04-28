@@ -222,13 +222,13 @@ describe('createJwtClient', () => {
 
       const clientA = createJwtClient({
         endpointUrl: 'http://localhost:8080/api-a',
-        fetch: fetchMockA as unknown as typeof fetch,
+        fetch: fetchMockA,
         tokenStore,
       })
 
       const clientB = createJwtClient({
         endpointUrl: 'http://localhost:8080/api-b',
-        fetch: fetchMockB as unknown as typeof fetch,
+        fetch: fetchMockB,
         tokenStore,
       })
 
@@ -272,13 +272,13 @@ describe('createJwtClient', () => {
 
       const clientA = createJwtClient({
         endpointUrl: 'http://localhost:8080/api-a',
-        fetch: fetchMockA as unknown as typeof fetch,
+        fetch: fetchMockA,
         tokenStore,
       })
 
       const clientB = createJwtClient({
         endpointUrl: 'http://localhost:8080/api-b',
-        fetch: fetchMockB as unknown as typeof fetch,
+        fetch: fetchMockB,
         tokenStore,
       })
 

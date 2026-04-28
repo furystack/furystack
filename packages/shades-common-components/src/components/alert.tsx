@@ -35,8 +35,7 @@ const defaultIconDefs: Record<AlertSeverity, typeof checkCircle> = {
   success: checkCircle,
 }
 
-const getDefaultIcon = (severity: AlertSeverity): JSX.Element =>
-  (<Icon icon={defaultIconDefs[severity]} size="small" />) as unknown as JSX.Element
+const getDefaultIcon = (severity: AlertSeverity): JSX.Element => <Icon icon={defaultIconDefs[severity]} size="small" />
 
 export const Alert = Shade<AlertProps>({
   customElementName: 'shade-alert',

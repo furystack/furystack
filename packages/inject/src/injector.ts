@@ -144,7 +144,7 @@ export class Injector implements AsyncDisposable {
     if (bound) {
       return bound as AnyFactory<TService>
     }
-    return token.factory as AnyFactory<TService>
+    return token.factory
   }
 
   private buildContext(token: AnyToken<unknown>, owningInjector: Injector, resolving: Set<symbol>): ServiceContext {
@@ -165,8 +165,8 @@ export class Injector implements AsyncDisposable {
       owningInjector.disposeCallbacks.push(cb)
     }
     return {
-      inject: inject as ServiceContext['inject'],
-      injectAsync: injectAsync as ServiceContext['injectAsync'],
+      inject,
+      injectAsync,
       injector: owningInjector,
       token,
       onDispose,
@@ -196,13 +196,14 @@ export class Injector implements AsyncDisposable {
     try {
       this.ensureLive()
       if (!token.isAsync) {
-        return Promise.resolve(this.resolveSync<TService>(token as SyncToken<TService>, new Set<symbol>()))
+        return Promise.resolve(this.resolveSync<TService>(token, new Set<symbol>()))
       }
       return this.resolveAsync<TService>(token, new Set<symbol>())
     } catch (error) {
       // Normalise synchronous errors (e.g. a disposed injector or an async
       // factory that sync-throws before returning a promise) into a rejected
       // promise so callers can always rely on `.rejects` / `.catch`.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- needed for `prefer-promise-reject-errors`; `error` is `unknown` from catch
       return Promise.reject(error as Error)
     }
   }
@@ -359,7 +360,7 @@ export class Injector implements AsyncDisposable {
   public bind<TService>(token: AnyToken<TService>, factory: AnyFactory<TService>): void {
     this.ensureLive()
     const owning = this.ownerForLifetime(token.lifetime)
-    owning.bindings.set(token.id, factory as AnyFactory<unknown>)
+    owning.bindings.set(token.id, factory)
     owning.cache.delete(token.id)
   }
 

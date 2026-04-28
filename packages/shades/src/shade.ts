@@ -152,8 +152,8 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
               const existingRef = this._refs.get(key) as RefObject<T> | undefined
               if (existingRef) return existingRef
               const refObject = { current: null } as { current: T | null }
-              this._refs.set(key, refObject as unknown as RefObject<Element>)
-              return refObject as RefObject<T>
+              this._refs.set(key, refObject)
+              return refObject
             },
             useObservable: (key, observable, options) => {
               const onChange = options?.onChange || (() => this.updateComponent())
@@ -297,7 +297,7 @@ export const Shade = <TProps, TElementBase extends HTMLElement = HTMLElement>(
                 this.removeAttribute(key)
               }
               if (this._prevHostProps.style) {
-                for (const sk of Object.keys(this._prevHostProps.style as Record<string, string>)) {
+                for (const sk of Object.keys(this._prevHostProps.style)) {
                   if (sk.startsWith('--')) {
                     this.style.removeProperty(sk)
                   } else {

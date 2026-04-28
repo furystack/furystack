@@ -37,14 +37,13 @@ export type CacheViewProps<
   ? { contentProps?: never }
   : { contentProps: Omit<TContentProps, 'data' | keyof PartialElement<HTMLElement>> })
 
-const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element =>
-  (
-    <Result status="error" title="Something went wrong" subtitle={String(error)}>
-      <Button variant="outlined" onclick={retry}>
-        Retry
-      </Button>
-    </Result>
-  ) as unknown as JSX.Element
+const getDefaultErrorUi = (error: unknown, retry: () => void): JSX.Element => (
+  <Result status="error" title="Something went wrong" subtitle={String(error)}>
+    <Button variant="outlined" onclick={retry}>
+      Retry
+    </Button>
+  </Result>
+)
 
 type InternalCacheViewProps = {
   cache: Cache<unknown, unknown[]>

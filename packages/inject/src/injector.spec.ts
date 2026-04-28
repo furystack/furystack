@@ -525,7 +525,7 @@ describe('Injector', () => {
       const Token = defineServiceAsync({
         name: 'test/AsyncSyncThrow',
         lifetime: 'singleton',
-        factory: factory as unknown as () => Promise<unknown>,
+        factory,
       })
       const injector = createInjector()
       await expect(injector.getAsync(Token)).rejects.toThrow('async-sync-boom')
