@@ -1,8 +1,8 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/eslint-plugin
 
-## 🗑️ Deprecated
+## 💥 Breaking Changes
 
 ### Removed `furystack/no-removed-shade-apis`
 

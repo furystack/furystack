@@ -119,8 +119,9 @@ describe('FileSystemStore', () => {
         await sleepAsync(20)
         // Corrupt the file so the watcher-driven reload hits a JSON.parse error
         await promises.writeFile(fileName, 'not valid json')
-        await sleepAsync(150)
-        expect(handler).toHaveBeenCalledWith({ error: expect.any(Error) as Error })
+        await vi.waitFor(() => {
+          expect(handler).toHaveBeenCalledWith({ error: expect.any(Error) as Error })
+        })
       })
     })
   })

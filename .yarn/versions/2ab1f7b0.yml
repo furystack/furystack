@@ -2,12 +2,12 @@ releases:
   "@furystack/auth-google": patch
   "@furystack/auth-jwt": patch
   "@furystack/cache": patch
-  "@furystack/core": patch
+  "@furystack/core": minor
   "@furystack/entity-sync": patch
   "@furystack/entity-sync-client": patch
   "@furystack/entity-sync-service": patch
-  "@furystack/eslint-plugin": minor
-  "@furystack/filesystem-store": patch
+  "@furystack/eslint-plugin": major
+  "@furystack/filesystem-store": minor
   "@furystack/i18n": patch
   "@furystack/inject": patch
   "@furystack/logging": patch
