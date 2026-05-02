@@ -1,0 +1,10 @@
+releases:
+  "@furystack/auth-google": patch
+  "@furystack/auth-jwt": patch
+  "@furystack/cache": major
+  "@furystack/entity-sync-service": patch
+  "@furystack/rest-service": patch
+  "@furystack/shades-common-components": patch
+  "@furystack/shades-showcase-app": patch
+  "@furystack/websocket-api": patch
+  furystack: patch

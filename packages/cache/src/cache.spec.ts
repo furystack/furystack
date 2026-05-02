@@ -155,52 +155,6 @@ describe('Cache', () => {
     })
   })
 
-  it('Should remove a value from the cache, based on a predicate', async () => {
-    await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
-      await cache.get(1, 2)
-      await cache.get(1, 3)
-      expect(cache.getCount()).toEqual(2)
-      cache.removeRange((v) => v === 3)
-      expect(cache.getCount()).toEqual(1)
-    })
-  })
-
-  it('Should skip entries in loading state when calling removeRange', async () => {
-    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-
-    await usingAsync(new Cache({ load: loader }), async (cache) => {
-      await cache.get(1, 2)
-      cache.setExplicitValue({
-        loadArgs: [3, 4],
-        value: { status: 'loading', value: 7, updatedAt: new Date() },
-      })
-      expect(cache.getCount()).toEqual(2)
-
-      cache.removeRange(() => true)
-
-      expect(cache.getCount()).toEqual(1)
-      expect(cache.has(3, 4)).toEqual(true)
-    })
-  })
-
-  it('Should skip entries in failed state when calling removeRange', async () => {
-    const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-
-    await usingAsync(new Cache({ load: loader }), async (cache) => {
-      await cache.get(1, 2)
-      cache.setExplicitValue({
-        loadArgs: [3, 4],
-        value: { status: 'failed', error: new Error('fail'), value: 7, updatedAt: new Date() },
-      })
-      expect(cache.getCount()).toEqual(2)
-
-      cache.removeRange(() => true)
-
-      expect(cache.getCount()).toEqual(1)
-      expect(cache.has(3, 4)).toEqual(true)
-    })
-  })
-
   it('Should remove all values from the cache', async () => {
     await usingAsync(new Cache({ load: (a: number, b: number) => Promise.resolve(a + b) }), async (cache) => {
       await cache.get(1, 2)
@@ -377,62 +331,6 @@ describe('Cache', () => {
         expect(() => cache.setObsolete(1, 2)).toThrow()
       })
     })
-
-    it('Should set an obsolete state based on a predicate', async () => {
-      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-
-      await usingAsync(new Cache({ load: loader }), async (cache) => {
-        const result = await cache.get(1, 2)
-        expect(result).toEqual(3)
-
-        cache.obsoleteRange((v) => v === 3)
-
-        const result2 = await cache.get(1, 2)
-        expect(result2).toEqual(3)
-
-        expect(loader).toHaveBeenCalledTimes(2)
-      })
-    })
-
-    it('Should skip entries in loading state when calling obsoleteRange', async () => {
-      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-
-      await usingAsync(new Cache({ load: loader }), async (cache) => {
-        await cache.get(1, 2)
-        cache.setExplicitValue({
-          loadArgs: [3, 4],
-          value: { status: 'loading', value: 7, updatedAt: new Date() },
-        })
-
-        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
-
-        const loadedEntry = cache.getObservable(1, 2).getValue()
-        expect(loadedEntry.status).toEqual('obsolete')
-
-        const loadingEntry = cache.getObservable(3, 4).getValue()
-        expect(loadingEntry.status).toEqual('loading')
-      })
-    })
-
-    it('Should skip entries in failed state when calling obsoleteRange', async () => {
-      const loader = vi.fn((a: number, b: number) => Promise.resolve(a + b))
-
-      await usingAsync(new Cache({ load: loader }), async (cache) => {
-        await cache.get(1, 2)
-        cache.setExplicitValue({
-          loadArgs: [3, 4],
-          value: { status: 'failed', error: new Error('fail'), value: 7, updatedAt: new Date() },
-        })
-
-        expect(() => cache.obsoleteRange(() => true)).not.toThrow()
-
-        const loadedEntry = cache.getObservable(1, 2).getValue()
-        expect(loadedEntry.status).toEqual('obsolete')
-
-        const failedEntry = cache.getObservable(3, 4).getValue()
-        expect(failedEntry.status).toEqual('failed')
-      })
-    })
   })
 
   describe('Error state', () => {
@@ -523,39 +421,258 @@ describe('Cache', () => {
         },
       )
     })
+  })
 
-    it('Should expose the original args in obsoleteRange / removeRange predicates with a custom getKey', async () => {
-      type Payload = { tenant: string; ignored: object }
-      const loader = vi.fn((p: Payload) => Promise.resolve(`loaded-${p.tenant}`))
+  describe('Tag-based invalidation', () => {
+    type TenantUser = { username: string; tenant: string }
+    type UserCacheTag = `tenant:${string}` | `user:${string}`
+
+    const makeUserCache = (
+      load: (sessionId: string) => Promise<TenantUser>,
+      capacity?: number,
+    ): Cache<TenantUser, [string], UserCacheTag> =>
+      new Cache<TenantUser, [string], UserCacheTag>({
+        load,
+        getKey: (sessionId) => `cookie:${sessionId}`,
+        getTags: (user) => [`tenant:${user.tenant}`, `user:${user.username}`],
+        capacity,
+      })
+
+    it('obsoleteByTag transitions every loaded entry tagged with the supplied tag', async () => {
+      const load = vi.fn(async (sessionId: string) => ({
+        username: sessionId === 's-2' ? 'bob' : 'alice',
+        tenant: 'acme',
+      }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+        await cache.get('s-2')
+
+        const affected = cache.obsoleteByTag('tenant:acme')
+
+        expect(affected).toEqual(2)
+        expect(cache.getObservable('s-1').getValue().status).toEqual('obsolete')
+        expect(cache.getObservable('s-2').getValue().status).toEqual('obsolete')
+      })
+    })
+
+    it('obsoleteByTag returns 0 and is a no-op when the tag is unknown', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+
+        const affected = cache.obsoleteByTag('user:nobody')
+
+        expect(affected).toEqual(0)
+        expect(cache.getObservable('s-1').getValue().status).toEqual('loaded')
+      })
+    })
+
+    it('obsoleteByTag skips entries in loading / failed / obsolete states', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-loaded')
+
+        cache.setExplicitValue({
+          loadArgs: ['s-failed'],
+          value: {
+            status: 'failed',
+            error: new Error('boom'),
+            value: { username: 'alice', tenant: 'acme' },
+            updatedAt: new Date(),
+          },
+        })
+
+        await cache.get('s-obsolete')
+        cache.setObsolete('s-obsolete')
+
+        expect(cache.obsoleteByTag('user:alice')).toEqual(1)
+        expect(cache.getObservable('s-loaded').getValue().status).toEqual('obsolete')
+        expect(cache.getObservable('s-failed').getValue().status).toEqual('failed')
+      })
+    })
+
+    it('Tags persist across a loaded → failed transition so removeByTag still matches', async () => {
+      let shouldFail = false
+      const load = vi.fn(async () => {
+        if (shouldFail) {
+          throw new Error('boom')
+        }
+        return { username: 'alice', tenant: 'acme' }
+      })
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+        shouldFail = true
+        await expect(cache.reload('s-1')).rejects.toThrow('boom')
+        expect(cache.getObservable('s-1').getValue().status).toEqual('failed')
+
+        expect(cache.obsoleteByTag('user:alice')).toEqual(0)
+        expect(cache.removeByTag('user:alice')).toEqual(1)
+        expect(cache.has('s-1')).toBe(false)
+      })
+    })
+
+    it('Tags persist across a loaded → obsolete transition so removeByTag still matches', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+        cache.setObsolete('s-1')
+        expect(cache.getObservable('s-1').getValue().status).toEqual('obsolete')
+
+        expect(cache.obsoleteByTag('user:alice')).toEqual(0)
+        expect(cache.removeByTag('user:alice')).toEqual(1)
+        expect(cache.has('s-1')).toBe(false)
+      })
+    })
+
+    it('removeByTag removes every tagged entry regardless of state and clears pending stale timers', async () => {
+      const load = vi.fn(async (sessionId: string) => ({
+        username: sessionId === 's-2' ? 'bob' : 'alice',
+        tenant: 'acme',
+      }))
       await usingAsync(
-        new Cache<string, [Payload]>({
-          load: loader,
-          getKey: (p) => p.tenant,
+        new Cache<TenantUser, [string], UserCacheTag>({
+          load,
+          getKey: (sessionId) => `cookie:${sessionId}`,
+          getTags: (user) => [`tenant:${user.tenant}`, `user:${user.username}`],
+          staleTimeMs: 1000,
         }),
         async (cache) => {
-          await cache.get({ tenant: 'a', ignored: {} })
-          await cache.get({ tenant: 'b', ignored: {} })
+          await cache.get('s-1')
+          await cache.get('s-2')
 
-          const seenObsoleteArgs: Payload[] = []
-          cache.obsoleteRange((_value, [args]) => {
-            seenObsoleteArgs.push(args)
-            return args.tenant === 'a'
-          })
-          expect(seenObsoleteArgs.map((a) => a.tenant).sort()).toEqual(['a', 'b'])
-          expect(cache.getObservable({ tenant: 'a', ignored: {} }).getValue().status).toEqual('obsolete')
-          expect(cache.getObservable({ tenant: 'b', ignored: {} }).getValue().status).toEqual('loaded')
+          const removed = cache.removeByTag('tenant:acme')
 
-          await cache.get({ tenant: 'a', ignored: {} })
-          const seenRemoveArgs: Payload[] = []
-          cache.removeRange((_value, [args]) => {
-            seenRemoveArgs.push(args)
-            return args.tenant === 'b'
-          })
-          expect(seenRemoveArgs.map((a) => a.tenant).sort()).toEqual(['a', 'b'])
-          expect(cache.has({ tenant: 'a', ignored: {} })).toBe(true)
-          expect(cache.has({ tenant: 'b', ignored: {} })).toBe(false)
+          expect(removed).toEqual(2)
+          expect(cache.has('s-1')).toBe(false)
+          expect(cache.has('s-2')).toBe(false)
+
+          await vi.advanceTimersByTimeAsync(2000)
+          expect(cache.has('s-1')).toBe(false)
+          expect(cache.has('s-2')).toBe(false)
+          expect(cache.getCount()).toEqual(0)
         },
       )
+    })
+
+    it('removeByTag returns 0 when the tag is unknown', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+
+        expect(cache.removeByTag('tenant:other')).toEqual(0)
+        expect(cache.has('s-1')).toBe(true)
+      })
+    })
+
+    it('Tag index reflects diffs when an entry is reloaded with a different tag set', async () => {
+      let username = 'alice'
+      const load = vi.fn(async () => ({ username, tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+        expect(cache.obsoleteByTag('user:alice')).toEqual(1)
+
+        await cache.get('s-1')
+        username = 'alice-renamed'
+        await cache.reload('s-1')
+
+        expect(cache.obsoleteByTag('user:alice')).toEqual(0)
+        expect(cache.obsoleteByTag('user:alice-renamed')).toEqual(1)
+      })
+    })
+
+    it('LRU eviction drops evicted keys from the tag index', async () => {
+      const load = vi.fn(async (sessionId: string) => ({ username: sessionId, tenant: 'acme' }))
+      await usingAsync(makeUserCache(load, 2), async (cache) => {
+        await cache.get('s-1')
+        await cache.get('s-2')
+        await cache.get('s-3')
+
+        expect(cache.removeByTag('user:s-1')).toEqual(0)
+        expect(cache.obsoleteByTag('tenant:acme')).toEqual(2)
+      })
+    })
+
+    it('flushAll clears the tag index', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+        cache.flushAll()
+
+        expect(cache.removeByTag('tenant:acme')).toEqual(0)
+        expect(cache.obsoleteByTag('user:alice')).toEqual(0)
+      })
+    })
+
+    it('Duplicate tags returned by getTags are deduplicated', async () => {
+      const load = vi.fn(async (sessionId: string) => ({ username: sessionId, tenant: 'acme' }))
+      await usingAsync(
+        new Cache<TenantUser, [string], 'dup'>({
+          load,
+          getKey: (sessionId) => sessionId,
+          getTags: () => ['dup', 'dup', 'dup'],
+        }),
+        async (cache) => {
+          await cache.get('s-1')
+          expect(cache.removeByTag('dup')).toEqual(1)
+        },
+      )
+    })
+
+    it('Empty tags array leaves an entry unmatched by any tag', async () => {
+      const load = vi.fn(async (sessionId: string) => ({ username: sessionId, tenant: 'acme' }))
+      await usingAsync(
+        new Cache<TenantUser, [string], string>({
+          load,
+          getKey: (sessionId) => sessionId,
+          getTags: () => [],
+        }),
+        async (cache) => {
+          await cache.get('s-1')
+          expect(cache.obsoleteByTag('anything')).toEqual(0)
+          expect(cache.removeByTag('anything')).toEqual(0)
+          expect(cache.has('s-1')).toBe(true)
+        },
+      )
+    })
+
+    it('No-ops when getTags is not configured', async () => {
+      const load = vi.fn((a: number, b: number) => Promise.resolve(a + b))
+      await usingAsync(new Cache({ load }), async (cache) => {
+        await cache.get(1, 2)
+        expect(cache.obsoleteByTag('whatever')).toEqual(0)
+        expect(cache.removeByTag('whatever')).toEqual(0)
+        expect(cache.has(1, 2)).toBe(true)
+      })
+    })
+
+    it('setExplicitValue with a loaded value computes tags', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        cache.setExplicitValue({
+          loadArgs: ['s-1'],
+          value: {
+            status: 'loaded',
+            value: { username: 'alice', tenant: 'acme' },
+            updatedAt: new Date(),
+          },
+        })
+
+        expect(cache.removeByTag('user:alice')).toEqual(1)
+      })
+    })
+
+    it('setExplicitValue with a non-loaded value does not register tags', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        cache.setExplicitValue({
+          loadArgs: ['s-1'],
+          value: { status: 'failed', error: new Error('boom'), updatedAt: new Date() },
+        })
+
+        expect(cache.removeByTag('user:alice')).toEqual(0)
+        expect(cache.removeByTag('tenant:acme')).toEqual(0)
+        expect(cache.has('s-1')).toBe(true)
+      })
     })
   })
 
