@@ -739,12 +739,12 @@ state.
       internal `Cache` generic from `Cache<User, [string]>` to
       `Cache<User, [string], \`user:${string}\`>` for typed-tag safety
       and add `getTags: (user) => [\`user:${user.username}\`]`to
-    the constructor. Expose`invalidateByUser(username)`on the
-   `UserResolutionCache`interface, backed by
-   `cache.removeByTag(\`user:${username}\`)`. Useful in single-node
-    deployments today (apps currently have no per-user
-    invalidation short of `invalidateAll`) and is the hook
-    `IdentityEventBus` consumes in Milestone 2.
+ the constructor. Expose`invalidateByUser(username)`on the
+`UserResolutionCache`interface, backed by
+`cache.removeByTag(\`user:${username}\`)`. Useful in single-node
+ deployments today (apps currently have no per-user
+ invalidation short of `invalidateAll`) and is the hook
+ `IdentityEventBus` consumes in Milestone 2.
 - [ ] **M0.2 — Centralize identity cache-key / tag shape.** Extract
       the `cookie:${sessionId}` cache-key template and the
       `user:${username}` tag template into a small shared helpers
