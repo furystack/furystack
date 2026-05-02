@@ -60,13 +60,32 @@ await cache.get(1, 2) // 3 will be calculated and cached
 cache.remove(1, 2) // Removes the specific cached item
 const result = await cache.get(1, 2) // Recalculates: 3
 
-// Remove specific range, where the sum is 3 or the arguments are as specified
-cache.removeRange((entity, args) => {
-  return entity === 3 || (args[0] === 1 && args[1] === 3)
-})
-
 cache.flushAll() // Removes all cached items
 ```
+
+### Tag-based invalidation
+
+`getTags` attaches a set of plain string tags to each entry whenever it transitions to a `loaded` state. `obsoleteByTag` and `removeByTag` then act on every entry currently bound to that tag. Tags are deliberately serializable so the same invalidation can be replicated over a cross-process bus.
+
+```ts
+import { Cache } from '@furystack/cache'
+
+type User = { username: string; tenant: string }
+type UserCacheTag = `tenant:${string}` | `user:${string}`
+
+const cache = new Cache<User, [string], UserCacheTag>({
+  load: (sessionId) => resolveSession(sessionId),
+  getKey: (sessionId) => `cookie:${sessionId}`,
+  getTags: (user) => [`tenant:${user.tenant}`, `user:${user.username}`],
+})
+
+await cache.get('session-abc')
+
+cache.obsoleteByTag('user:alice') // mark loaded entries stale
+cache.removeByTag('tenant:acme') // drop every entry for a tenant
+```
+
+`getTags` receives the loaded value and the originating args, so tags can incorporate state that lives only on the value side. Tags persist across `loading` / `failed` / `obsolete` transitions until the next successful load recomputes them.
 
 ### Subscribe to Changes
 

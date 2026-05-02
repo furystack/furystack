@@ -3,7 +3,7 @@ import type { CacheResult } from './cache-result.js'
 import { isLoadedCacheResult } from './cache-result.js'
 import { CacheStateManager, CannotObsoleteUnloadedError } from './cache-state-manager.js'
 
-export interface CacheSettings<TData, TArgs extends any[]> {
+export interface CacheSettings<TData, TArgs extends any[], TTag extends string = string> {
   /** Loader invoked on cache miss. Concurrent calls for the same key are deduplicated. */
   load: (...args: TArgs) => Promise<TData>
 
@@ -21,37 +21,64 @@ export interface CacheSettings<TData, TArgs extends any[]> {
    * sufficient for primitives + plain objects, unusable for non-serializable
    * args (e.g. `IncomingMessage`). Override when only a subset of the args
    * should participate in cache lookup.
-   *
-   * **Note:** the predicates passed to {@link Cache.obsoleteRange} and
-   * {@link Cache.removeRange} receive the `args` reference from the most
-   * recent `get` / `reload` / `setExplicitValue` call for that entry. Do
-   * not mutate the args object after caching; clone if you need a snapshot.
    */
   getKey?: (...args: TArgs) => string
+
+  /**
+   * Resolver for the set of tags attached to an entry whenever it
+   * transitions to a `'loaded'` state (via successful `load` / `reload`
+   * or {@link Cache.setExplicitValue} with a loaded value). Tags drive
+   * {@link Cache.obsoleteByTag} and {@link Cache.removeByTag}, designed
+   * to be serializable so a remote node on a cross-process bus can
+   * reproduce the same invalidation by emitting the tag string.
+   *
+   * Receives both the loaded `value` and the originating `args`, so
+   * tags can incorporate state that lives only on the value side
+   * (e.g. the `username` extracted from a session-keyed identity).
+   *
+   * Tags are recomputed on every successful load and do not change
+   * while an entry is in `loading` / `failed` / `obsolete` — the last
+   * loaded value's tags persist, so `removeByTag` still matches an
+   * entry that has since been marked obsolete.
+   */
+  getTags?: (value: TData, ...args: TArgs) => readonly TTag[]
 }
 
 /**
  * Async loader cache with state-machine semantics ({@link CacheResult}),
- * concurrent-load deduplication, optional LRU capacity, and stale + cache
- * TTL timers. Extends {@link EventHub} with `onLoadError` and emits the
- * inherited `onListenerError`.
+ * concurrent-load deduplication, optional LRU capacity, stale + cache
+ * TTL timers, and serializable tag-based invalidation. Extends
+ * {@link EventHub} with `onLoadError` and emits the inherited
+ * `onListenerError`.
  *
  * @example
  * ```ts
- * using(new Cache({ load: (id: string) => fetchUser(id), staleTimeMs: 30_000 }), (cache) => {
- *   const obs = cache.getObservable('alice')
- *   obs.subscribe((state) => render(state))
- * })
+ * type SessionCacheTag = `user:${string}`
+ *
+ * using(
+ *   new Cache<User, [string], SessionCacheTag>({
+ *     load: (sessionId: string) => resolveSession(sessionId),
+ *     getKey: (sessionId) => `cookie:${sessionId}`,
+ *     getTags: (user) => [`user:${user.username}`],
+ *     staleTimeMs: 30_000,
+ *   }),
+ *   (cache) => {
+ *     const obs = cache.getObservable('abc')
+ *     obs.subscribe((state) => render(state))
+ *     // Later, e.g. on password change:
+ *     cache.removeByTag('user:alice')
+ *   },
+ * )
  * ```
  */
-export class Cache<TData, TArgs extends any[]>
+export class Cache<TData, TArgs extends any[], TTag extends string = string>
   extends EventHub<{
     onLoadError: { args: TArgs; error: unknown }
     onListenerError: ListenerErrorPayload
   }>
   implements Disposable
 {
-  constructor(private readonly options: CacheSettings<TData, TArgs>) {
+  constructor(private readonly options: CacheSettings<TData, TArgs, TTag>) {
     super()
     this.stateManager = new CacheStateManager<TData, TArgs>({ capacity: this.options.capacity })
   }
@@ -73,6 +100,11 @@ export class Cache<TData, TArgs extends any[]>
   }
 
   private getIndex = (...args: TArgs) => (this.options.getKey ? this.options.getKey(...args) : JSON.stringify(args))
+
+  private resolveTags(value: TData, args: TArgs): readonly string[] | undefined {
+    if (!this.options.getTags) return undefined
+    return this.options.getTags(value, ...args)
+  }
 
   private readonly stateManager: CacheStateManager<TData, TArgs>
 
@@ -156,7 +188,7 @@ export class Cache<TData, TArgs extends any[]>
     try {
       this.stateManager.setLoadingState(index, args)
       const loaded = await this.options.load(...args)
-      this.stateManager.setLoadedState(index, args, loaded)
+      this.stateManager.setLoadedState(index, args, loaded, this.resolveTags(loaded, args))
       this.setupTimers(index, args)
       return loaded
     } catch (error) {
@@ -180,15 +212,17 @@ export class Cache<TData, TArgs extends any[]>
   /**
    * Writes `value` directly into the entry for `loadArgs`, bypassing
    * {@link CacheSettings.load}. When `value.status === 'loaded'` the stale
-   * and cache TTL timers are (re-)armed — same as a successful
-   * {@link Cache.get} / {@link Cache.reload}. Other statuses leave timers
+   * and cache TTL timers are (re-)armed and tags are recomputed via
+   * {@link CacheSettings.getTags}. Other statuses leave timers and tags
    * untouched.
    */
   public setExplicitValue({ loadArgs, value }: { loadArgs: TArgs; value: CacheResult<TData> }) {
     const index = this.getIndex(...loadArgs)
-    this.stateManager.setValue(index, loadArgs, value)
     if (isLoadedCacheResult(value)) {
+      this.stateManager.setValue(index, loadArgs, value, this.resolveTags(value.value, loadArgs))
       this.setupTimers(index, loadArgs)
+    } else {
+      this.stateManager.setValue(index, loadArgs, value)
     }
   }
 
@@ -230,19 +264,26 @@ export class Cache<TData, TArgs extends any[]>
   }
 
   /**
-   * Marks every `'loaded'` entry whose `(value, args)` satisfy `callback`
-   * as `'obsolete'`. Entries in other states are skipped. The `args` passed
-   * to `callback` are the ones recorded by the most recent `get` / `reload`
-   * / `setExplicitValue` for that entry — see {@link CacheSettings.getKey}
-   * for the no-mutate constraint.
+   * Transitions every `'loaded'` entry currently tagged with `tag` to
+   * `'obsolete'`. Entries in other states are skipped. Returns the
+   * number of entries actually transitioned. The `tag` is a plain
+   * string — designed for replication over a serializable bus.
    */
-  public obsoleteRange(callback: (entity: TData, args: TArgs) => boolean) {
-    this.stateManager.obsoleteRange(callback)
+  public obsoleteByTag(tag: TTag): number {
+    return this.stateManager.obsoleteByTag(tag)
   }
 
-  /** {@link Cache.obsoleteRange} for removal. Same iteration + args contract. */
-  public removeRange(callback: (entity: TData, args: TArgs) => boolean) {
-    this.stateManager.removeRange(callback)
+  /**
+   * Removes every entry currently tagged with `tag` regardless of
+   * state and clears any pending stale / cache TTL timers for those
+   * entries. Returns the number of entries removed.
+   */
+  public removeByTag(tag: TTag): number {
+    const removedKeys = this.stateManager.removeByTag(tag)
+    for (const key of removedKeys) {
+      this.clearTimers(key)
+    }
+    return removedKeys.length
   }
 
   public flushAll() {
