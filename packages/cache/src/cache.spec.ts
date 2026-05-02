@@ -491,7 +491,40 @@ describe('Cache', () => {
       })
     })
 
-    it('removeByTag removes every tagged entry regardless of state and clears timers', async () => {
+    it('Tags persist across a loaded → failed transition so removeByTag still matches', async () => {
+      let shouldFail = false
+      const load = vi.fn(async () => {
+        if (shouldFail) {
+          throw new Error('boom')
+        }
+        return { username: 'alice', tenant: 'acme' }
+      })
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+        shouldFail = true
+        await expect(cache.reload('s-1')).rejects.toThrow('boom')
+        expect(cache.getObservable('s-1').getValue().status).toEqual('failed')
+
+        expect(cache.obsoleteByTag('user:alice')).toEqual(0)
+        expect(cache.removeByTag('user:alice')).toEqual(1)
+        expect(cache.has('s-1')).toBe(false)
+      })
+    })
+
+    it('Tags persist across a loaded → obsolete transition so removeByTag still matches', async () => {
+      const load = vi.fn(async () => ({ username: 'alice', tenant: 'acme' }))
+      await usingAsync(makeUserCache(load), async (cache) => {
+        await cache.get('s-1')
+        cache.setObsolete('s-1')
+        expect(cache.getObservable('s-1').getValue().status).toEqual('obsolete')
+
+        expect(cache.obsoleteByTag('user:alice')).toEqual(0)
+        expect(cache.removeByTag('user:alice')).toEqual(1)
+        expect(cache.has('s-1')).toBe(false)
+      })
+    })
+
+    it('removeByTag removes every tagged entry regardless of state and clears pending stale timers', async () => {
       const load = vi.fn(async (sessionId: string) => ({
         username: sessionId === 's-2' ? 'bob' : 'alice',
         tenant: 'acme',
@@ -501,7 +534,7 @@ describe('Cache', () => {
           load,
           getKey: (sessionId) => `cookie:${sessionId}`,
           getTags: (user) => [`tenant:${user.tenant}`, `user:${user.username}`],
-          cacheTimeMs: 1000,
+          staleTimeMs: 1000,
         }),
         async (cache) => {
           await cache.get('s-1')
@@ -516,6 +549,7 @@ describe('Cache', () => {
           await vi.advanceTimersByTimeAsync(2000)
           expect(cache.has('s-1')).toBe(false)
           expect(cache.has('s-2')).toBe(false)
+          expect(cache.getCount()).toEqual(0)
         },
       )
     })

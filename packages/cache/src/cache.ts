@@ -218,11 +218,11 @@ export class Cache<TData, TArgs extends any[], TTag extends string = string>
    */
   public setExplicitValue({ loadArgs, value }: { loadArgs: TArgs; value: CacheResult<TData> }) {
     const index = this.getIndex(...loadArgs)
-    if (isLoadedCacheResult(value)) {
-      this.stateManager.setValue(index, loadArgs, value, this.resolveTags(value.value, loadArgs))
+    const isLoaded = isLoadedCacheResult(value)
+    const tags = isLoaded ? this.resolveTags(value.value, loadArgs) : undefined
+    this.stateManager.setValue(index, loadArgs, value, tags)
+    if (isLoaded) {
       this.setupTimers(index, loadArgs)
-    } else {
-      this.stateManager.setValue(index, loadArgs, value)
     }
   }
 

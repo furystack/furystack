@@ -694,6 +694,43 @@ re-exports. The implementer must check exports and bump accordingly.
 Numbered ordering implies prerequisites. Each milestone is mergeable
 and releasable on its own.
 
+### Milestone 0 — Pre-work (independent of bus)
+
+These items land as standalone PRs **before** any bus code. Each is
+independently valuable on `main` today and unblocks downstream
+milestones. M0.1 + M0.2 are required to make Milestone 2 merge
+cleanly. M0.3 + M0.4 are recommended but optional — skipping them
+turns Milestone 3 into a chunkier diff but does not change the end
+state.
+
+- [ ] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Add
+      `getTags: (user) => [\`user:${user.username}\`]` to the
+      internal `Cache` constructor. Expose `invalidateByUser(username)`
+      on the `UserResolutionCache` interface, backed by
+      `cache.removeByTag(\`user:${username}\`)`. Useful in single-node
+    deployments today (apps currently have no per-user
+    invalidation short of `invalidateAll`) and is the hook
+    `IdentityEventBus` consumes in Milestone 2.
+- [ ] **M0.2 — Centralize identity cache-key / tag shape.** Extract
+      the `cookie:${sessionId}` cache-key template and the
+      `user:${username}` tag template into a small shared helpers
+      module consumed by `cookie-auth-provider.getCacheKey`,
+      `HttpUserContext.cookieLogout`, `UserResolutionCache`, and
+      (later) `IdentityEventBus` subscribers. Prevents drift between
+      local invalidation and bus-replicated invalidation.
+- [ ] **M0.3 — Extract `SequenceGenerator` from `SubscriptionManager`.**
+      Wrap the `incrementVersion` / `currentSeq++` logic behind an
+      internal interface with `next(modelName): SyncVersion`. Default
+      impl is the current per-registration counter. Turns Milestone 3's
+      swap to bus-assigned sequence into a factory swap rather than
+      scattered edits.
+- [ ] **M0.4 — Extract `ChangeLog` from `SubscriptionManager`.** Wrap
+      the `changelog` / `changelogRetentionMs` / `pruneChangelog`
+      triple behind an interface (`append(entry)`,
+      `since(fromSeq): AsyncIterable<entry>`). Default impl is the
+      existing in-process ring + retention prune. Same swap pattern:
+      Milestone 3 plugs in a `bus.replay`-backed impl.
+
 ### Milestone 1 — Bus core & in-process adapter
 
 - [ ] Create `@furystack/cross-node-bus` package with the
@@ -711,10 +748,11 @@ and releasable on its own.
 
 - [ ] Define event union + token + factory.
 - [ ] Wire `HttpUserContext.cookieLogout` to publish.
-- [ ] Subscribe in the factory; on `userLoggedOut` /
+- [ ] Subscribe in the factory: on `userLoggedOut` /
       `sessionInvalidated` invalidate the local
-      `UserResolutionCache` entry.
-- [ ] Add `invalidateByUser(username)` to `UserResolutionCache`.
+      `UserResolutionCache` entry; on `userRolesChanged` /
+      `userDeleted` / `passwordChanged` call `invalidateByUser`
+      (added in M0.1).
 - [ ] Multi-node integration test (≥ 2 in-process bus instances)
       proving cross-node identity invalidation.
 - [ ] (Stretch) on `userLoggedOut`, walk the
@@ -727,8 +765,12 @@ and releasable on its own.
       `CrossNodeBus`).
 - [ ] Refactor `SubscriptionManager.registerModel` to publish +
       subscribe via the broadcaster; single fan-out path.
-- [ ] Move sequence-number generation into the broadcaster;
-      in-process bus keeps a local counter.
+- [ ] Swap the M0.3 `SequenceGenerator` factory to a bus-assigned
+      impl; in-process bus keeps a local counter. (If M0.3 was
+      skipped, this expands to inlined edits across `SubscriptionManager`.)
+- [ ] Swap the M0.4 `ChangeLog` factory to a `bus.replay`-backed
+      impl. (If M0.4 was skipped, this expands to dropping
+      `changelog` / `pruneChangelog` and rewriting reconnection paths.)
 - [ ] Server-side seq dedup with TTL eviction.
 - [ ] Verify all existing tests pass — single-node story unchanged.
 - [ ] Multi-node integration test (≥ 2 in-process bus instances)
@@ -837,6 +879,13 @@ development; none of them gate the v1 plan.
   `@furystack/rest-service`. Bounds cross-instance staleness for
   session/role changes; this PRD collapses that window further for
   the events where sub-TTL latency matters.
+- **`@furystack/cache` tag-based invalidation (landed)** — the major
+  release that removed the predicate-based `obsoleteRange` /
+  `removeRange` in favor of `getTags` / `obsoleteByTag` /
+  `removeByTag`. Tags are deliberately serializable so the same
+  invalidation can be replayed over the bus. This is the prerequisite
+  the M0.1 `UserResolutionCache.invalidateByUser` and the §10.1
+  `IdentityEventBus` subscribers consume.
 - **`docs/internal/functional-di-migration-plan.md`** — established
   the "interface + token + factory" pattern this PRD follows for
   the `CrossNodeBus` token, every facade, and every adapter
