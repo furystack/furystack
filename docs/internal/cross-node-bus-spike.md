@@ -58,9 +58,10 @@ without quietly losing correctness on every channel listed above.
   application can share.
 - Ship a usable in-process default and a production-grade Redis Streams
   adapter alongside it.
-- Replace the in-process `EventHub` paths in entity-sync and identity
-  flows with bus-backed facades, **without breaking existing app code**
-  that uses the local `HttpUserContext` events directly.
+- Augment the in-process `EventHub` paths in entity-sync and identity
+  flows with bus-backed facades that ride **alongside** the local
+  emits, **without breaking existing app code** that uses the local
+  `HttpUserContext` events directly.
 - Make app-defined facades a first-class extension point: app authors
   build typed wrappers over the bus the same way framework facades do.
 - Enforce capability requirements at registration time so misconfigured
@@ -77,7 +78,7 @@ without quietly losing correctness on every channel listed above.
 
 ## 4. Success metrics
 
-The v1 release is "done" when all three numbers hold in the smoke test
+The v1 release is "done" when all four numbers hold in the smoke test
 harness described in §13:
 
 | Metric                                                         | Target                             |
@@ -252,8 +253,9 @@ export interface CrossNodeBus extends Disposable {
 
   /**
    * Replay messages on `topic` from `fromSeq` (exclusive) up to the most
-   * recent. Throws if `bus.capabilities.replay` is `false`. May reject
-   * with a `ReplayWindowExceededError` if `fromSeq` is older than the
+   * recent. Throws synchronously if `bus.capabilities.replay` is
+   * `false`. Throws (or yields an error on first iteration)
+   * `ReplayWindowExceededError` if `fromSeq` is older than the
    * adapter's retained window — facades fall back to a full snapshot.
    */
   replay(topic: string, fromSeq: string): AsyncIterable<BusMessage>
@@ -299,7 +301,7 @@ Design choices:
 
 ```ts
 export const CrossNodeBus = defineService({
-  name: '@furystack/cross-node-bus',
+  name: 'furystack/cross-node-bus/CrossNodeBus',
   lifetime: 'singleton',
   factory: () => new InProcessCrossNodeBus(),
 })
@@ -374,8 +376,8 @@ throw a clear error at registration time.
 | In-process    | 1 000 messages / topic (ring buffer) | constructor `{ replayWindow }` |
 | Redis Streams | `MAXLEN ~ 10000` per stream          | constructor `{ replayWindow }` |
 
-Out-of-window replay rejects with `ReplayWindowExceededError`; facades
-fall back to a full snapshot path.
+Out-of-window replay throws (or yields on first iteration)
+`ReplayWindowExceededError`; facades fall back to a full snapshot path.
 
 ## 9. Capability matrix & enforcement
 
@@ -414,6 +416,31 @@ export type IdentityEvent =
   | { type: 'passwordChanged'; username: string }
 ```
 
+#### Facade interface
+
+```ts
+export interface IdentityEventBus extends Disposable {
+  /** Publishes a typed identity event on the underlying bus. */
+  publish(event: IdentityEvent): Promise<void>
+
+  /**
+   * Subscribes to a single event type. The handler receives the event
+   * payload narrowed to the requested type. Returns a `Disposable`
+   * that removes the listener on dispose.
+   */
+  subscribe<TType extends IdentityEvent['type']>(
+    type: TType,
+    handler: (event: Extract<IdentityEvent, { type: TType }>) => void,
+  ): Disposable
+}
+```
+
+The shape mirrors `EventHub<T>.subscribe` so consumers familiar with
+`httpUserContext.subscribe('onLogout', …)` need no relearning. The
+facade implementation composes an internal `EventHub` for typed
+local dispatch and bridges it to `CrossNodeBus.publish` /
+`CrossNodeBus.subscribe` under a fixed `identity/` topic prefix.
+
 #### Wiring (publish side)
 
 `HttpUserContext.cookieLogout` keeps its existing local emit, **and**
@@ -425,12 +452,17 @@ public async cookieLogout(request, response): Promise<void> {
   // … existing cookie clearing + session-store removal …
 
   if (sessionId) {
-    this.userCache.invalidate(`cookie:${sessionId}`)
+    this.userCache.invalidate(sessionCacheKey(sessionId))
     void this.identityEventBus.publish({ type: 'userLoggedOut', sessionId })
   }
   this.emit('onLogout', undefined)
 }
 ```
+
+`sessionCacheKey(sessionId)` is the shared helper introduced in M0.2 —
+producer (`cookie-auth-provider.getCacheKey`), local invalidation
+(`HttpUserContext.cookieLogout`), and bus subscribers all derive the
+same string from one source of truth.
 
 The local `EventHub` emit is preserved — apps that already subscribe
 to `httpUserContext` events keep working unchanged. Cross-node
@@ -440,11 +472,11 @@ fan-out is purely additive.
 
 ```ts
 identityEventBus.subscribe('userLoggedOut', ({ sessionId }) => {
-  userCache.invalidate(`cookie:${sessionId}`)
+  userCache.invalidate(sessionCacheKey(sessionId))
 })
 
 identityEventBus.subscribe('sessionInvalidated', ({ sessionId }) => {
-  userCache.invalidate(`cookie:${sessionId}`)
+  userCache.invalidate(sessionCacheKey(sessionId))
 })
 
 identityEventBus.subscribe('userRolesChanged', ({ username }) => {
@@ -648,7 +680,7 @@ Every publish/subscribe path emits structured events to
 
 - `onCrossNodePublished` — `{ topic, originId, byteLength }`
 - `onCrossNodeReceived` — `{ topic, originId, lagMs }`
-- `onCrossNodeError` — `{ topic, error, phase: 'publish' | 'subscribe' | 'serialize' }`
+- `onCrossNodeError` — `{ topic, error, phase: 'publish' | 'subscribe' | 'subscribeForeign' | 'replay' | 'serialize' }`
 
 `lagMs = Date.now() - Date.parse(message.emittedAt)` and is emitted on
 **every received message** — the cost is sub-microsecond and the
@@ -703,11 +735,13 @@ cleanly. M0.3 + M0.4 are recommended but optional — skipping them
 turns Milestone 3 into a chunkier diff but does not change the end
 state.
 
-- [ ] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Add
-      `getTags: (user) => [\`user:${user.username}\`]` to the
-      internal `Cache` constructor. Expose `invalidateByUser(username)`
-      on the `UserResolutionCache` interface, backed by
-      `cache.removeByTag(\`user:${username}\`)`. Useful in single-node
+- [ ] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Widen the
+      internal `Cache` generic from `Cache<User, [string]>` to
+      `Cache<User, [string], \`user:${string}\`>` for typed-tag safety
+      and add `getTags: (user) => [\`user:${user.username}\`]`to
+    the constructor. Expose`invalidateByUser(username)`on the
+   `UserResolutionCache`interface, backed by
+   `cache.removeByTag(\`user:${username}\`)`. Useful in single-node
     deployments today (apps currently have no per-user
     invalidation short of `invalidateAll`) and is the hook
     `IdentityEventBus` consumes in Milestone 2.
