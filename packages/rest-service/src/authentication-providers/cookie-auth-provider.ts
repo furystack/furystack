@@ -1,5 +1,6 @@
 import type { User } from '@furystack/core'
 import { UnauthenticatedError } from '@furystack/security'
+import { sessionCacheKey, type SessionCacheKey } from '../identity-cache-keys.js'
 import type { DefaultSession } from '../models/default-session.js'
 import type { AuthenticationProvider } from './authentication-provider.js'
 import { extractSessionIdFromCookies } from './helpers.js'
@@ -26,8 +27,8 @@ export const createCookieAuthProvider = (
   // The session id alone uniquely identifies the principal — caching by it is
   // safe because session invalidation (logout, expiry) drops the session row,
   // and the TTL on the user-resolution cache bounds staleness across nodes.
-  getCacheKey: (request) => {
+  getCacheKey: (request): SessionCacheKey | null => {
     const sessionId = extractSessionIdFromCookies(request, cookieName)
-    return sessionId ? `cookie:${sessionId}` : null
+    return sessionId ? sessionCacheKey(sessionId) : null
   },
 })

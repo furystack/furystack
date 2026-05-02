@@ -735,7 +735,7 @@ cleanly. M0.3 + M0.4 are recommended but optional — skipping them
 turns Milestone 3 into a chunkier diff but does not change the end
 state.
 
-- [ ] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Widen the
+- [x] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Widen the
       internal `Cache` generic from `Cache<User, [string]>` to
       `Cache<User, [string], \`user:${string}\`>` for typed-tag safety
       and add `getTags: (user) => [\`user:${user.username}\`]`to
@@ -745,25 +745,28 @@ state.
  deployments today (apps currently have no per-user
  invalidation short of `invalidateAll`) and is the hook
  `IdentityEventBus` consumes in Milestone 2.
-- [ ] **M0.2 — Centralize identity cache-key / tag shape.** Extract
+- [x] **M0.2 — Centralize identity cache-key / tag shape.** Extract
       the `cookie:${sessionId}` cache-key template and the
       `user:${username}` tag template into a small shared helpers
       module consumed by `cookie-auth-provider.getCacheKey`,
       `HttpUserContext.cookieLogout`, `UserResolutionCache`, and
       (later) `IdentityEventBus` subscribers. Prevents drift between
       local invalidation and bus-replicated invalidation.
-- [ ] **M0.3 — Extract `SequenceGenerator` from `SubscriptionManager`.**
+- [x] **M0.3 — Extract `SequenceGenerator` from `SubscriptionManager`.**
       Wrap the `incrementVersion` / `currentSeq++` logic behind an
       internal interface with `next(modelName): SyncVersion`. Default
       impl is the current per-registration counter. Turns Milestone 3's
       swap to bus-assigned sequence into a factory swap rather than
       scattered edits.
-- [ ] **M0.4 — Extract `ChangeLog` from `SubscriptionManager`.** Wrap
+- [x] **M0.4 — Extract `ChangeLog` from `SubscriptionManager`.** Wrap
       the `changelog` / `changelogRetentionMs` / `pruneChangelog`
       triple behind an interface (`append(entry)`,
-      `since(fromSeq): AsyncIterable<entry>`). Default impl is the
-      existing in-process ring + retention prune. Same swap pattern:
-      Milestone 3 plugs in a `bus.replay`-backed impl.
+      `since(fromSeq): readonly SyncChangeEntry[]` — sync array, not
+      `AsyncIterable`, by design choice during M0). Default impl is
+      the existing in-process ring + retention prune. Same swap
+      pattern: Milestone 3 plugs in a `bus.replay`-backed impl (which
+      may widen `since` to `AsyncIterable` if the adapter benefits
+      from streaming replay).
 
 ### Milestone 1 — Bus core & in-process adapter
 

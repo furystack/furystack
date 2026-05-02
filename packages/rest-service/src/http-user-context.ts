@@ -9,6 +9,7 @@ import type { IncomingMessage } from 'http'
 import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { extractSessionIdFromCookies } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import { sessionCacheKey } from './identity-cache-keys.js'
 import { resolveUserCacheKey, UserResolutionCache } from './user-resolution-cache.js'
 
 /**
@@ -158,7 +159,7 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     // request sees the logout immediately. Sibling instances behind a load
     // balancer still observe the old user until their TTL window elapses.
     if (sessionId) {
-      this.userCache.invalidate(`cookie:${sessionId}`)
+      this.userCache.invalidate(sessionCacheKey(sessionId))
     }
 
     if (sessionId) {

@@ -158,6 +158,61 @@ describe('UserResolutionCache', () => {
       })
     })
   })
+
+  describe('invalidateByUser', () => {
+    it('drops every cached session that resolved to the supplied username', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        i.bind(HttpAuthenticationSettings, () => ({
+          ...defaultHttpAuthenticationSettings(),
+          userCacheTtlMs: 30_000,
+        }))
+        const cache = i.get(UserResolutionCache)
+        const aliceLoaderA = vi.fn(async () => testUser)
+        const aliceLoaderB = vi.fn(async () => testUser)
+        const bobLoader = vi.fn(async () => otherUser)
+        await cache.resolve('cookie:alice-1', aliceLoaderA)
+        await cache.resolve('cookie:alice-2', aliceLoaderB)
+        await cache.resolve('cookie:bob-1', bobLoader)
+        expect(cache.size).toBe(3)
+
+        cache.invalidateByUser('alice')
+
+        expect(cache.size).toBe(1)
+        await cache.resolve('cookie:alice-1', aliceLoaderA)
+        await cache.resolve('cookie:alice-2', aliceLoaderB)
+        await cache.resolve('cookie:bob-1', bobLoader)
+        expect(aliceLoaderA).toHaveBeenCalledTimes(2)
+        expect(aliceLoaderB).toHaveBeenCalledTimes(2)
+        expect(bobLoader).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    it('is a no-op when the username is unknown', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        i.bind(HttpAuthenticationSettings, () => ({
+          ...defaultHttpAuthenticationSettings(),
+          userCacheTtlMs: 30_000,
+        }))
+        const cache = i.get(UserResolutionCache)
+        await cache.resolve('cookie:alice-1', async () => testUser)
+        await cache.resolve('cookie:bob-1', async () => otherUser)
+        cache.invalidateByUser('charlie')
+        expect(cache.size).toBe(2)
+      })
+    })
+
+    it('is a no-op when caching is disabled (ttl = 0)', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        i.bind(HttpAuthenticationSettings, () => ({
+          ...defaultHttpAuthenticationSettings(),
+          userCacheTtlMs: 0,
+        }))
+        const cache = i.get(UserResolutionCache)
+        expect(() => cache.invalidateByUser('alice')).not.toThrow()
+        expect(cache.size).toBe(0)
+      })
+    })
+  })
 })
 
 describe('resolveUserCacheKey', () => {

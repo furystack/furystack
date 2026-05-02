@@ -1,8 +1,10 @@
 import { IdentityContext, useSystemIdentityContext, type FilterType, type User } from '@furystack/core'
 import { defineService, type Injector, type Token } from '@furystack/inject'
 import { type DataSetToken } from '@furystack/repository'
-import type { SyncChangeEntry, ServerSyncMessage, SyncVersion } from '@furystack/entity-sync'
+import type { ServerSyncMessage } from '@furystack/entity-sync'
 import type WebSocket from 'ws'
+import { createInProcessChangeLog, type ChangeLog } from './change-log.js'
+import { createInProcessSequenceGenerator, type SequenceGenerator } from './sequence-generator.js'
 import type { useEntitySync } from './use-entity-sync.js'
 
 type EntitySubscription = {
@@ -37,9 +39,6 @@ type Subscription = EntitySubscription | CollectionSubscription
 type ModelRegistration = {
   modelName: string
   primaryKey: string
-  currentSeq: number
-  changelog: SyncChangeEntry[]
-  changelogRetentionMs: number
   debounceMs: number
   queryTtlMs: number
   eventSubscriptions: Disposable[]
@@ -158,10 +157,16 @@ class SubscriptionManagerImpl implements SubscriptionManager {
   private readonly pendingEntityMessages = new Map<string, ServerSyncMessage[]>()
   private readonly queryCache = new Map<string, QueryCacheEntry>()
 
+  private readonly sequenceGenerator: SequenceGenerator
+  private readonly changeLog: ChangeLog
+
   constructor(
     private readonly systemInjector: Injector,
     private readonly subscriptionScopeParent: Injector,
-  ) {}
+  ) {
+    this.sequenceGenerator = createInProcessSequenceGenerator()
+    this.changeLog = createInProcessChangeLog()
+  }
 
   /**
    * Captures the current identity from `clientInjector` (the per-message
@@ -224,12 +229,11 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     type AnyEntity = Record<string, unknown>
     const dataSet = this.systemInjector.get(dataSetToken)
 
+    this.changeLog.configure(modelName, options?.changelogRetentionMs ?? 5 * 60 * 1000)
+
     const registration: ModelRegistration = {
       modelName,
       primaryKey,
-      currentSeq: 0,
-      changelog: [],
-      changelogRetentionMs: options?.changelogRetentionMs ?? 5 * 60 * 1000,
       debounceMs: options?.debounceMs ?? 0,
       queryTtlMs: options?.queryTtlMs ?? 0,
       eventSubscriptions: [],
@@ -261,28 +265,12 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     this.modelRegistrations.set(modelName, registration)
   }
 
-  private incrementVersion(registration: ModelRegistration): SyncVersion {
-    registration.currentSeq++
-    return {
-      seq: registration.currentSeq,
-      timestamp: new Date().toISOString(),
-    }
-  }
-
-  private pruneChangelog(registration: ModelRegistration): void {
-    const cutoff = Date.now() - registration.changelogRetentionMs
-    registration.changelog = registration.changelog.filter(
-      (entry) => new Date(entry.version.timestamp).getTime() > cutoff,
-    )
-  }
-
   private handleEntityAdded(modelName: string, entity: Record<string, unknown>, entityKey: unknown): void {
     const registration = this.modelRegistrations.get(modelName)
     if (!registration) return
 
-    const version = this.incrementVersion(registration)
-    registration.changelog.push({ type: 'added', entity, version })
-    this.pruneChangelog(registration)
+    const version = this.sequenceGenerator.next(modelName)
+    this.changeLog.append(modelName, { type: 'added', entity, version })
 
     for (const sub of this.subscriptions.values()) {
       if (sub.modelName !== modelName) continue
@@ -305,9 +293,8 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     const registration = this.modelRegistrations.get(modelName)
     if (!registration) return
 
-    const version = this.incrementVersion(registration)
-    registration.changelog.push({ type: 'updated', id, change, version })
-    this.pruneChangelog(registration)
+    const version = this.sequenceGenerator.next(modelName)
+    this.changeLog.append(modelName, { type: 'updated', id, change, version })
 
     for (const sub of this.subscriptions.values()) {
       if (sub.modelName !== modelName) continue
@@ -331,9 +318,8 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     const registration = this.modelRegistrations.get(modelName)
     if (!registration) return
 
-    const version = this.incrementVersion(registration)
-    registration.changelog.push({ type: 'removed', id: key, version })
-    this.pruneChangelog(registration)
+    const version = this.sequenceGenerator.next(modelName)
+    this.changeLog.append(modelName, { type: 'removed', id: key, version })
 
     for (const sub of this.subscriptions.values()) {
       if (sub.modelName !== modelName) continue
@@ -359,7 +345,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
   ): void {
     if (registration.debounceMs === 0) {
       this.sendMessage(sub.socket, message)
-      sub.currentSeq = registration.currentSeq
+      sub.currentSeq = this.sequenceGenerator.current(registration.modelName)
     } else {
       if (!this.pendingEntityMessages.has(sub.subscriptionId)) {
         this.pendingEntityMessages.set(sub.subscriptionId, [])
@@ -439,21 +425,21 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     }
 
     const hasChanges = this.hasCollectionChanged(sub.currentEntities, newEntities) || totalCount !== sub.lastTotalCount
+    const currentSeq = this.sequenceGenerator.current(registration.modelName)
 
     if (hasChanges) {
-      const version: SyncVersion = { seq: registration.currentSeq, timestamp: new Date().toISOString() }
       this.sendMessage(sub.socket, {
         type: 'collection-snapshot',
         subscriptionId: sub.subscriptionId,
         data: results,
         totalCount,
-        version,
+        version: { seq: currentSeq, timestamp: new Date().toISOString() },
       })
     }
 
     sub.currentEntities = newEntities
     sub.lastTotalCount = totalCount
-    sub.currentSeq = registration.currentSeq
+    sub.currentSeq = currentSeq
   }
 
   private hasCollectionChanged(oldEntities: Map<unknown, unknown>, newEntities: Map<unknown, unknown>): boolean {
@@ -550,26 +536,19 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     try {
       const subscriptionId = `sub-${++this.subscriptionCounter}`
       subscriptionScope = await this.captureSubscriptionScope(clientInjector)
+      const currentSeq = this.sequenceGenerator.current(modelName)
 
-      if (lastSeq !== undefined && registration.changelog.length > 0) {
-        const oldestEntry = registration.changelog[0]
-        if (oldestEntry.version.seq <= lastSeq + 1) {
-          const relevantChanges = registration.changelog.filter((entry) => {
-            if (entry.version.seq <= lastSeq) return false
+      if (lastSeq !== undefined) {
+        const oldestSeq = this.changeLog.oldestSeq(modelName)
+        if (oldestSeq !== undefined && oldestSeq <= lastSeq + 1) {
+          const relevantChanges = this.changeLog.since(modelName, lastSeq).filter((entry) => {
             if (entry.type === 'added') {
               return (entry.entity as Record<string, unknown>)[registration.primaryKey] === key
             }
             return entry.id === key
           })
 
-          this.storeEntitySubscription(
-            subscriptionId,
-            socket,
-            subscriptionScope,
-            modelName,
-            key,
-            registration.currentSeq,
-          )
+          this.storeEntitySubscription(subscriptionId, socket, subscriptionScope, modelName, key, currentSeq)
 
           this.sendMessage(socket, {
             type: 'subscribed',
@@ -578,7 +557,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
             model: modelName,
             mode: 'delta',
             changes: relevantChanges,
-            version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
+            version: { seq: currentSeq, timestamp: new Date().toISOString() },
           })
           return
         }
@@ -586,7 +565,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
 
       const entity = await registration.getEntity(subscriptionScope, key)
 
-      this.storeEntitySubscription(subscriptionId, socket, subscriptionScope, modelName, key, registration.currentSeq)
+      this.storeEntitySubscription(subscriptionId, socket, subscriptionScope, modelName, key, currentSeq)
 
       this.sendMessage(socket, {
         type: 'subscribed',
@@ -595,7 +574,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         model: modelName,
         mode: 'snapshot',
         data: entity,
-        version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
+        version: { seq: currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {
       if (subscriptionScope) {
@@ -650,6 +629,8 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         currentEntities.set(key, entity)
       }
 
+      const currentSeq = this.sequenceGenerator.current(modelName)
+
       const subscription: CollectionSubscription = {
         subscriptionId,
         socket,
@@ -660,7 +641,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         top,
         skip,
         order,
-        currentSeq: registration.currentSeq,
+        currentSeq,
         currentEntities,
         lastTotalCount: totalCount,
       }
@@ -677,7 +658,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         mode: 'snapshot',
         data: results,
         totalCount,
-        version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
+        version: { seq: currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {
       if (subscriptionScope) {
@@ -770,8 +751,8 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     return {
       modelName: reg.modelName,
       primaryKey: reg.primaryKey,
-      currentSeq: reg.currentSeq,
-      changelogLength: reg.changelog.length,
+      currentSeq: this.sequenceGenerator.current(modelName),
+      changelogLength: this.changeLog.length(modelName),
     }
   }
 
