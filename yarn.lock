@@ -860,8 +860,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-cross-node-bus@workspace:packages/redis-cross-node-bus"
   dependencies:
+    "@furystack/core": "workspace:^"
     "@furystack/cross-node-bus": "workspace:^"
     "@furystack/inject": "workspace:^"
+    "@furystack/rest-service": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^25.6.0"
     redis: "npm:^5.12.1"

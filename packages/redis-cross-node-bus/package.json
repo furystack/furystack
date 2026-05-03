@@ -44,6 +44,8 @@
     "redis": "^5.12.1"
   },
   "devDependencies": {
+    "@furystack/core": "workspace:^",
+    "@furystack/rest-service": "workspace:^",
     "@types/node": "^25.6.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"
