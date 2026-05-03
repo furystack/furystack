@@ -198,17 +198,22 @@ DAG resume, progress, and (via `/tasks/${id}/tree`) visualization.
 +----------------+---------------------------+-----------------------+
                  |                           |
                  v                           v
-+--------------------------+   +--------------------------------+
-| Task DataSet             |   | Cross-node bus (status/progress)|
-| (defineDataSet over      |   | tasks/progress/${taskId}       |
-|  defineStore)            |   | tasks/status/${taskId}         |
-| - persisted state        |   +--------------------------------+
-| - attempt history        |
-| - DAG edges (parent/child)|
-+--------------------------+
++----------------------------+   +-----------------------------------+
+| Task DataSets              |   | @furystack/cross-node-bus         |
+| (defineDataSet over        |   | (single bus, multiple topics)     |
+|  defineStore)              |   |                                   |
+|  - Task                    |   | Cold lane (terminal status writes |
+|    persisted control plane |   |  via entity-sync):                |
+|    + DAG edges + attempts  |   |   entity/Task                     |
+|  - TaskReplayLog           |   |                                   |
+|    handler step log,       |   | Hot lane (per task type):         |
+|    keyed (taskId, stepIdx) |   |   tasks/progress/${type}          |
++----------------------------+   |   tasks/status/${type}            |
+                                 |   tasks/cancel/${type}            |
+                                 +-----------------------------------+
 
 +-----------------------------------------------------+
-| Queue adapter (claim transport)                     |
+| Queue adapter (claim transport — separate from bus) |
 |  - in-process default                               |
 |  - @furystack/redis-task-runner (Redis Streams)     |
 +-----------------------------------------------------+
@@ -224,6 +229,25 @@ DAG resume, progress, and (via `/tasks/${id}/tree`) visualization.
        in-memory          filesystem         S3-compatible
        (testing)          (single-node)      (production)
 ```
+
+**Why per-task-type topics, not per-`taskId`.** A topic per `taskId`
+would mint one underlying broker stream per task — millions on a
+busy fleet, each requiring tracking and cleanup. A per-type topic
+caps the broker footprint at the task-type count (typically tens),
+keeps the bus's per-topic replay window meaningful per-type, and
+matches the consumer-group shape future networked adapters use.
+Subscribers filter by `taskId` client-side; that cost is one map
+lookup per event — negligible vs. broker-side stream multiplication.
+
+**Cold lane vs. hot lane.** Both ride the same `CrossNodeBus`; only
+the topic differs. The cold lane is the dataset's own change-stream
+(`entity/Task`) propagated by `EntityChangeBus` — terminal-state
+flips reach every node automatically, no extra runner code needed.
+The hot lane is direct `bus.publish` from the runner under the
+`tasks/...` namespace; it carries per-percent progress, terminal
+status (for the Q5 backup wake described in §11), and cancel
+broadcast. Hot-lane events are best-effort; cold lane is the
+durability floor.
 
 - **`@furystack/task-runner`** owns the abstraction: `TaskRunner` token,
   task entity schema, handler/worker DSL, DAG primitives, replay engine.
@@ -257,6 +281,17 @@ service. The runner's queue adapter accepts `topicPrefix` /
 concern carried on the task payload. A worker may host one or more task
 types; the same injector graph that serves HTTP can also host workers
 in dev/single-pod, or run as a dedicated worker process in production.
+
+The runner publishes raw topic names (`tasks/progress/${type}` etc.)
+and lets the bound `CrossNodeBus` prepend its own `topicPrefix` on
+the wire — single source of truth. A multi-service deployment that
+binds `defineRedisCrossNodeBusAdapter({ topicPrefix: 'svc-a/' })`
+gets `svc-a/tasks/progress/${type}` on the wire automatically;
+cross-service task observability (e.g. an admin service watching
+another service's tasks) uses
+`bus.subscribeForeign('svc-a/', 'tasks/status/${type}', ...)`,
+matching the same opt-in-eavesdrop pattern as `IdentityEventBus`
+and `EntityChangeBus`.
 
 ## 7. API contract
 
@@ -391,6 +426,11 @@ const probeVideo = defineTaskHandler<{ inputBlob: BlobRef }, { duration: number;
   retentionPolicy: { onSuccess: 'delete-intermediate', onFailure: 'keep', ttlAfterTerminalDays: 7 },
   cancelOnDrain: true,
   visibilityTimeoutMs: 60_000,
+  // Hot-lane progress is coalesced server-side: at most one publish
+  // per task per `progressThrottleMs`. Default 250ms (4Hz). Set to
+  // `Infinity` to suppress hot-lane publishes entirely (cold-lane
+  // dataset writes still happen at the runner's coalesce rate).
+  progressThrottleMs: 250,
   handler: async (ctx, { inputBlob }) => {
     const stream = await ctx.blobStore.get(inputBlob.key)
     const probe = await ctx.fetch(/* … */) // determinism-safe wrapper
@@ -492,6 +532,47 @@ This is a **deliberate Temporal-flavored design**, scoped to "good
 enough for FuryStack apps". Apps that need bulletproof determinism
 (financial workflows etc.) should reach for a dedicated workflow engine.
 
+#### Continuation flow
+
+When a child reaches a terminal status, three independent paths
+converge to wake any waiting parent — exactly one of them re-enqueues,
+the others are no-ops via CAS on `Task.status`:
+
+1. **Originating-worker fast path.** The worker that just finished the
+   child queries the parent's awaited-children set (cached on the
+   parent row from the suspending `awaitChildren` call). If all are
+   terminal, it CAS-flips the parent from `waiting → pending` and
+   pushes the resume token into the queue. This is the common case
+   and runs sub-millisecond.
+2. **Bus-driven backup.** Every node that hosts a worker for the
+   parent's task type subscribes to `tasks/status/${type}`. On a
+   terminal event, the same "all terminal? → CAS + re-enqueue"
+   check runs. Catches the case where the originating worker
+   crashed between writing the child's terminal status and pushing
+   the resume token. Recovery latency = bus latency.
+3. **Periodic reconciler.** A low-frequency sweeper (default scan
+   interval 1h) walks `waiting` parents, queries children, runs the
+   same check. Catches anything paths 1 and 2 both missed (e.g.
+   broker outage during the bus-driven attempt).
+
+CAS-on-`Task.status` is the dedup key — only the first path to
+flip `waiting → pending` wins; the rest are idempotent no-ops.
+
+#### Worker bus subscription set
+
+Workers subscribe to two topics per task type they declare in
+`defineWorker.types`:
+
+- `tasks/cancel/${type}` — wake signal; worker filters by
+  `taskId in heldLeases` and aborts the matching `ctx.cancellationSignal`.
+- `tasks/status/${type}` — backup-wake input for the continuation
+  flow above.
+
+Workers do **not** subscribe to `tasks/progress/${type}` — they only
+publish there. API/WS nodes do the inverse: they subscribe to
+`tasks/progress/${type}` and `tasks/status/${type}` for types their
+clients have asked about, and never to `tasks/cancel/${type}`.
+
 ### 7.5 `BlobStore` interface
 
 ```ts
@@ -564,6 +645,50 @@ configuration. Multi-node deployments are expected to bind real
 adapters; the boot-time capability cross-check (§9) refuses
 combinations that cannot work cross-node.
 
+### 7.7 WS subscribe shape (subscribe race + first-event loss)
+
+The `WS /tasks/subscribe` flow has a race: a client may subscribe
+after a worker has already published its first progress event, and
+on networked bus adapters the server-side bus subscription itself
+takes a wire round-trip to become live (Redis Streams cursor
+initialisation; see `RedisCrossNodeBus.whenReady`).
+
+The runner closes both windows by (1) awaiting any
+`bus.whenReady?(topic)` the adapter exposes, (2) reading a snapshot
+of the task from the dataset, and (3) streaming subsequent bus events:
+
+```ts
+async function handleTaskSubscribe(taskId: string, send: (msg: TaskUpdate) => void) {
+  const task = await taskDataSet.get(injector, taskId)
+  if (!task) throw new RequestError('Task not found', 404)
+
+  const progressTopic = `tasks/progress/${task.type}`
+  const statusTopic = `tasks/status/${task.type}`
+  await bus.whenReady?.(progressTopic)
+  await bus.whenReady?.(statusTopic)
+
+  send({ kind: 'snapshot', task })
+
+  let lastSeenSeq: string | undefined
+  const dispatch = (kind: 'progress' | 'status', message: BusMessage) => {
+    if ((message.payload as { taskId: string }).taskId !== taskId) return
+    if (lastSeenSeq && message.seq && bus.compareSeq(message.seq, lastSeenSeq) <= 0) return
+    if (message.seq) lastSeenSeq = message.seq
+    send({ kind, ...(message.payload as object) } as TaskUpdate)
+  }
+  return [
+    bus.subscribe(progressTopic, (m) => dispatch('progress', m)),
+    bus.subscribe(statusTopic, (m) => dispatch('status', m)),
+  ]
+}
+```
+
+`whenReady?` is optional on the bus interface — adapters that do
+not need it (in-process) implement as a no-op. Server-side dedup
+by `bus.compareSeq` filters any event already covered by the
+snapshot's `progress.updatedAt` timestamp; clients render
+last-write-wins on the UI side as a second line of defence.
+
 ## 8. Adapters
 
 ### 8.1 Queue adapters
@@ -635,18 +760,59 @@ Capabilities are declared statically by every adapter and asserted at
 runtime startup. A misconfigured deployment fails loudly at boot, never
 silently degrades.
 
-| Combination                                           | Result                                               |
-| ----------------------------------------------------- | ---------------------------------------------------- |
-| Single-pod dev: in-process runner + in-memory blob    | ✅                                                   |
-| Single-pod dev: in-process runner + filesystem blob   | ✅                                                   |
-| Single-node prod: in-process runner + filesystem blob | ✅                                                   |
-| Multi-node: Redis runner + filesystem blob            | ❌ — refuses to start (`crossNodeAccessible: false`) |
-| Multi-node: Redis runner + S3 blob                    | ✅                                                   |
-| Multi-node: Redis runner + in-memory blob             | ❌ — same                                            |
+| Combination                                                     | Result                                               |
+| --------------------------------------------------------------- | ---------------------------------------------------- |
+| Single-pod dev: in-process runner + in-memory blob + any bus    | ✅                                                   |
+| Single-pod dev: in-process runner + filesystem blob + any bus   | ✅                                                   |
+| Single-node prod: in-process runner + filesystem blob + any bus | ✅                                                   |
+| Multi-node: Redis runner + filesystem blob                      | ❌ — refuses to start (`crossNodeAccessible: false`) |
+| Multi-node: Redis runner + S3 blob + Redis bus                  | ✅                                                   |
+| Multi-node: Redis runner + S3 blob + in-process bus             | ❌ — refuses to start (`crossNodeDelivery: false`)   |
+| Multi-node: Redis runner + in-memory blob                       | ❌ — same as filesystem case                         |
 
 Per-handler capability assertions are also possible: a handler that
 declares `requires: { presignedUrls: true }` refuses to register against
 a blob-store that lacks the capability.
+
+### 9.1 Bus capability requirement
+
+The runner needs the bus to actually deliver across processes. The
+in-process bus serves single-pod deployments correctly but cannot
+deliver to other nodes; pairing it with a multi-node queue silently
+breaks cancel, status backup wake (§7.4), and progress fan-out.
+
+The capability check requires `@furystack/cross-node-bus` to add a
+new flag to `CrossNodeBusCapabilities`:
+
+```ts
+type CrossNodeBusCapabilities = {
+  readonly persistent: boolean
+  readonly replay: boolean
+  readonly assignsSequence: boolean
+  // NEW — declared by every adapter. In-process: false; Redis: true.
+  readonly crossNodeDelivery: boolean
+}
+```
+
+The runner factory asserts at boot:
+
+```ts
+if (queueAdapter.capabilities.distributed && !bus.capabilities.crossNodeDelivery) {
+  throw new Error(
+    'TaskRunner: bound queue adapter is multi-node-capable but the bound CrossNodeBus is in-process. ' +
+      'Bind a cross-node bus adapter (e.g. defineRedisCrossNodeBusAdapter) before starting workers.',
+  )
+}
+```
+
+The flag is also useful as a self-documenting signal for future
+facades and for telemetry attribution. Adding it does **not** force
+existing facades (`IdentityEventBus`, `EntityChangeBus`) to assert
+on it — those facades' own capability requirements (`replay` +
+`assignsSequence` for entity-sync) remain unchanged. Apps that
+deploy `EntityChangeBus` against an in-process bus today are
+implicitly single-node anyway; the runner is the first consumer
+where the multi-node footgun materialises.
 
 ## 10. Reference implementation: video encoder
 
@@ -748,6 +914,45 @@ User clicks "cancel" → `DELETE /tasks/${id}`:
 - **Idempotency** is the caller's responsibility for non-replayable
   side effects. The submit-time `idempotencyKey` deduplicates submits;
   it does not deduplicate handler executions.
+
+### Publish-after-persist (hot lane)
+
+The runner persists state before publishing on the bus. Order on
+every state transition (status flip, progress tick, child terminal):
+
+1. Write the dataset row (cold lane / source of truth).
+2. On successful write, fire-and-forget `void bus.publish(...)`
+   (hot lane / wake signal).
+
+A failed bus publish is logged via the bus's existing
+`onCrossNodeError` telemetry; recovery is the §7.4 continuation
+backup wake plus the periodic reconciler. The reverse order would
+let a successful bus event escape ahead of (or instead of) a
+durable dataset row, triggering wasted bus-driven queries and, on
+mid-write crash, double-firing handler side effects via
+visibility-timeout reclaim.
+
+The runner never `await`s `bus.publish` on the hot path — handler
+work is the priority; bus latency must not become handler latency.
+The same rule applies to `ctx.reportProgress` (§7.3): the helper
+coalesces per `progressThrottleMs` and emits fire-and-forget.
+
+### Cancel transport
+
+`runner.cancel(taskId)` does three things, in order:
+
+1. CAS-flip `Task.status` to `cancelling` in the dataset.
+2. Walk descendants in the dataset; for each non-terminal descendant,
+   CAS-flip its status to `cancelling`.
+3. Publish one `tasks/cancel/${type}` per affected type carrying
+   `{taskIds: [...]}` for fan-out efficiency.
+
+Workers receive the broadcast, intersect the payload's `taskIds`
+with their own `heldLeases` map, and abort matching
+`ctx.cancellationSignal`s. Workers without a matching lease ignore
+the event — single map lookup per topic event. Visibility timeout
+is the safety net for uncooperative workers (handlers that swallow
+the abort or perform unkillable work).
 
 ### Determinism constraints (replay-based handlers)
 
@@ -866,9 +1071,14 @@ runner can develop in parallel against an in-process bus.
 - [ ] **M0.3 — `@furystack/s3-blob-store`.** S3-compatible adapter
       (covers AWS S3, MinIO, R2, B2, GCS-S3-mode). Integration tests
       gated on docker-compose MinIO.
-- [ ] **M0.4 — `@furystack/cross-node-bus` v1 milestones complete**
-      (see `cross-node-bus-spike.md` Milestones 1–4). Required for
-      M3 integration tests and M4 multi-service smoke.
+- [x] **M0.4 — `@furystack/cross-node-bus` v1 milestones complete**
+      (see `cross-node-bus-spike.md` Milestones 0–5). Includes the
+      Redis Streams adapter (M4) and the multi-service smoke (M5),
+      both of which the runner inherits as the recommended
+      production transport. Also unblocks the new `crossNodeDelivery`
+      capability flag this PRD requires (see §9). The runner reuses
+      `@furystack/cross-node-bus/testing` (`createInProcessBusNetwork`)
+      for its own multi-worker integration harness.
 
 ### Milestone 1 — Task runner core
 
@@ -1014,11 +1224,17 @@ runner can develop in parallel against an in-process bus.
 These are intentionally left for the implementer to settle during
 development; none of them gate the v1 plan.
 
-1. **Replay log placement.** Two options: (a) inline on the task entity
-   as an array, simple but bloats the row; (b) separate
-   `task-replay-log` dataset, normalized but doubles store ops. M1
-   prototype with (a), revisit if dataset rows exceed a configurable
-   soft cap.
+1. **Replay log placement.** _Settled — separate `TaskReplayLog`
+   dataset_, one entity per recorded step keyed by
+   `(taskId, stepIndex)`. Inline-on-Task was rejected because
+   long-running parents with heavy `awaitChildren` fan-out hit
+   Mongo's 16MB row cap and rewrite the entire log on every status
+   update. The separate dataset keeps `Task` as a small "control
+   plane" record, lets the sweeper drop `WHERE taskId = X` on TTL,
+   and rides the same `defineDataSet` plumbing as everything else.
+   Crash mid-write is recoverable in either order: the
+   `(taskId, stepIndex)` key dedups replay-time `spawnChild` reruns
+   against an existing child Task row.
 2. **Child task cleanup of failed parents.** When a parent fails after
    children succeeded, do their blobs get cleaned up under the parent's
    `onFailure` policy? Proposed default: child tasks own their own
@@ -1031,16 +1247,20 @@ development; none of them gate the v1 plan.
 4. **Filesystem adapter URL expiry.** Server-proxy upload URLs need a
    nonce/HMAC to validate. JWT-style stateless validation vs. a
    short-lived signature stored in a tiny cache? M0.2 picks one.
-5. **In-process queue replay log persistence.** When apps run the
-   in-process queue, the replay log lives in the dataset (persisted)
-   but the `Suspended`-sentinel `waiting` state is broker-side. Single
-   process restart is fine (dataset is the source of truth, workers
-   resume claimed tasks). What about a process restart mid-`spawnChild`
-   before the dataset write committed? Crash-only design says: use a
-   single transactional write (insert child + update parent + record
-   step) or accept a small replay-of-already-spawned-child window
-   (with idempotency dedup catching duplicates). M1 pick the cheaper
-   path that the test harness can prove correct.
+5. **In-process queue replay log persistence.** Largely covered by
+   the §7.4 continuation flow: dataset is the source of truth;
+   crash mid-`spawnChild` before the dataset write means the parent
+   re-runs from the top, hits `spawnChild` again, the
+   `(parentTaskId, stepIndex)` key on `Task` dedups against any
+   already-inserted child row, and the `(taskId, stepIndex)` key on
+   `TaskReplayLog` dedups the step record. The §7.4 reconciler is
+   the safety net for the "in-process queue process restarts after
+   the parent suspended but before any restart-time worker has
+   subscribed to `tasks/status/${type}`" edge case — at most one
+   reconciler-interval delay before the parent is re-enqueued. M1
+   open question: do we need a sub-minute reconciler interval as an
+   in-process-queue-only optimisation, or does the 1h default
+   suffice given the dataset is durable?
 6. **Worker self-throttle on broker latency.** If submit-to-claim
    latency rises, should workers slow down their claim rate to give
    slow tasks a chance to heartbeat? Out of scope for v1 plain FIFO,
