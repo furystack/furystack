@@ -1,0 +1,1085 @@
+# PRD: `@furystack/task-runner` + `@furystack/blob-store` — distributed task management
+
+> **Status:** Draft v1.
+> **Owner:** FuryStack core team.
+> **Target release:** follows `@furystack/cross-node-bus` v1 (sibling primitive
+> referenced as a prerequisite throughout this doc). Initial public packages
+> alongside the next minor cycle of `@furystack/rest-service` and
+> `@furystack/entity-sync-service`.
+> **Companion doc:** [`cross-node-bus-spike.md`](./cross-node-bus-spike.md).
+
+## 1. Glossary
+
+| Term                     | Meaning                                                                                                                              |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Task**                 | A persisted unit of work with typed payload, status, progress, and result. Identified by an opaque `taskId`.                         |
+| **Task type**            | String discriminator (e.g. `video-encode-h264`) selecting the handler that runs the task.                                            |
+| **Handler**              | Async function authored with `defineTaskHandler` that executes a task type. Replay-safe (see §7).                                    |
+| **Worker**               | A `defineWorker` instance hosted by an injector. Pulls claims for a configured set of task types, runs handlers, reports outcomes.   |
+| **Runner**               | The `TaskRunner` abstraction: claim/ack/heartbeat/reclaim plumbing. Owns task lifecycle.                                             |
+| **Queue adapter**        | Concrete transport-backed implementation of `TaskRunner`'s claim/ack pipeline (in-process, Redis Streams, …).                        |
+| **Blob**                 | An opaque byte stream identified by a `key`. Stored in a `BlobStore` adapter. Tasks reference blobs by `BlobRef`.                    |
+| **Blob store**           | The `BlobStore` abstraction in `@furystack/blob-store`. Adapter packages provide concrete backends (in-memory, filesystem, S3).      |
+| **Parent / child**       | Task that uses `ctx.spawnChild(...)` becomes a parent; spawned tasks are children. DAG cycles are forbidden.                         |
+| **Replay**               | Re-execution of a handler from its start when its task is resumed (after waiting for children, after a worker crash). See §7.        |
+| **Continuation**         | Resumed run of a parent task after one or more children terminated. Driven by replay.                                                |
+| **Visibility timeout**   | Wall-clock window during which a claimed task is invisible to other workers. Missed heartbeat past the window → task is reclaimable. |
+| **Sweeper**              | Background service that deletes blobs belonging to terminal tasks past their retention TTL.                                          |
+| **Fleet cap**            | Broker-enforced fleet-wide max-concurrent count for a `(type, tags)` lane.                                                           |
+| **Idempotency key**      | Optional caller-supplied string deduplicating submissions of the same logical task across retries.                                   |
+| **Resume token**         | Internal reference used by the runner to re-enqueue a parent for continuation. Apps never see it.                                    |
+| **`handlerVersion`**     | Number recorded on a task at submit time, used to route the task to a worker that declares compatibility.                            |
+| **Hot lane / Cold lane** | Two complementary progress channels: bus fan-out (hot, ephemeral) and dataset writes (cold, persisted, coalesced).                   |
+| **Cross-node bus**       | The fan-out primitive defined in `cross-node-bus-spike.md`. The runner publishes status/progress on it; it is **not** the queue.     |
+
+## 2. Problem & motivation
+
+FuryStack apps deployed at scale need to run long, expensive, or
+network-bound work outside the request/response path: video encoding,
+image processing, document generation, batch ETL, scheduled
+maintenance, third-party API fan-out. Today the framework provides no
+primitives for this; every app builds something ad hoc, usually one of:
+
+| Ad-hoc pattern                              | Shortcomings                                                                                                                  |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `setImmediate` / fire-and-forget in handler | Lost on crash, no progress visibility, ties up the request worker, scales only with replicas.                                 |
+| In-memory queue (`p-queue`, hand-rolled)    | No persistence, no cross-node distribution, no retry, no observability.                                                       |
+| BullMQ / similar third-party                | Works, but bypasses the FuryStack DI graph, identity, telemetry, datasets — every app re-integrates and bug surfaces diverge. |
+| Cron + ad-hoc HTTP                          | No persistent state, no progress, no fan-in, no idempotency.                                                                  |
+
+Concretely: an app that runs video encoding today must hand-build (1)
+upload of large input files, (2) a queue that survives crashes, (3) a
+worker pool, (4) progress reports surfacing to the UI, (5) cancellation,
+(6) cleanup of intermediate artifacts, (7) authorization on
+inputs/outputs, (8) DAG composition (probe → split → encode chunks →
+mux), (9) retries and dead-letter handling. None of these are
+business-specific, and the resulting code is opaque to FuryStack's
+observability, dataset, and identity primitives.
+
+The cross-node bus PRD explicitly carves competing-consumer dispatch
+out of scope (see `cross-node-bus-spike.md` §15) and forecasts a sibling
+package. This PRD is that sibling, plus the blob-storage abstraction it
+needs to handle large binaries cleanly.
+
+Without first-party primitives, FuryStack apps at scale cannot run
+non-trivial async work without quietly losing correctness on every one
+of the columns above.
+
+## 3. Goals & non-goals
+
+### Goals
+
+- Provide a single, transport-agnostic primitive (`@furystack/task-runner`) that
+  every FuryStack subsystem and application can use to submit, run, and
+  observe distributed tasks.
+- Provide a single, transport-agnostic primitive (`@furystack/blob-store`) for
+  storing and retrieving large binaries by key, with streaming and
+  pre-signed URL support.
+- Persist task state in a `defineDataSet` over `defineStore` so apps reuse
+  every existing store adapter and get entity-sync subscriptions for free.
+- Support DAG composition via dynamic `spawnChild` / `awaitChildren` from
+  inside handlers, expressed as one model (static chains are sugar).
+- Ship usable in-process defaults plus production-grade Redis Streams
+  (queue) and S3-compatible (blob) adapters in v1.
+- Enforce cross-adapter capability requirements at registration time so
+  multi-node misconfigurations fail loudly at boot.
+- Reuse the cross-node bus for low-latency progress fan-out so progress
+  reports do not hammer the persistent store.
+
+### Non-goals
+
+- Replace persistent stores or become an event-sourcing primitive.
+- Become a workflow orchestration platform (Temporal, Step Functions).
+  The runner provides DAG composition but not workflow definitions,
+  saga compensation primitives, or human-task signals (see §15).
+- Provide cron / recurring scheduling in v1 (delayed `notBefore` is in;
+  cron is out — apps build cron on top by submitting from a scheduler).
+- Provide priority lanes, quota management, or fair scheduling in v1.
+- Provide progressive / streaming output during task execution (HLS-style
+  partial result streaming is composable from primitives but not a
+  first-class concept — see §15).
+- Sandbox handler determinism with VM isolates (Temporal-grade sandboxing
+  is out — see §11).
+- Solve cross-region replication, distributed locks for shared resources,
+  or strongly-consistent state replication (see §15).
+
+## 4. Success metrics
+
+The v1 release is "done" when these numbers hold in the smoke test
+harness described in §13.
+
+| Metric                                                                 | Target               |
+| ---------------------------------------------------------------------- | -------------------- |
+| p95 submit-to-claim latency, in-process queue                          | **< 5 ms**           |
+| p95 submit-to-claim latency, local Redis Streams queue                 | **< 50 ms**          |
+| p95 progress event delivery (worker → subscribed client), Redis bus    | **< 100 ms**         |
+| p99 visibility-timeout reclaim latency past `visibilityTimeoutMs`      | **< 1 s**            |
+| Fan-in correctness in DAG smoke test (parent sees all child results)   | **0 drops, 0 dupes** |
+| Multi-node integration: shutdown of any node mid-task → task completes | **100 %**            |
+| Blob upload throughput, S3 adapter, single client, 1 GiB file          | **≥ 100 MiB/s**      |
+
+Coverage gates:
+
+- In-process queue adapter: 100 % line coverage.
+- In-memory + filesystem blob-store adapters: 100 % line coverage.
+- Replay/continuation logic: 100 % branch coverage on parent-resume,
+  child-failure, child-cancellation, mid-spawn crash.
+- S3 blob-store adapter: integration tests gated on a docker-compose
+  MinIO instance, mirroring `redis-store` / `mongodb-store` patterns.
+- Redis Streams queue adapter: integration tests gated on
+  `docker-compose up redis`.
+- **Multi-node integration tests with ≥ 2 worker processes** are
+  mandatory for: claim concurrency, fleet cap enforcement, visibility
+  reclaim, DAG fan-out/fan-in, graceful drain.
+
+## 5. Personas & user stories
+
+### P1. App developer running a media SaaS
+
+> _Users upload videos. Each upload must be probed, transcoded into
+> three resolutions in parallel, packaged for HLS, and a thumbnail
+> generated. Encoding is GPU-bound; only four jobs may run at once
+> across the fleet. Users want a live progress bar and a cancel button.
+> Failures must retry once with backoff, then surface to the user._
+
+**Story:** P1 defines four task types (`probe`, `encode`, `package`,
+`thumbnail`). The submit endpoint creates a parent `process-upload` task
+whose handler spawns probe → spawns three encode children + thumbnail
+child in parallel → spawns package on encode results. The Shades UI
+subscribes to progress over WS. The encoding workers run as standalone
+pods with GPU access; web pods run no encoding workers. A fleet cap of
+4 on `encode` prevents GPU thrash. Submit endpoint returns presigned
+upload URLs; clients PUT directly to S3.
+
+### P2. App developer running a B2B document platform
+
+> _Generating a 200-page PDF report can take minutes. The app server
+> must not block on it. Users want to download the result later from
+> their dashboard, optionally getting an email when ready. Reports are
+> regenerated nightly from updated source data._
+
+**Story:** P2 submits a `generate-report` task on user request,
+returning the `taskId` immediately. The dashboard subscribes to that
+task over the entity-sync WS bridge; on terminal `succeeded` the UI
+reveals a download button (signed URL backed by the blob-store
+adapter). The nightly regeneration is a separate `setInterval` that
+submits the same task type with `idempotencyKey: \`nightly-${date}\``
+to dedupe across replicas.
+
+### P3. Library author building a custom pipeline
+
+> _I'm shipping a FuryStack package that runs scheduled compliance
+> scans across customer data: enumerate datasets, scan each in parallel,
+> aggregate findings, store the report. Some scans take minutes; some
+> seconds. I want first-class progress, retries, and a tree view in the
+> admin UI without rebuilding the orchestration plumbing._
+
+**Story:** P3 defines `enumerate`, `scan`, `aggregate` task types. The
+top-level handler `spawnChild('enumerate')` → `awaitChildren` →
+`spawnChild('scan')` × N → `awaitChildren` → `spawnChild('aggregate')`.
+The library ships nothing else; FuryStack handles persistence, retry,
+DAG resume, progress, and (via `/tasks/${id}/tree`) visualization.
+
+## 6. Architecture overview
+
+```
++----------------------+   +-------------------+   +-------------------+
+| App handlers         |   | Task client SDK   |   | Task admin UI     |
+| (defineTaskHandler)  |   | (browser/Shades)  |   | (Shades, future)  |
++-----------+----------+   +---------+---------+   +---------+---------+
+            |                        |                       |
+            v                        v                       v
++--------------------------------------------------------------------+
+| @furystack/task-runner (TaskRunner token)                          |
+|  - submit/cancel/get/subscribe                                     |
+|  - claim/heartbeat/ack/reclaim (worker side)                       |
+|  - DAG primitives (spawnChild/awaitChildren)                       |
+|  - replay engine (continuation)                                    |
++----------------+---------------------------+-----------------------+
+                 |                           |
+                 v                           v
++--------------------------+   +--------------------------------+
+| Task DataSet             |   | Cross-node bus (status/progress)|
+| (defineDataSet over      |   | tasks/progress/${taskId}       |
+|  defineStore)            |   | tasks/status/${taskId}         |
+| - persisted state        |   +--------------------------------+
+| - attempt history        |
+| - DAG edges (parent/child)|
++--------------------------+
+
++-----------------------------------------------------+
+| Queue adapter (claim transport)                     |
+|  - in-process default                               |
+|  - @furystack/redis-task-runner (Redis Streams)     |
++-----------------------------------------------------+
+            |                                |
+            v                                v
++--------------------------------------------------------------------+
+| @furystack/blob-store (BlobStore token)                            |
+|  - put/get/delete/head/list                                        |
+|  - getDownloadUrl / getUploadUrl (when supported)                  |
++----------------+----------------+--------------------+-------------+
+                 |                |                    |
+                 v                v                    v
+       in-memory          filesystem         S3-compatible
+       (testing)          (single-node)      (production)
+```
+
+- **`@furystack/task-runner`** owns the abstraction: `TaskRunner` token,
+  task entity schema, handler/worker DSL, DAG primitives, replay engine.
+  Default queue adapter is in-process. Real adapters live in their own
+  publishable packages (`@furystack/redis-task-runner`, future
+  `@furystack/sqs-task-runner`, etc.).
+- **`@furystack/blob-store`** owns the binary-storage abstraction:
+  `BlobStore` token, `BlobRef` type, capability declarations, in-memory
+  default. Real adapters (`@furystack/filesystem-blob-store`,
+  `@furystack/s3-blob-store`) live in their own publishable packages.
+- **Task state** lives in a `defineDataSet` over a `defineStore`. Apps
+  pick the backing store the same way they pick `mongodb-store` /
+  `redis-store` / `sequelize-store` for any other entity. Dataset
+  subscriptions provide cross-node fan-out of terminal-state changes
+  via the existing entity-sync path. The cross-node bus carries
+  high-frequency progress reports separately so the dataset is not
+  written on every percent-change.
+- **`@furystack/task-runner-client`** is the browser-side SDK consuming
+  the runner's REST + WS endpoints. Shades-specific helpers ship later
+  in `@furystack/shades-task-runner`.
+
+This mirrors the layered approach of `defineStore` /
+`defineFileSystemStore` and `cross-node-bus` / `redis-cross-node-bus`.
+
+### Multi-service deployment shape
+
+The runner inherits the bus PRD's deployment story: N services × M nodes
+per service, single broker, distinct `topicPrefix` and `serviceName` per
+service. The runner's queue adapter accepts `topicPrefix` /
+`serviceName`; tenant scoping inside one service is an application
+concern carried on the task payload. A worker may host one or more task
+types; the same injector graph that serves HTTP can also host workers
+in dev/single-pod, or run as a dedicated worker process in production.
+
+## 7. API contract
+
+### 7.1 Task entity
+
+```ts
+type TaskStatus =
+  | 'pending' // submitted, waiting for a worker to claim
+  | 'claimed' // a worker holds the lease
+  | 'running' // handler started
+  | 'waiting' // suspended, waiting for children to terminate
+  | 'cancelling' // cancellation requested, propagating
+  | 'cancelled' // terminal
+  | 'succeeded' // terminal
+  | 'failed' // terminal, retries exhausted
+
+type AttemptRecord = {
+  attempt: number
+  workerId: string
+  startedAt: string
+  finishedAt?: string
+  status: 'succeeded' | 'failed' | 'cancelled' | 'timed-out'
+  error?: { name: string; message: string; stack?: string }
+}
+
+type TaskEvent =
+  | { at: string; kind: 'submitted' }
+  | { at: string; kind: 'claimed'; workerId: string }
+  | { at: string; kind: 'progress-milestone'; percent: number; meta?: Record<string, unknown> }
+  | { at: string; kind: 'spawned-child'; childTaskId: string; childType: string }
+  | { at: string; kind: 'child-completed'; childTaskId: string; status: 'succeeded' | 'failed' | 'cancelled' }
+  | { at: string; kind: 'status-changed'; from: TaskStatus; to: TaskStatus }
+  | { at: string; kind: 'attempt-failed'; attempt: number; willRetry: boolean }
+
+type Task<TPayload = unknown, TResult = unknown> = {
+  id: string
+  type: string
+  handlerVersion: number
+  status: TaskStatus
+  payload: TPayload
+  result?: TResult
+  error?: { name: string; message: string }
+  progress?: { percent: number; meta?: Record<string, unknown>; updatedAt: string }
+  parentTaskId?: string
+  childTaskIds: string[]
+  submittedBy?: string // identity, when available
+  submittedAt: string
+  notBefore?: string
+  idempotencyKey?: string
+  attempts: AttemptRecord[]
+  events: TaskEvent[] // capped, default 1000
+  producedBlobs: BlobRef[]
+  consumedBlobs: BlobRef[]
+  retentionPolicy: TaskRetentionPolicy
+  tags: string[]
+  // adapter-managed:
+  visibilityDeadline?: string
+  workerId?: string
+  resumeToken?: string // opaque, framework-internal
+}
+
+type TaskRetentionPolicy = {
+  onSuccess: 'keep' | 'delete-intermediate' | 'delete-all'
+  onFailure: 'keep' | 'delete-all'
+  ttlAfterTerminalDays: number
+}
+```
+
+`Task` is stored in a `defineDataSet` over a `defineStore`. `events` is
+capped at a configurable size (default 1 000) to bound storage; older
+events are pruned when the cap is exceeded but `attempts` is never
+pruned.
+
+### 7.2 `TaskRunner` interface
+
+```ts
+export interface TaskRunner extends Disposable {
+  /** Submit a new task. Returns the persisted Task. */
+  submit<TType extends string, TPayload, TResult>(args: {
+    type: TType
+    payload: TPayload
+    handlerVersion: number
+    idempotencyKey?: string
+    notBefore?: Date
+    tags?: string[]
+    parentTaskId?: string // framework-set; not for app use
+    retentionPolicy?: Partial<TaskRetentionPolicy>
+  }): Promise<Task<TPayload, TResult>>
+
+  /** Cancel a task. Cascades to children. Idempotent. */
+  cancel(taskId: string, reason?: string): Promise<void>
+
+  /** Get current task state. */
+  get(taskId: string): Promise<Task | undefined>
+
+  /** Walk parent + descendants. */
+  getTree(taskId: string): Promise<TaskTreeNode>
+
+  /** Subscribe to status/progress for a single task. */
+  subscribe(taskId: string, handler: (event: TaskUpdate) => void): Disposable
+
+  /** Subscribe to all updates of a given task type (admin / observability). */
+  subscribeByType(type: string, handler: (event: TaskUpdate) => void): Disposable
+
+  /** Adapter capabilities, declared statically. */
+  readonly capabilities: TaskRunnerCapabilities
+}
+
+export interface TaskRunnerCapabilities {
+  readonly persistent: boolean // queue survives broker restart
+  readonly fleetCapEnforcement: boolean
+  readonly delayedDispatch: boolean // notBefore honored at broker level
+  readonly maxPayloadBytes: number // soft hint; submit may reject larger
+}
+
+export type TaskUpdate =
+  | { kind: 'status'; status: TaskStatus; at: string }
+  | { kind: 'progress'; percent: number; meta?: Record<string, unknown>; at: string }
+  | { kind: 'spawned-child'; childTaskId: string; at: string }
+  | { kind: 'child-completed'; childTaskId: string; status: 'succeeded' | 'failed' | 'cancelled'; at: string }
+```
+
+### 7.3 Worker DSL
+
+```ts
+import { defineTaskHandler, defineWorker } from '@furystack/task-runner'
+
+const probeVideo = defineTaskHandler<{ inputBlob: BlobRef }, { duration: number; tracks: TrackInfo[] }>({
+  type: 'video-probe',
+  version: 1,
+  retryPolicy: { maxAttempts: 3, backoff: 'exponential', baseDelayMs: 1000, jitter: 0.2 },
+  retentionPolicy: { onSuccess: 'delete-intermediate', onFailure: 'keep', ttlAfterTerminalDays: 7 },
+  cancelOnDrain: true,
+  visibilityTimeoutMs: 60_000,
+  handler: async (ctx, { inputBlob }) => {
+    const stream = await ctx.blobStore.get(inputBlob.key)
+    const probe = await ctx.fetch(/* … */) // determinism-safe wrapper
+    return { duration: probe.duration, tracks: probe.tracks }
+  },
+})
+
+const encodeVideo = defineTaskHandler<EncodePayload, EncodeResult>({
+  type: 'video-encode-h264',
+  version: 1,
+  handler: async (ctx, payload) => {
+    const probe = await ctx.spawnChildAndAwait('video-probe', { inputBlob: payload.inputBlob })
+    const chunkCount = chooseChunkCount(probe.duration)
+    const chunks = await ctx.awaitChildren(
+      Array.from({ length: chunkCount }, (_, i) =>
+        ctx.spawnChild('video-encode-chunk', { inputBlob: payload.inputBlob, chunkIndex: i, chunkCount }),
+      ),
+    )
+    const muxed = await ctx.spawnChildAndAwait('video-mux', { chunks: chunks.map((c) => c.outputBlob) })
+    return { outputBlob: muxed.outputBlob, duration: probe.duration }
+  },
+})
+
+export const VideoEncodeWorker = defineWorker({
+  name: 'my-app/VideoEncodeWorker',
+  types: [probeVideo, encodeVideo /* … */],
+  concurrency: 2,
+  tags: ['gpu', 'region:eu'],
+  compatibleVersions: { 'video-encode-h264': [1] },
+})
+```
+
+The handler context (`ctx`) provides:
+
+```ts
+type TaskContext<TPayload> = {
+  taskId: string
+  attempt: number
+  payload: TPayload
+  injector: Injector
+  blobStore: BlobStore
+
+  /** Periodic heartbeat. Auto-called by reportProgress; rarely called directly. */
+  heartbeat(): Promise<void>
+
+  /** Hot-lane progress fan-out + cold-lane coalesced dataset write. */
+  reportProgress(progress: { percent: number; meta?: Record<string, unknown> }): void
+
+  /** Spawn a child task; returns a handle. Recorded for replay. */
+  spawnChild<TIn, TOut>(type: string, payload: TIn, opts?: SpawnOptions): ChildHandle<TOut>
+
+  /** Block on a set of child handles. Suspends the parent (re-enqueued on completion). */
+  awaitChildren<THandles extends ChildHandle<unknown>[]>(
+    handles: THandles,
+  ): Promise<{ [K in keyof THandles]: ResultOf<THandles[K]> }>
+
+  /** Sugar for spawnChild + awaitChildren of one. */
+  spawnChildAndAwait<TIn, TOut>(type: string, payload: TIn, opts?: SpawnOptions): Promise<TOut>
+
+  /** Allocate a blob key scoped to this task; recorded in producedBlobs. */
+  allocateBlob(suffix: string, opts?: { contentType?: string }): BlobRef
+
+  /** AbortSignal that fires on cancellation (cascade or direct). */
+  readonly cancellationSignal: AbortSignal
+
+  /** Determinism-safe wrappers; replay-stable. */
+  now(): Date
+  random(): number
+  sleep(ms: number): Promise<void>
+  fetch: typeof fetch // recorded inputs/outputs replayed from cache
+}
+```
+
+### 7.4 Replay & continuation
+
+The runtime treats each handler invocation as a re-execution from the
+top of the function. Recorded steps (`spawnChild`, `awaitChildren`,
+`reportProgress`, `ctx.now()`, `ctx.random()`, `ctx.fetch()`,
+`ctx.sleep()`) consult an append-only log on the task entity:
+
+- On first execution, calls run normally and append entries to the log.
+- On replay (after children completed, or after a worker crash mid-await),
+  calls return cached values from the log instead of re-executing.
+
+`awaitChildren` semantics:
+
+- **First call**: records the child handles, throws an internal
+  `Suspended` sentinel. Runtime catches it, transitions task to
+  `waiting`, persists, releases the worker slot.
+- **On child terminal status**: bus event triggers a re-enqueue of the
+  parent with a `resumeToken` referencing the await point.
+- **Replay**: handler runs from top; `spawnChild` returns cached child
+  IDs; `awaitChildren` resolves with cached results.
+- **Child failure**: cached entry contains the error; `awaitChildren`
+  rejects. Handler may catch, retry (`spawnChild` again with a fresh
+  payload), or rethrow.
+
+This is a **deliberate Temporal-flavored design**, scoped to "good
+enough for FuryStack apps". Apps that need bulletproof determinism
+(financial workflows etc.) should reach for a dedicated workflow engine.
+
+### 7.5 `BlobStore` interface
+
+```ts
+export type BlobRef = {
+  readonly storeName: string // adapter binding name
+  readonly key: string
+  readonly contentType?: string
+  readonly contentLength?: number
+  readonly etag?: string
+}
+
+export interface BlobStore extends Disposable {
+  put(
+    key: string,
+    stream: ReadableStream | NodeJS.ReadableStream | Buffer,
+    opts?: { contentType?: string; contentLength?: number; metadata?: Record<string, string> },
+  ): Promise<BlobRef>
+
+  get(key: string): Promise<{ stream: ReadableStream; contentType?: string; contentLength?: number; etag?: string }>
+
+  delete(key: string): Promise<void>
+  head(key: string): Promise<BlobMetadata | undefined>
+  list(
+    prefix: string,
+    opts?: { cursor?: string; limit?: number },
+  ): Promise<{ items: BlobMetadata[]; nextCursor?: string }>
+
+  /** Throws if !capabilities.presignedUrls. */
+  getDownloadUrl(key: string, opts: { ttlSec: number }): Promise<string>
+  getUploadUrl(
+    key: string,
+    opts: { ttlSec: number; contentType?: string; maxBytes?: number },
+  ): Promise<{ url: string; method: 'PUT' | 'POST'; fields?: Record<string, string> }>
+
+  readonly capabilities: BlobStoreCapabilities
+}
+
+export interface BlobStoreCapabilities {
+  readonly presignedUrls: boolean
+  readonly multipart: boolean
+  readonly range: boolean // get(key, { range }) future-proofing
+  readonly crossNodeAccessible: boolean // false for fs adapter
+  readonly maxObjectBytes: number
+}
+```
+
+### 7.6 Tokens & default factories
+
+```ts
+export const TaskRunner = defineService({
+  name: 'furystack/task-runner/TaskRunner',
+  lifetime: 'singleton',
+  factory: ({ inject }) =>
+    new InProcessTaskRunner({
+      bus: inject(CrossNodeBus),
+      taskDataSet: inject(TaskDataSet),
+      blobStore: inject(BlobStore),
+    }),
+})
+
+export const BlobStore = defineService({
+  name: 'furystack/blob-store/BlobStore',
+  lifetime: 'singleton',
+  factory: () => new InMemoryBlobStore(),
+})
+```
+
+In-process defaults exist so single-pod deployments work with no
+configuration. Multi-node deployments are expected to bind real
+adapters; the boot-time capability cross-check (§9) refuses
+combinations that cannot work cross-node.
+
+## 8. Adapters
+
+### 8.1 Queue adapters
+
+| Adapter              | Persistent | Fleet cap | Delayed dispatch | Setup  | First impl?       |
+| -------------------- | ---------- | --------- | ---------------- | ------ | ----------------- |
+| In-process           | ❌\*       | local     | ✅               | none   | ✅ ships in v1    |
+| Redis Streams        | ✅         | atomic    | ✅               | low    | ✅ first concrete |
+| NATS JetStream       | ✅         | yes       | ✅               | medium | later             |
+| SQS / Cloud Tasks    | ✅         | partial   | ✅               | medium | later             |
+| Postgres skip-locked | ✅         | yes       | ✅               | low    | later             |
+
+\* In-process queue does not survive process exit _as a queue_, but the
+**task dataset** does. On boot, workers reclaim claimed-but-not-completed
+tasks belonging to their compatible types and resume.
+
+### 8.2 Blob-store adapters
+
+| Adapter       | Presigned | Multipart | Cross-node | Setup             | First impl?    |
+| ------------- | --------- | --------- | ---------- | ----------------- | -------------- |
+| In-memory     | ❌        | ❌        | ❌         | none              | ✅ (testing)   |
+| Filesystem    | ❌\*      | ❌        | ❌         | none              | ✅ ships in v1 |
+| S3-compatible | ✅        | ✅        | ✅         | low (MinIO local) | ✅ ships in v1 |
+| Azure Blob    | ✅        | ✅        | ✅         | medium            | later          |
+| GCS native    | ✅        | ✅        | ✅         | medium            | later          |
+
+\* Filesystem adapter exposes server-proxy upload/download endpoints
+that mimic the presigned-URL flow at the API layer, so client SDK code
+is identical regardless of adapter. The capability flag is still
+`presignedUrls: false` because the URL is not transport-direct.
+
+### 8.3 `defineXxxTaskRunner` / `defineXxxBlobStore`
+
+Adapters expose factory helpers analogous to `defineRedisStore`:
+
+```ts
+import { defineRedisTaskRunner } from '@furystack/redis-task-runner'
+import { defineS3BlobStore } from '@furystack/s3-blob-store'
+
+injector.bind(
+  TaskRunner,
+  defineRedisTaskRunner({
+    url: 'redis://redis:6379',
+    topicPrefix: 'svc-a/',
+    serviceName: 'svc-a',
+    visibilityTimeoutMs: 60_000,
+    concurrencyLimits: { 'video-encode-h264': 4 },
+  }),
+)
+
+injector.bind(
+  BlobStore,
+  defineS3BlobStore({
+    endpoint: 'https://s3.eu-central-1.amazonaws.com',
+    bucket: 'furystack-blobs',
+    region: 'eu-central-1',
+    credentials: {
+      /* … */
+    },
+  }),
+)
+```
+
+Constructor-passed config; adapters never read `process.env` directly.
+
+## 9. Capability matrix & enforcement
+
+Capabilities are declared statically by every adapter and asserted at
+runtime startup. A misconfigured deployment fails loudly at boot, never
+silently degrades.
+
+| Combination                                           | Result                                               |
+| ----------------------------------------------------- | ---------------------------------------------------- |
+| Single-pod dev: in-process runner + in-memory blob    | ✅                                                   |
+| Single-pod dev: in-process runner + filesystem blob   | ✅                                                   |
+| Single-node prod: in-process runner + filesystem blob | ✅                                                   |
+| Multi-node: Redis runner + filesystem blob            | ❌ — refuses to start (`crossNodeAccessible: false`) |
+| Multi-node: Redis runner + S3 blob                    | ✅                                                   |
+| Multi-node: Redis runner + in-memory blob             | ❌ — same                                            |
+
+Per-handler capability assertions are also possible: a handler that
+declares `requires: { presignedUrls: true }` refuses to register against
+a blob-store that lacks the capability.
+
+## 10. Reference implementation: video encoder
+
+This section illustrates how the primitives compose. It is **not** part
+of the framework — it is a worked example shipped as
+`@furystack/task-runner-examples/video-encoder` (separate showcase
+package, not v1 release scope).
+
+### 10.1 Task types
+
+| Type                 | Children                                                            | Inputs                                | Result                         |
+| -------------------- | ------------------------------------------------------------------- | ------------------------------------- | ------------------------------ |
+| `process-upload`     | `video-probe`, `video-encode-h264`\*N, `thumbnail`, `video-package` | uploaded blob                         | manifest blob + thumbnail blob |
+| `video-probe`        | none                                                                | input blob                            | duration + tracks              |
+| `video-encode-chunk` | none                                                                | input blob, chunk range, codec params | encoded chunk blob             |
+| `video-mux`          | none                                                                | chunk blobs                           | muxed mp4 blob                 |
+| `video-package`      | none                                                                | muxed mp4                             | HLS manifest + segment blobs   |
+| `thumbnail`          | none                                                                | input blob, timestamp                 | jpg blob                       |
+
+`video-encode-h264` is itself composed:
+
+```ts
+const encodeH264 = defineTaskHandler({
+  type: 'video-encode-h264',
+  version: 1,
+  handler: async (ctx, { inputBlob, profile }) => {
+    const probe = await ctx.spawnChildAndAwait('video-probe', { inputBlob })
+    const chunkCount = chooseChunkCount(probe.duration, profile)
+    const chunks = await ctx.awaitChildren(
+      Array.from({ length: chunkCount }, (_, i) =>
+        ctx.spawnChild('video-encode-chunk', { inputBlob, chunkIndex: i, chunkCount, profile }),
+      ),
+    )
+    const mux = await ctx.spawnChildAndAwait('video-mux', { chunks: chunks.map((c) => c.outputBlob) })
+    return { outputBlob: mux.outputBlob, profile, duration: probe.duration }
+  },
+})
+```
+
+### 10.2 Submission flow
+
+```
+client                          api server                  blob-store           queue
+  |                                |                            |                  |
+  |--- POST /tasks --------------->|                            |                  |
+  |    type: 'process-upload'      |                            |                  |
+  |    payload: {profile,...}      |                            |                  |
+  |    requests blob upload tickets|                            |                  |
+  |                                |                            |                  |
+  |                                |--- allocate keys --------->|                  |
+  |                                |--- getUploadUrl ---------->|                  |
+  |                                |                            |                  |
+  |<--- 201 {taskId, uploads} -----|                            |                  |
+  |                                |                            |                  |
+  |--- PUT $uploadUrl (file) ----------------------------------->                  |
+  |<--- 200 -----------------------------------------------------                  |
+  |                                |                            |                  |
+  |--- POST /tasks/$id/start ----->|                            |                  |
+  |                                |--- submit (release) ------------------------> |
+  |<--- 200 -----------------------|                            |                  |
+  |                                |                            |                  |
+  |--- WS subscribe(taskId) ------>|                            |                  |
+  |                                |                            |                  |
+  |    (workers claim, run, report progress over bus, persist terminal state)     |
+  |                                |                            |                  |
+  |<--- WS progress events --------|                            |                  |
+  |<--- WS status: succeeded ------|                            |                  |
+  |                                |                            |                  |
+  |--- GET /tasks/$id/download --->|                            |                  |
+  |                                |--- getDownloadUrl -------->|                  |
+  |<--- 302 $signedUrl ------------|                            |                  |
+  |--- GET $signedUrl ------------------------------------------>                  |
+  |<--- 200 file -----------------------------------------------|                  |
+```
+
+### 10.3 Cancellation
+
+User clicks "cancel" → `DELETE /tasks/${id}`:
+
+1. API authorizer validates submitter or admin.
+2. `runner.cancel(id)` flips parent to `cancelling`, publishes
+   `child-cancel` events for every descendant in `pending`/`claimed`/
+   `running`/`waiting`.
+3. Workers running children receive `ctx.cancellationSignal.aborted = true`.
+4. ffmpeg subprocesses get `SIGTERM`; uncooperative workers are reclaimed
+   via visibility timeout.
+5. Sweeper deletes intermediate blobs per `retentionPolicy.onFailure`.
+
+## 11. Cross-cutting concerns
+
+### Delivery semantics
+
+- **Tasks are exactly-once persisted, at-least-once executed**. The
+  dataset row is the source of truth; a successful `complete` is
+  acknowledged before the row flips to terminal. A worker that crashes
+  after running side effects but before acknowledgement will see its
+  task reclaimed and replayed — this is why determinism-safe `ctx.*`
+  helpers exist (§7.4).
+- **Idempotency** is the caller's responsibility for non-replayable
+  side effects. The submit-time `idempotencyKey` deduplicates submits;
+  it does not deduplicate handler executions.
+
+### Determinism constraints (replay-based handlers)
+
+- Handlers MUST source `Date.now()`, `Math.random()`, `setTimeout`,
+  `fetch`, and other side-effecting calls from `ctx.*` wrappers.
+- Handlers MUST be deterministic up to recorded steps. Non-deterministic
+  branching on `ctx.now()`-derived data after a recorded step is fine
+  because the recorded step pins the value across replays.
+- An `@furystack/eslint-plugin` rule (`no-non-deterministic-globals-in-handler`)
+  flags forbidden globals inside `defineTaskHandler` factory bodies.
+- **This is pragmatic determinism, not VM-sandboxed determinism**.
+  Apps with hard correctness requirements should use a dedicated
+  workflow engine — that is explicitly out of scope.
+
+### Security
+
+- All REST endpoints (`POST /tasks`, `GET /tasks/${id}`, `DELETE /tasks/${id}`,
+  `GET /tasks/${id}/download`, `GET /tasks/${id}/tree`,
+  `WS /tasks/subscribe`) are mounted with `@furystack/security`
+  authorizers configured per task type by the app.
+- The submitter identity (when available) is captured on the task
+  entity (`submittedBy`) for audit and visibility filtering.
+- Workers authenticate as service-account identities and require a
+  `worker:${type}` role (or `worker:*` for shared pools).
+- Blob upload/download URLs are TTL-bound; default TTL = the
+  submitter session TTL when the request carries identity, else 1 hour.
+- Adapters that talk to a network broker (Redis, S3) MUST support TLS
+  and authentication.
+
+### Observability
+
+Every task lifecycle event emits structured telemetry on
+`ServerTelemetryToken`:
+
+- `onTaskSubmitted` — `{ taskId, type, parentTaskId?, payloadBytes }`
+- `onTaskClaimed` — `{ taskId, type, workerId, queueLagMs }`
+- `onTaskCompleted` — `{ taskId, type, status, attempt, durationMs }`
+- `onTaskFailed` — `{ taskId, type, attempt, willRetry, error }`
+- `onTaskCancelled` — `{ taskId, type, cascadeFromTaskId? }`
+- `onTaskProgress` — sampled (default 1 Hz) — `{ taskId, percent, meta? }`
+- `onBlobPut` / `onBlobGet` / `onBlobDelete` — `{ key, byteLength, durationMs }`
+
+`queueLagMs = Date.now() - submittedAt` and is the primary signal for
+queue saturation alarms.
+
+### Concurrency caps
+
+Two layers, both enforced:
+
+1. **Per-worker** — `defineWorker({ concurrency })` caps in-process
+   parallelism for a single worker.
+2. **Fleet-wide** — adapter `concurrencyLimits: { '${type}': N }` caps
+   the entire fleet via a broker-side counting semaphore (Redis Lua
+   atomic INCR/DECR with TTL fallback for crash recovery). Adapters
+   that cannot enforce this (`fleetCapEnforcement: false`) declare
+   the limit advisory and emit a startup warning.
+
+The effective limit on a `(type, tags)` lane is `min(per-worker, fleet)`.
+
+### Graceful drain on SIGTERM
+
+Workers handle SIGTERM in two phases:
+
+1. **Phase 1 (`drainTimeoutMs`, default 30 s)**: stop claiming new tasks;
+   in-flight tasks finish normally. Tasks declaring `cancelOnDrain: true`
+   receive `ctx.cancellationSignal.aborted = true` immediately.
+2. **Phase 2**: hard process exit. Tasks not yet completed remain
+   `claimed`; the broker reclaims them via visibility timeout. The
+   handler's last `reportProgress`-driven heartbeat is the floor for
+   reclaim latency.
+
+Apps with explicit lifecycle control call `await runner.drain({ timeoutMs })`.
+
+## 12. Backward compatibility
+
+### Initial release
+
+The runner and blob-store are net-new packages. There is nothing to
+maintain compatibility with on day one.
+
+### Schema evolution
+
+Framework-owned task fields (`status`, `progress`, `attempts`, `events`,
+…) follow normal `@furystack/entity-sync` major-version policy. App-owned
+`payload` and `result` are opaque to the framework — apps own their own
+migration story (idempotency keys + handler versioning give them tools
+to manage it).
+
+### Long-running tasks across deploys
+
+`handlerVersion` records the version a task was submitted against.
+Workers declare `compatibleVersions: { '${type}': [1] }` (or `[1, 2]`
+for backwards-compatible changes). A worker that does not list the
+task's version refuses to claim it — the task waits for a compatible
+worker. In-flight tasks always finish on the version they started.
+
+For replay-incompatible changes (e.g. a new `spawnChild` site between
+existing ones), apps bump `version`, deploy workers that handle both
+versions, drain old tasks, then drop the old version. This is the same
+dual-accept window as `BusMessage.v` in the bus PRD.
+
+## 13. Release plan & milestones
+
+Numbered ordering implies prerequisites. The cross-node bus v1 is a
+prerequisite for any multi-node integration testing of this PRD; the
+runner can develop in parallel against an in-process bus.
+
+### Milestone 0 — Pre-work
+
+- [ ] **M0.1 — `@furystack/blob-store` core.** `BlobStore` token, type
+      definitions, `InMemoryBlobStore` default, capability matrix,
+      `defineXxxBlobStore` helper convention. Independent of the runner.
+- [ ] **M0.2 — `@furystack/filesystem-blob-store`.** Filesystem adapter
+      with server-proxy upload/download endpoints exposed via
+      `@furystack/rest-service`.
+- [ ] **M0.3 — `@furystack/s3-blob-store`.** S3-compatible adapter
+      (covers AWS S3, MinIO, R2, B2, GCS-S3-mode). Integration tests
+      gated on docker-compose MinIO.
+- [ ] **M0.4 — `@furystack/cross-node-bus` v1 milestones complete**
+      (see `cross-node-bus-spike.md` Milestones 1–4). Required for
+      M3 integration tests and M4 multi-service smoke.
+
+### Milestone 1 — Task runner core
+
+- [ ] Create `@furystack/task-runner` package with the `TaskRunner`
+      token, `Task` entity definition, `defineTaskHandler`,
+      `defineWorker`, `TaskContext`, `BlobRef` re-export from blob-store.
+- [ ] Task dataset definition (consumer apps bind it over their chosen
+      `defineStore`).
+- [ ] In-process queue adapter as default factory.
+- [ ] DAG primitives: `spawnChild`, `awaitChildren`, `spawnChildAndAwait`.
+- [ ] Replay engine: handler step log, `Suspended` sentinel, resume
+      tokens.
+- [ ] Determinism-safe ctx helpers: `now`, `random`, `sleep`, `fetch`.
+- [ ] Retry policy + exponential backoff with jitter.
+- [ ] Visibility timeout + heartbeat.
+- [ ] Cancellation cascade.
+- [ ] Capability cross-check between runner and blob-store at boot.
+- [ ] `@furystack/task-runner/testing` subpath: `runTaskToCompletion`
+      mocked-ctx unit harness; `createTestRunner` multi-worker integration
+      harness.
+- [ ] Telemetry hooks (§11).
+- [ ] Unit tests covering submit, claim, progress, retry, cancel, replay,
+      DAG fan-out/fan-in, visibility reclaim.
+
+### Milestone 2 — REST + WS surface
+
+- [ ] REST endpoints: `POST /tasks`, `GET /tasks/:id`, `DELETE /tasks/:id`,
+      `GET /tasks/:id/download`, `GET /tasks/:id/tree`.
+- [ ] WS endpoint: `WS /tasks/subscribe` riding on the existing
+      entity-sync transport, exposing `TaskUpdate` events sourced from
+      both bus (hot) and dataset (cold).
+- [ ] `@furystack/security` authorizer integration; `submittedBy`
+      capture.
+- [ ] Blob upload-ticket flow (`POST /tasks` returns presigned URLs +
+      blob keys; `POST /tasks/:id/start` releases the task).
+- [ ] Determinism ESLint rule in `@furystack/eslint-plugin`.
+
+### Milestone 3 — Redis Streams adapter
+
+- [ ] `@furystack/redis-task-runner` package using Redis Streams +
+      consumer groups for competing-consumer dispatch.
+- [ ] Atomic fleet-wide concurrency cap (Lua `INCR`/`DECR` with TTL
+      fallback).
+- [ ] Visibility timeout via stream pending entries + reclaim script.
+- [ ] Delayed dispatch via sorted-set `notBefore` index + scheduler.
+- [ ] Capability flags reflect persistence / fleet cap / delayed dispatch.
+- [ ] Integration tests gated on `docker-compose up redis`.
+- [ ] Multi-worker smoke test against dockerized Redis covering claim
+      concurrency, fleet cap, visibility reclaim, drain.
+
+### Milestone 4 — Client SDK
+
+- [ ] `@furystack/task-runner-client` package with `submitTask`,
+      `cancelTask`, `getTask`, `subscribeProgress`, `uploadBlob`.
+- [ ] Reuses `@furystack/entity-sync-client` transport for WS
+      subscriptions.
+- [ ] Reference upload helper handles both presigned-direct and
+      server-proxy paths transparently.
+
+### Milestone 5 — Sweeper
+
+- [ ] `defineTaskBlobSweeper` service: scans terminal tasks past
+      `retentionPolicy.ttlAfterTerminalDays`, deletes blobs per policy,
+      idempotent.
+- [ ] Configurable scan interval (default 1 h) and batch size.
+- [ ] Telemetry hooks: `onSweeperRun`, `onSweeperBlobDeleted`.
+
+### Milestone 6 — Multi-service smoke test
+
+- [ ] Two services × two worker pods each, single Redis, S3 blob store,
+      distinct `topicPrefix`. Assertions:
+  - Tasks submitted to service A run only on service A's workers.
+  - Cross-service task submission is explicit REST call (not bus-routed).
+  - Fleet caps work fleet-wide.
+  - Drain of one pod does not lose work.
+- [ ] All §4 success metrics measured and recorded.
+
+### Milestone 7 — Reference video-encoder showcase
+
+- [ ] `@furystack/task-runner-examples/video-encoder` package
+      demonstrating the full pipeline. **Not** part of v1 release; lands
+      after v1 ships, used as the canonical multi-stage DAG example.
+
+## 14. Risks & mitigations
+
+| Risk                                                        | Severity | Mitigation                                                                                                                                                      |
+| ----------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Replay-handler determinism violations corrupt task state    | high     | `ctx.*` helpers, ESLint rule, loud documentation. Out-of-band: a non-deterministic handler is an app bug; framework cannot fully prevent it.                    |
+| Visibility timeout tuned wrong → tasks reclaimed mid-run    | medium   | Per-task-type `visibilityTimeoutMs`; heartbeat auto-on-progress; telemetry for premature reclaims.                                                              |
+| Blob lifecycle drift (sweeper deletes a blob still in use)  | medium   | Sweeper only deletes blobs of terminal tasks; new tasks must `consumedBlobs.push(...)` to claim a blob ownership; `deleted` blobs surface as missing on get.    |
+| Fleet cap enforcement bug → fleet thrash under contention   | medium   | Adapter integration tests with simulated worker churn; Lua atomicity tests; degrade-loud telemetry when cap not honored.                                        |
+| DAG cycles via mis-coded handlers                           | low      | Detect cycle via `parentTaskId` walk on `spawnChild`; refuse with clear error.                                                                                  |
+| Replay log bloat on long-running parents                    | medium   | `events` capped per task; replay log is a separate field with separate cap; documented constraint that very-many-children DAGs should bucket via grandchildren. |
+| Schema-version skew across mid-flight tasks during deploys  | medium   | `handlerVersion` + `compatibleVersions` gating; documented dual-accept release window mirroring `BusMessage.v`.                                                 |
+| S3 multipart upload misuse → orphaned uploads cost money    | medium   | S3 adapter sets bucket lifecycle rule (abort multipart > 24 h) at boot when `manageLifecycle: true` (default); doc otherwise.                                   |
+| Filesystem blob-store accidentally bound in multi-node prod | high     | Hard-refuse boot when paired with a multi-node queue adapter (§9). Misconfig fails loudly.                                                                      |
+| Workers without GPU pulling encode tasks                    | low      | `tags` declaration + matching at claim time; tests assert.                                                                                                      |
+| Idempotency-key collision across tenants                    | low      | Key namespace = `(submitterIdentity, key)` not just key.                                                                                                        |
+| Heartbeat write load on the dataset                         | medium   | Cold-lane progress write is coalesced (1 Hz default); heartbeat does not write to the dataset, only refreshes broker-side visibility deadline.                  |
+
+## 15. Out of scope
+
+- **Workflow orchestration** in the Temporal / AWS Step Functions sense
+  (saga compensation primitives, human-task signals, child workflow
+  policies, search attributes, signal-with-start). The runner provides
+  DAG composition; full workflow semantics are a separate primitive.
+- **Cron / recurring scheduling.** Apps build cron on top by submitting
+  from a scheduler (`setInterval`, an external cron container, etc.).
+- **Priority lanes / fair scheduling / quotas.** v1 is FIFO per
+  `(type, tags)` lane plus optional fleet cap. Revisit when a real
+  workload demands it.
+- **Progressive / streaming output during execution.** Tasks produce a
+  final blob set; consumers wait for terminal `succeeded`. Apps that
+  need HLS-style progressive output build it as a multi-task pipeline
+  (each segment = a child task; segment-completed events drive a
+  manifest writer). The blob-store + DAG primitives are sufficient;
+  the runner does not add a streaming concept.
+- **VM-sandboxed handler determinism.** `ctx.*` helpers + lint rule are
+  the only enforcement. Apps with hard correctness needs use a dedicated
+  workflow engine.
+- **Automatic compensation / saga rollback.** Handlers may catch
+  `awaitChildren` failures and run their own cleanup; the framework
+  does not provide compensation primitives.
+- **Cross-region active-active replication.** Tasks belong to the broker
+  they were submitted to. DR strategies are an ops concern.
+- **Distributed locks for shared resources** beyond the fleet cap. Apps
+  that need fine-grained mutual exclusion across tasks build it on the
+  cross-node bus or a dedicated lock service.
+- **First-class Shades UI components** (task list, DAG tree view,
+  upload widget). Ships later as `@furystack/shades-task-runner`,
+  not v1 release scope.
+- **Kafka / RabbitMQ queue adapters.** Listed as future options; not
+  v1 implementation targets.
+- **Strongly-consistent state replication / event sourcing.** This is a
+  task primitive, not a state store; apps still own their persistent
+  data via `@furystack/repository` + `defineStore`.
+- **Distributed tracing fan-out across child tasks.** v1 emits
+  per-task telemetry events; binding them into a single trace tree via
+  OpenTelemetry context propagation is a v1.x improvement.
+
+## 16. Open questions
+
+These are intentionally left for the implementer to settle during
+development; none of them gate the v1 plan.
+
+1. **Replay log placement.** Two options: (a) inline on the task entity
+   as an array, simple but bloats the row; (b) separate
+   `task-replay-log` dataset, normalized but doubles store ops. M1
+   prototype with (a), revisit if dataset rows exceed a configurable
+   soft cap.
+2. **Child task cleanup of failed parents.** When a parent fails after
+   children succeeded, do their blobs get cleaned up under the parent's
+   `onFailure` policy? Proposed default: child tasks own their own
+   retention; parent failure does not retroactively rewrite child
+   policy. Confirm with M5 sweeper design.
+3. **`awaitChildren` partial-results API.** Should the await resolve
+   even if some children failed (returning a `PromiseSettledResult`-like
+   shape) so handlers can decide per child? Current shape rejects on
+   any failure; a `awaitChildrenSettled` variant could land in v1.x.
+4. **Filesystem adapter URL expiry.** Server-proxy upload URLs need a
+   nonce/HMAC to validate. JWT-style stateless validation vs. a
+   short-lived signature stored in a tiny cache? M0.2 picks one.
+5. **In-process queue replay log persistence.** When apps run the
+   in-process queue, the replay log lives in the dataset (persisted)
+   but the `Suspended`-sentinel `waiting` state is broker-side. Single
+   process restart is fine (dataset is the source of truth, workers
+   resume claimed tasks). What about a process restart mid-`spawnChild`
+   before the dataset write committed? Crash-only design says: use a
+   single transactional write (insert child + update parent + record
+   step) or accept a small replay-of-already-spawned-child window
+   (with idempotency dedup catching duplicates). M1 pick the cheaper
+   path that the test harness can prove correct.
+6. **Worker self-throttle on broker latency.** If submit-to-claim
+   latency rises, should workers slow down their claim rate to give
+   slow tasks a chance to heartbeat? Out of scope for v1 plain FIFO,
+   but a hook (`onClaimLagDetected`) might land.
+7. **Blob multipart upload helper API.** `BlobStore.put` takes a stream;
+   apps with very large files and resumability needs want explicit
+   multipart control. Ship as a higher-level helper module
+   (`@furystack/blob-store/multipart`) vs. promote to core interface?
+   M0.3 makes the call after MinIO integration.
+
+## 17. Dependencies & related work
+
+- **`@furystack/cross-node-bus` v1** — the runner publishes task
+  status/progress on the bus via the hot-lane. Capability requirement:
+  any non-trivial deployment shape requires the bus running on a
+  cross-node-capable adapter (in-process bus is fine for single-pod;
+  Redis/NATS/etc. for multi-node). See
+  `cross-node-bus-spike.md` for adapter selection.
+- **`@furystack/repository` + `defineStore`** — task state lives in a
+  `defineDataSet` over the app's chosen store. Reuses every existing
+  store adapter (filesystem, mongodb, redis, sequelize) without
+  modification.
+- **`@furystack/entity-sync-service`** — the WS subscribe path for task
+  updates rides on the existing entity-sync transport, sharing the
+  same socket and authentication scope. Terminal-state changes
+  propagate through entity-sync's `onEntityUpdated` path automatically.
+- **`@furystack/security`** — authorizers enforce per-task-type access
+  control on the runner's REST endpoints.
+- **`@furystack/cache`** — task lookup endpoints (`GET /tasks/:id`)
+  may use `Cache` over the dataset for hot tasks; tag-based
+  invalidation off `task:${id}` keeps cache coherent. Optional.
+- **`docs/internal/functional-di-migration-plan.md`** — established
+  the "interface + token + factory" pattern this PRD follows for
+  `TaskRunner`, `BlobStore`, every adapter helper, and every facade.
+- **`@furystack/utils` `EventHub<T>`** — the runner composes an internal
+  `EventHub` for typed in-process subscription dispatch and listener
+  error isolation, bridging out to the bus the same way the bus PRD's
+  `IdentityEventBus` does.
+- **`@furystack/eslint-plugin`** — gains a new rule
+  (`no-non-deterministic-globals-in-handler`) flagging `Date.now`,
+  `Math.random`, `setTimeout`, `setInterval`, `fetch`, and `crypto`
+  references inside `defineTaskHandler` factory bodies.

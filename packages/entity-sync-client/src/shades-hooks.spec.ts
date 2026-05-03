@@ -122,7 +122,7 @@ describe('Shades convenience hooks', () => {
           model: 'User',
           mode: 'snapshot',
           data: { id: '123', name: 'John' },
-          version: { seq: 1, timestamp: new Date().toISOString() },
+          version: { seq: '1', timestamp: new Date().toISOString() },
         })
 
         const updatedState = useEntitySync(context, User, '123')
@@ -257,7 +257,7 @@ describe('Shades convenience hooks', () => {
           mode: 'snapshot',
           data: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
           totalCount: 1,
-          version: { seq: 1, timestamp: new Date().toISOString() },
+          version: { seq: '1', timestamp: new Date().toISOString() },
         })
 
         const updatedState = useCollectionSync(context, ChatMessage, {
@@ -428,7 +428,7 @@ describe('Shades convenience hooks', () => {
           primaryKey: 'id',
           mode: 'snapshot',
           data: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
-          version: { seq: 1, timestamp: new Date().toISOString() },
+          version: { seq: '1', timestamp: new Date().toISOString() },
         })
 
         useCollectionSync(context, ChatMessage, { top: 10, skip: 10 })

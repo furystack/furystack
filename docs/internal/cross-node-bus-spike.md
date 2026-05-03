@@ -735,7 +735,7 @@ cleanly. M0.3 + M0.4 are recommended but optional — skipping them
 turns Milestone 3 into a chunkier diff but does not change the end
 state.
 
-- [ ] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Widen the
+- [x] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Widen the
       internal `Cache` generic from `Cache<User, [string]>` to
       `Cache<User, [string], \`user:${string}\`>` for typed-tag safety
       and add `getTags: (user) => [\`user:${user.username}\`]`to
@@ -745,94 +745,283 @@ state.
  deployments today (apps currently have no per-user
  invalidation short of `invalidateAll`) and is the hook
  `IdentityEventBus` consumes in Milestone 2.
-- [ ] **M0.2 — Centralize identity cache-key / tag shape.** Extract
+- [x] **M0.2 — Centralize identity cache-key / tag shape.** Extract
       the `cookie:${sessionId}` cache-key template and the
       `user:${username}` tag template into a small shared helpers
       module consumed by `cookie-auth-provider.getCacheKey`,
       `HttpUserContext.cookieLogout`, `UserResolutionCache`, and
       (later) `IdentityEventBus` subscribers. Prevents drift between
       local invalidation and bus-replicated invalidation.
-- [ ] **M0.3 — Extract `SequenceGenerator` from `SubscriptionManager`.**
+- [x] **M0.3 — Extract `SequenceGenerator` from `SubscriptionManager`.**
       Wrap the `incrementVersion` / `currentSeq++` logic behind an
       internal interface with `next(modelName): SyncVersion`. Default
       impl is the current per-registration counter. Turns Milestone 3's
       swap to bus-assigned sequence into a factory swap rather than
       scattered edits.
-- [ ] **M0.4 — Extract `ChangeLog` from `SubscriptionManager`.** Wrap
+- [x] **M0.4 — Extract `ChangeLog` from `SubscriptionManager`.** Wrap
       the `changelog` / `changelogRetentionMs` / `pruneChangelog`
       triple behind an interface (`append(entry)`,
-      `since(fromSeq): AsyncIterable<entry>`). Default impl is the
-      existing in-process ring + retention prune. Same swap pattern:
-      Milestone 3 plugs in a `bus.replay`-backed impl.
+      `since(fromSeq): readonly SyncChangeEntry[]` — sync array, not
+      `AsyncIterable`, by design choice during M0). Default impl is
+      the existing in-process ring + retention prune. Same swap
+      pattern: Milestone 3 plugs in a `bus.replay`-backed impl (which
+      may widen `since` to `AsyncIterable` if the adapter benefits
+      from streaming replay).
 
 ### Milestone 1 — Bus core & in-process adapter
 
-- [ ] Create `@furystack/cross-node-bus` package with the
+- [x] Create `@furystack/cross-node-bus` package with the
       `CrossNodeBus` token, `BusMessage` type, capabilities,
       `InProcessCrossNodeBus` default factory.
-- [ ] `subscribeRemoteOnly`, `subscribeForeign`, `replay` (ring buffer).
-- [ ] Telemetry hooks (`onCrossNodePublished` /
-      `onCrossNodeReceived` / `onCrossNodeError`).
-- [ ] `@furystack/cross-node-bus/testing` subpath with a two-instance
-      in-process harness.
-- [ ] Unit tests covering subscribe/publish, multiple subscribers,
-      disposal, originId, error isolation, replay window.
+- [x] `subscribeRemoteOnly`, `subscribeForeign`, `replay` (ring buffer).
+- [x] Telemetry hooks (`onCrossNodePublished` /
+      `onCrossNodeReceived` / `onCrossNodeError`) via a dedicated
+      singleton `CrossNodeBusTelemetryToken` so adapter factories can
+      `inject(...)` it from a `bind`-installed factory; rest-service
+      forwarders bridge to `ServerTelemetryToken` later.
+- [x] `@furystack/cross-node-bus/testing` subpath with an N-instance
+      in-process harness (`createInProcessBusNetwork`) backed by a
+      shared `MemoryBroker` — the public bus + a private broker fall
+      out as the natural single-instance case.
+- [x] Unit tests covering subscribe/publish, multiple subscribers,
+      disposal, originId, error isolation, replay window. Coverage on
+      `packages/cross-node-bus/src`: 99 % statements, 100 % functions,
+      100 % lines.
+
+#### M1 implementation notes
+
+- `InProcessCrossNodeBus` multiplexes local fan-out: regardless of how
+  many handlers subscribe to the same wire topic, the bus opens one
+  broker subscription and dispatches arrivals to its own handler set.
+  Keeps `onCrossNodeReceived` counting one event per arrival — not one
+  per handler invocation — and mirrors the consumer-group shape future
+  network adapters use.
+- The `MemoryBroker` is a separately-exported class. Single-instance
+  buses mint a private broker; the testing harness shares one across N
+  buses. Apps can also instantiate a broker and pass it to multiple
+  bus instances directly when they need that shape outside tests.
+- `subscribeForeign` resolves to `${prefix}${topic}` against the
+  broker's flat topic table — multi-service simulations against a
+  single shared broker work without an external transport.
+- `nodeId` defaults to `local-${crypto.randomUUID()}`. Apps that want
+  a service-prefixed id (e.g. for telemetry attribution) pass
+  `nodeId` to `defineInProcessCrossNodeBus({ nodeId: ... })`.
+  `serviceName`-driven generation lands with the Redis adapter (M4).
 
 ### Milestone 2 — `IdentityEventBus` facade (rest-service)
 
-- [ ] Define event union + token + factory.
-- [ ] Wire `HttpUserContext.cookieLogout` to publish.
-- [ ] Subscribe in the factory: on `userLoggedOut` /
+- [x] Define event union + token + factory.
+- [x] Wire `HttpUserContext.cookieLogout` to publish.
+- [x] Subscribe in the factory: on `userLoggedOut` /
       `sessionInvalidated` invalidate the local
       `UserResolutionCache` entry; on `userRolesChanged` /
       `userDeleted` / `passwordChanged` call `invalidateByUser`
       (added in M0.1).
-- [ ] Multi-node integration test (≥ 2 in-process bus instances)
+- [x] Multi-node integration test (≥ 2 in-process bus instances)
       proving cross-node identity invalidation.
-- [ ] (Stretch) on `userLoggedOut`, walk the
+- [x] (Stretch) on `userLoggedOut`, walk the
       `WebSocketApi.clients` map and close any sockets whose
       `request.headers.cookie` carries the invalidated `sessionId`.
 
+#### M2 implementation notes
+
+- The facade owns the local cache effect: `publish(event)` applies
+  invalidation synchronously **before** awaiting the bus, fires local
+  subscribers, then broadcasts. Sibling nodes receive via
+  `subscribeRemoteOnly` so own publishes never round-trip through the
+  transport — duplicate work is impossible. The wire format is one topic
+  (`identity/events`) with a discriminated payload; minimises broker
+  subscriptions on networked adapters.
+- `cookieLogout` no longer touches `userCache` or the cache-key helper
+  directly; it `await`s `identityEventBus.publish({ type: 'userLoggedOut',
+sessionId })`. The facade is the single contract for "this is how you
+  invalidate identity caches across the fleet."
+- WebSocket close-on-logout lives in `useWebSocketApi` (websocket-api
+  already depends on rest-service). Subscribes to the singleton
+  `IdentityEventBus`; `userLoggedOut` walks the `clients` map and closes
+  every socket whose connect-time cookie carries the invalidated session
+  id with WS code `1008`. Fires for local **and** remote logouts.
+- `IdentityEventBus` rolls a tiny typed listener registry inline rather
+  than composing `EventHub<T>` — TS cannot unify
+  `Extract<IdentityEvent, { type: TType }>` with the generic mapped
+  parameter of `EventHub.subscribe`, and the only alternative was
+  `as unknown as` which the project rules forbid. Listener error
+  isolation is handled in ~10 LOC via a try/catch loop. Per the spike's
+  §17 allowance.
+
 ### Milestone 3 — `EntityChangeBus` facade (entity-sync-service)
 
-- [ ] Define `EntityChangeBus` interface + token (depends on
+- [x] Define `EntityChangeBus` interface + token (depends on
       `CrossNodeBus`).
-- [ ] Refactor `SubscriptionManager.registerModel` to publish +
+- [x] Refactor `SubscriptionManager.registerModel` to publish +
       subscribe via the broadcaster; single fan-out path.
-- [ ] Swap the M0.3 `SequenceGenerator` factory to a bus-assigned
-      impl; in-process bus keeps a local counter. (If M0.3 was
-      skipped, this expands to inlined edits across `SubscriptionManager`.)
-- [ ] Swap the M0.4 `ChangeLog` factory to a `bus.replay`-backed
-      impl. (If M0.4 was skipped, this expands to dropping
-      `changelog` / `pruneChangelog` and rewriting reconnection paths.)
-- [ ] Server-side seq dedup with TTL eviction.
-- [ ] Verify all existing tests pass — single-node story unchanged.
-- [ ] Multi-node integration test (≥ 2 in-process bus instances)
+- [x] Drop the M0.3 `SequenceGenerator` seam — the bus assigns seq on
+      `publish`, so `next` has no caller. `current` was inlined as a
+      `Map<modelName, string>` updated by the bus-receive handler. The
+      M0.3 interface didn't survive contact: keeping it as a pure
+      receive-tracker would be three lines of indirection nobody else
+      consumed.
+- [x] Swap the M0.4 `ChangeLog` factory to a `bus.replay`-backed
+      impl. `since` returns `AsyncIterable<SyncChangeEntry>` (per the
+      M0.4 carve-out) and surfaces `ReplayWindowExceededError`
+      synchronously on call so the "delta vs snapshot" decision stays
+      a try/catch around the call site.
+- [x] Server-side seq dedup with TTL eviction (`Map<\`${modelName}\0${originId}\`, …>`,
+5 min sweep, 1 h idle threshold; timer is `unref`-ed).
+- [x] Verify all existing tests pass — single-node story unchanged.
+- [x] Multi-node integration test (≥ 2 in-process bus instances)
       proving cross-node entity-change delivery and replay.
+
+#### M3 implementation notes
+
+- `SyncVersion.seq` is now `string` — an opaque, ordered, per-topic
+  token assigned by the underlying `CrossNodeBus` adapter. Clients
+  must round-trip the value back to the server (via `lastSeq` on
+  `ClientSyncMessage`) and never compare it locally; comparison lives
+  on the bus via a new `compareSeq(a, b): number` method. The bump is
+  **major for `@furystack/entity-sync`** (wire-format change to
+  `SyncVersion`, `SyncChangeEntry`, `ServerSyncMessage`, and
+  `ClientSyncMessage.lastSeq`) and minor for
+  `@furystack/entity-sync-service` (additive surface — new
+  `EntityChangeBus` token + types; `SubscriptionManager` keeps its
+  public shape modulo `getModelRegistration().changelogLength`, which
+  was diagnostic-only and is gone).
+- `CrossNodeBus` gained two methods: `compareSeq(a, b)` for
+  adapter-aware ordering and `oldestSeq(topic)` for delta-feasibility
+  decisions. `MemoryBroker` exposes `oldestSeq(topic)` to back the
+  in-process implementation. Both are additive on the M1 surface.
+- Topic shape: one topic per registered model
+  (`entity/${modelName}`), exposed as `topicForModel`. Per-model topic
+  buys per-model seq + per-model replay window for free, mirroring the
+  consumer-group shape future Redis Streams adapter will use.
+- The wire payload is bare `EntityChange` — `version` and `originId`
+  are stamped by the bus on receive, so the payload type stays
+  forward-compatible with new variants. `added` carries the
+  primary-key value (not the field name) so receivers never need the
+  publisher's `registerModel` to have already run.
+- `EntityChangeBus` uses **plain `subscribe`** (not
+  `subscribeRemoteOnly`) — the broadcaster needs the bus-assigned seq
+  before stamping `version` on outbound `ServerSyncMessage`s, and the
+  only way to obtain that seq is to let own publishes round-trip
+  through the bus. This is the intentional inverse of
+  `IdentityEventBus` and the reason §10.2 specifies "single fan-out
+  path."
+- Capability assertion is hard: the `EntityChangeBus` factory throws
+  when the bound `CrossNodeBus` lacks `replay` or `assignsSequence`.
+  Matches §9 — no silent degradation.
+- Cross-node collection re-evaluation is intentionally per-node: the
+  receiving node re-queries its **own** local store on every change,
+  which means collection subscribers only react when the underlying
+  store has the same data. The bus is a notification primitive, not a
+  state-replication primitive (§15). Multi-node entity-level
+  notifications work correctly because the entity payload travels in
+  the bus envelope; collections that need cross-node state need a
+  shared store, not a different bus design.
 
 ### Milestone 4 — Redis Streams adapter
 
-- [ ] `@furystack/redis-cross-node-bus` package using Redis Streams
-      (`XADD` / `XREAD` consumer groups for per-node delivery).
-- [ ] Capability flags reflect persistence / replay / sequencing.
-- [ ] Adapter constructor accepts `{ url, topicPrefix, serviceName, replayWindow }`;
-      `nodeId` defaults to `${serviceName}-${random}`.
-- [ ] Integration tests gated on `docker-compose up redis` (existing
-      pattern).
-- [ ] Manual smoke-test harness with two Node processes against a
-      dockerized Redis verifies entity-sync + identity events
-      end-to-end.
+- [x] `@furystack/redis-cross-node-bus` package using Redis Streams
+      (`XADD` for publish, plain `XREAD` with per-bus cursors for
+      broadcast; no consumer groups — every node tracks its own cursor
+      so dead nodes leave no orphan groups behind).
+- [x] Capability flags reflect persistence / replay / sequencing.
+- [x] Adapter constructor accepts `{ client, serviceName, topicPrefix, replayWindow, nodeId }`;
+      `nodeId` defaults to `${serviceName}-${random}`. Caller owns the
+      `redis` client lifecycle (mirrors `@furystack/redis-store`); the
+      adapter `.duplicate()`s the client for the blocking `XREAD` loop
+      and quits the duplicate on `[Symbol.asyncDispose]`.
+- [x] Integration tests gated on a reachable Redis at `REDIS_URL`
+      (default `redis://localhost:6379`) — same shape as
+      `@furystack/redis-store`. Covers publish / subscribe (single +
+      cross-bus), `subscribeRemoteOnly`, `topicPrefix` isolation,
+      `subscribeForeign`, `replay`, `oldestSeq`, `compareSeq`, and
+      `whenReady` for subscribe/publish race-free wiring.
+- [x] Cross-process smoke test with two services × two nodes (four
+      `child_process.fork` workers) against the dockerized Redis CI uses
+      for the rest of the integration suite. Verifies identity events,
+      entity-sync delivery with bus-stamped seq, replay-after-restart, and
+      `subscribeForeign` end-to-end. Lives at
+      `packages/redis-cross-node-bus/src/cross-process-smoke.spec.ts`;
+      runs as part of `yarn test`. The "manual" framing in the original
+      spike was a misread — the existing redis-store / mongodb-store
+      integration tests already gate on a docker-compose'd broker, so this
+      one rides the same pattern.
+
+#### M4 implementation notes
+
+- **No consumer groups.** Redis Streams' broadcast pattern is plain
+  `XREAD` with per-consumer cursor tracking. Consumer groups would
+  buy nothing (every node already wants every message) and would
+  leave orphan groups behind on every dead node.
+- **One read connection per adapter.** A single background loop
+  multiplexes `XREAD STREAMS s1 s2 … id1 id2 …` across every
+  subscribed wire topic. Subscriber count does not scale read
+  connections.
+- **Subscribe is asynchronous in the wire sense.** `subscribe(...)`
+  returns a `Disposable` synchronously, but the cursor for that wire
+  is initialised asynchronously via `XINFO STREAM`. Production
+  subscribers register at boot and have plenty of time before the
+  first publish; tests publishing immediately afterwards `await
+bus.whenReady(topic)` first. The race window is documented on the
+  class JsDoc and is deliberately not papered over with
+  consumer-group bookkeeping.
+- **`compareSeq` splits Redis stream IDs (`<ms>-<seq>`) and compares
+  numerically.** Lexicographic comparison would mis-order `'9-0'` vs
+  `'10-0'`; the helper is exported as
+  `compareRedisStreamId` for direct use.
+- **Sync `ReplayWindowExceededError`.** `replay()` checks against a
+  best-effort `oldestSeqCache` populated from `XINFO STREAM` at
+  subscribe time (and updated on every received message). If the
+  cache says `fromSeq` is older than the retained floor, `replay()`
+  throws synchronously — matching the in-process adapter contract so
+  facades keep one branching pattern.
+- **Wire format: four `XADD` fields** (`v`, `originId`, `emittedAt`,
+  `payload`) instead of a single JSON blob. Cleaner inspection from
+  `redis-cli` (`XRANGE topic - + COUNT 1`); only the payload is
+  JSON-parsed on receive.
+- **Async dispose for the duplicated client.** `[Symbol.dispose]`
+  does best-effort `client.destroy()` (sync) and `[Symbol.asyncDispose]`
+  awaits a clean `client.quit()`. The factory wires the async path
+  via `onDispose`.
 
 ### Milestone 5 — Multi-service smoke test
 
-- [ ] Two services × two nodes each, single Redis, distinct
+- [x] Two services × two nodes each, single Redis, distinct
       `topicPrefix` per service. Assertions:
   - Identity events published by service A's auth path invalidate
     caches on every node of service A and **only there**.
   - Service B sees nothing on its own subscriptions.
   - `subscribeForeign` from B to A's identity topic delivers
     correctly when explicitly opted in.
-- [ ] All §4 success metrics measured and recorded.
+- [x] All §4 success metrics measured and recorded.
+
+#### M5 implementation notes
+
+- Smoke test lives at
+  `packages/redis-cross-node-bus/src/multi-service-smoke.spec.ts`.
+  Same-process by design: four isolated `Injector`s (two per service)
+  each bind their own Redis client, `RedisCrossNodeBus`,
+  `IdentityEventBus` and `UserResolutionCache` via the public
+  `defineRedisCrossNodeBusAdapter` factory. Cross-process child-process
+  spawning would only assert that V8 isolation matches injector
+  isolation — uninteresting given the bus is a stateless DI singleton.
+- Per-test unique `topicPrefix` (`svc-a-${uuid}/`, `svc-b-${uuid}/`)
+  so test runs against the same broker do not pollute each other's
+  streams. `afterEach`-style cleanup `DEL`s both wire-level streams.
+- The `redis-cross-node-bus` package gained `@furystack/rest-service`
+  and `@furystack/core` as devDependencies and corresponding tsconfig
+  references for the spec. No production dep change.
+- Recorded percentiles (local Redis, 100 samples, ~26 ms steady state):
+  `p50=26ms p95=27ms p99=27ms`. Well within the §4 budgets
+  (`p95 < 50 ms`, `p99 staleness < 1 s`). The metric line is logged
+  on every CI run for trend visibility.
+- In-region Redis (`< 200 ms p95`) is intentionally not asserted in
+  CI — the same-process harness has no way to exercise that latency
+  band. The metric is documented and the harness can be re-run against
+  a remote `REDIS_URL` for ad-hoc validation.
+- WebSocket close-on-logout (the M2 stretch) is exercised by
+  websocket-api's own integration spec, not here. M5 stays scoped to
+  the bus + identity-cache surface explicitly named in this section.
 
 ## 14. Risks & mitigations
 

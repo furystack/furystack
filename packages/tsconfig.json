@@ -27,6 +27,9 @@
       "path": "./mongodb-store"
     },
     {
+      "path": "./redis-cross-node-bus"
+    },
+    {
       "path": "./redis-store"
     },
     {
@@ -76,6 +79,9 @@
     },
     {
       "path": "./cache"
+    },
+    {
+      "path": "./cross-node-bus"
     },
     {
       "path": "./entity-sync"

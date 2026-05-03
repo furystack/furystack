@@ -9,6 +9,7 @@ import {
   HttpAuthenticationSettings,
 } from './http-authentication-settings.js'
 import type { HttpUserContext } from './http-user-context.js'
+import { userCacheTag, type UserCacheTag } from './identity-cache-keys.js'
 
 /**
  * Singleton TTL cache that memoizes successful identity resolutions across
@@ -28,7 +29,8 @@ import type { HttpUserContext } from './http-user-context.js'
  * **Multi-node note:** session invalidation on one instance does not
  * propagate to siblings — the TTL bounds the staleness window. Apps that
  * need stricter freshness must shorten the TTL or invalidate explicitly via
- * {@link UserResolutionCache.invalidate}.
+ * {@link UserResolutionCache.invalidate} /
+ * {@link UserResolutionCache.invalidateByUser}.
  */
 export interface UserResolutionCache extends Disposable {
   /**
@@ -39,6 +41,16 @@ export interface UserResolutionCache extends Disposable {
   resolve(cacheKey: string, loader: () => Promise<User>): Promise<User>
   /** Drops a single cache entry. No-op when the key is unknown. */
   invalidate(cacheKey: string): void
+  /**
+   * Drops every cached entry that resolved to `username`, regardless of
+   * which {@link AuthenticationProvider}'s key originally populated it.
+   * Backed by the cache's reverse tag index — no per-call O(n) scan.
+   *
+   * Use after role / password / account-state changes that must take
+   * effect immediately on the next request, instead of waiting for the
+   * TTL window to elapse.
+   */
+  invalidateByUser(username: string): void
   /** Drops every cached entry. */
   invalidateAll(): void
   /** Returns the current entry count (for diagnostics / tests). */
@@ -47,14 +59,14 @@ export interface UserResolutionCache extends Disposable {
 
 class UserResolutionCacheImpl implements UserResolutionCache {
   private readonly loaders = new Map<string, () => Promise<User>>()
-  private readonly cache: Cache<User, [string]> | null
+  private readonly cache: Cache<User, [string], UserCacheTag> | null
 
   constructor(ttlMs: number, capacity: number) {
     if (ttlMs <= 0) {
       this.cache = null
       return
     }
-    this.cache = new Cache<User, [string]>({
+    this.cache = new Cache<User, [string], UserCacheTag>({
       load: (cacheKey) => {
         const loader = this.loaders.get(cacheKey)
         if (!loader) {
@@ -69,6 +81,7 @@ class UserResolutionCacheImpl implements UserResolutionCache {
       cacheTimeMs: ttlMs,
       capacity,
       getKey: (cacheKey) => cacheKey,
+      getTags: (user) => [userCacheTag(user.username)],
     })
   }
 
@@ -89,6 +102,10 @@ class UserResolutionCacheImpl implements UserResolutionCache {
 
   public invalidate(cacheKey: string): void {
     this.cache?.remove(cacheKey)
+  }
+
+  public invalidateByUser(username: string): void {
+    this.cache?.removeByTag(userCacheTag(username))
   }
 
   public invalidateAll(): void {

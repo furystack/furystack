@@ -730,6 +730,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/cross-node-bus@workspace:^, @furystack/cross-node-bus@workspace:packages/cross-node-bus":
+  version: 0.0.0-use.local
+  resolution: "@furystack/cross-node-bus@workspace:packages/cross-node-bus"
+  dependencies:
+    "@furystack/inject": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    "@types/node": "npm:^25.6.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/entity-sync-client@workspace:packages/entity-sync-client":
   version: 0.0.0-use.local
   resolution: "@furystack/entity-sync-client@workspace:packages/entity-sync-client"
@@ -748,6 +760,7 @@ __metadata:
   resolution: "@furystack/entity-sync-service@workspace:packages/entity-sync-service"
   dependencies:
     "@furystack/core": "workspace:^"
+    "@furystack/cross-node-bus": "workspace:^"
     "@furystack/entity-sync": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/repository": "workspace:^"
@@ -843,6 +856,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/redis-cross-node-bus@workspace:packages/redis-cross-node-bus":
+  version: 0.0.0-use.local
+  resolution: "@furystack/redis-cross-node-bus@workspace:packages/redis-cross-node-bus"
+  dependencies:
+    "@furystack/core": "workspace:^"
+    "@furystack/cross-node-bus": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/rest-service": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    "@types/node": "npm:^25.6.0"
+    redis: "npm:^5.12.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/redis-store@workspace:packages/redis-store":
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
@@ -886,6 +915,7 @@ __metadata:
   dependencies:
     "@furystack/cache": "workspace:^"
     "@furystack/core": "workspace:^"
+    "@furystack/cross-node-bus": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/repository": "workspace:^"
     "@furystack/rest": "workspace:^"

@@ -1,3 +1,5 @@
+export { EntityChangeBus, topicForModel } from './entity-change-bus.js'
+export type { EntityChange, EntityChangeEnvelope } from './entity-change-bus.js'
 export { SubscriptionManager } from './subscription-manager.js'
 export type { ModelSyncOptions } from './subscription-manager.js'
 export { SyncSubscribeAction } from './sync-subscribe-action.js'

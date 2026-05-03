@@ -38,6 +38,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
     "@furystack/core": "workspace:^",
+    "@furystack/cross-node-bus": "workspace:^",
     "@furystack/entity-sync": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/repository": "workspace:^",

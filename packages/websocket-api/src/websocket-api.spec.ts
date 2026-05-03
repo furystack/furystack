@@ -1,6 +1,6 @@
 import { getPort } from '@furystack/core/port-generator'
 import { createInjector } from '@furystack/inject'
-import { ServerTelemetryToken } from '@furystack/rest-service'
+import { HttpAuthenticationSettings, IdentityEventBus, ServerTelemetryToken } from '@furystack/rest-service'
 import { usingAsync } from '@furystack/utils'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { describe, expect, it, vi } from 'vitest'
@@ -118,6 +118,39 @@ describe('useWebSocketApi', () => {
 
       client.close()
       await new Promise<void>((resolve) => client.once('close', () => resolve()))
+    })
+  })
+
+  it('closes connected sockets whose cookie carries an invalidated session id', async () => {
+    const port = getPort()
+    await usingAsync(createInjector(), async (i) => {
+      const { cookieName } = i.get(HttpAuthenticationSettings)
+      await useWebSocketApi({ injector: i, port, path: '/ws-logout' })
+
+      const targetSession = 'session-target'
+      const otherSession = 'session-other'
+
+      const target = new WebSocket(`ws://localhost:${port}/ws-logout`, {
+        headers: { cookie: `${cookieName}=${targetSession}` },
+      })
+      const bystander = new WebSocket(`ws://localhost:${port}/ws-logout`, {
+        headers: { cookie: `${cookieName}=${otherSession}` },
+      })
+      await Promise.all([
+        new Promise<void>((resolve) => target.once('open', () => resolve())),
+        new Promise<void>((resolve) => bystander.once('open', () => resolve())),
+      ])
+
+      const targetClosed = new Promise<{ code: number }>((resolve) => target.once('close', (code) => resolve({ code })))
+
+      await i.get(IdentityEventBus).publish({ type: 'userLoggedOut', sessionId: targetSession })
+
+      const closed = await targetClosed
+      expect(closed.code).toBe(1008)
+      expect(bystander.readyState).toBe(WebSocket.OPEN)
+
+      bystander.close()
+      await new Promise<void>((resolve) => bystander.once('close', () => resolve()))
     })
   })
 

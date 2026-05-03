@@ -1,8 +1,11 @@
 import { IdentityContext, useSystemIdentityContext, type FilterType, type User } from '@furystack/core'
+import { ReplayWindowExceededError } from '@furystack/cross-node-bus'
+import type { ServerSyncMessage, SyncChangeEntry, SyncVersion } from '@furystack/entity-sync'
 import { defineService, type Injector, type Token } from '@furystack/inject'
 import { type DataSetToken } from '@furystack/repository'
-import type { SyncChangeEntry, ServerSyncMessage, SyncVersion } from '@furystack/entity-sync'
 import type WebSocket from 'ws'
+import { createBusBackedChangeLog, type ChangeLog } from './change-log.js'
+import { EntityChangeBus, type EntityChange, type EntityChangeEnvelope } from './entity-change-bus.js'
 import type { useEntitySync } from './use-entity-sync.js'
 
 type EntitySubscription = {
@@ -12,7 +15,7 @@ type EntitySubscription = {
   modelName: string
   type: 'entity'
   key: unknown
-  currentSeq: number
+  currentSeq: string
 }
 
 type CollectionSubscription = {
@@ -25,7 +28,7 @@ type CollectionSubscription = {
   top?: number
   skip?: number
   order?: Record<string, 'ASC' | 'DESC'>
-  currentSeq: number
+  currentSeq: string
   /** Tracks which entities are currently in the collection for diffing */
   currentEntities: Map<unknown, unknown>
   /** Last sent total count, used to avoid redundant snapshot messages */
@@ -37,12 +40,12 @@ type Subscription = EntitySubscription | CollectionSubscription
 type ModelRegistration = {
   modelName: string
   primaryKey: string
-  currentSeq: number
-  changelog: SyncChangeEntry[]
-  changelogRetentionMs: number
   debounceMs: number
   queryTtlMs: number
-  eventSubscriptions: Disposable[]
+  /** `dataSet.subscribe(...)` handles for the publish side. */
+  dataSetSubscriptions: Disposable[]
+  /** `entityChangeBus.subscribe(...)` handle for the consume side. */
+  busSubscription: Disposable
   getEntity: (injector: Injector, key: unknown) => Promise<unknown>
   findEntities: (
     injector: Injector,
@@ -62,11 +65,25 @@ type QueryCacheEntry = {
   timestamp: number
 }
 
+const INITIAL_SEQ = '0'
+
+/** Sweep interval for the per-(topic, originId) dedup map. */
+const DEDUP_SWEEP_MS = 5 * 60 * 1000
+/** Idle threshold after which a `(topic, originId)` dedup entry is evicted. */
+const DEDUP_IDLE_MS = 60 * 60 * 1000
+
+const dedupKey = (modelName: string, originId: string): string => `${modelName}\u0000${originId}`
+
 /**
  * Options for model registration.
  */
 export type ModelSyncOptions = {
-  /** How long to keep change entries for delta sync (default: 5 minutes) */
+  /**
+   * @deprecated The bus owns retention now — adapters define the window
+   * (in-process: 1 000 messages per topic; Redis Streams: `MAXLEN`).
+   * Configure on the adapter, not per-model. The field is accepted for
+   * backwards compatibility and silently ignored.
+   */
   changelogRetentionMs?: number
   /** Debounce window in ms for batching notifications (default: 0 = immediate) */
   debounceMs?: number
@@ -75,8 +92,8 @@ export type ModelSyncOptions = {
 }
 
 /**
- * Subscription registry for entity sync. Tracks per-model changelogs, fans
- * out change events from the registered {@link DataSetToken}s to matching
+ * Subscription registry for entity sync. Tracks per-model bus subscriptions,
+ * fans changes published on the {@link EntityChangeBus} out to matching
  * WebSocket subscribers and supports debounced/cached collection queries.
  *
  * Configure via {@link useEntitySync} during application setup; the
@@ -86,8 +103,9 @@ export type ModelSyncOptions = {
 export interface SubscriptionManager extends Disposable {
   /**
    * Registers a data set for entity sync.
-   * Subscribes to the underlying DataSet's events to track changes and
-   * maintain a per-model changelog.
+   * Subscribes to the underlying DataSet's events to publish changes onto
+   * the {@link EntityChangeBus}, and subscribes back to the bus to fan
+   * matching changes out to WebSocket subscribers.
    *
    * **Important:** Only writes that go through the DataSet (via
    * `dataSet.add()`, `dataSet.update()`, `dataSet.remove()`) will trigger
@@ -109,8 +127,7 @@ export interface SubscriptionManager extends Disposable {
     | {
         modelName: string
         primaryKey: string
-        currentSeq: number
-        changelogLength: number
+        currentSeq: string
       }
     | undefined
   /** Debug helper — returns every active subscription in wire-friendly form. */
@@ -122,8 +139,8 @@ export interface SubscriptionManager extends Disposable {
   }>
   /**
    * Subscribes a client to entity changes.
-   * Supports delta sync when the client provides a `lastSeq` and the
-   * changelog covers the gap; otherwise returns a full snapshot.
+   * Supports delta sync when the client provides a `lastSeq` and the bus
+   * retains the gap; otherwise returns a full snapshot.
    */
   subscribeEntity(
     socket: WebSocket,
@@ -131,7 +148,7 @@ export interface SubscriptionManager extends Disposable {
     requestId: string,
     modelName: string,
     key: unknown,
-    lastSeq?: number,
+    lastSeq?: string,
   ): Promise<void>
   /** Subscribes a client to a filtered collection. Sends a full snapshot on subscribe. */
   subscribeCollection(
@@ -158,10 +175,26 @@ class SubscriptionManagerImpl implements SubscriptionManager {
   private readonly pendingEntityMessages = new Map<string, ServerSyncMessage[]>()
   private readonly queryCache = new Map<string, QueryCacheEntry>()
 
+  /** Latest seq stamped by the bus per model — seeded on every receive. */
+  private readonly lastSeqByModel = new Map<string, string>()
+  /** Per-(modelName, originId) dedup state for at-least-once delivery. */
+  private readonly dedup = new Map<string, { seq: string; ts: number }>()
+  private readonly dedupTimer: ReturnType<typeof setInterval>
+
+  private readonly changeLog: ChangeLog
+
   constructor(
     private readonly systemInjector: Injector,
     private readonly subscriptionScopeParent: Injector,
-  ) {}
+    private readonly entityChangeBus: EntityChangeBus,
+  ) {
+    this.changeLog = createBusBackedChangeLog(entityChangeBus.bus)
+    // Bound timer drives idle eviction without touching the receive hot path.
+    // Refed by Node by default; `unref` so the timer never blocks process exit
+    // in test runners or short-lived scripts.
+    this.dedupTimer = setInterval(() => this.sweepDedup(), DEDUP_SWEEP_MS)
+    this.dedupTimer.unref?.()
+  }
 
   /**
    * Captures the current identity from `clientInjector` (the per-message
@@ -208,10 +241,11 @@ class SubscriptionManagerImpl implements SubscriptionManager {
 
   public registerModel<T, TPrimaryKey extends keyof T>(
     dataSetToken: DataSetToken<T, TPrimaryKey>,
-    options?: ModelSyncOptions,
+    _options?: ModelSyncOptions,
   ): void {
     const modelName = dataSetToken.model.name
     const primaryKey = dataSetToken.primaryKey as string
+    const options = _options ?? {}
 
     if (this.modelRegistrations.has(modelName)) {
       const existing = this.modelRegistrations.get(modelName)!
@@ -227,12 +261,11 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     const registration: ModelRegistration = {
       modelName,
       primaryKey,
-      currentSeq: 0,
-      changelog: [],
-      changelogRetentionMs: options?.changelogRetentionMs ?? 5 * 60 * 1000,
-      debounceMs: options?.debounceMs ?? 0,
-      queryTtlMs: options?.queryTtlMs ?? 0,
-      eventSubscriptions: [],
+      debounceMs: options.debounceMs ?? 0,
+      queryTtlMs: options.queryTtlMs ?? 0,
+      dataSetSubscriptions: [],
+      // Replaced below — declared up-front so the type stays narrow.
+      busSubscription: { [Symbol.dispose]: () => undefined },
       getEntity: (injector, key) => dataSet.get(injector, key as T[TPrimaryKey]),
       findEntities: async (injector, findOptions) => {
         const result = await dataSet.find(injector, {
@@ -246,52 +279,96 @@ class SubscriptionManagerImpl implements SubscriptionManager {
       countEntities: (injector, filter) => dataSet.count(injector, filter as FilterType<T> | undefined),
     }
 
-    registration.eventSubscriptions = [
+    // Publish: every dataset event becomes a `bus.publish`. We void the
+    // promise — bus errors are surfaced via `onCrossNodeError` telemetry, not
+    // by failing the (synchronous) dataset event handler.
+    registration.dataSetSubscriptions = [
       dataSet.subscribe('onEntityAdded', ({ entity }) => {
-        this.handleEntityAdded(modelName, entity as unknown as AnyEntity, (entity as unknown as AnyEntity)[primaryKey])
+        const e = entity as unknown as AnyEntity
+        void this.entityChangeBus.publish(modelName, {
+          type: 'added',
+          entity: e,
+          primaryKey: e[primaryKey],
+        })
       }),
       dataSet.subscribe('onEntityUpdated', ({ id, change }) => {
-        this.handleEntityUpdated(modelName, id, change)
+        void this.entityChangeBus.publish(modelName, { type: 'updated', id, change })
       }),
       dataSet.subscribe('onEntityRemoved', ({ key }) => {
-        this.handleEntityRemoved(modelName, key)
+        void this.entityChangeBus.publish(modelName, { type: 'removed', id: key })
       }),
     ]
+
+    // Consume: a single bus subscription per model fans every change — local
+    // and remote — through `handleBroadcastChange`.
+    registration.busSubscription = this.entityChangeBus.subscribe(modelName, (envelope) =>
+      this.handleBroadcastChange(envelope),
+    )
 
     this.modelRegistrations.set(modelName, registration)
   }
 
-  private incrementVersion(registration: ModelRegistration): SyncVersion {
-    registration.currentSeq++
-    return {
-      seq: registration.currentSeq,
-      timestamp: new Date().toISOString(),
+  private handleBroadcastChange(envelope: EntityChangeEnvelope): void {
+    const { modelName, change, version, originId } = envelope
+    const { bus } = this.entityChangeBus
+    const key = dedupKey(modelName, originId)
+    const seen = this.dedup.get(key)
+    const now = Date.now()
+    if (seen && bus.compareSeq(version.seq, seen.seq) <= 0) {
+      // Refresh ts — entry is still hot — but drop the duplicate delivery.
+      seen.ts = now
+      return
     }
-  }
+    this.dedup.set(key, { seq: version.seq, ts: now })
 
-  private pruneChangelog(registration: ModelRegistration): void {
-    const cutoff = Date.now() - registration.changelogRetentionMs
-    registration.changelog = registration.changelog.filter(
-      (entry) => new Date(entry.version.timestamp).getTime() > cutoff,
-    )
-  }
+    const lastSeen = this.lastSeqByModel.get(modelName)
+    if (!lastSeen || bus.compareSeq(version.seq, lastSeen) > 0) {
+      this.lastSeqByModel.set(modelName, version.seq)
+    }
 
-  private handleEntityAdded(modelName: string, entity: Record<string, unknown>, entityKey: unknown): void {
     const registration = this.modelRegistrations.get(modelName)
     if (!registration) return
 
-    const version = this.incrementVersion(registration)
-    registration.changelog.push({ type: 'added', entity, version })
-    this.pruneChangelog(registration)
+    switch (change.type) {
+      case 'added':
+        this.dispatchAdded(registration, change, version)
+        break
+      case 'updated':
+        this.dispatchUpdated(registration, change, version)
+        break
+      case 'removed':
+        this.dispatchRemoved(registration, change, version)
+        break
+      default: {
+        // Exhaustiveness — every {@link EntityChange} variant must be
+        // dispatched explicitly. Adding a new variant without updating this
+        // switch will fail to compile.
+        const _exhaustive: never = change
+        void _exhaustive
+      }
+    }
+  }
 
+  private sweepDedup(): void {
+    const cutoff = Date.now() - DEDUP_IDLE_MS
+    for (const [key, value] of this.dedup) {
+      if (value.ts < cutoff) this.dedup.delete(key)
+    }
+  }
+
+  private dispatchAdded(
+    registration: ModelRegistration,
+    change: Extract<EntityChange, { type: 'added' }>,
+    version: SyncVersion,
+  ): void {
     for (const sub of this.subscriptions.values()) {
-      if (sub.modelName !== modelName) continue
+      if (sub.modelName !== registration.modelName) continue
 
-      if (sub.type === 'entity' && sub.key === entityKey) {
+      if (sub.type === 'entity' && sub.key === change.primaryKey) {
         const message: ServerSyncMessage = {
           type: 'entity-added',
           subscriptionId: sub.subscriptionId,
-          entity,
+          entity: change.entity,
           version,
         }
         this.dispatchEntityNotification(sub, message, registration)
@@ -301,23 +378,20 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     }
   }
 
-  private handleEntityUpdated(modelName: string, id: unknown, change: Record<string, unknown>): void {
-    const registration = this.modelRegistrations.get(modelName)
-    if (!registration) return
-
-    const version = this.incrementVersion(registration)
-    registration.changelog.push({ type: 'updated', id, change, version })
-    this.pruneChangelog(registration)
-
+  private dispatchUpdated(
+    registration: ModelRegistration,
+    change: Extract<EntityChange, { type: 'updated' }>,
+    version: SyncVersion,
+  ): void {
     for (const sub of this.subscriptions.values()) {
-      if (sub.modelName !== modelName) continue
+      if (sub.modelName !== registration.modelName) continue
 
-      if (sub.type === 'entity' && sub.key === id) {
+      if (sub.type === 'entity' && sub.key === change.id) {
         const message: ServerSyncMessage = {
           type: 'entity-updated',
           subscriptionId: sub.subscriptionId,
-          id,
-          change,
+          id: change.id,
+          change: change.change,
           version,
         }
         this.dispatchEntityNotification(sub, message, registration)
@@ -327,22 +401,19 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     }
   }
 
-  private handleEntityRemoved(modelName: string, key: unknown): void {
-    const registration = this.modelRegistrations.get(modelName)
-    if (!registration) return
-
-    const version = this.incrementVersion(registration)
-    registration.changelog.push({ type: 'removed', id: key, version })
-    this.pruneChangelog(registration)
-
+  private dispatchRemoved(
+    registration: ModelRegistration,
+    change: Extract<EntityChange, { type: 'removed' }>,
+    version: SyncVersion,
+  ): void {
     for (const sub of this.subscriptions.values()) {
-      if (sub.modelName !== modelName) continue
+      if (sub.modelName !== registration.modelName) continue
 
-      if (sub.type === 'entity' && sub.key === key) {
+      if (sub.type === 'entity' && sub.key === change.id) {
         const message: ServerSyncMessage = {
           type: 'entity-removed',
           subscriptionId: sub.subscriptionId,
-          id: key,
+          id: change.id,
           version,
         }
         this.dispatchEntityNotification(sub, message, registration)
@@ -359,7 +430,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
   ): void {
     if (registration.debounceMs === 0) {
       this.sendMessage(sub.socket, message)
-      sub.currentSeq = registration.currentSeq
+      sub.currentSeq = this.lastSeqByModel.get(registration.modelName) ?? sub.currentSeq
     } else {
       if (!this.pendingEntityMessages.has(sub.subscriptionId)) {
         this.pendingEntityMessages.set(sub.subscriptionId, [])
@@ -439,21 +510,21 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     }
 
     const hasChanges = this.hasCollectionChanged(sub.currentEntities, newEntities) || totalCount !== sub.lastTotalCount
+    const currentSeq = this.lastSeqByModel.get(registration.modelName) ?? INITIAL_SEQ
 
     if (hasChanges) {
-      const version: SyncVersion = { seq: registration.currentSeq, timestamp: new Date().toISOString() }
       this.sendMessage(sub.socket, {
         type: 'collection-snapshot',
         subscriptionId: sub.subscriptionId,
         data: results,
         totalCount,
-        version,
+        version: { seq: currentSeq, timestamp: new Date().toISOString() },
       })
     }
 
     sub.currentEntities = newEntities
     sub.lastTotalCount = totalCount
-    sub.currentSeq = registration.currentSeq
+    sub.currentSeq = currentSeq
   }
 
   private hasCollectionChanged(oldEntities: Map<unknown, unknown>, newEntities: Map<unknown, unknown>): boolean {
@@ -534,7 +605,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     requestId: string,
     modelName: string,
     key: unknown,
-    lastSeq?: number,
+    lastSeq?: string,
   ): Promise<void> {
     const registration = this.modelRegistrations.get(modelName)
     if (!registration) {
@@ -550,35 +621,20 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     try {
       const subscriptionId = `sub-${++this.subscriptionCounter}`
       subscriptionScope = await this.captureSubscriptionScope(clientInjector)
+      const currentSeq = this.lastSeqByModel.get(modelName) ?? INITIAL_SEQ
 
-      if (lastSeq !== undefined && registration.changelog.length > 0) {
-        const oldestEntry = registration.changelog[0]
-        if (oldestEntry.version.seq <= lastSeq + 1) {
-          const relevantChanges = registration.changelog.filter((entry) => {
-            if (entry.version.seq <= lastSeq) return false
-            if (entry.type === 'added') {
-              return (entry.entity as Record<string, unknown>)[registration.primaryKey] === key
-            }
-            return entry.id === key
-          })
-
-          this.storeEntitySubscription(
-            subscriptionId,
-            socket,
-            subscriptionScope,
-            modelName,
-            key,
-            registration.currentSeq,
-          )
-
+      if (lastSeq !== undefined) {
+        const delta = await this.tryDeltaForEntity(registration, key, lastSeq)
+        if (delta !== undefined) {
+          this.storeEntitySubscription(subscriptionId, socket, subscriptionScope, modelName, key, currentSeq)
           this.sendMessage(socket, {
             type: 'subscribed',
             requestId,
             subscriptionId,
             model: modelName,
             mode: 'delta',
-            changes: relevantChanges,
-            version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
+            changes: delta,
+            version: { seq: currentSeq, timestamp: new Date().toISOString() },
           })
           return
         }
@@ -586,7 +642,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
 
       const entity = await registration.getEntity(subscriptionScope, key)
 
-      this.storeEntitySubscription(subscriptionId, socket, subscriptionScope, modelName, key, registration.currentSeq)
+      this.storeEntitySubscription(subscriptionId, socket, subscriptionScope, modelName, key, currentSeq)
 
       this.sendMessage(socket, {
         type: 'subscribed',
@@ -595,7 +651,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         model: modelName,
         mode: 'snapshot',
         data: entity,
-        version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
+        version: { seq: currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {
       if (subscriptionScope) {
@@ -607,6 +663,41 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         error: error instanceof Error ? error.message : 'Unknown error',
       })
     }
+  }
+
+  /**
+   * Attempts to assemble a delta from the bus replay. Returns the entries
+   * that match `key` when the bus retains the full gap from `lastSeq`,
+   * `undefined` when the gap is too old (caller falls back to snapshot).
+   *
+   * Adapter-opaque seq tokens make a "is the next seq retained?" pre-check
+   * impossible without an adapter-specific successor operation, so we lean
+   * on the bus's own contract: {@link CrossNodeBus.replay} throws
+   * synchronously with {@link ReplayWindowExceededError} when `lastSeq`
+   * predates the retained window, which we map to the snapshot fallback.
+   */
+  private async tryDeltaForEntity(
+    registration: ModelRegistration,
+    key: unknown,
+    lastSeq: string,
+  ): Promise<SyncChangeEntry[] | undefined> {
+    if (this.changeLog.oldestSeq(registration.modelName) === undefined) return undefined
+    let iterable: AsyncIterable<SyncChangeEntry>
+    try {
+      iterable = this.changeLog.since(registration.modelName, lastSeq)
+    } catch (error) {
+      if (error instanceof ReplayWindowExceededError) return undefined
+      throw error
+    }
+    const collected: SyncChangeEntry[] = []
+    for await (const entry of iterable) {
+      if (entry.type === 'added') {
+        if ((entry.entity as Record<string, unknown>)[registration.primaryKey] === key) collected.push(entry)
+      } else if (entry.id === key) {
+        collected.push(entry)
+      }
+    }
+    return collected
   }
 
   public async subscribeCollection(
@@ -650,6 +741,8 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         currentEntities.set(key, entity)
       }
 
+      const currentSeq = this.lastSeqByModel.get(modelName) ?? INITIAL_SEQ
+
       const subscription: CollectionSubscription = {
         subscriptionId,
         socket,
@@ -660,7 +753,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         top,
         skip,
         order,
-        currentSeq: registration.currentSeq,
+        currentSeq,
         currentEntities,
         lastTotalCount: totalCount,
       }
@@ -677,7 +770,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
         mode: 'snapshot',
         data: results,
         totalCount,
-        version: { seq: registration.currentSeq, timestamp: new Date().toISOString() },
+        version: { seq: currentSeq, timestamp: new Date().toISOString() },
       })
     } catch (error) {
       if (subscriptionScope) {
@@ -697,7 +790,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     clientInjector: Injector,
     modelName: string,
     key: unknown,
-    currentSeq: number,
+    currentSeq: string,
   ): void {
     const subscription: EntitySubscription = {
       subscriptionId,
@@ -770,8 +863,7 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     return {
       modelName: reg.modelName,
       primaryKey: reg.primaryKey,
-      currentSeq: reg.currentSeq,
-      changelogLength: reg.changelog.length,
+      currentSeq: this.lastSeqByModel.get(modelName) ?? INITIAL_SEQ,
     }
   }
 
@@ -794,10 +886,12 @@ class SubscriptionManagerImpl implements SubscriptionManager {
   }
 
   public [Symbol.dispose](): void {
+    clearInterval(this.dedupTimer)
     for (const reg of this.modelRegistrations.values()) {
-      for (const sub of reg.eventSubscriptions) {
+      for (const sub of reg.dataSetSubscriptions) {
         sub[Symbol.dispose]()
       }
+      reg.busSubscription[Symbol.dispose]()
     }
 
     for (const timer of this.debounceTimers.values()) {
@@ -814,6 +908,8 @@ class SubscriptionManagerImpl implements SubscriptionManager {
     this.debounceTimers.clear()
     this.pendingEntityMessages.clear()
     this.queryCache.clear()
+    this.lastSeqByModel.clear()
+    this.dedup.clear()
   }
 }
 
@@ -831,9 +927,10 @@ class SubscriptionManagerImpl implements SubscriptionManager {
 export const SubscriptionManager: Token<SubscriptionManager, 'singleton'> = defineService({
   name: 'furystack/entity-sync-service/SubscriptionManager',
   lifetime: 'singleton',
-  factory: ({ injector, onDispose }): SubscriptionManager => {
+  factory: ({ injector, inject, onDispose }): SubscriptionManager => {
     const systemInjector = useSystemIdentityContext({ injector, username: 'SubscriptionManager' })
-    const manager = new SubscriptionManagerImpl(systemInjector, injector)
+    const entityChangeBus = inject(EntityChangeBus)
+    const manager = new SubscriptionManagerImpl(systemInjector, injector, entityChangeBus)
     onDispose(async () => {
       // eslint-disable-next-line furystack/prefer-using-wrapper -- onDispose is the teardown hook
       manager[Symbol.dispose]()

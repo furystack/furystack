@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { createInjector, type Injector } from '@furystack/inject'
 import { defineStore, IdentityContext, InMemoryStore, type StoreToken, type User } from '@furystack/core'
+import { CrossNodeBus, defineInProcessCrossNodeBus } from '@furystack/cross-node-bus'
 import { defineDataSet, type DataSetToken } from '@furystack/repository'
 import { usingAsync } from '@furystack/utils'
 import type { ServerSyncMessage } from '@furystack/entity-sync'
@@ -74,7 +75,7 @@ describe('SubscriptionManager', () => {
         const reg = manager.getModelRegistration('TestEntity')
         expect(reg).toBeDefined()
         expect(reg?.primaryKey).toBe('id')
-        expect(reg?.currentSeq).toBe(0)
+        expect(reg?.currentSeq).toBe('0')
       })
     })
 
@@ -149,7 +150,7 @@ describe('SubscriptionManager', () => {
 
         const msg = getSentMessages(socket)[0]
         if (msg.type === 'subscribed') {
-          expect(msg.version.seq).toBeGreaterThanOrEqual(0)
+          expect(typeof msg.version.seq).toBe('string')
           expect(msg.version.timestamp).toBeDefined()
         }
       })
@@ -261,7 +262,8 @@ describe('SubscriptionManager', () => {
         const messages = getSentMessages(socket)
         expect(messages).toHaveLength(2)
         if (messages[0].type === 'entity-updated' && messages[1].type === 'entity-updated') {
-          expect(messages[1].version.seq).toBeGreaterThan(messages[0].version.seq)
+          // In-process bus issues numeric-string seqs; numeric compare is safe within an adapter.
+          expect(Number(messages[1].version.seq)).toBeGreaterThan(Number(messages[0].version.seq))
         }
       })
     })
@@ -771,8 +773,7 @@ describe('SubscriptionManager', () => {
         await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
 
         const reg = manager.getModelRegistration('TestEntity')
-        expect(reg?.changelogLength).toBe(1)
-        expect(reg?.currentSeq).toBe(1)
+        expect(reg?.currentSeq).toBe('1')
       })
     })
 
@@ -783,7 +784,7 @@ describe('SubscriptionManager', () => {
         await updateEntity(dataSet, injector, '1', { name: 'Bob' })
 
         const socket = createMockSocket()
-        await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1', 0)
+        await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1', '0')
 
         const messages = getSentMessages(socket)
         expect(messages).toHaveLength(1)
@@ -795,17 +796,20 @@ describe('SubscriptionManager', () => {
       })
     })
 
-    it('should fall back to snapshot when changelog does not cover the gap', async () => {
-      await usingAsync(setupManager(), async ({ injector, manager, dataSet }) => {
-        manager.registerModel(TestEntityDataSet, { changelogRetentionMs: 0 })
+    it('should fall back to snapshot when the bus replay window does not cover the gap', async () => {
+      // A 1-message replay window guarantees the second write evicts the
+      // first, so a `lastSeq: '0'` request can no longer be served as a delta.
+      const injector = createInjector()
+      injector.bind(CrossNodeBus, defineInProcessCrossNodeBus({ replayWindow: 1 }))
+      await usingAsync(injector, async () => {
+        const manager = injector.get(SubscriptionManager)
+        const dataSet = injector.get(TestEntityDataSet)
+        manager.registerModel(TestEntityDataSet)
         await addEntity(dataSet, injector, { id: '1', name: 'Alice', category: 'A' })
-
-        await new Promise((resolve) => setTimeout(resolve, 10))
-
         await updateEntity(dataSet, injector, '1', { name: 'Bob' })
 
         const socket = createMockSocket()
-        await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1', 0)
+        await manager.subscribeEntity(socket as unknown as WebSocket, injector, 'req-1', 'TestEntity', '1', '0')
 
         const messages = getSentMessages(socket)
         expect(messages).toHaveLength(1)

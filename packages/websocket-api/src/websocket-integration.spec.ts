@@ -134,12 +134,19 @@ describe('WebSocket Integration tests', () => {
       const updatedWhoAmIResult = await getWhoAmIResult(authenticatedClient)
       expect(updatedWhoAmIResult.currentUser.roles).toEqual(['newFancyRole'])
 
+      // `cookieLogout` publishes `userLoggedOut` on the IdentityEventBus, which
+      // closes every websocket whose connect-time cookie carries the
+      // invalidated session id — locally and on every sibling node.
+      const closedPromise = new Promise<{ code: number }>((resolve) =>
+        authenticatedClient.once('close', (code) => resolve({ code })),
+      )
+
       await usingAsync(injector.createScope({ owner: 'ws-logout' }), async (logoutScope) => {
         await logoutScope.get(HttpUserContext).cookieLogout({ headers: { cookie } }, { setHeader: vi.fn() })
       })
 
-      const loggedOutWhoAmIResult = await getWhoAmIResult(authenticatedClient)
-      expect(loggedOutWhoAmIResult.currentUser).toBe(null)
+      const closed = await closedPromise
+      expect(closed.code).toBe(1008)
     })
   })
 })

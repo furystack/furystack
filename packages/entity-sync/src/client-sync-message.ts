@@ -10,7 +10,7 @@ export type ClientSyncMessage =
       requestId: string
       model: string
       key: unknown
-      lastSeq?: number
+      lastSeq?: string
     }
   | {
       type: 'subscribe-collection'
@@ -20,7 +20,7 @@ export type ClientSyncMessage =
       top?: number
       skip?: number
       order?: Record<string, 'ASC' | 'DESC'>
-      lastSeq?: number
+      lastSeq?: string
     }
   | {
       type: 'unsubscribe'

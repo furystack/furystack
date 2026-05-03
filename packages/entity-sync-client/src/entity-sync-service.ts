@@ -64,7 +64,7 @@ type LiveEntityInternal = {
   key: unknown
   requestId: string
   cacheKey: string
-  lastSeq?: number
+  lastSeq?: string
 }
 
 type LiveCollectionInternal = {
@@ -81,7 +81,7 @@ type LiveCollectionInternal = {
   requestId: string
   primaryKey?: string
   cacheKey: string
-  lastSeq?: number
+  lastSeq?: string
 }
 
 type LiveSubscriptionInternal = LiveEntityInternal | LiveCollectionInternal
@@ -797,7 +797,7 @@ export class EntitySyncService extends EventHub<EntitySyncServiceEvents> impleme
    * Persists subscription data to the local cache store (fire-and-forget).
    * Errors are silently ignored to avoid disrupting the sync flow.
    */
-  private persistToCache(cacheKey: string, modelName: string, data: unknown, lastSeq?: number): void {
+  private persistToCache(cacheKey: string, modelName: string, data: unknown, lastSeq?: string): void {
     if (!this.options.localStore || lastSeq == null) return
     const entry: SyncCacheEntry = {
       subscriptionKey: cacheKey,

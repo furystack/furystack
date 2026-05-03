@@ -9,6 +9,7 @@ import type { IncomingMessage } from 'http'
 import type { AuthenticationProvider } from './authentication-providers/authentication-provider.js'
 import { extractSessionIdFromCookies } from './authentication-providers/helpers.js'
 import { HttpAuthenticationSettings } from './http-authentication-settings.js'
+import { IdentityEventBus } from './identity-event-bus.js'
 import { resolveUserCacheKey, UserResolutionCache } from './user-resolution-cache.js'
 
 /**
@@ -80,6 +81,7 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     private readonly resolveAuthenticator: () => PasswordAuthenticator,
     private readonly systemInjector: Injector,
     private readonly userCache: UserResolutionCache,
+    private readonly identityEventBus: IdentityEventBus,
   ) {
     super()
   }
@@ -154,19 +156,16 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     const sessionId = this.getSessionIdFromRequest(request)
     response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
 
-    // Drop any cached identity for this session locally so the very next
-    // request sees the logout immediately. Sibling instances behind a load
-    // balancer still observe the old user until their TTL window elapses.
-    if (sessionId) {
-      this.userCache.invalidate(`cookie:${sessionId}`)
-    }
-
     if (sessionId) {
       const sessionDataSet = this.systemInjector.get(this.authentication.sessionDataSet)
       const sessions = await sessionDataSet.find(this.systemInjector, {
         filter: { sessionId: { $eq: sessionId } },
       })
       await sessionDataSet.remove(this.systemInjector, ...sessions.map((s) => s.sessionId))
+      // Cross-node identity invalidation: the facade applies the local cache
+      // drop synchronously, then broadcasts so siblings collapse the
+      // staleness window from `userCacheTtlMs` to bus latency.
+      await this.identityEventBus.publish({ type: 'userLoggedOut', sessionId })
     }
     this.emit('onLogout', undefined)
   }
@@ -194,10 +193,17 @@ export const HttpUserContext: Token<HttpUserContext, 'scoped'> = defineService({
   factory: ({ inject, injector, onDispose }): HttpUserContext => {
     const authentication = inject(HttpAuthenticationSettings)
     const userCache = inject(UserResolutionCache)
+    const identityEventBus = inject(IdentityEventBus)
     const systemInjector = useSystemIdentityContext({ injector, username: 'HttpUserContext' })
     onDispose(() => systemInjector[Symbol.asyncDispose]())
     // Password authenticator resolution is deferred: tests that exercise only
     // unauthenticated endpoints never have to bind credential stores.
-    return new HttpUserContextImpl(authentication, () => injector.get(PasswordAuthenticator), systemInjector, userCache)
+    return new HttpUserContextImpl(
+      authentication,
+      () => injector.get(PasswordAuthenticator),
+      systemInjector,
+      userCache,
+      identityEventBus,
+    )
   },
 })
