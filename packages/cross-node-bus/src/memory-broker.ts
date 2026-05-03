@@ -10,6 +10,15 @@ export type MemoryBrokerOptions = {
    * Defaults to `1000`. Must be a positive integer.
    */
   replayWindow?: number
+  /**
+   * Invoked synchronously every time the per-topic ring buffer drops a message
+   * to honor `replayWindow`. Receives the evicted message's `seq` and the new
+   * retained count after eviction. {@link InProcessCrossNodeBus} wires this to
+   * `onCrossNodeWindowEvicted` telemetry; tests and bespoke setups can supply a
+   * direct callback. Mirrors the broker-agnostic shape of `onSubscriberError`
+   * on {@link MemoryBroker.publish}.
+   */
+  onEviction?: (topic: string, evictedSeq: string, retainedCount: number) => void
 }
 
 const DEFAULT_REPLAY_WINDOW = 1000
@@ -37,6 +46,7 @@ type TopicState = {
  */
 export class MemoryBroker implements Disposable {
   readonly #replayWindow: number
+  readonly #onEviction: ((topic: string, evictedSeq: string, retainedCount: number) => void) | undefined
   readonly #topics: Map<string, TopicState> = new Map()
   #disposed = false
 
@@ -46,6 +56,7 @@ export class MemoryBroker implements Disposable {
       throw new RangeError(`MemoryBroker.replayWindow must be a positive integer, got ${String(replayWindow)}`)
     }
     this.#replayWindow = replayWindow
+    this.#onEviction = options.onEviction
   }
 
   public get replayWindow(): number {
@@ -79,7 +90,13 @@ export class MemoryBroker implements Disposable {
     }
     state.buffer.push(message)
     if (state.buffer.length > this.#replayWindow) {
-      state.buffer.shift()
+      const evicted = state.buffer.shift()
+      if (evicted && this.#onEviction) {
+        // `evicted.seq` is always defined for messages this broker minted —
+        // `BusMessage.seq` is optional only because non-sequencing adapters
+        // omit it. The non-null assertion is the cheapest narrowing here.
+        this.#onEviction(topic, evicted.seq as string, state.buffer.length)
+      }
     }
     for (const handler of state.handlers) {
       try {

@@ -74,10 +74,20 @@ export class InProcessCrossNodeBus implements CrossNodeBus {
 
   constructor(options: InProcessCrossNodeBusOptions = {}) {
     this.#ownsBroker = options.broker === undefined
-    this.#broker = options.broker ?? new MemoryBroker({ replayWindow: options.replayWindow })
     this.nodeId = options.nodeId ?? `local-${randomUUID()}`
     this.#topicPrefix = options.topicPrefix ?? ''
     this.#telemetry = options.telemetry
+    this.#broker =
+      options.broker ??
+      new MemoryBroker({
+        replayWindow: options.replayWindow,
+        onEviction: (wire, evictedSeq, retainedCount) =>
+          this.#telemetry?.emit('onCrossNodeWindowEvicted', {
+            topic: this.#displayTopicFor(wire),
+            evictedSeq,
+            retainedCount,
+          }),
+      })
   }
 
   public async publish(topic: string, payload: unknown): Promise<void> {
@@ -152,6 +162,21 @@ export class InProcessCrossNodeBus implements CrossNodeBus {
 
   #wireTopic(topic: string): string {
     return `${this.#topicPrefix}${topic}`
+  }
+
+  /**
+   * Reverse-resolve the caller-facing display topic for a wire topic. When
+   * local handlers exist their displayTopic is authoritative — `subscribe`
+   * always yields `prefix+t` and `subscribeForeign` always yields `p+t`, so
+   * the first entry is representative. Falls back to the wire string when no
+   * subscriber on this bus has registered (publish-only buses never need to
+   * round-trip a display name; the wire is the most accurate label).
+   */
+  #displayTopicFor(wire: string): string {
+    const handlers = this.#localHandlers.get(wire)
+    if (!handlers) return wire
+    const first = handlers.values().next().value
+    return first ? first.displayTopic : wire
   }
 
   #subscribeWire(

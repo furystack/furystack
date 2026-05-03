@@ -75,3 +75,19 @@ directly.
 | `topicPrefix`  | optional | `''`                       | Prefix applied to every wire topic.                          |
 | `replayWindow` | optional | `10_000`                   | Approximate `MAXLEN ~` per stream — Redis trims around this. |
 | `nodeId`       | optional | `${serviceName}-${random}` | Override for tests or deterministic ids.                     |
+
+### Cross-process smoke test
+
+`src/cross-process-smoke.spec.ts` (PRD M4) forks four worker processes (two
+services × two nodes) against the same Redis CI uses for the rest of the
+adapter integration suite, and asserts the four end-to-end scenarios:
+identity invalidation, entity-sync delivery with bus-stamped seq,
+replay-after-restart, and `subscribeForeign` opt-in.
+
+The spec runs as part of `yarn test` whenever Redis is reachable at
+`REDIS_URL` (default `redis://localhost:6379`). Children fork the package's
+compiled output, so locally you must `yarn workspace @furystack/redis-cross-node-bus build`
+once before running the spec in isolation; CI's `yarn build` step covers
+this automatically.
+
+Set `SMOKE_VERBOSE=1` for IPC tracing.

@@ -206,6 +206,52 @@ describe('MemoryBroker', () => {
     })
   })
 
+  describe('onEviction', () => {
+    it('fires once per shifted message with topic, evictedSeq, and retainedCount', () => {
+      const evictions: Array<{ topic: string; evictedSeq: string; retainedCount: number }> = []
+      using broker = new MemoryBroker({
+        replayWindow: 2,
+        onEviction: (topic, evictedSeq, retainedCount) => {
+          evictions.push({ topic, evictedSeq, retainedCount })
+        },
+      })
+      broker.publish('topic', 'origin-1', null) // seq 1
+      broker.publish('topic', 'origin-1', null) // seq 2
+      expect(evictions).toEqual([])
+      broker.publish('topic', 'origin-1', null) // seq 3 → evicts seq 1
+      broker.publish('topic', 'origin-1', null) // seq 4 → evicts seq 2
+      expect(evictions).toEqual([
+        { topic: 'topic', evictedSeq: '1', retainedCount: 2 },
+        { topic: 'topic', evictedSeq: '2', retainedCount: 2 },
+      ])
+    })
+
+    it('does not fire while the buffer is below replayWindow', () => {
+      const onEviction = vi.fn()
+      using broker = new MemoryBroker({ replayWindow: 5, onEviction })
+      for (let i = 0; i < 5; i += 1) broker.publish('topic', 'origin-1', null)
+      expect(onEviction).not.toHaveBeenCalled()
+    })
+
+    it('attributes evictions to the right topic when several are active', () => {
+      const evictions: Array<{ topic: string; evictedSeq: string }> = []
+      using broker = new MemoryBroker({
+        replayWindow: 1,
+        onEviction: (topic, evictedSeq) => {
+          evictions.push({ topic, evictedSeq })
+        },
+      })
+      broker.publish('a', 'origin-1', null) // seq a/1
+      broker.publish('b', 'origin-1', null) // seq b/1
+      broker.publish('a', 'origin-1', null) // evicts a/1
+      broker.publish('b', 'origin-1', null) // evicts b/1
+      expect(evictions).toEqual([
+        { topic: 'a', evictedSeq: '1' },
+        { topic: 'b', evictedSeq: '1' },
+      ])
+    })
+  })
+
   describe('disposal', () => {
     it('clears subscribers and rejects further calls', () => {
       const broker = new MemoryBroker()

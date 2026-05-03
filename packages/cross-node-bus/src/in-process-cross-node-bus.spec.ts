@@ -290,6 +290,58 @@ describe('InProcessCrossNodeBus', () => {
       }
     })
 
+    it('emits onCrossNodeWindowEvicted with displayTopic when a private broker rolls', async () => {
+      const telemetry = new CrossNodeBusTelemetry()
+      try {
+        using bus = new InProcessCrossNodeBus({ nodeId: 'a', telemetry, replayWindow: 2 })
+        const evictions: Array<{ topic: string; evictedSeq: string; retainedCount: number }> = []
+        using _sub = telemetry.subscribe('onCrossNodeWindowEvicted', (event) => {
+          evictions.push(event)
+        })
+        // No subscriber → displayTopic falls back to wire (= 'topic' here, no prefix)
+        await bus.publish('topic', null) // seq 1
+        await bus.publish('topic', null) // seq 2
+        await bus.publish('topic', null) // seq 3 → evicts seq 1
+        expect(evictions).toEqual([{ topic: 'topic', evictedSeq: '1', retainedCount: 2 }])
+      } finally {
+        telemetry[Symbol.dispose]()
+      }
+    })
+
+    it('attributes window-evicted topic to the original subscribe call when topicPrefix is set', async () => {
+      const telemetry = new CrossNodeBusTelemetry()
+      try {
+        using bus = new InProcessCrossNodeBus({ nodeId: 'a', telemetry, replayWindow: 2, topicPrefix: 'svc-a/' })
+        using _h = bus.subscribe('events', () => undefined)
+        const evictions: Array<{ topic: string }> = []
+        using _sub = telemetry.subscribe('onCrossNodeWindowEvicted', (event) => {
+          evictions.push({ topic: event.topic })
+        })
+        await bus.publish('events', null)
+        await bus.publish('events', null)
+        await bus.publish('events', null) // first eviction
+        expect(evictions).toEqual([{ topic: 'events' }])
+      } finally {
+        telemetry[Symbol.dispose]()
+      }
+    })
+
+    it('does not emit onCrossNodeWindowEvicted when the broker is supplied externally', async () => {
+      const telemetry = new CrossNodeBusTelemetry()
+      using broker = new MemoryBroker({ replayWindow: 2 })
+      try {
+        using bus = new InProcessCrossNodeBus({ broker, nodeId: 'a', telemetry })
+        const onEvicted = vi.fn()
+        using _sub = telemetry.subscribe('onCrossNodeWindowEvicted', onEvicted)
+        await bus.publish('topic', null)
+        await bus.publish('topic', null)
+        await bus.publish('topic', null)
+        expect(onEvicted).not.toHaveBeenCalled()
+      } finally {
+        telemetry[Symbol.dispose]()
+      }
+    })
+
     it('emits onCrossNodeError with phase=serialize when JSON.stringify throws', async () => {
       const telemetry = new CrossNodeBusTelemetry()
       try {

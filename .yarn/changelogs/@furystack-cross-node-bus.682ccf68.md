@@ -69,4 +69,6 @@ const [a, b, c] = network.buses
 
 ### Telemetry hooks
 
-`CrossNodeBusTelemetry` emits `onCrossNodePublished`, `onCrossNodeReceived`, and `onCrossNodeError` events with `topic`, `originId`, `byteLength` / `lagMs` / error-and-phase context — wire it into existing logging without touching adapter code. The shared sink is exposed via `CrossNodeBusTelemetryToken` so adapter factories (in-process or transport-specific) inject the same hub.
+`CrossNodeBusTelemetry` emits `onCrossNodePublished`, `onCrossNodeReceived`, `onCrossNodeError`, and `onCrossNodeWindowEvicted` events with `topic`, `originId`, `byteLength` / `lagMs` / error-and-phase / eviction context — wire it into existing logging without touching adapter code. The shared sink is exposed via `CrossNodeBusTelemetryToken` so adapter factories (in-process or transport-specific) inject the same hub.
+
+`onCrossNodeWindowEvicted` only fires for adapters that own their replay buffer (the in-process default today). Network-broker adapters that delegate trimming to the broker — Redis Streams' `MAXLEN`, NATS JetStream's max-bytes — cannot observe individual evictions on the client side; consumers needing that signal should read it from the broker's native metrics.

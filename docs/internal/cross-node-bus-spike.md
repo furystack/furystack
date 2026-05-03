@@ -936,12 +936,16 @@ sessionId })`. The facade is the single contract for "this is how you
       cross-bus), `subscribeRemoteOnly`, `topicPrefix` isolation,
       `subscribeForeign`, `replay`, `oldestSeq`, `compareSeq`, and
       `whenReady` for subscribe/publish race-free wiring.
-- [ ] Manual smoke-test harness with two Node processes against a
-      dockerized Redis verifies entity-sync + identity events
-      end-to-end. _Deferred from the M4 critical path; the
-      same-process two-bus integration test exercises the same code
-      paths and the multi-service smoke test in §M5 will cover the
-      cross-process shape end-to-end._
+- [x] Cross-process smoke test with two services × two nodes (four
+      `child_process.fork` workers) against the dockerized Redis CI uses
+      for the rest of the integration suite. Verifies identity events,
+      entity-sync delivery with bus-stamped seq, replay-after-restart, and
+      `subscribeForeign` end-to-end. Lives at
+      `packages/redis-cross-node-bus/src/cross-process-smoke.spec.ts`;
+      runs as part of `yarn test`. The "manual" framing in the original
+      spike was a misread — the existing redis-store / mongodb-store
+      integration tests already gate on a docker-compose'd broker, so this
+      one rides the same pattern.
 
 #### M4 implementation notes
 

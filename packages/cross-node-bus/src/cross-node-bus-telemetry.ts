@@ -24,6 +24,21 @@ export type CrossNodeBusTelemetryEvents = {
    */
   onCrossNodeReceived: { topic: string; originId: string; lagMs: number }
   onCrossNodeError: { topic: string; error: unknown; phase: CrossNodeBusErrorPhase }
+  /**
+   * Fired when an adapter that owns its replay buffer drops a retained
+   * message to honor the configured replay window. Operators alert on the
+   * trend so the window can be tuned before reconnecting clients start
+   * hitting `ReplayWindowExceededError`.
+   *
+   * Only adapters that own the buffer emit this signal — today that is
+   * {@link InProcessCrossNodeBus} via {@link MemoryBroker}. Network-broker
+   * adapters that delegate trimming to the broker (Redis Streams' `MAXLEN`,
+   * NATS JetStream's max-bytes) cannot observe individual evictions on the
+   * client side; consumers needing that signal should read it from the
+   * broker's native metrics (e.g. `redis_streams_length` from the Prom
+   * exporter).
+   */
+  onCrossNodeWindowEvicted: { topic: string; evictedSeq: string; retainedCount: number }
   onListenerError: ListenerErrorPayload
 }
 
