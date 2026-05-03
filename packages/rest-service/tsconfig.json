@@ -11,6 +11,7 @@
   "references": [
     { "path": "../cache" },
     { "path": "../core" },
+    { "path": "../cross-node-bus" },
     { "path": "../inject" },
     { "path": "../rest" },
     { "path": "../rest-client-fetch" },

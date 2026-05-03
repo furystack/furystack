@@ -810,18 +810,44 @@ state.
 
 ### Milestone 2 — `IdentityEventBus` facade (rest-service)
 
-- [ ] Define event union + token + factory.
-- [ ] Wire `HttpUserContext.cookieLogout` to publish.
-- [ ] Subscribe in the factory: on `userLoggedOut` /
+- [x] Define event union + token + factory.
+- [x] Wire `HttpUserContext.cookieLogout` to publish.
+- [x] Subscribe in the factory: on `userLoggedOut` /
       `sessionInvalidated` invalidate the local
       `UserResolutionCache` entry; on `userRolesChanged` /
       `userDeleted` / `passwordChanged` call `invalidateByUser`
       (added in M0.1).
-- [ ] Multi-node integration test (≥ 2 in-process bus instances)
+- [x] Multi-node integration test (≥ 2 in-process bus instances)
       proving cross-node identity invalidation.
-- [ ] (Stretch) on `userLoggedOut`, walk the
+- [x] (Stretch) on `userLoggedOut`, walk the
       `WebSocketApi.clients` map and close any sockets whose
       `request.headers.cookie` carries the invalidated `sessionId`.
+
+#### M2 implementation notes
+
+- The facade owns the local cache effect: `publish(event)` applies
+  invalidation synchronously **before** awaiting the bus, fires local
+  subscribers, then broadcasts. Sibling nodes receive via
+  `subscribeRemoteOnly` so own publishes never round-trip through the
+  transport — duplicate work is impossible. The wire format is one topic
+  (`identity/events`) with a discriminated payload; minimises broker
+  subscriptions on networked adapters.
+- `cookieLogout` no longer touches `userCache` or the cache-key helper
+  directly; it `await`s `identityEventBus.publish({ type: 'userLoggedOut',
+sessionId })`. The facade is the single contract for "this is how you
+  invalidate identity caches across the fleet."
+- WebSocket close-on-logout lives in `useWebSocketApi` (websocket-api
+  already depends on rest-service). Subscribes to the singleton
+  `IdentityEventBus`; `userLoggedOut` walks the `clients` map and closes
+  every socket whose connect-time cookie carries the invalidated session
+  id with WS code `1008`. Fires for local **and** remote logouts.
+- `IdentityEventBus` rolls a tiny typed listener registry inline rather
+  than composing `EventHub<T>` — TS cannot unify
+  `Extract<IdentityEvent, { type: TType }>` with the generic mapped
+  parameter of `EventHub.subscribe`, and the only alternative was
+  `as unknown as` which the project rules forbid. Listener error
+  isolation is handled in ~10 LOC via a try/catch loop. Per the spike's
+  §17 allowance.
 
 ### Milestone 3 — `EntityChangeBus` facade (entity-sync-service)
 

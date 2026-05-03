@@ -1,7 +1,15 @@
 import { AggregatedError, IdentityContext, type User } from '@furystack/core'
 import type { Injector, Token } from '@furystack/inject'
 import { defineService } from '@furystack/inject'
-import { HttpServerPoolToken, HttpUserContext, ServerTelemetryToken, type ServerApi } from '@furystack/rest-service'
+import {
+  extractSessionIdFromCookies,
+  HttpAuthenticationSettings,
+  HttpServerPoolToken,
+  HttpUserContext,
+  IdentityEventBus,
+  ServerTelemetryToken,
+  type ServerApi,
+} from '@furystack/rest-service'
 import { EventHub, type ListenerErrorPayload } from '@furystack/utils'
 import type { IncomingMessage } from 'http'
 import { URL } from 'url'
@@ -94,9 +102,25 @@ export const useWebSocketApi = async (options: UseWebSocketApiOptions): Promise<
   const telemetry = injector.get(ServerTelemetryToken)
   const pool = injector.get(HttpServerPoolToken)
   const cleanups = injector.get(WebSocketApiCleanupRegistry)
+  const authentication = injector.get(HttpAuthenticationSettings)
+  const identityEventBus = injector.get(IdentityEventBus)
 
   const socket = new WebSocketServer({ noServer: true })
   const clients = new Map<WebSocket, { injector: Injector; ws: WebSocket; message: IncomingMessage }>()
+
+  // Cross-node logout drops every websocket whose connect-time cookie carries
+  // the invalidated session id, on every node — fires for both local and
+  // remote `userLoggedOut` events.
+  const identitySubscription = identityEventBus.subscribe('userLoggedOut', ({ sessionId }) => {
+    for (const client of clients.values()) {
+      if (extractSessionIdFromCookies(client.message, authentication.cookieName) !== sessionId) continue
+      try {
+        client.ws.close(1008, 'Session invalidated')
+      } catch (error) {
+        telemetry.emit('onWebSocketActionFailed', { error, socket: client.ws })
+      }
+    }
+  })
 
   class WebSocketApiHub extends EventHub<WebSocketApiEvents> {}
   const handle = new WebSocketApiHub()
@@ -178,6 +202,7 @@ export const useWebSocketApi = async (options: UseWebSocketApiOptions): Promise<
   record.apis.push(serverApi)
 
   const cleanup = async (): Promise<void> => {
+    identitySubscription[Symbol.dispose]()
     socket.clients.forEach((client) => client.close())
     socket.clients.forEach((client) => client.terminate())
     await new Promise<void>((resolve, reject) => socket.close((err) => (err ? reject(err) : resolve())))
