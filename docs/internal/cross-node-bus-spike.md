@@ -770,16 +770,43 @@ state.
 
 ### Milestone 1 — Bus core & in-process adapter
 
-- [ ] Create `@furystack/cross-node-bus` package with the
+- [x] Create `@furystack/cross-node-bus` package with the
       `CrossNodeBus` token, `BusMessage` type, capabilities,
       `InProcessCrossNodeBus` default factory.
-- [ ] `subscribeRemoteOnly`, `subscribeForeign`, `replay` (ring buffer).
-- [ ] Telemetry hooks (`onCrossNodePublished` /
-      `onCrossNodeReceived` / `onCrossNodeError`).
-- [ ] `@furystack/cross-node-bus/testing` subpath with a two-instance
-      in-process harness.
-- [ ] Unit tests covering subscribe/publish, multiple subscribers,
-      disposal, originId, error isolation, replay window.
+- [x] `subscribeRemoteOnly`, `subscribeForeign`, `replay` (ring buffer).
+- [x] Telemetry hooks (`onCrossNodePublished` /
+      `onCrossNodeReceived` / `onCrossNodeError`) via a dedicated
+      singleton `CrossNodeBusTelemetryToken` so adapter factories can
+      `inject(...)` it from a `bind`-installed factory; rest-service
+      forwarders bridge to `ServerTelemetryToken` later.
+- [x] `@furystack/cross-node-bus/testing` subpath with an N-instance
+      in-process harness (`createInProcessBusNetwork`) backed by a
+      shared `MemoryBroker` — the public bus + a private broker fall
+      out as the natural single-instance case.
+- [x] Unit tests covering subscribe/publish, multiple subscribers,
+      disposal, originId, error isolation, replay window. Coverage on
+      `packages/cross-node-bus/src`: 99 % statements, 100 % functions,
+      100 % lines.
+
+#### M1 implementation notes
+
+- `InProcessCrossNodeBus` multiplexes local fan-out: regardless of how
+  many handlers subscribe to the same wire topic, the bus opens one
+  broker subscription and dispatches arrivals to its own handler set.
+  Keeps `onCrossNodeReceived` counting one event per arrival — not one
+  per handler invocation — and mirrors the consumer-group shape future
+  network adapters use.
+- The `MemoryBroker` is a separately-exported class. Single-instance
+  buses mint a private broker; the testing harness shares one across N
+  buses. Apps can also instantiate a broker and pass it to multiple
+  bus instances directly when they need that shape outside tests.
+- `subscribeForeign` resolves to `${prefix}${topic}` against the
+  broker's flat topic table — multi-service simulations against a
+  single shared broker work without an external transport.
+- `nodeId` defaults to `local-${crypto.randomUUID()}`. Apps that want
+  a service-prefixed id (e.g. for telemetry attribution) pass
+  `nodeId` to `defineInProcessCrossNodeBus({ nodeId: ... })`.
+  `serviceName`-driven generation lands with the Redis adapter (M4).
 
 ### Milestone 2 — `IdentityEventBus` facade (rest-service)
 

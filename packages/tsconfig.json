@@ -78,6 +78,9 @@
       "path": "./cache"
     },
     {
+      "path": "./cross-node-bus"
+    },
+    {
       "path": "./entity-sync"
     },
     {

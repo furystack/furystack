@@ -16,6 +16,7 @@ export default defineConfig({
             'packages/utils/**/*.spec.ts',
             'packages/cache/**/*.spec.ts',
             'packages/core/**/*.spec.ts',
+            'packages/cross-node-bus/src/**/*.spec.ts',
             'packages/inject/src/**/*.spec.ts',
             'packages/logging/src/**/*.spec.ts',
             'packages/repository/src/**/*.spec.ts',
