@@ -867,7 +867,7 @@ sessionId })`. The facade is the single contract for "this is how you
       synchronously on call so the "delta vs snapshot" decision stays
       a try/catch around the call site.
 - [x] Server-side seq dedup with TTL eviction (`Map<\`${modelName}\0${originId}\`, …>`,
-  5 min sweep, 1 h idle threshold; timer is `unref`-ed).
+5 min sweep, 1 h idle threshold; timer is `unref`-ed).
 - [x] Verify all existing tests pass — single-node story unchanged.
 - [x] Multi-node integration test (≥ 2 in-process bus instances)
       proving cross-node entity-change delivery and replay.
@@ -920,16 +920,65 @@ sessionId })`. The facade is the single contract for "this is how you
 
 ### Milestone 4 — Redis Streams adapter
 
-- [ ] `@furystack/redis-cross-node-bus` package using Redis Streams
-      (`XADD` / `XREAD` consumer groups for per-node delivery).
-- [ ] Capability flags reflect persistence / replay / sequencing.
-- [ ] Adapter constructor accepts `{ url, topicPrefix, serviceName, replayWindow }`;
-      `nodeId` defaults to `${serviceName}-${random}`.
-- [ ] Integration tests gated on `docker-compose up redis` (existing
-      pattern).
+- [x] `@furystack/redis-cross-node-bus` package using Redis Streams
+      (`XADD` for publish, plain `XREAD` with per-bus cursors for
+      broadcast; no consumer groups — every node tracks its own cursor
+      so dead nodes leave no orphan groups behind).
+- [x] Capability flags reflect persistence / replay / sequencing.
+- [x] Adapter constructor accepts `{ client, serviceName, topicPrefix, replayWindow, nodeId }`;
+      `nodeId` defaults to `${serviceName}-${random}`. Caller owns the
+      `redis` client lifecycle (mirrors `@furystack/redis-store`); the
+      adapter `.duplicate()`s the client for the blocking `XREAD` loop
+      and quits the duplicate on `[Symbol.asyncDispose]`.
+- [x] Integration tests gated on a reachable Redis at `REDIS_URL`
+      (default `redis://localhost:6379`) — same shape as
+      `@furystack/redis-store`. Covers publish / subscribe (single +
+      cross-bus), `subscribeRemoteOnly`, `topicPrefix` isolation,
+      `subscribeForeign`, `replay`, `oldestSeq`, `compareSeq`, and
+      `whenReady` for subscribe/publish race-free wiring.
 - [ ] Manual smoke-test harness with two Node processes against a
       dockerized Redis verifies entity-sync + identity events
-      end-to-end.
+      end-to-end. _Deferred from the M4 critical path; the
+      same-process two-bus integration test exercises the same code
+      paths and the multi-service smoke test in §M5 will cover the
+      cross-process shape end-to-end._
+
+#### M4 implementation notes
+
+- **No consumer groups.** Redis Streams' broadcast pattern is plain
+  `XREAD` with per-consumer cursor tracking. Consumer groups would
+  buy nothing (every node already wants every message) and would
+  leave orphan groups behind on every dead node.
+- **One read connection per adapter.** A single background loop
+  multiplexes `XREAD STREAMS s1 s2 … id1 id2 …` across every
+  subscribed wire topic. Subscriber count does not scale read
+  connections.
+- **Subscribe is asynchronous in the wire sense.** `subscribe(...)`
+  returns a `Disposable` synchronously, but the cursor for that wire
+  is initialised asynchronously via `XINFO STREAM`. Production
+  subscribers register at boot and have plenty of time before the
+  first publish; tests publishing immediately afterwards `await
+bus.whenReady(topic)` first. The race window is documented on the
+  class JsDoc and is deliberately not papered over with
+  consumer-group bookkeeping.
+- **`compareSeq` splits Redis stream IDs (`<ms>-<seq>`) and compares
+  numerically.** Lexicographic comparison would mis-order `'9-0'` vs
+  `'10-0'`; the helper is exported as
+  `compareRedisStreamId` for direct use.
+- **Sync `ReplayWindowExceededError`.** `replay()` checks against a
+  best-effort `oldestSeqCache` populated from `XINFO STREAM` at
+  subscribe time (and updated on every received message). If the
+  cache says `fromSeq` is older than the retained floor, `replay()`
+  throws synchronously — matching the in-process adapter contract so
+  facades keep one branching pattern.
+- **Wire format: four `XADD` fields** (`v`, `originId`, `emittedAt`,
+  `payload`) instead of a single JSON blob. Cleaner inspection from
+  `redis-cli` (`XRANGE topic - + COUNT 1`); only the payload is
+  JSON-parsed on receive.
+- **Async dispose for the duplicated client.** `[Symbol.dispose]`
+  does best-effort `client.destroy()` (sync) and `[Symbol.asyncDispose]`
+  awaits a clean `client.quit()`. The factory wires the async path
+  via `onDispose`.
 
 ### Milestone 5 — Multi-service smoke test
 

@@ -27,6 +27,9 @@
       "path": "./mongodb-store"
     },
     {
+      "path": "./redis-cross-node-bus"
+    },
+    {
       "path": "./redis-store"
     },
     {
