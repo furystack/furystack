@@ -6,8 +6,8 @@ export type SyncCacheEntry = {
   subscriptionKey: string
   /** Wire name of the model (derived from constructor.name) */
   model: string
-  /** Last received sequence number from the server */
-  lastSeq: number
+  /** Last received seq token from the server (opaque, see {@link SyncVersion.seq}). */
+  lastSeq: string
   /** Cached entity data (single entity or entity array) */
   data: unknown
   /** ISO 8601 timestamp of when this cache entry was last updated */

@@ -85,7 +85,7 @@ const setupClient = (options?: {
 }
 
 /** Simulates a successful subscribe-entity handshake and returns the requestId */
-const subscribeAndRespond = (mockWs: MockWebSocket, subscriptionId: string, data: unknown, seq = 1) => {
+const subscribeAndRespond = (mockWs: MockWebSocket, subscriptionId: string, data: unknown, seq = '1') => {
   const sentMsg = getSentMessages(mockWs).at(-1)
   if (sentMsg?.type === 'subscribe-entity') {
     mockWs.simulateMessage({
@@ -107,7 +107,7 @@ const subscribeCollectionAndRespond = (
   data: unknown[],
   primaryKey: string,
   model = 'ChatMessage',
-  seq = 1,
+  seq = '1',
   totalCount?: number,
 ) => {
   const sentMsg = getSentMessages(mockWs).at(-1)
@@ -316,7 +316,7 @@ describe('EntitySyncService', () => {
           ],
           'id',
           'ChatMessage',
-          1,
+          '1',
           42,
         )
 
@@ -339,7 +339,7 @@ describe('EntitySyncService', () => {
           [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
           'id',
           'ChatMessage',
-          1,
+          '1',
           10,
         )
 
@@ -369,7 +369,7 @@ describe('EntitySyncService', () => {
             { id: 'msg-2', text: 'World', roomId: 'room-1' },
           ],
           totalCount: 2,
-          version: { seq: 2, timestamp: new Date().toISOString() },
+          version: { seq: '2', timestamp: new Date().toISOString() },
         })
 
         const state = live.state.getValue()
@@ -392,7 +392,7 @@ describe('EntitySyncService', () => {
           subscriptionId: 'sub-1',
           data: [{ id: 'msg-1', text: 'Updated', roomId: 'room-1' }],
           totalCount: 1,
-          version: { seq: 2, timestamp: new Date().toISOString() },
+          version: { seq: '2', timestamp: new Date().toISOString() },
         })
 
         const state = live.state.getValue()
@@ -423,7 +423,7 @@ describe('EntitySyncService', () => {
           subscriptionId: 'sub-1',
           data: [{ id: 'msg-2', text: 'World', roomId: 'room-1' }],
           totalCount: 1,
-          version: { seq: 2, timestamp: new Date().toISOString() },
+          version: { seq: '2', timestamp: new Date().toISOString() },
         })
 
         const state = live.state.getValue()
@@ -455,15 +455,15 @@ describe('EntitySyncService', () => {
               {
                 type: 'added',
                 entity: { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
-                version: { seq: 1, timestamp: new Date().toISOString() },
+                version: { seq: '1', timestamp: new Date().toISOString() },
               },
               {
                 type: 'added',
                 entity: { id: 'msg-2', text: 'World', roomId: 'room-1' },
-                version: { seq: 2, timestamp: new Date().toISOString() },
+                version: { seq: '2', timestamp: new Date().toISOString() },
               },
             ],
-            version: { seq: 2, timestamp: new Date().toISOString() },
+            version: { seq: '2', timestamp: new Date().toISOString() },
           })
         }
 
@@ -483,7 +483,7 @@ describe('EntitySyncService', () => {
       await localStore.set(collectionKey, {
         subscriptionKey: collectionKey,
         model: 'ChatMessage',
-        lastSeq: 5,
+        lastSeq: '5',
         data: {
           entries: [
             { id: 'msg-1', text: 'Hello', roomId: 'room-1' },
@@ -516,20 +516,20 @@ describe('EntitySyncService', () => {
                 type: 'updated',
                 id: 'msg-2',
                 change: { text: 'Updated World' },
-                version: { seq: 6, timestamp: new Date().toISOString() },
+                version: { seq: '6', timestamp: new Date().toISOString() },
               },
               {
                 type: 'removed',
                 id: 'msg-3',
-                version: { seq: 7, timestamp: new Date().toISOString() },
+                version: { seq: '7', timestamp: new Date().toISOString() },
               },
               {
                 type: 'added',
                 entity: { id: 'msg-4', text: 'New', roomId: 'room-1' },
-                version: { seq: 8, timestamp: new Date().toISOString() },
+                version: { seq: '8', timestamp: new Date().toISOString() },
               },
             ],
-            version: { seq: 8, timestamp: new Date().toISOString() },
+            version: { seq: '8', timestamp: new Date().toISOString() },
           })
         }
 
@@ -720,7 +720,7 @@ describe('EntitySyncService', () => {
         await usingAsync(setupClient(), async ({ mockWs, service }) => {
           mockWs.simulateOpen()
           const live1 = service.subscribeEntity(User, '123')
-          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 5)
+          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, '5')
 
           live1[Symbol.dispose]()
           vi.advanceTimersByTime(1500)
@@ -731,7 +731,7 @@ describe('EntitySyncService', () => {
           const resubMsg = getSentMessages(mockWs)[0]
           expect(resubMsg.type).toBe('subscribe-entity')
           if (resubMsg.type === 'subscribe-entity') {
-            expect(resubMsg.lastSeq).toBe(5)
+            expect(resubMsg.lastSeq).toBe('5')
           }
         })
       } finally {
@@ -752,7 +752,7 @@ describe('EntitySyncService', () => {
           subscriptionId: 'sub-1',
           id: '123',
           change: { name: 'Jane' },
-          version: { seq: 2, timestamp: new Date().toISOString() },
+          version: { seq: '2', timestamp: new Date().toISOString() },
         })
 
         const state = liveEntity.state.getValue()
@@ -773,7 +773,7 @@ describe('EntitySyncService', () => {
           type: 'entity-added',
           subscriptionId: 'sub-1',
           entity: { id: '123', name: 'John' },
-          version: { seq: 1, timestamp: new Date().toISOString() },
+          version: { seq: '1', timestamp: new Date().toISOString() },
         })
 
         const state = liveEntity.state.getValue()
@@ -794,7 +794,7 @@ describe('EntitySyncService', () => {
           type: 'entity-removed',
           subscriptionId: 'sub-1',
           id: '123',
-          version: { seq: 2, timestamp: new Date().toISOString() },
+          version: { seq: '2', timestamp: new Date().toISOString() },
         })
 
         const state = liveEntity.state.getValue()
@@ -909,7 +909,7 @@ describe('EntitySyncService', () => {
       await localStore.set('User:123', {
         subscriptionKey: 'User:123',
         model: 'User',
-        lastSeq: 3,
+        lastSeq: '3',
         data: { id: '123', name: 'Cached John' },
         timestamp: new Date().toISOString(),
       })
@@ -938,7 +938,7 @@ describe('EntitySyncService', () => {
       await localStore.set('User:123', {
         subscriptionKey: 'User:123',
         model: 'User',
-        lastSeq: 7,
+        lastSeq: '7',
         data: { id: '123', name: 'Cached' },
         timestamp: new Date().toISOString(),
       })
@@ -953,7 +953,7 @@ describe('EntitySyncService', () => {
         const sentMsg = getSentMessages(mockWs).at(-1)
         expect(sentMsg?.type).toBe('subscribe-entity')
         if (sentMsg?.type === 'subscribe-entity') {
-          expect(sentMsg.lastSeq).toBe(7)
+          expect(sentMsg.lastSeq).toBe('7')
         }
       })
     })
@@ -968,14 +968,14 @@ describe('EntitySyncService', () => {
         // Wait for async cache lookup + subscribe message
         await new Promise((resolve) => setTimeout(resolve, 0))
 
-        subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 5)
+        subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, '5')
 
         // Wait for async persistence
         await new Promise((resolve) => setTimeout(resolve, 0))
 
         const cached = await localStore.get('User:123')
         expect(cached).toBeDefined()
-        expect(cached!.lastSeq).toBe(5)
+        expect(cached!.lastSeq).toBe('5')
         expect(cached!.data).toEqual({ id: '123', name: 'John' })
         expect(cached!.model).toBe('User')
       })
@@ -991,14 +991,14 @@ describe('EntitySyncService', () => {
         // Wait for async cache lookup + subscribe message
         await new Promise((resolve) => setTimeout(resolve, 0))
 
-        subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 1)
+        subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, '1')
 
         mockWs.simulateMessage({
           type: 'entity-updated',
           subscriptionId: 'sub-1',
           id: '123',
           change: { name: 'Jane' },
-          version: { seq: 2, timestamp: new Date().toISOString() },
+          version: { seq: '2', timestamp: new Date().toISOString() },
         })
 
         // Wait for async persistence
@@ -1006,7 +1006,7 @@ describe('EntitySyncService', () => {
 
         const cached = await localStore.get('User:123')
         expect(cached).toBeDefined()
-        expect(cached!.lastSeq).toBe(2)
+        expect(cached!.lastSeq).toBe('2')
         expect(cached!.data).toEqual({ id: '123', name: 'Jane' })
       })
     })
@@ -1021,20 +1021,20 @@ describe('EntitySyncService', () => {
         // Wait for async cache lookup + subscribe message
         await new Promise((resolve) => setTimeout(resolve, 0))
 
-        subscribeAndRespond(mockWs, 'sub-1', undefined, 0)
+        subscribeAndRespond(mockWs, 'sub-1', undefined, '0')
 
         mockWs.simulateMessage({
           type: 'entity-added',
           subscriptionId: 'sub-1',
           entity: { id: '123', name: 'New User' },
-          version: { seq: 1, timestamp: new Date().toISOString() },
+          version: { seq: '1', timestamp: new Date().toISOString() },
         })
 
         await new Promise((resolve) => setTimeout(resolve, 0))
 
         const cached = await localStore.get('User:123')
         expect(cached).toBeDefined()
-        expect(cached!.lastSeq).toBe(1)
+        expect(cached!.lastSeq).toBe('1')
         expect(cached!.data).toEqual({ id: '123', name: 'New User' })
       })
     })
@@ -1049,20 +1049,20 @@ describe('EntitySyncService', () => {
         // Wait for async cache lookup + subscribe message
         await new Promise((resolve) => setTimeout(resolve, 0))
 
-        subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 1)
+        subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, '1')
 
         mockWs.simulateMessage({
           type: 'entity-removed',
           subscriptionId: 'sub-1',
           id: '123',
-          version: { seq: 2, timestamp: new Date().toISOString() },
+          version: { seq: '2', timestamp: new Date().toISOString() },
         })
 
         await new Promise((resolve) => setTimeout(resolve, 0))
 
         const cached = await localStore.get('User:123')
         expect(cached).toBeDefined()
-        expect(cached!.lastSeq).toBe(2)
+        expect(cached!.lastSeq).toBe('2')
         expect(cached!.data).toBeUndefined()
       })
     })
@@ -1083,7 +1083,7 @@ describe('EntitySyncService', () => {
           [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
           'id',
           'ChatMessage',
-          3,
+          '3',
         )
 
         // Wait for async persistence
@@ -1092,7 +1092,7 @@ describe('EntitySyncService', () => {
         // JSON.stringify omits undefined values, so the key is '{}'
         const cached = await localStore.get('ChatMessage:collection:{}')
         expect(cached).toBeDefined()
-        expect(cached!.lastSeq).toBe(3)
+        expect(cached!.lastSeq).toBe('3')
         expect(cached!.data).toEqual({ entries: [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }], count: 1 })
       })
     })
@@ -1103,7 +1103,7 @@ describe('EntitySyncService', () => {
       await localStore.set(collectionKey, {
         subscriptionKey: collectionKey,
         model: 'ChatMessage',
-        lastSeq: 5,
+        lastSeq: '5',
         data: { entries: [{ id: 'msg-1', text: 'Stale', roomId: 'room-1' }], count: 1 },
         timestamp: new Date().toISOString(),
       })
@@ -1124,7 +1124,7 @@ describe('EntitySyncService', () => {
         const sentMsg = getSentMessages(mockWs).at(-1)
         expect(sentMsg?.type).toBe('subscribe-collection')
         if (sentMsg?.type === 'subscribe-collection') {
-          expect(sentMsg.lastSeq).toBe(5)
+          expect(sentMsg.lastSeq).toBe('5')
         }
       })
     })
@@ -1134,7 +1134,7 @@ describe('EntitySyncService', () => {
       await localStore.set('User:123', {
         subscriptionKey: 'User:123',
         model: 'User',
-        lastSeq: 3,
+        lastSeq: '3',
         data: { id: '123', name: 'Stale Name' },
         timestamp: new Date().toISOString(),
       })
@@ -1157,7 +1157,7 @@ describe('EntitySyncService', () => {
             model: 'User',
             mode: 'snapshot',
             data: { id: '123', name: 'Fresh Name' },
-            version: { seq: 10, timestamp: new Date().toISOString() },
+            version: { seq: '10', timestamp: new Date().toISOString() },
           })
         }
 
@@ -1174,7 +1174,7 @@ describe('EntitySyncService', () => {
       await localStore.set('User:123', {
         subscriptionKey: 'User:123',
         model: 'User',
-        lastSeq: 5,
+        lastSeq: '5',
         data: { id: '123', name: 'Cached Name', email: 'old@example.com' },
         timestamp: new Date().toISOString(),
       })
@@ -1201,10 +1201,10 @@ describe('EntitySyncService', () => {
                 type: 'updated',
                 id: '123',
                 change: { name: 'Updated Name' },
-                version: { seq: 6, timestamp: new Date().toISOString() },
+                version: { seq: '6', timestamp: new Date().toISOString() },
               },
             ],
-            version: { seq: 6, timestamp: new Date().toISOString() },
+            version: { seq: '6', timestamp: new Date().toISOString() },
           })
         }
 
@@ -1228,7 +1228,7 @@ describe('EntitySyncService', () => {
           // Wait for async cache lookup + subscribe message
           await vi.advanceTimersByTimeAsync(0)
 
-          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 3)
+          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, '3')
 
           live[Symbol.dispose]()
           await vi.advanceTimersByTimeAsync(1500)
@@ -1238,7 +1238,7 @@ describe('EntitySyncService', () => {
 
           const cached = await localStore.get('User:123')
           expect(cached).toBeDefined()
-          expect(cached!.lastSeq).toBe(3)
+          expect(cached!.lastSeq).toBe('3')
           expect(cached!.data).toEqual({ id: '123', name: 'John' })
         })
       } finally {
@@ -1288,7 +1288,7 @@ describe('EntitySyncService', () => {
       const entry: SyncCacheEntry = {
         subscriptionKey: 'User:1',
         model: 'User',
-        lastSeq: 5,
+        lastSeq: '5',
         data: { id: '1', name: 'Test' },
         timestamp: new Date().toISOString(),
       }
@@ -1310,7 +1310,7 @@ describe('EntitySyncService', () => {
       await store.set('User:1', {
         subscriptionKey: 'User:1',
         model: 'User',
-        lastSeq: 1,
+        lastSeq: '1',
         data: { id: '1', name: 'Old' },
         timestamp: new Date().toISOString(),
       })
@@ -1318,13 +1318,13 @@ describe('EntitySyncService', () => {
       await store.set('User:1', {
         subscriptionKey: 'User:1',
         model: 'User',
-        lastSeq: 2,
+        lastSeq: '2',
         data: { id: '1', name: 'New' },
         timestamp: new Date().toISOString(),
       })
 
       const retrieved = await store.get('User:1')
-      expect(retrieved?.lastSeq).toBe(2)
+      expect(retrieved?.lastSeq).toBe('2')
       expect(retrieved?.data).toEqual({ id: '1', name: 'New' })
     })
   })
@@ -1398,7 +1398,7 @@ describe('EntitySyncService', () => {
           firstWs.simulateOpen()
 
           const liveEntity = service.subscribeEntity(User, '123')
-          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, 5)
+          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, '5')
           expect(liveEntity.state.getValue().status).toBe('synced')
 
           // Connection drops
@@ -1417,7 +1417,7 @@ describe('EntitySyncService', () => {
           if (sentMsgs[0].type === 'subscribe-entity') {
             expect(sentMsgs[0].model).toBe('User')
             expect(sentMsgs[0].key).toBe('123')
-            expect(sentMsgs[0].lastSeq).toBe(5)
+            expect(sentMsgs[0].lastSeq).toBe('5')
           }
         })
       } finally {
@@ -1439,7 +1439,7 @@ describe('EntitySyncService', () => {
             [{ id: 'msg-1', text: 'Hello', roomId: 'room-1' }],
             'id',
             'ChatMessage',
-            3,
+            '3',
           )
           expect(live.state.getValue().status).toBe('synced')
 
@@ -1457,7 +1457,7 @@ describe('EntitySyncService', () => {
           expect(sentMsgs[0].type).toBe('subscribe-collection')
           if (sentMsgs[0].type === 'subscribe-collection') {
             expect(sentMsgs[0].model).toBe('ChatMessage')
-            expect(sentMsgs[0].lastSeq).toBe(3)
+            expect(sentMsgs[0].lastSeq).toBe('3')
           }
         })
       } finally {
@@ -1505,7 +1505,7 @@ describe('EntitySyncService', () => {
           firstWs.simulateOpen()
 
           const liveEntity = service.subscribeEntity(User, '123')
-          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, 5)
+          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, '5')
           expect(liveEntity.state.getValue().status).toBe('synced')
 
           // Connection drops
@@ -1531,7 +1531,7 @@ describe('EntitySyncService', () => {
               model: 'User',
               mode: 'snapshot',
               data: { id: '123', name: 'Updated John' },
-              version: { seq: 10, timestamp: new Date().toISOString() },
+              version: { seq: '10', timestamp: new Date().toISOString() },
             })
           }
 
@@ -1641,7 +1641,7 @@ describe('EntitySyncService', () => {
 
           // Subscribe entity on first connection
           const live1 = service.subscribeEntity(User, '123')
-          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, 5)
+          subscribeAndRespond(firstWs, 'sub-1', { id: '123', name: 'John' }, '5')
 
           // Connection drops
           firstWs.simulateClose()
@@ -1736,7 +1736,7 @@ describe('EntitySyncService', () => {
         await usingAsync(setupClient(), async ({ mockWs, service }) => {
           mockWs.simulateOpen()
           const live = service.subscribeEntity(User, '123')
-          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, 1)
+          subscribeAndRespond(mockWs, 'sub-1', { id: '123', name: 'John' }, '1')
 
           const rollback = service.applyOptimisticEntityUpdate(User, '123', { name: 'Optimistic' })
 
@@ -1746,7 +1746,7 @@ describe('EntitySyncService', () => {
             subscriptionId: 'sub-1',
             id: '123',
             change: { name: 'Server Updated' },
-            version: { seq: 2, timestamp: new Date().toISOString() },
+            version: { seq: '2', timestamp: new Date().toISOString() },
           })
 
           // Rollback should be a no-op
@@ -1933,7 +1933,7 @@ describe('EntitySyncService', () => {
             subscriptionId: 'sub-1',
             data: [{ id: 'msg-2', text: 'World', roomId: 'room-1' }],
             totalCount: 1,
-            version: { seq: 2, timestamp: new Date().toISOString() },
+            version: { seq: '2', timestamp: new Date().toISOString() },
           })
 
           // Rollback should be a no-op

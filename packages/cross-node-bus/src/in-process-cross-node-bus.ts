@@ -128,6 +128,15 @@ export class InProcessCrossNodeBus implements CrossNodeBus {
     }
   }
 
+  public compareSeq(a: string, b: string): number {
+    return Number(a) - Number(b)
+  }
+
+  public oldestSeq(topic: string): string | undefined {
+    this.#ensureLive()
+    return this.#broker.oldestSeq(this.#wireTopic(topic))
+  }
+
   public [Symbol.dispose](): void {
     if (this.#disposed) return
     this.#disposed = true

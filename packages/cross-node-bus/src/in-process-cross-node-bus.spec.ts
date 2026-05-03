@@ -310,6 +310,38 @@ describe('InProcessCrossNodeBus', () => {
     })
   })
 
+  describe('compareSeq', () => {
+    it('returns negative, zero, positive for a<b, a==b, a>b', () => {
+      using bus = new InProcessCrossNodeBus()
+      expect(bus.compareSeq('1', '2')).toBeLessThan(0)
+      expect(bus.compareSeq('5', '5')).toBe(0)
+      expect(bus.compareSeq('10', '2')).toBeGreaterThan(0)
+    })
+  })
+
+  describe('oldestSeq', () => {
+    it('returns undefined before any publish', () => {
+      using bus = new InProcessCrossNodeBus()
+      expect(bus.oldestSeq('topic')).toBeUndefined()
+    })
+
+    it('returns the oldest retained seq honoring topicPrefix', async () => {
+      using broker = new MemoryBroker()
+      using bus = new InProcessCrossNodeBus({ broker, topicPrefix: 'svc/' })
+      await bus.publish('topic', null)
+      await bus.publish('topic', null)
+      expect(bus.oldestSeq('topic')).toBe('1')
+      // direct broker access proves the prefix was applied on the wire.
+      expect(broker.oldestSeq('svc/topic')).toBe('1')
+    })
+
+    it('throws after dispose', () => {
+      const bus = new InProcessCrossNodeBus()
+      bus[Symbol.dispose]()
+      expect(() => bus.oldestSeq('topic')).toThrow(/disposed/)
+    })
+  })
+
   describe('disposal', () => {
     it('rejects publish/subscribe/replay after dispose', () => {
       const bus = new InProcessCrossNodeBus()

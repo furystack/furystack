@@ -184,6 +184,28 @@ describe('MemoryBroker', () => {
     })
   })
 
+  describe('oldestSeq', () => {
+    it('returns undefined when nothing has been published', () => {
+      using broker = new MemoryBroker()
+      expect(broker.oldestSeq('topic')).toBeUndefined()
+    })
+
+    it('returns the seq of the first retained message', () => {
+      using broker = new MemoryBroker()
+      broker.publish('topic', 'origin-1', null)
+      broker.publish('topic', 'origin-1', null)
+      expect(broker.oldestSeq('topic')).toBe('1')
+    })
+
+    it('advances after the ring buffer evicts older entries', () => {
+      using broker = new MemoryBroker({ replayWindow: 2 })
+      broker.publish('topic', 'origin-1', null) // seq 1, evicted
+      broker.publish('topic', 'origin-1', null) // seq 2
+      broker.publish('topic', 'origin-1', null) // seq 3
+      expect(broker.oldestSeq('topic')).toBe('2')
+    })
+  })
+
   describe('disposal', () => {
     it('clears subscribers and rejects further calls', () => {
       const broker = new MemoryBroker()
@@ -195,6 +217,7 @@ describe('MemoryBroker', () => {
       expect(() => broker.publish('topic', 'origin-1', null)).toThrow(/disposed/)
       expect(() => broker.subscribe('topic', handler)).toThrow(/disposed/)
       expect(() => broker.replay('topic', '0')).toThrow(/disposed/)
+      expect(() => broker.oldestSeq('topic')).toThrow(/disposed/)
     })
 
     it('is idempotent', () => {

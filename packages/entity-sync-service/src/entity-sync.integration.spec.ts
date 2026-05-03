@@ -158,7 +158,7 @@ describe('Entity Sync Integration tests', () => {
         if (response.type === 'subscribed' && response.mode === 'snapshot') {
           expect(response.data).toEqual({ id: '1', name: 'Alice', category: 'A' })
           expect(response.subscriptionId).toBeDefined()
-          expect(response.version.seq).toBeGreaterThanOrEqual(0)
+          expect(typeof response.version.seq).toBe('string')
         }
       })
     })
@@ -216,7 +216,7 @@ describe('Entity Sync Integration tests', () => {
         expect(notification.type).toBe('entity-updated')
         if (notification.type === 'entity-updated') {
           expect(notification.change).toEqual({ name: 'Bob' })
-          expect(notification.version.seq).toBeGreaterThan(0)
+          expect(Number(notification.version.seq)).toBeGreaterThan(0)
         }
       })
     })
@@ -379,13 +379,13 @@ describe('Entity Sync Integration tests', () => {
           requestId: 'req-1',
           model: 'TestEntity',
           key: '1',
-          lastSeq: 0,
+          lastSeq: '0',
         })
 
         expect(response.type).toBe('subscribed')
         if (response.type === 'subscribed' && response.mode === 'delta') {
           expect(response.changes.length).toBeGreaterThanOrEqual(1)
-          expect(response.version.seq).toBeGreaterThanOrEqual(2)
+          expect(Number(response.version.seq)).toBeGreaterThanOrEqual(2)
         }
       })
     })

@@ -53,6 +53,26 @@ export interface CrossNodeBus extends Disposable {
    * fall back to a full snapshot in the latter case.
    */
   replay(topic: string, fromSeq: string): AsyncIterable<BusMessage>
+
+  /**
+   * Compares two adapter-issued seq tokens from the **same topic**. Returns a
+   * negative number when `a` precedes `b`, zero when equal, a positive number
+   * when `a` follows `b`. Facades use this for dedup and "have we seen newer?"
+   * checks without leaking the adapter-specific seq encoding.
+   *
+   * Behavior across topics, adapters, or for tokens this adapter never issued
+   * is undefined.
+   */
+  compareSeq(a: string, b: string): number
+
+  /**
+   * Returns the oldest retained seq for `topic`, or `undefined` when nothing
+   * is currently retained. Throws synchronously when
+   * {@link CrossNodeBusCapabilities.replay} is `false`. Facades use this to
+   * decide whether a delta replay is feasible before calling
+   * {@link CrossNodeBus.replay}.
+   */
+  oldestSeq(topic: string): string | undefined
 }
 
 /**

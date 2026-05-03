@@ -8,6 +8,7 @@
   "include": ["src"],
   "references": [
     { "path": "../core" },
+    { "path": "../cross-node-bus" },
     { "path": "../entity-sync" },
     { "path": "../inject" },
     { "path": "../repository" },

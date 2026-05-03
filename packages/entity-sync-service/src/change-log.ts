@@ -1,99 +1,88 @@
-import type { SyncChangeEntry } from '@furystack/entity-sync'
+import { ReplayWindowExceededError, type CrossNodeBus } from '@furystack/cross-node-bus'
+import type { SyncChangeEntry, SyncVersion } from '@furystack/entity-sync'
+import type { EntityChange } from './entity-change-bus.js'
+import { topicForModel } from './entity-change-bus.js'
 
 /**
- * Per-model bounded log of recent {@link SyncChangeEntry}s consumed by
+ * Per-model history of recent {@link SyncChangeEntry}s consumed by
  * `SubscriptionManager` to answer reconnecting-client delta requests.
- * The default in-process implementation keeps one array per
- * `modelName` with a wall-clock retention window, matching today's
- * behavior.
  *
- * Extracted as an internal seam so a future cross-node bus adapter
- * (Redis Streams `XRANGE`, NATS JetStream) can plug in a replay-backed
- * implementation without touching the broadcaster — the manager keeps
- * calling `append` / `oldestSeq` / `since`, only the factory
- * registered on construction changes.
+ * Backed by {@link CrossNodeBus.replay}: the bus owns the retention window
+ * (in-process ring buffer; Redis Streams `MAXLEN`; etc.) and assigns the
+ * monotonic seq, so this interface is a thin shape-translator that converts
+ * `BusMessage` to the wire-format `SyncChangeEntry` the broadcaster already
+ * speaks.
  *
- * Not part of the public API surface; not re-exported from
- * `index.ts`. Exists to make the milestone-3 swap a factory swap.
+ * Not part of the public API surface; not re-exported from `index.ts`.
+ *
+ * @internal
  */
 export interface ChangeLog {
   /**
-   * Registers retention for `modelName`. Idempotent — re-configuring
-   * an already-known model overwrites the retention window without
-   * dropping existing entries. Must be called once per model before
-   * `append`.
+   * Returns the oldest retained seq for `modelName`, or `undefined` when
+   * nothing is currently retained for that model. Callers compare against a
+   * client's `lastSeq` to decide whether the gap can be served from the
+   * bus's retained window or requires a full snapshot fallback.
    */
-  configure(modelName: string, retentionMs: number): void
-  /** Appends `entry` to the log for `modelName`. */
-  append(modelName: string, entry: SyncChangeEntry): void
+  oldestSeq(modelName: string): string | undefined
   /**
-   * Returns the lowest `seq` currently retained for `modelName`, or
-   * `undefined` when the log is empty. Callers compare against a
-   * client's `lastSeq` to decide whether the gap can be served from
-   * the log or requires a full snapshot fallback.
+   * Yields every retained {@link SyncChangeEntry} for `modelName` whose `seq`
+   * is **strictly greater** than `fromSeq`, in the bus's emission order.
+   * Throws (or yields an error on first iteration)
+   * {@link ReplayWindowExceededError} when `fromSeq` is older than the
+   * adapter's retained window — callers fall back to a full snapshot.
    */
-  oldestSeq(modelName: string): number | undefined
-  /**
-   * Returns every retained entry for `modelName` whose `seq` is
-   * **strictly greater** than `fromSeq`, in append order. Returns an
-   * empty array when no such entries exist. The caller filters by
-   * subscription key — this method intentionally does not.
-   */
-  since(modelName: string, fromSeq: number): readonly SyncChangeEntry[]
-  /** Current entry count for `modelName`. Diagnostic / test use. */
-  length(modelName: string): number
+  since(modelName: string, fromSeq: string): AsyncIterable<SyncChangeEntry>
 }
 
-interface ModelLog {
-  entries: SyncChangeEntry[]
-  retentionMs: number
+const toSyncChangeEntry = (change: EntityChange, version: SyncVersion): SyncChangeEntry => {
+  switch (change.type) {
+    case 'added':
+      return { type: 'added', entity: change.entity, version }
+    case 'updated':
+      return { type: 'updated', id: change.id, change: change.change, version }
+    case 'removed':
+      return { type: 'removed', id: change.id, version }
+    default: {
+      // Exhaustiveness check: every variant of {@link EntityChange} above must
+      // be handled. Adding a new variant without updating this switch will
+      // fail to compile.
+      const _exhaustive: never = change
+      throw new Error(`Unhandled EntityChange variant: ${JSON.stringify(_exhaustive)}`)
+    }
+  }
+}
+
+const isEntityChange = (value: unknown): value is EntityChange => {
+  if (typeof value !== 'object' || value === null) return false
+  const candidate = value as { type?: unknown }
+  return candidate.type === 'added' || candidate.type === 'updated' || candidate.type === 'removed'
 }
 
 /**
- * Default {@link ChangeLog} implementation: per-model array with
- * wall-clock retention. Pruning runs on every `append` and `since`
- * call, so a quiet model carrying stale entries does not surface
- * them to a reconnecting client.
+ * Default {@link ChangeLog} implementation: thin wrapper over
+ * {@link CrossNodeBus.replay} and {@link CrossNodeBus.oldestSeq}. The bus
+ * owns the retention window, the seq counter, and (via the adapter) the
+ * eviction policy — the wrapper only translates the topic name and shape.
+ *
+ * `since` invokes {@link CrossNodeBus.replay} eagerly so that
+ * {@link ReplayWindowExceededError} surfaces synchronously to the caller —
+ * matching the bus contract and keeping the "delta vs snapshot" decision a
+ * straight try/catch around the call site rather than a try/catch around an
+ * async iterator.
  */
-export const createInProcessChangeLog = (): ChangeLog => {
-  const logs = new Map<string, ModelLog>()
-
-  const prune = (log: ModelLog): void => {
-    const cutoff = Date.now() - log.retentionMs
-    log.entries = log.entries.filter((entry) => new Date(entry.version.timestamp).getTime() > cutoff)
-  }
-
-  return {
-    configure(modelName, retentionMs) {
-      const existing = logs.get(modelName)
-      if (existing) {
-        existing.retentionMs = retentionMs
-        return
+export const createBusBackedChangeLog = (bus: CrossNodeBus): ChangeLog => ({
+  oldestSeq(modelName) {
+    return bus.oldestSeq(topicForModel(modelName))
+  },
+  since(modelName, fromSeq) {
+    const iterable = bus.replay(topicForModel(modelName), fromSeq)
+    return (async function* iterate(): AsyncIterable<SyncChangeEntry> {
+      for await (const message of iterable) {
+        if (message.seq === undefined) continue
+        if (!isEntityChange(message.payload)) continue
+        yield toSyncChangeEntry(message.payload, { seq: message.seq, timestamp: message.emittedAt })
       }
-      logs.set(modelName, { entries: [], retentionMs })
-    },
-    append(modelName, entry) {
-      const log = logs.get(modelName)
-      if (!log) {
-        throw new Error(`ChangeLog: model '${modelName}' is not configured`)
-      }
-      log.entries.push(entry)
-      prune(log)
-    },
-    oldestSeq(modelName) {
-      const log = logs.get(modelName)
-      if (!log || log.entries.length === 0) return undefined
-      prune(log)
-      return log.entries[0]?.version.seq
-    },
-    since(modelName, fromSeq) {
-      const log = logs.get(modelName)
-      if (!log || log.entries.length === 0) return []
-      prune(log)
-      return log.entries.filter((entry) => entry.version.seq > fromSeq)
-    },
-    length(modelName) {
-      return logs.get(modelName)?.entries.length ?? 0
-    },
-  }
-}
+    })()
+  },
+})

@@ -116,6 +116,16 @@ export class MemoryBroker implements Disposable {
   }
 
   /**
+   * Returns the oldest retained seq for `topic`, or `undefined` when no
+   * messages are currently retained. Used by {@link InProcessCrossNodeBus}
+   * to back `oldestSeq` without forcing facades into throw-and-catch.
+   */
+  public oldestSeq(topic: string): string | undefined {
+    this.#ensureLive()
+    return this.#topics.get(topic)?.buffer[0]?.seq
+  }
+
+  /**
    * Snapshot-then-stream replay. Validates the window synchronously: callers
    * see {@link ReplayWindowExceededError} before they iterate, which keeps
    * the fall-back-to-snapshot decision uniform with non-iterable failure

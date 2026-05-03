@@ -851,20 +851,72 @@ sessionId })`. The facade is the single contract for "this is how you
 
 ### Milestone 3 — `EntityChangeBus` facade (entity-sync-service)
 
-- [ ] Define `EntityChangeBus` interface + token (depends on
+- [x] Define `EntityChangeBus` interface + token (depends on
       `CrossNodeBus`).
-- [ ] Refactor `SubscriptionManager.registerModel` to publish +
+- [x] Refactor `SubscriptionManager.registerModel` to publish +
       subscribe via the broadcaster; single fan-out path.
-- [ ] Swap the M0.3 `SequenceGenerator` factory to a bus-assigned
-      impl; in-process bus keeps a local counter. (If M0.3 was
-      skipped, this expands to inlined edits across `SubscriptionManager`.)
-- [ ] Swap the M0.4 `ChangeLog` factory to a `bus.replay`-backed
-      impl. (If M0.4 was skipped, this expands to dropping
-      `changelog` / `pruneChangelog` and rewriting reconnection paths.)
-- [ ] Server-side seq dedup with TTL eviction.
-- [ ] Verify all existing tests pass — single-node story unchanged.
-- [ ] Multi-node integration test (≥ 2 in-process bus instances)
+- [x] Drop the M0.3 `SequenceGenerator` seam — the bus assigns seq on
+      `publish`, so `next` has no caller. `current` was inlined as a
+      `Map<modelName, string>` updated by the bus-receive handler. The
+      M0.3 interface didn't survive contact: keeping it as a pure
+      receive-tracker would be three lines of indirection nobody else
+      consumed.
+- [x] Swap the M0.4 `ChangeLog` factory to a `bus.replay`-backed
+      impl. `since` returns `AsyncIterable<SyncChangeEntry>` (per the
+      M0.4 carve-out) and surfaces `ReplayWindowExceededError`
+      synchronously on call so the "delta vs snapshot" decision stays
+      a try/catch around the call site.
+- [x] Server-side seq dedup with TTL eviction (`Map<\`${modelName}\0${originId}\`, …>`,
+  5 min sweep, 1 h idle threshold; timer is `unref`-ed).
+- [x] Verify all existing tests pass — single-node story unchanged.
+- [x] Multi-node integration test (≥ 2 in-process bus instances)
       proving cross-node entity-change delivery and replay.
+
+#### M3 implementation notes
+
+- `SyncVersion.seq` is now `string` — an opaque, ordered, per-topic
+  token assigned by the underlying `CrossNodeBus` adapter. Clients
+  must round-trip the value back to the server (via `lastSeq` on
+  `ClientSyncMessage`) and never compare it locally; comparison lives
+  on the bus via a new `compareSeq(a, b): number` method. The bump is
+  **major for `@furystack/entity-sync`** (wire-format change to
+  `SyncVersion`, `SyncChangeEntry`, `ServerSyncMessage`, and
+  `ClientSyncMessage.lastSeq`) and minor for
+  `@furystack/entity-sync-service` (additive surface — new
+  `EntityChangeBus` token + types; `SubscriptionManager` keeps its
+  public shape modulo `getModelRegistration().changelogLength`, which
+  was diagnostic-only and is gone).
+- `CrossNodeBus` gained two methods: `compareSeq(a, b)` for
+  adapter-aware ordering and `oldestSeq(topic)` for delta-feasibility
+  decisions. `MemoryBroker` exposes `oldestSeq(topic)` to back the
+  in-process implementation. Both are additive on the M1 surface.
+- Topic shape: one topic per registered model
+  (`entity/${modelName}`), exposed as `topicForModel`. Per-model topic
+  buys per-model seq + per-model replay window for free, mirroring the
+  consumer-group shape future Redis Streams adapter will use.
+- The wire payload is bare `EntityChange` — `version` and `originId`
+  are stamped by the bus on receive, so the payload type stays
+  forward-compatible with new variants. `added` carries the
+  primary-key value (not the field name) so receivers never need the
+  publisher's `registerModel` to have already run.
+- `EntityChangeBus` uses **plain `subscribe`** (not
+  `subscribeRemoteOnly`) — the broadcaster needs the bus-assigned seq
+  before stamping `version` on outbound `ServerSyncMessage`s, and the
+  only way to obtain that seq is to let own publishes round-trip
+  through the bus. This is the intentional inverse of
+  `IdentityEventBus` and the reason §10.2 specifies "single fan-out
+  path."
+- Capability assertion is hard: the `EntityChangeBus` factory throws
+  when the bound `CrossNodeBus` lacks `replay` or `assignsSequence`.
+  Matches §9 — no silent degradation.
+- Cross-node collection re-evaluation is intentionally per-node: the
+  receiving node re-queries its **own** local store on every change,
+  which means collection subscribers only react when the underlying
+  store has the same data. The bus is a notification primitive, not a
+  state-replication primitive (§15). Multi-node entity-level
+  notifications work correctly because the entity payload travels in
+  the bus envelope; collections that need cross-node state need a
+  shared store, not a different bus design.
 
 ### Milestone 4 — Redis Streams adapter
 
