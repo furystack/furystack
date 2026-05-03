@@ -222,13 +222,13 @@ describe('RedisCrossNodeBus (unit)', () => {
   })
 
   describe('disposal', () => {
-    it('rejects publish/subscribe/replay after dispose', () => {
+    it('rejects publish/subscribe/replay after dispose', async () => {
       const bus = new RedisCrossNodeBus({ client: makeClient(), serviceName: 'svc' })
       bus[Symbol.dispose]()
       expect(() => bus.subscribe('topic', () => undefined)).toThrow(/disposed/)
       expect(() => bus.subscribeForeign('p/', 'topic', () => undefined)).toThrow(/disposed/)
       expect(() => bus.replay('topic', '0-0')).toThrow(/disposed/)
-      void expect(bus.publish('topic', null)).rejects.toThrow(/disposed/)
+      await expect(bus.publish('topic', null)).rejects.toThrow(/disposed/)
     })
 
     it('is idempotent', () => {

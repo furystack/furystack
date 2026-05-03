@@ -14,9 +14,9 @@ Entity sync is now bus-backed: `SubscriptionManager` publishes every dataset eve
 - Multi-node deployments **must** override `CrossNodeBus` with a transport adapter (e.g. `defineRedisCrossNodeBusAdapter` from `@furystack/redis-cross-node-bus`) before resolving `SubscriptionManager`. The factory throws at registration time when the bound bus lacks `replay` or `assignsSequence`.
 - The bus carries the change envelope across nodes; both publishing and subscribing happen through it. Subsystems that previously inspected `SubscriptionManager`'s internal changelog will no longer see one — see the next entry.
 
-### `getModelInfo()` shape change — `currentSeq` is `string`, `changelogLength` removed
+### `getModelRegistration()` shape change — `currentSeq` is `string`, `changelogLength` removed
 
-`getModelInfo(modelName)` now returns:
+`SubscriptionManager.getModelRegistration(modelName)` now returns:
 
 ```typescript
 // ❌ Before
@@ -96,6 +96,10 @@ Reconnecting clients that send `lastSeq` now get a delta assembled from the bus'
 - `topicForModel(modelName)` — derives the wire topic the bus uses for a model. Useful when wiring custom subscribers without going through `EntityChangeBus`.
 - `EntityChange` (type) — discriminated union of `added` / `updated` / `removed` payloads.
 - `EntityChangeEnvelope` (type) — what subscribers receive (change + version + originId + modelName).
+
+## ⬆️ Dependencies
+
+- Adds `@furystack/cross-node-bus` as a runtime dependency. The new `EntityChangeBus` facade is built on top of it. Resolves to the in-process default bus unless an adapter is bound; multi-node deployments override `CrossNodeBus` with a transport adapter such as `@furystack/redis-cross-node-bus`.
 
 ## ♻️ Refactoring
 

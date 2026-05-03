@@ -17,16 +17,23 @@ A `defineRedisCrossNodeBusAdapter({ ... })` helper that overrides the default in
 ```typescript
 import { CrossNodeBus } from '@furystack/cross-node-bus'
 import { defineRedisCrossNodeBusAdapter } from '@furystack/redis-cross-node-bus'
+import { createClient } from 'redis'
+
+const client = createClient({ url: 'redis://localhost:6379' })
+await client.connect()
 
 injector.bind(
   CrossNodeBus,
   defineRedisCrossNodeBusAdapter({
-    url: 'redis://localhost:6379',
+    client,
+    serviceName: 'my-app',
     topicPrefix: 'my-app/',
-    maxLen: 10_000,
+    replayWindow: 10_000,
   }),
 )
 ```
+
+The caller owns the supplied client's `connect` / `quit` lifecycle (mirrors `@furystack/redis-store`); the adapter `.duplicate()`s the client internally for the blocking `XREAD` consumer loop and quits the duplicate via `onDispose`.
 
 ### Adapter capabilities
 
@@ -36,7 +43,7 @@ injector.bind(
 
 ### Replay-window management
 
-`maxLen` (default 10 000 per topic) controls retention via `XADD ... MAXLEN ~ N`, capping memory and bounding the window in which delta-sync is feasible. When a consumer asks to `replay()` from a seq older than the trimmed range the adapter throws `ReplayWindowExceededError`, so facades fall back to a full snapshot.
+`replayWindow` (default 10 000 per topic) controls retention via `XADD ... MAXLEN ~ N`, capping memory and bounding the window in which delta-sync is feasible. When a consumer asks to `replay()` from a seq older than the trimmed range the adapter throws `ReplayWindowExceededError`, so facades fall back to a full snapshot.
 
 ### Multi-service smoke harness
 

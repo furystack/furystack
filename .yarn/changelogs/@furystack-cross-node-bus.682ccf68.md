@@ -62,11 +62,11 @@ Exposed under `@furystack/cross-node-bus/testing`. Mints N in-process `CrossNode
 ```typescript
 import { createInProcessBusNetwork } from '@furystack/cross-node-bus/testing'
 
-const { buses, dispose } = createInProcessBusNetwork(3)
-// buses[0].publish(...) is observed by buses[1] and buses[2]
-await dispose()
+using network = createInProcessBusNetwork({ count: 3 })
+const [a, b, c] = network.buses
+// a.publish(...) is observed by b and c
 ```
 
 ### Telemetry hooks
 
-`CrossNodeBusTelemetry` emits `onPublish`, `onReceive`, and `onError` events with `topic`, `originId`, latency and error context — wire it into existing logging without touching adapter code.
+`CrossNodeBusTelemetry` emits `onCrossNodePublished`, `onCrossNodeReceived`, and `onCrossNodeError` events with `topic`, `originId`, `byteLength` / `lagMs` / error-and-phase context — wire it into existing logging without touching adapter code. The shared sink is exposed via `CrossNodeBusTelemetryToken` so adapter factories (in-process or transport-specific) inject the same hub.

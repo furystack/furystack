@@ -11,7 +11,7 @@
 ```typescript
 import { useWebSocketApi } from '@furystack/websocket-api'
 
-await useWebSocketApi({ injector })
+await useWebSocketApi({ injector, port: 8080 })
 
 const userContext = injector.get(HttpUserContext)
 await userContext.cookieLogout(request, response)
