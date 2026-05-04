@@ -9,7 +9,13 @@
       "path": "./auth-jwt"
     },
     {
+      "path": "./blob-store"
+    },
+    {
       "path": "./core"
+    },
+    {
+      "path": "./filesystem-blob-store"
     },
     {
       "path": "./filesystem-store"
@@ -43,6 +49,9 @@
     },
     {
       "path": "./rest-service"
+    },
+    {
+      "path": "./s3-blob-store"
     },
     {
       "path": "./security"

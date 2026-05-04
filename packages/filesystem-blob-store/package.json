@@ -1,0 +1,56 @@
+{
+  "name": "@furystack/filesystem-blob-store",
+  "version": "0.0.1",
+  "description": "Filesystem-backed adapter for the @furystack/blob-store primitive",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    },
+    "./endpoints": {
+      "types": "./esm/endpoints/index.d.ts",
+      "import": "./esm/endpoints/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "blob",
+    "object-storage",
+    "filesystem"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@furystack/blob-store": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/rest-service": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
+}

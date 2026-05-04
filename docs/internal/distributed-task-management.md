@@ -584,14 +584,36 @@ export type BlobRef = {
   readonly etag?: string
 }
 
+export type BlobMetadata = {
+  readonly key: string
+  readonly contentType?: string
+  readonly contentLength: number
+  readonly etag?: string
+  readonly lastModified: Date
+  /**
+   * Caller-supplied key/value pairs forwarded at put time. Renamed
+   * `customMetadata` on the metadata side to disambiguate from
+   * `BlobPutOptions.metadata` (the input field).
+   */
+  readonly customMetadata?: Record<string, string>
+}
+
 export interface BlobStore extends Disposable {
+  /** Adapter binding name embedded in every {@link BlobRef} this store mints. */
+  readonly storeName: string
+
   put(
     key: string,
-    stream: ReadableStream | NodeJS.ReadableStream | Buffer,
+    payload: ReadableStream<Uint8Array> | NodeJS.ReadableStream | Buffer | Uint8Array,
     opts?: { contentType?: string; contentLength?: number; metadata?: Record<string, string> },
   ): Promise<BlobRef>
 
-  get(key: string): Promise<{ stream: ReadableStream; contentType?: string; contentLength?: number; etag?: string }>
+  get(key: string): Promise<{
+    stream: ReadableStream<Uint8Array>
+    contentType?: string
+    contentLength?: number
+    etag?: string
+  }>
 
   delete(key: string): Promise<void>
   head(key: string): Promise<BlobMetadata | undefined>
@@ -600,7 +622,7 @@ export interface BlobStore extends Disposable {
     opts?: { cursor?: string; limit?: number },
   ): Promise<{ items: BlobMetadata[]; nextCursor?: string }>
 
-  /** Throws if !capabilities.presignedUrls. */
+  /** Throws `BlobStoreError({ code: 'capability-missing' })` if !capabilities.presignedUrls. */
   getDownloadUrl(key: string, opts: { ttlSec: number }): Promise<string>
   getUploadUrl(
     key: string,
@@ -619,6 +641,26 @@ export interface BlobStoreCapabilities {
 }
 ```
 
+**Errors.** Every adapter throws `BlobStoreError` with a `code`
+discriminator (`'not-found' | 'invalid-key' | 'invalid-config' |
+'capability-missing' | 'too-large' | 'conflict' | 'io-error' |
+'signature-invalid'`). Apps `switch` on `.code` rather than
+substring-matching the message; `BlobStoreError.is(value)` is the
+realm-safe type guard. The shared
+`BlobStoreNotConfiguredError` subclass surfaces from the default
+factory binding.
+
+**`metadata` vs. `customMetadata`.** Put input uses `opts.metadata`
+to match S3's `Metadata` parameter naming; the head/list output
+field is `customMetadata` so it does not clash with the wider
+"metadata" record TypeScript users mentally associate with the
+`BlobMetadata` type itself.
+
+**Stream shapes.** `put` accepts a Web `ReadableStream<Uint8Array>`,
+a Node `Readable`, a Node `Buffer`, or a `Uint8Array`. `get` always
+returns a Web `ReadableStream<Uint8Array>` so consumers stay
+portable; Node-side callers adapt with `Readable.fromWeb`.
+
 ### 7.6 Tokens & default factories
 
 ```ts
@@ -636,14 +678,25 @@ export const TaskRunner = defineService({
 export const BlobStore = defineService({
   name: 'furystack/blob-store/BlobStore',
   lifetime: 'singleton',
-  factory: () => new InMemoryBlobStore(),
+  factory: () => {
+    throw new BlobStoreNotConfiguredError()
+  },
 })
 ```
 
-In-process defaults exist so single-pod deployments work with no
-configuration. Multi-node deployments are expected to bind real
-adapters; the boot-time capability cross-check (§9) refuses
-combinations that cannot work cross-node.
+The default factory deliberately throws `BlobStoreNotConfiguredError`
+— blobs are typically large and persistence-sensitive, so unbound
+resolution is treated as a misconfiguration rather than silently
+falling back to volatile in-memory storage. Apps explicitly bind a
+backing adapter (`defineFileSystemBlobStore`, `defineS3BlobStore`,
+or for tests `() => new InMemoryBlobStore()`); the boot-time
+capability cross-check (§9) refuses adapter combinations that
+cannot work cross-node. `InMemoryBlobStore` ships from the core
+package so test suites can wire it directly without an extra
+dependency.
+
+Note: this diverges from `CrossNodeBus`, which keeps an in-process
+default. Re-evaluating that default is tracked separately.
 
 ### 7.7 WS subscribe shape (subscribe race + first-event loss)
 
@@ -711,7 +764,7 @@ tasks belonging to their compatible types and resume.
 | ------------- | --------- | --------- | ---------- | ----------------- | -------------- |
 | In-memory     | ❌        | ❌        | ❌         | none              | ✅ (testing)   |
 | Filesystem    | ❌\*      | ❌        | ❌         | none              | ✅ ships in v1 |
-| S3-compatible | ✅        | ✅        | ✅         | low (MinIO local) | ✅ ships in v1 |
+| S3-compatible | ✅        | ❌\*\*    | ✅         | low (MinIO local) | ✅ ships in v1 |
 | Azure Blob    | ✅        | ✅        | ✅         | medium            | later          |
 | GCS native    | ✅        | ✅        | ✅         | medium            | later          |
 
@@ -719,6 +772,14 @@ tasks belonging to their compatible types and resume.
 that mimic the presigned-URL flow at the API layer, so client SDK code
 is identical regardless of adapter. The capability flag is still
 `presignedUrls: false` because the URL is not transport-direct.
+
+\*\* v1 of the S3 adapter uses single-part `PutObject` only —
+`maxObjectBytes = 5 GiB` (AWS S3 single-part cap). Apps with very
+large blobs that need resumable multipart can compose
+`@aws-sdk/lib-storage`'s `Upload` themselves on the underlying
+`S3Client` and pass the resulting key back as a `BlobRef`. v1.x will
+add a multipart-aware `put` variant and lift the capability flag —
+tracked in §16 open question 7 (settled).
 
 ### 8.3 `defineXxxTaskRunner` / `defineXxxBlobStore`
 
@@ -739,20 +800,29 @@ injector.bind(
   }),
 )
 
+const s3Client = new S3Client({
+  endpoint: 'https://s3.eu-central-1.amazonaws.com',
+  region: 'eu-central-1',
+  credentials: {
+    /* … */
+  },
+})
+
 injector.bind(
   BlobStore,
   defineS3BlobStore({
-    endpoint: 'https://s3.eu-central-1.amazonaws.com',
+    client: s3Client,
     bucket: 'furystack-blobs',
-    region: 'eu-central-1',
-    credentials: {
-      /* … */
-    },
+    keyPrefix: 'svc-a/',
   }),
 )
 ```
 
 Constructor-passed config; adapters never read `process.env` directly.
+The S3 adapter takes a caller-owned `S3Client` so connection lifecycle
+(credentials refresh, `client.destroy()`) stays with the application —
+the adapter never closes it. The Redis bus adapter follows the same
+ownership rule.
 
 ## 9. Capability matrix & enforcement
 
@@ -1062,15 +1132,40 @@ runner can develop in parallel against an in-process bus.
 
 ### Milestone 0 — Pre-work
 
-- [ ] **M0.1 — `@furystack/blob-store` core.** `BlobStore` token, type
-      definitions, `InMemoryBlobStore` default, capability matrix,
-      `defineXxxBlobStore` helper convention. Independent of the runner.
-- [ ] **M0.2 — `@furystack/filesystem-blob-store`.** Filesystem adapter
-      with server-proxy upload/download endpoints exposed via
-      `@furystack/rest-service`.
-- [ ] **M0.3 — `@furystack/s3-blob-store`.** S3-compatible adapter
-      (covers AWS S3, MinIO, R2, B2, GCS-S3-mode). Integration tests
-      gated on docker-compose MinIO.
+- [x] **M0.1 — `@furystack/blob-store` core.** `BlobStore` token,
+      type definitions (`BlobRef`, `BlobMetadata`,
+      `BlobStoreCapabilities`, `BlobPutOptions`, `BlobGetResult`,
+      list / URL option types), `BlobStoreError` discriminated by
+      `code`, `validateBlobKey` (1024-char limit, no NUL, no leading
+      `/`), `InMemoryBlobStore` reference implementation,
+      `normalizeBlobPutInput` / `collectBlobStream` helpers,
+      `defineXxxBlobStore` helper convention (returns a
+      `ServiceFactory<BlobStore>` to pass to `injector.bind`). The
+      default factory throws `BlobStoreNotConfiguredError` (see §7.6
+      note) — this diverges from the early draft which suggested an
+      in-memory default. 100 % line coverage on the core surface.
+- [x] **M0.2 — `@furystack/filesystem-blob-store`.** Filesystem
+      adapter with literal-key on-disk layout (`<root>/<key>`) and a
+      sibling `<key>.meta.json` sidecar for content-type + custom
+      metadata. HMAC-SHA256 stateless signed tokens (≥ 32-byte secret
+      enforced at construction; settles §16 open question 4).
+      Server-proxy upload (`PUT`) / download (`GET`) endpoints exposed
+      via the `./endpoints` subpath helper
+      (`useFileSystemBlobStoreEndpoints` mounts under
+      `@furystack/rest-service`'s pooled HTTP server). HTTP status
+      mapping: `signature-invalid` → 403, `not-found` → 404,
+      `too-large` → 413. 100 % line coverage on the adapter class.
+- [x] **M0.3 — `@furystack/s3-blob-store`.** S3-compatible adapter
+      (AWS S3, MinIO, R2, B2, GCS-S3-mode). Caller owns the
+      `S3Client`; adapter never closes it. `manageLifecycle: true`
+      default installs the abort-incomplete-multipart-after-1-day
+      bucket rule on first put, tolerant of permission failures via
+      `onLifecycleError`. Optional `keyPrefix` for tenant scoping
+      inside a shared bucket. v1 ships single-part PUT only —
+      `multipart: false`, `maxObjectBytes: 5 GiB` (settles §16 open
+      question 7). Unit tests against a stubbed client; integration
+      tests against MinIO gated on `MINIO_URL`
+      (`packages/s3-blob-store/docker-compose.yml`).
 - [x] **M0.4 — `@furystack/cross-node-bus` v1 milestones complete**
       (see `cross-node-bus-spike.md` Milestones 0–5). Includes the
       Redis Streams adapter (M4) and the multi-service smoke (M5),
@@ -1244,9 +1339,16 @@ development; none of them gate the v1 plan.
    even if some children failed (returning a `PromiseSettledResult`-like
    shape) so handlers can decide per child? Current shape rejects on
    any failure; a `awaitChildrenSettled` variant could land in v1.x.
-4. **Filesystem adapter URL expiry.** Server-proxy upload URLs need a
-   nonce/HMAC to validate. JWT-style stateless validation vs. a
-   short-lived signature stored in a tiny cache? M0.2 picks one.
+4. **Filesystem adapter URL expiry.** _Settled — HMAC-SHA256 stateless
+   tokens_ signed with a constructor-provided secret (≥ 32 characters
+   or bytes, enforced at construction). Token payload encodes
+   `{ key, op: 'download' | 'upload', expiry, contentType?, maxBytes?,
+nonce }` and is verified by the `endpoints` subpath helper before
+   any disk I/O. Stateless beats the cache-stored alternative because
+   URLs survive process restarts and there is no extra storage to
+   reason about; the trade-off is that revoking a single in-flight URL
+   requires rotating the secret. Apps that need per-URL revocation can
+   layer a tiny denylist cache in front of the helper.
 5. **In-process queue replay log persistence.** Largely covered by
    the §7.4 continuation flow: dataset is the source of truth;
    crash mid-`spawnChild` before the dataset write means the parent
@@ -1265,11 +1367,19 @@ development; none of them gate the v1 plan.
    latency rises, should workers slow down their claim rate to give
    slow tasks a chance to heartbeat? Out of scope for v1 plain FIFO,
    but a hook (`onClaimLagDetected`) might land.
-7. **Blob multipart upload helper API.** `BlobStore.put` takes a stream;
-   apps with very large files and resumability needs want explicit
-   multipart control. Ship as a higher-level helper module
-   (`@furystack/blob-store/multipart`) vs. promote to core interface?
-   M0.3 makes the call after MinIO integration.
+7. **Blob multipart upload helper API.** _Settled for v1 — single-part
+   PUT only._ The S3 adapter uses raw `PutObjectCommand` (capability
+   `multipart: false`, `maxObjectBytes: 5 GiB`). Reasons: (a) the
+   `@aws-sdk/lib-storage` `Upload` reaches into `S3Client.config`
+   internals that resist clean stubbing in unit tests, (b) the typical
+   FuryStack workload (documents, video chunks, thumbnails) fits well
+   under the 5 GiB single-part cap, and (c) apps with very-large-blob
+   needs (full mezzanine video files, large dataset dumps) can compose
+   `lib-storage`'s `Upload` themselves on the underlying `S3Client`
+   and pass the resulting key back as a `BlobRef`. v1.x will introduce
+   a multipart-aware `put` variant on the core interface and lift the
+   capability flag — that lift is the breaking-change boundary, so
+   apps can opt in.
 
 ## 17. Dependencies & related work
 

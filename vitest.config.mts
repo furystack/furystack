@@ -14,6 +14,7 @@ export default defineConfig({
           name: 'Common',
           include: [
             'packages/utils/**/*.spec.ts',
+            'packages/blob-store/src/**/*.spec.ts',
             'packages/cache/**/*.spec.ts',
             'packages/core/**/*.spec.ts',
             'packages/cross-node-bus/src/**/*.spec.ts',
@@ -42,12 +43,14 @@ export default defineConfig({
           include: [
             'packages/auth-google/src/**/*.spec.ts',
             'packages/auth-jwt/src/**/*.spec.ts',
+            'packages/filesystem-blob-store/src/**/*.spec.ts',
             'packages/filesystem-store/src/**/*.spec.ts',
             'packages/rest/src/**/*.spec.ts',
             'packages/rest-service/src/**/*.spec.ts',
             'packages/mongodb-store/src/**/*.spec.ts',
             'packages/redis-cross-node-bus/src/**/*.spec.ts',
             'packages/redis-store/src/**/*.spec.ts',
+            'packages/s3-blob-store/src/**/*.spec.ts',
             'packages/websocket-api/src/**/*.spec.ts',
             'packages/entity-sync-service/src/**/*.spec.ts',
             'packages/security/src/**/*.spec.ts',
