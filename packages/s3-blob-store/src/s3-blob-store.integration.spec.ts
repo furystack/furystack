@@ -2,11 +2,9 @@ import { CreateBucketCommand, DeleteBucketCommand, S3Client } from '@aws-sdk/cli
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { S3BlobStore } from './s3-blob-store.js'
 
-const { MINIO_URL } = process.env
+const MINIO_URL = process.env.MINIO_URL ?? 'http://localhost:9000'
 const ACCESS_KEY = process.env.MINIO_ACCESS_KEY ?? 'minioadmin'
 const SECRET_KEY = process.env.MINIO_SECRET_KEY ?? 'minioadmin'
-
-const describeIntegration = MINIO_URL ? describe : describe.skip
 
 const decode = (data: Uint8Array): string => new TextDecoder().decode(data)
 
@@ -29,7 +27,7 @@ const collect = async (stream: ReadableStream<Uint8Array>): Promise<Uint8Array> 
   return merged
 }
 
-describeIntegration('S3BlobStore (integration, requires MINIO_URL)', () => {
+describe('S3BlobStore (integration, requires MinIO at $MINIO_URL or http://localhost:9000)', () => {
   const bucket = `furystack-blob-test-${Date.now()}`
   let client: S3Client
   let store: S3BlobStore

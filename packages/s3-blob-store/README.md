@@ -61,10 +61,16 @@ runaway storage costs from interrupted clients. Disable with
 
 ### Integration tests
 
-The package ships unit tests against a stubbed `S3Client` and
-integration tests gated on `MINIO_URL`. Run locally via:
+The package ships unit tests against a stubbed `S3Client` plus an
+integration suite that requires a reachable MinIO (or any S3-compatible)
+endpoint. The repo's root `docker-compose.yml` exposes one on
+`http://localhost:9000`. Run locally via:
 
 ```bash
-docker compose -f packages/s3-blob-store/docker-compose.yml up -d
-MINIO_URL=http://127.0.0.1:9000 yarn vitest run --project Service packages/s3-blob-store
+docker compose up -d
+yarn vitest run --project Service packages/s3-blob-store
 ```
+
+Override the endpoint and credentials with `MINIO_URL`,
+`MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY` when targeting a different
+backend.

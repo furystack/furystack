@@ -1,10 +1,8 @@
-import { Readable } from 'node:stream'
 import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListObjectsV2Command,
-  PutBucketLifecycleConfigurationCommand,
   PutObjectCommand,
   type GetObjectCommandOutput,
   type HeadObjectCommandOutput,
@@ -29,6 +27,8 @@ import {
   type BlobUploadUrl,
   type BlobUploadUrlOptions,
 } from '@furystack/blob-store'
+import { DEFAULT_LIFECYCLE_RULE_ID, ensureBucketLifecycle } from './ensure-bucket-lifecycle.js'
+import { bodyToBuffer, bodyToWebStream, stripQuotes, toUploadBody } from './s3-stream-helpers.js'
 
 /**
  * 5 TiB — the per-object limit AWS S3 enforces. Other S3-compatible
@@ -102,8 +102,6 @@ export type S3BlobStoreOptions = {
   onLifecycleError?: (error: unknown) => void
 }
 
-const DEFAULT_LIFECYCLE_RULE_ID = 'furystack-blob-store-abort-incomplete-multipart'
-
 const wrap = (
   code: 'not-found' | 'io-error',
   message: string,
@@ -120,14 +118,6 @@ const isNotFoundError = (cause: unknown): boolean => {
   const code = (cause as { Code?: string; code?: string }).Code ?? (cause as { code?: string }).code
   const httpStatus = (cause as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode
   return name === 'NoSuchKey' || code === 'NoSuchKey' || code === 'NotFound' || httpStatus === 404
-}
-
-const collectStream = async (stream: NodeJS.ReadableStream): Promise<Uint8Array> => {
-  const chunks: Buffer[] = []
-  for await (const chunk of stream) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
-  }
-  return new Uint8Array(Buffer.concat(chunks))
 }
 
 /**
@@ -351,30 +341,7 @@ export class S3BlobStore implements BlobStore {
    * when the caller knows the payload fits in RAM.
    */
   public static async bodyToBuffer(body: unknown): Promise<Uint8Array> {
-    if (body instanceof Uint8Array) return body
-    if (Buffer.isBuffer(body)) return new Uint8Array(body)
-    if (typeof body === 'string') return new TextEncoder().encode(body)
-    if (body && typeof body === 'object' && 'getReader' in body) {
-      const reader = (body as ReadableStream<Uint8Array>).getReader()
-      const chunks: Uint8Array[] = []
-      for (;;) {
-        const { done, value } = await reader.read()
-        if (done) break
-        chunks.push(value)
-      }
-      const total = chunks.reduce((acc, c) => acc + c.byteLength, 0)
-      const merged = new Uint8Array(total)
-      let offset = 0
-      for (const chunk of chunks) {
-        merged.set(chunk, offset)
-        offset += chunk.byteLength
-      }
-      return merged
-    }
-    if (body && typeof body === 'object' && Symbol.asyncIterator in body) {
-      return collectStream(body as NodeJS.ReadableStream)
-    }
-    throw new BlobStoreError('io-error', 'Unsupported S3 response body type')
+    return bodyToBuffer(body)
   }
 
   #wireKey(key: string): string {
@@ -388,25 +355,12 @@ export class S3BlobStore implements BlobStore {
   async #ensureLifecycle(): Promise<void> {
     if (!this.#manageLifecycle || this.#lifecycleAttempted) return
     this.#lifecycleAttempted = true
-    try {
-      await this.#client.send(
-        new PutBucketLifecycleConfigurationCommand({
-          Bucket: this.#bucket,
-          LifecycleConfiguration: {
-            Rules: [
-              {
-                ID: this.#lifecycleRuleId,
-                Status: 'Enabled',
-                Filter: {},
-                AbortIncompleteMultipartUpload: { DaysAfterInitiation: 1 },
-              },
-            ],
-          },
-        }),
-      )
-    } catch (error) {
-      this.#onLifecycleError?.(error)
-    }
+    await ensureBucketLifecycle({
+      client: this.#client,
+      bucket: this.#bucket,
+      ruleId: this.#lifecycleRuleId,
+      onError: this.#onLifecycleError,
+    })
   }
 
   #ensureLive(): void {
@@ -414,71 +368,4 @@ export class S3BlobStore implements BlobStore {
       throw new BlobStoreError('io-error', 'S3BlobStore has been disposed', { storeName: this.storeName })
     }
   }
-}
-
-const stripQuotes = (etag: string | undefined): string | undefined => {
-  if (etag === undefined) return undefined
-  return etag.startsWith('"') && etag.endsWith('"') ? etag.slice(1, -1) : etag
-}
-
-const toUploadBody = (input: BlobPutInput): Readable | Buffer | Uint8Array => {
-  if (input instanceof Uint8Array) return input
-  if (typeof (input as ReadableStream<Uint8Array>).getReader === 'function') {
-    const reader = (input as ReadableStream<Uint8Array>).getReader()
-    return new Readable({
-      read() {
-        reader.read().then(
-          ({ done, value }) => {
-            if (done) {
-              this.push(null)
-              return
-            }
-            this.push(Buffer.from(value))
-          },
-          (cause: unknown) => {
-            this.destroy(cause as Error)
-          },
-        )
-      },
-    })
-  }
-  return Readable.from(input as NodeJS.ReadableStream)
-}
-
-const drainNodeStreamToController = async (
-  node: NodeJS.ReadableStream,
-  controller: ReadableStreamDefaultController<Uint8Array>,
-): Promise<void> => {
-  try {
-    for await (const chunk of node) {
-      const buf = typeof chunk === 'string' ? Buffer.from(chunk) : chunk
-      controller.enqueue(new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength))
-    }
-    controller.close()
-  } catch (cause) {
-    controller.error(cause)
-  }
-}
-
-const bodyToWebStream = (body: unknown): ReadableStream<Uint8Array> => {
-  if (body && typeof body === 'object' && 'getReader' in body) {
-    return body as ReadableStream<Uint8Array>
-  }
-  if (body && typeof body === 'object' && Symbol.asyncIterator in body) {
-    const node = body as NodeJS.ReadableStream
-    return new ReadableStream<Uint8Array>({
-      start(controller) {
-        void drainNodeStreamToController(node, controller)
-      },
-    })
-  }
-  if (body instanceof Uint8Array) {
-    return new ReadableStream<Uint8Array>({
-      start(controller) {
-        controller.enqueue(body)
-        controller.close()
-      },
-    })
-  }
-  throw new BlobStoreError('io-error', 'Unsupported S3 response body type')
 }

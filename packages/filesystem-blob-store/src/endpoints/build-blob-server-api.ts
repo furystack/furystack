@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { createReadStream, createWriteStream } from 'node:fs'
 import { mkdir, rename, rm, stat } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
@@ -63,9 +64,12 @@ const sanitizeKey = (key: string): string[] => {
   return segments
 }
 
+const matchesBase = (url: string, baseUrl: string): boolean =>
+  url === baseUrl || url.startsWith(`${baseUrl}/`) || url.startsWith(`${baseUrl}?`)
+
 const extractToken = (url: string, baseUrl: string): string | undefined => {
   const cleanUrl = url.split('?')[0] ?? ''
-  if (!cleanUrl.startsWith(baseUrl)) return undefined
+  if (!matchesBase(cleanUrl, baseUrl)) return undefined
   const tail = cleanUrl.slice(baseUrl.length).replace(/^\/+/, '')
   if (!tail) return undefined
   return decodeURIComponent(tail)
@@ -146,7 +150,7 @@ export const buildFileSystemBlobStoreServerApi = (options: FileSystemBlobStoreSe
       const segments = sanitizeKey(payload.k)
       const fullPath = join(root, ...segments)
       await mkdir(dirname(fullPath), { recursive: true })
-      const tempPath = `${fullPath}.upload-${Date.now()}.tmp`
+      const tempPath = `${fullPath}.upload-${randomUUID()}.tmp`
       try {
         await pipeline(req, createSizeEnforcer(payload.m), createWriteStream(tempPath))
         await rename(tempPath, fullPath)
@@ -167,7 +171,8 @@ export const buildFileSystemBlobStoreServerApi = (options: FileSystemBlobStoreSe
       if (!req.url) return false
       const method = req.method?.toUpperCase()
       if (method !== 'GET' && method !== 'PUT') return false
-      return req.url.startsWith(baseUrl)
+      const cleanUrl = req.url.split('?')[0] ?? ''
+      return matchesBase(cleanUrl, baseUrl)
     },
     onRequest: async (msg) => {
       const method = msg.req.method?.toUpperCase()

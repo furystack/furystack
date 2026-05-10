@@ -1178,8 +1178,10 @@ runner can develop in parallel against an in-process bus.
       inside a shared bucket. v1 ships single-part PUT only —
       `multipart: false`, `maxObjectBytes: 5 GiB` (settles §16 open
       question 7). Unit tests against a stubbed client; integration
-      tests against MinIO gated on `MINIO_URL`
-      (`packages/s3-blob-store/docker-compose.yml`).
+      tests against MinIO; the root `docker-compose.yml` ships a MinIO
+      service on `http://localhost:9000` (override via `MINIO_URL`,
+      `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`), mirroring the
+      `redis-store` / `mongodb-store` patterns.
 - [x] **M0.4 — `@furystack/cross-node-bus` v1 milestones complete**
       (see `cross-node-bus-spike.md` Milestones 0–5). Includes the
       Redis Streams adapter (M4) and the multi-service smoke (M5),
@@ -1284,12 +1286,20 @@ Decisions and deviations from the PRD settled during implementation:
 10. **Per-task mutex serializes read-modify-write paths.** `#submitChild`
     appending to `parent.childTaskIds`, `#pushEvent` appending to
     `task.events`, `#pushAttempt` / `#finalizeAttempt` updating
-    `task.attempts` all funnel through `#withTaskLock(taskId, fn)`.
-    Without it, a parent that calls `spawnChild` N times in a row races
-    its own `taskDs.update(parentId, …)` and loses child IDs from
+    `task.attempts`, and the `waiting → pending` transition in both
+    `#wakeParent` and `#reconcile` all funnel through
+    `#withTaskLock(taskId, fn)`. Without it, a parent that calls
+    `spawnChild` N times in a row races its own
+    `taskDs.update(parentId, …)` and loses child IDs from
     `childTaskIds`, which corrupts `getTree`, cascade-cancel, and the
-    reconciler. The mutex is a per-`taskId` Promise chain, evicted on
-    settle; errors do not poison the chain.
+    reconciler; concurrent child completions (or one child completion
+    racing a sweep tick of `#reconcile`) double-enqueue the parent and
+    re-run it. The mutex is a per-`taskId` Promise chain, evicted on
+    settle; errors do not poison the chain. The lock is **non-reentrant**
+    — callers that already hold the lock for `taskId` must not re-enter,
+    so the wake/reconcile transitions push their event log entries
+    _before_ acquiring the lock and only run the
+    re-read-status → re-check-children → flip-status block inside it.
 
 11. **`AttemptRecord.status` includes `'in-progress'`.** Initial pushes
     record `'in-progress'`; `#finalizeAttempt` later overwrites with
@@ -1312,6 +1322,35 @@ Decisions and deviations from the PRD settled during implementation:
     "children spawned" from "children awaited" so a parent that awaits
     a strict subset of its spawned children is not stuck waiting on
     fire-and-forget siblings.
+
+14. **Cascade-cancel walks the tree iteratively.** `#cascadeCancel`
+    keeps a queue + visited-set instead of recursing on
+    `task.childTaskIds`. Deep DAGs (or accidental cycles surviving the
+    `submit`-time check) cannot blow the call stack, and the visited
+    set lets the same call act as a structural cycle break.
+
+15. **`TaskContext` construction lives in
+    `task-context-factory.ts`.** The runner builds one fresh
+    `TaskContext` per handler invocation by calling `buildTaskContext`
+    with a stable `TaskContextFactoryDeps` record (constructed once in
+    the runner constructor) and per-invocation parameters
+    (`taskId`, `attempt`, `payload`, `visibilityTimeoutMs`,
+    `progressThrottleMs`, `signal`, `replayIndex`, the step counter,
+    and the throttled-progress accessors). Keeping the factory in its
+    own module pins the surface, gives `buildReplayIndex` /
+    `ReplayIndex` a natural home, and lets the runner stay focused on
+    queue, replay, and dispatch concerns. Per-step replay caching
+    semantics for `spawnChild`, `awaitChildren`, `now`, `random`, and
+    `sleep` (note 9) live with the closures that implement them.
+
+16. **`@furystack/filesystem-blob-store` HTTP endpoints.** The signed
+    URL server (`buildFileSystemBlobStoreServerApi`) does prefix
+    matching with explicit boundaries — `baseUrl` only matches
+    `=== baseUrl`, `${baseUrl}/...`, or `${baseUrl}?...`, so a `baseUrl`
+    of `/blobs` does not capture `/blobsfoo`. Upload temp files are
+    suffixed with `crypto.randomUUID()` (not `Date.now()`) so two
+    concurrent uploads to the same key in the same millisecond cannot
+    collide on the temp path before the atomic rename.
 
 ### Milestone 2 — REST + WS surface
 

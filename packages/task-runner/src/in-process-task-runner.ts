@@ -4,9 +4,7 @@ import type { CrossNodeBus } from '@furystack/cross-node-bus'
 import type { Injector, ServiceFactory } from '@furystack/inject'
 import { BlobStore as BlobStoreToken } from '@furystack/blob-store'
 import { CrossNodeBus as CrossNodeBusToken } from '@furystack/cross-node-bus'
-import type { ChildHandle } from './child-handle.js'
 import type { AnyTaskHandlerDescriptor } from './define-task-handler.js'
-import type { SpawnOptions } from './task-context.js'
 import type { RegisterWorkerOptions, SubmitOptions, TaskRunner, TaskRunnerCapabilities, Worker } from './task-runner.js'
 import { Task, DEFAULT_RETENTION_POLICY, MAX_EVENTS_PER_TASK, isTerminalStatus } from './types.js'
 import type {
@@ -18,24 +16,12 @@ import type {
   TaskTreeNode,
   TaskUpdate,
 } from './types.js'
-import type { TaskContext } from './task-context.js'
-import { SuspendedError, isSuspendedError } from './suspended-error.js'
+import { isSuspendedError } from './suspended-error.js'
 import { calculateBackoff } from './retry-policy.js'
 import { randomUUID } from 'node:crypto'
 import { TaskRunnerTelemetryToken, type TaskRunnerTelemetry } from './task-runner-telemetry.js'
 import { TaskDataSet, TaskReplayLogDataSet } from './task-data-set.js'
-
-/**
- * O(1) lookup over the replay log: a `Map<stepIndex, entry>` built once per
- * handler invocation. Replaces an O(n²) per-step linear scan.
- */
-type ReplayIndex = Map<number, TaskReplayLogEntry>
-
-const buildReplayIndex = (log: TaskReplayLogEntry[]): ReplayIndex => {
-  const index: ReplayIndex = new Map()
-  for (const entry of log) index.set(entry.stepIndex, entry)
-  return index
-}
+import { buildReplayIndex, buildTaskContext, type TaskContextFactoryDeps } from './task-context-factory.js'
 
 const parseAwaitedChildIds = (resumeToken: string | undefined): string[] | undefined => {
   if (!resumeToken) return undefined
@@ -102,7 +88,6 @@ export class InProcessTaskRunner implements TaskRunner {
   readonly #taskDs: DataSet<Task, 'id'>
   readonly #replayDs: DataSet<TaskReplayLogEntry, 'id'>
   readonly #bus: CrossNodeBus
-  readonly #blobStore: BlobStore
   readonly #telemetry: TaskRunnerTelemetry
 
   readonly #pendingQueues = new Map<string, PendingTask[]>()
@@ -121,6 +106,8 @@ export class InProcessTaskRunner implements TaskRunner {
   readonly #reconcilerTimer: ReturnType<typeof setInterval>
   readonly #sweepTimer: ReturnType<typeof setInterval>
 
+  readonly #contextDeps: TaskContextFactoryDeps
+
   #disposed = false
 
   constructor(
@@ -134,10 +121,21 @@ export class InProcessTaskRunner implements TaskRunner {
   ) {
     this.#injector = injector
     this.#bus = bus
-    this.#blobStore = blobStore
     this.#taskDs = taskDs
     this.#replayDs = replayDs
     this.#telemetry = telemetry
+
+    this.#contextDeps = {
+      injector,
+      blobStore,
+      taskDs,
+      telemetry,
+      emit: (type, update) => this.#emit(type, update),
+      persistReplayEntry: (entry) => this.#persistReplayEntry(entry),
+      submitChild: (parentId, parentType, childId, childType, childPayload, retention, tags) =>
+        this.#submitChild(parentId, parentType, childId, childType, childPayload, retention, tags),
+      allChildrenTerminal: (ids) => this.#allChildrenTerminal(ids),
+    }
 
     this.#reconcilerTimer = setInterval(() => void this.#reconcile(), options?.reconcilerIntervalMs ?? 30_000)
     this.#sweepTimer = setInterval(() => void this.#sweepVisibility(), options?.sweepIntervalMs ?? 1_000)
@@ -394,20 +392,21 @@ export class InProcessTaskRunner implements TaskRunner {
     let stepIndex = 0
     let lastProgressMs = 0
 
-    const ctx = this.#buildContext(
+    const ctx = buildTaskContext(this.#contextDeps, {
       taskId,
       type,
       attempt,
       payload,
-      handler,
-      ac.signal,
+      visibilityTimeoutMs: handler.visibilityTimeoutMs,
+      progressThrottleMs: handler.progressThrottleMs,
+      signal: ac.signal,
       replayIndex,
-      () => stepIndex++,
-      (t) => {
+      nextStep: () => stepIndex++,
+      setLastProgress: (t) => {
         lastProgressMs = t
       },
-      () => lastProgressMs,
-    )
+      getLastProgress: () => lastProgressMs,
+    })
 
     const startMs = Date.now()
     try {
@@ -454,199 +453,6 @@ export class InProcessTaskRunner implements TaskRunner {
       }
 
       await this.#handleFailure(taskId, type, handler, attempt, err, startMs)
-    }
-  }
-
-  // ── TaskContext builder ───────────────────────────────────────────
-
-  #buildContext(
-    taskId: string,
-    type: string,
-    attempt: number,
-    payload: unknown,
-    handler: AnyTaskHandlerDescriptor,
-    signal: AbortSignal,
-    replayIndex: ReplayIndex,
-    nextStep: () => number,
-    setLastProgress: (ms: number) => void,
-    getLastProgress: () => number,
-  ): TaskContext {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias -- context methods close over the runner instance
-    const runner = this
-
-    return {
-      taskId,
-      attempt,
-      payload,
-      injector: runner.#injector,
-      blobStore: runner.#blobStore,
-      cancellationSignal: signal,
-
-      async heartbeat() {
-        await runner.#taskDs.update(runner.#injector, taskId, {
-          visibilityDeadline: new Date(Date.now() + handler.visibilityTimeoutMs).toISOString(),
-        })
-      },
-
-      reportProgress(progress) {
-        const now = Date.now()
-        if (now - getLastProgress() < handler.progressThrottleMs) return
-        setLastProgress(now)
-        const at = new Date(now).toISOString()
-        void runner.#taskDs
-          .update(runner.#injector, taskId, {
-            progress: { percent: progress.percent, meta: progress.meta, updatedAt: at },
-          })
-          .catch(() => {})
-        runner.#emit(type, { kind: 'progress', taskId, percent: progress.percent, meta: progress.meta, at })
-        runner.#telemetry.emit('onTaskProgress', { taskId, percent: progress.percent, meta: progress.meta })
-      },
-
-      async spawnChild<TIn, TOut>(
-        childType: string,
-        childPayload: TIn,
-        opts?: SpawnOptions,
-      ): Promise<ChildHandle<TOut>> {
-        const step = nextStep()
-        const cached = replayIndex.get(step)
-        if (cached?.kind === 'spawn-child' && typeof cached.childTaskId === 'string') {
-          return { taskId: cached.childTaskId, type: childType }
-        }
-
-        const childId = randomUUID()
-        const retention: TaskRetentionPolicy = { ...DEFAULT_RETENTION_POLICY, ...opts?.retentionPolicy }
-
-        await runner.#persistReplayEntry({
-          id: `${taskId}:${step}`,
-          taskId,
-          stepIndex: step,
-          kind: 'spawn-child',
-          childTaskId: childId,
-          createdAt: new Date().toISOString(),
-        })
-
-        await runner.#submitChild(taskId, type, childId, childType, childPayload, retention, opts?.tags)
-
-        return { taskId: childId, type: childType }
-      },
-
-      async awaitChildren<THandles extends Array<ChildHandle<unknown>>>(
-        handles: THandles,
-      ): Promise<{ [K in keyof THandles]: THandles[K] extends ChildHandle<infer R> ? R : never }> {
-        type Tuple = { [K in keyof THandles]: THandles[K] extends ChildHandle<infer R> ? R : never }
-        const step = nextStep()
-        const cached = replayIndex.get(step)
-        if (cached?.kind === 'await-children' && Array.isArray(cached.output)) {
-          return cached.output as unknown as Tuple
-        }
-
-        const childIds = handles.map((h) => h.taskId)
-        const allDone = await runner.#allChildrenTerminal(childIds)
-
-        if (allDone) {
-          const results: unknown[] = []
-          for (const h of handles) {
-            const child = await runner.#taskDs.get(runner.#injector, h.taskId)
-            if (!child) throw new Error(`Child task ${h.taskId} not found`)
-            if (child.status === 'failed') {
-              throw new Error(`Child task ${h.taskId} failed: ${child.error?.message ?? 'unknown'}`)
-            }
-            if (child.status === 'cancelled') {
-              throw new Error(`Child task ${h.taskId} was cancelled`)
-            }
-            results.push(child.result)
-          }
-
-          await runner.#persistReplayEntry({
-            id: `${taskId}:${step}`,
-            taskId,
-            stepIndex: step,
-            kind: 'await-children',
-            childTaskIds: childIds,
-            output: results,
-            createdAt: new Date().toISOString(),
-          })
-
-          return results as unknown as Tuple
-        }
-
-        throw new SuspendedError(childIds)
-      },
-
-      async spawnChildAndAwait<TIn, TOut>(childType: string, childPayload: TIn, opts?: SpawnOptions): Promise<TOut> {
-        const handle = await this.spawnChild<TIn, TOut>(childType, childPayload, opts)
-        const [result] = await this.awaitChildren([handle])
-        return result
-      },
-
-      allocateBlob(suffix, opts) {
-        const key = `tasks/${taskId}/${suffix}`
-        return { storeName: runner.#blobStore.storeName, key, contentType: opts?.contentType }
-      },
-
-      now() {
-        const step = nextStep()
-        const cached = replayIndex.get(step)
-        if (cached?.kind === 'now' && typeof cached.output === 'string') {
-          return new Date(cached.output)
-        }
-
-        const value = new Date()
-        void runner.#persistReplayEntry({
-          id: `${taskId}:${step}`,
-          taskId,
-          stepIndex: step,
-          kind: 'now',
-          output: value.toISOString(),
-          createdAt: value.toISOString(),
-        })
-        return value
-      },
-
-      random() {
-        const step = nextStep()
-        const cached = replayIndex.get(step)
-        if (cached?.kind === 'random' && typeof cached.output === 'number') {
-          return cached.output
-        }
-
-        const value = Math.random()
-        void runner.#persistReplayEntry({
-          id: `${taskId}:${step}`,
-          taskId,
-          stepIndex: step,
-          kind: 'random',
-          output: value,
-          createdAt: new Date().toISOString(),
-        })
-        return value
-      },
-
-      async sleep(ms) {
-        const step = nextStep()
-        const cached = replayIndex.get(step)
-        if (cached?.kind === 'sleep') return
-
-        await new Promise<void>((resolve, reject) => {
-          const timer = setTimeout(resolve, ms)
-          signal.addEventListener(
-            'abort',
-            () => {
-              clearTimeout(timer)
-              reject(signal.reason instanceof Error ? signal.reason : new Error('Task cancelled'))
-            },
-            { once: true },
-          )
-        })
-        await runner.#persistReplayEntry({
-          id: `${taskId}:${step}`,
-          taskId,
-          stepIndex: step,
-          kind: 'sleep',
-          input: ms,
-          createdAt: new Date().toISOString(),
-        })
-      },
     }
   }
 
@@ -697,29 +503,37 @@ export class InProcessTaskRunner implements TaskRunner {
 
   // ── Cancellation ──────────────────────────────────────────────────
 
-  async #cascadeCancel(taskId: string, reason?: string): Promise<void> {
-    const task = await this.#taskDs.get(this.#injector, taskId)
-    if (!task || isTerminalStatus(task.status)) return
+  async #cascadeCancel(rootTaskId: string, reason?: string): Promise<void> {
+    const visited = new Set<string>()
+    const queue: string[] = [rootTaskId]
+    while (queue.length > 0) {
+      const taskId = queue.shift() as string
+      if (visited.has(taskId)) continue
+      visited.add(taskId)
 
-    if (reason !== undefined) {
-      await this.#pushEvent(taskId, { at: new Date().toISOString(), kind: 'cancellation-requested', reason })
-    }
+      const task = await this.#taskDs.get(this.#injector, taskId)
+      if (!task || isTerminalStatus(task.status)) continue
 
-    const ac = this.#abortControllers.get(taskId)
-    if (ac) {
-      await this.#taskDs.update(this.#injector, taskId, { status: 'cancelling' })
-      this.#emit(task.type, { kind: 'status', taskId, status: 'cancelling', at: new Date().toISOString(), reason })
-      ac.abort()
-    } else {
-      this.#removePending(taskId)
-      await this.#taskDs.update(this.#injector, taskId, { status: 'cancelled' })
-      this.#emit(task.type, { kind: 'status', taskId, status: 'cancelled', at: new Date().toISOString(), reason })
-      this.#telemetry.emit('onTaskCancelled', { taskId, type: task.type })
-      await this.#wakeParent(taskId)
-    }
+      if (reason !== undefined) {
+        await this.#pushEvent(taskId, { at: new Date().toISOString(), kind: 'cancellation-requested', reason })
+      }
 
-    for (const childId of task.childTaskIds) {
-      await this.#cascadeCancel(childId, reason)
+      const ac = this.#abortControllers.get(taskId)
+      if (ac) {
+        await this.#taskDs.update(this.#injector, taskId, { status: 'cancelling' })
+        this.#emit(task.type, { kind: 'status', taskId, status: 'cancelling', at: new Date().toISOString(), reason })
+        ac.abort()
+      } else {
+        this.#removePending(taskId)
+        await this.#taskDs.update(this.#injector, taskId, { status: 'cancelled' })
+        this.#emit(task.type, { kind: 'status', taskId, status: 'cancelled', at: new Date().toISOString(), reason })
+        this.#telemetry.emit('onTaskCancelled', { taskId, type: task.type })
+        await this.#wakeParent(taskId)
+      }
+
+      for (const childId of task.childTaskIds) {
+        if (!visited.has(childId)) queue.push(childId)
+      }
     }
   }
 
@@ -729,27 +543,38 @@ export class InProcessTaskRunner implements TaskRunner {
     const child = await this.#taskDs.get(this.#injector, childTaskId)
     if (!child?.parentTaskId || !isChildCompletionStatus(child.status)) return
 
-    const parent = await this.#taskDs.get(this.#injector, child.parentTaskId)
-    if (!parent || parent.status !== 'waiting') return
+    const parentId = child.parentTaskId
+    const preParent = await this.#taskDs.get(this.#injector, parentId)
+    if (!preParent || preParent.status !== 'waiting') return
 
-    await this.#pushEvent(parent.id, {
+    await this.#pushEvent(parentId, {
       at: new Date().toISOString(),
       kind: 'child-completed',
       childTaskId,
       status: child.status,
     })
-    this.#emit(parent.type, {
+    this.#emit(preParent.type, {
       kind: 'child-completed',
-      taskId: parent.id,
+      taskId: parentId,
       childTaskId,
       status: child.status,
       at: new Date().toISOString(),
     })
 
-    const awaited = parseAwaitedChildIds(parent.resumeToken) ?? parent.childTaskIds
-    if (await this.#allChildrenTerminal(awaited)) {
-      await this.#taskDs.update(this.#injector, parent.id, { status: 'pending', resumeToken: undefined })
-      this.#enqueue(parent)
+    // Concurrent child completions (and the periodic reconciler) can race
+    // on the waiting → pending transition. Serialize per parent so only one
+    // caller flips status and enqueues the parent.
+    const transitioned = await this.#withTaskLock(parentId, async () => {
+      const parent = await this.#taskDs.get(this.#injector, parentId)
+      if (!parent || parent.status !== 'waiting') return undefined
+      const awaited = parseAwaitedChildIds(parent.resumeToken) ?? parent.childTaskIds
+      if (!(await this.#allChildrenTerminal(awaited))) return undefined
+      await this.#taskDs.update(this.#injector, parentId, { status: 'pending', resumeToken: undefined })
+      return parent
+    })
+
+    if (transitioned) {
+      this.#enqueue(transitioned)
       this.#tryDispatch()
     }
   }
@@ -860,10 +685,15 @@ export class InProcessTaskRunner implements TaskRunner {
     for (const task of waiting) {
       const awaited = parseAwaitedChildIds(task.resumeToken) ?? task.childTaskIds
       if (awaited.length === 0) continue
-      if (await this.#allChildrenTerminal(awaited)) {
+      // Same race as #wakeParent — guard the transition with the per-task lock.
+      const transitioned = await this.#withTaskLock(task.id, async () => {
+        const fresh = await this.#taskDs.get(this.#injector, task.id)
+        if (!fresh || fresh.status !== 'waiting') return undefined
+        if (!(await this.#allChildrenTerminal(awaited))) return undefined
         await this.#taskDs.update(this.#injector, task.id, { status: 'pending', resumeToken: undefined })
-        this.#enqueue(task)
-      }
+        return fresh
+      })
+      if (transitioned) this.#enqueue(transitioned)
     }
     this.#tryDispatch()
   }
