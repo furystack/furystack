@@ -54,10 +54,11 @@ await client.quit()
 
 ## Stream layout
 
-| Key                                               | Purpose                                                 |
-| ------------------------------------------------- | ------------------------------------------------------- |
-| `${prefix}tasks:queue:${type}:v${handlerVersion}` | One stream per `(type, version)` lane. XADD on enqueue. |
-| `${prefix}tasks:idem:${type}:${idempotencyKey}`   | `SET NX EX` idempotency-lease key.                      |
+| Key                                               | Purpose                                                                       |
+| ------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `${prefix}tasks:queue:${type}:v${handlerVersion}` | One stream per `(type, version)` lane. XADD on enqueue.                       |
+| `${prefix}tasks:idem:${type}:${idempotencyKey}`   | `SET NX EX` idempotency-lease key.                                            |
+| `${prefix}tasks:scheduler`                        | Single ZSET parking delayed tasks until their `notBefore` (members are JSON). |
 
 A single consumer group named `runner` (override via `consumerGroup`) joins
 every lane. Each registered worker spawns `concurrency` slots; slot consumers
@@ -65,13 +66,27 @@ are named `${workerId}-slot-${index}`.
 
 ## Capabilities
 
-| Capability            | Value   | Notes                                                                     |
-| --------------------- | ------- | ------------------------------------------------------------------------- |
-| `persistent`          | `true`  | Streams survive broker restarts (configure broker durability separately). |
-| `distributed`         | `true`  | Consumer-group competing-consumer dispatch across nodes.                  |
-| `delayedDispatch`     | `false` | `notBefore` rejected at submit; landing in a follow-up.                   |
-| `fleetCapEnforcement` | `false` | Lua-atomic fleet caps land in a follow-up.                                |
-| `brokerSideReclaim`   | `true`  | `XAUTOCLAIM` recovers stale PEL entries past the visibility timeout.      |
+| Capability            | Value   | Notes                                                                          |
+| --------------------- | ------- | ------------------------------------------------------------------------------ |
+| `persistent`          | `true`  | Streams survive broker restarts (configure broker durability separately).      |
+| `distributed`         | `true`  | Consumer-group competing-consumer dispatch across nodes.                       |
+| `delayedDispatch`     | `true`  | Scheduler ZSET + Lua atomic-pop dispatcher; `notBefore` honored at the broker. |
+| `fleetCapEnforcement` | `false` | Lua-atomic fleet caps land in a follow-up.                                     |
+| `brokerSideReclaim`   | `true`  | `XAUTOCLAIM` recovers stale PEL entries past the visibility timeout.           |
+
+## Delayed dispatch
+
+Tasks submitted with a future `notBefore` are parked in a single global
+`${prefix}tasks:scheduler` ZSET (member = JSON `{taskId, type, handlerVersion}`,
+score = epoch ms). Every adapter instance ticks a 250 ms scheduler that
+evaluates a short Lua script atomically popping due entries and
+`XADD`ing them onto the matching `(type, version)` stream. Lua atomicity
+(the `ZREM` inside the script) prevents two adapter instances from
+double-dispatching the same delayed task.
+
+Tune the tick rate via `schedulerIntervalMs` — lower = lower delay
+jitter at the cost of broker chatter; higher = looser floor on
+`notBefore` precision.
 
 ## Visibility & reclaim
 
@@ -89,17 +104,18 @@ under the visibility threshold automatically.
 
 ## Constructor options
 
-| Option                    | Type     | Default    | Notes                                              |
-| ------------------------- | -------- | ---------- | -------------------------------------------------- |
-| `client`                  | required | —          | Caller-owned `redis` client. Must be connected.    |
-| `serviceName`             | required | —          | Telemetry attribution.                             |
-| `topicPrefix`             | optional | `''`       | Wire prefix for every stream / lease key.          |
-| `consumerGroup`           | optional | `'runner'` | Group name. Override only when sharing a broker.   |
-| `visibilityTimeoutMs`     | optional | `60_000`   | Default reclaim threshold per task lane.           |
-| `visibilityTimeoutByType` | optional | `{}`       | Per-type override (`{ 'video-encode': 600_000 }`). |
-| `blockTimeoutMs`          | optional | `200`      | `XREADGROUP BLOCK` timeout.                        |
-| `retryBackoffMs`          | optional | `250`      | Backoff between reads after broker errors.         |
-| `idempotencyTtlSec`       | optional | `86_400`   | `SET NX EX` lease TTL.                             |
+| Option                    | Type     | Default    | Notes                                                 |
+| ------------------------- | -------- | ---------- | ----------------------------------------------------- |
+| `client`                  | required | —          | Caller-owned `redis` client. Must be connected.       |
+| `serviceName`             | required | —          | Telemetry attribution.                                |
+| `topicPrefix`             | optional | `''`       | Wire prefix for every stream / lease / scheduler key. |
+| `consumerGroup`           | optional | `'runner'` | Group name. Override only when sharing a broker.      |
+| `visibilityTimeoutMs`     | optional | `60_000`   | Default reclaim threshold per task lane.              |
+| `visibilityTimeoutByType` | optional | `{}`       | Per-type override (`{ 'video-encode': 600_000 }`).    |
+| `blockTimeoutMs`          | optional | `200`      | `XREADGROUP BLOCK` timeout.                           |
+| `retryBackoffMs`          | optional | `250`      | Backoff between reads after broker errors.            |
+| `idempotencyTtlSec`       | optional | `86_400`   | `SET NX EX` lease TTL.                                |
+| `schedulerIntervalMs`     | optional | `250`      | Delayed-dispatch scheduler tick interval.             |
 
 ## Integration tests
 

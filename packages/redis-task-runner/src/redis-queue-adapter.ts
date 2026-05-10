@@ -68,12 +68,20 @@ export type RedisQueueAdapterOptions = {
    * {@link RedisQueueAdapter.acquireIdempotencyLease}. Default: 24h.
    */
   idempotencyTtlSec?: number
+  /**
+   * Delayed-dispatch tick interval (milliseconds). Each tick atomically
+   * pops due entries from the scheduler ZSET and `XADD`s them onto the
+   * matching `(type, version)` stream. Lower values = lower delay
+   * jitter at the cost of broker chatter; higher values = looser
+   * floor on `notBefore` granularity. Default: `250`.
+   */
+  schedulerIntervalMs?: number
 }
 
 const CAPABILITIES: QueueAdapterCapabilities = Object.freeze({
   persistent: true,
   distributed: true,
-  delayedDispatch: false,
+  delayedDispatch: true,
   fleetCapEnforcement: false,
   brokerSideReclaim: true,
 })
@@ -83,6 +91,45 @@ const DEFAULT_VISIBILITY_MS = 60_000
 const DEFAULT_BLOCK_MS = 200
 const DEFAULT_RETRY_BACKOFF_MS = 250
 const DEFAULT_IDEMPOTENCY_TTL_SEC = 86_400
+const DEFAULT_SCHEDULER_INTERVAL_MS = 250
+const SCHEDULER_BATCH_LIMIT = 64
+
+/**
+ * Atomically: pop ZSET members whose score ≤ now, parse their JSON
+ * envelope, XADD the resulting message to the per-`(type, version)`
+ * stream, and ZREM the member. Single round-trip prevents two adapter
+ * instances from double-dispatching the same delayed task.
+ *
+ * `KEYS[1]` — scheduler ZSET key.
+ * `ARGV[1]` — current epoch ms (caller-supplied so the script's own
+ * server-clock drift cannot diverge from the runner's notion of `now`).
+ * `ARGV[2]` — batch limit.
+ * `ARGV[3]` — `topicPrefix` used to build the destination stream key.
+ *
+ * Returns the number of dispatched entries.
+ */
+const SCHEDULER_DISPATCH_SCRIPT = `
+local now = tonumber(ARGV[1])
+local limit = tonumber(ARGV[2])
+local prefix = ARGV[3]
+local sched = KEYS[1]
+
+local members = redis.call('ZRANGEBYSCORE', sched, '-inf', now, 'LIMIT', 0, limit)
+local dispatched = 0
+for _, member in ipairs(members) do
+  local removed = redis.call('ZREM', sched, member)
+  if removed == 1 then
+    local meta = cjson.decode(member)
+    local stream = prefix .. 'tasks:queue:' .. meta.type .. ':v' .. tostring(meta.handlerVersion)
+    redis.call('XADD', stream, '*',
+      'taskId', meta.taskId,
+      'type', meta.type,
+      'handlerVersion', tostring(meta.handlerVersion))
+    dispatched = dispatched + 1
+  end
+end
+return dispatched
+`
 
 type RedisReceipt = {
   stream: string
@@ -150,10 +197,13 @@ export class RedisQueueAdapter implements QueueAdapter {
   readonly #blockMs: number
   readonly #retryBackoffMs: number
   readonly #idempotencyTtlSec: number
+  readonly #schedulerIntervalMs: number
 
   readonly #subscriptions = new Set<SubscriptionState>()
   readonly #ensuredGroups = new Set<string>()
 
+  readonly #schedulerTimer: ReturnType<typeof setInterval>
+  #schedulerRunning = false
   #disposed = false
 
   constructor(options: RedisQueueAdapterOptions) {
@@ -168,6 +218,12 @@ export class RedisQueueAdapter implements QueueAdapter {
     this.#blockMs = options.blockTimeoutMs ?? DEFAULT_BLOCK_MS
     this.#retryBackoffMs = options.retryBackoffMs ?? DEFAULT_RETRY_BACKOFF_MS
     this.#idempotencyTtlSec = options.idempotencyTtlSec ?? DEFAULT_IDEMPOTENCY_TTL_SEC
+    this.#schedulerIntervalMs = options.schedulerIntervalMs ?? DEFAULT_SCHEDULER_INTERVAL_MS
+
+    // `unref()` so an idle scheduler timer never holds the process
+    // open in single-shot scripts / tests.
+    this.#schedulerTimer = setInterval(() => void this.#runSchedulerTick(), this.#schedulerIntervalMs)
+    this.#schedulerTimer.unref?.()
   }
 
   // ── Public API ────────────────────────────────────────────────────
@@ -175,7 +231,23 @@ export class RedisQueueAdapter implements QueueAdapter {
   public async enqueue(input: EnqueueInput): Promise<void> {
     this.#ensureLive()
     const stream = this.#streamKey(input.type, input.handlerVersion)
+    // Ensure the consumer group exists eagerly — workers subscribing
+    // later will pick up XADDs that happen between scheduler dispatch
+    // and the worker's group-create call only when the group already
+    // claims the stream's history.
     await this.#ensureGroup(stream)
+
+    const dueAt = input.notBefore?.getTime()
+    if (dueAt !== undefined && dueAt > Date.now()) {
+      const member = JSON.stringify({
+        taskId: input.taskId,
+        type: input.type,
+        handlerVersion: input.handlerVersion,
+      })
+      await this.#client.zAdd(this.#schedulerKey(), { score: dueAt, value: member })
+      return
+    }
+
     await this.#client.xAdd(stream, '*', {
       taskId: input.taskId,
       type: input.type,
@@ -251,6 +323,7 @@ export class RedisQueueAdapter implements QueueAdapter {
   public [Symbol.dispose](): void {
     if (this.#disposed) return
     this.#disposed = true
+    clearInterval(this.#schedulerTimer)
     for (const state of this.#subscriptions) {
       state.abortController.abort()
     }
@@ -265,6 +338,39 @@ export class RedisQueueAdapter implements QueueAdapter {
 
   #idempotencyKey(type: string, key: string): string {
     return `${this.#topicPrefix}tasks:idem:${type}:${key}`
+  }
+
+  #schedulerKey(): string {
+    return `${this.#topicPrefix}tasks:scheduler`
+  }
+
+  /**
+   * Drains due delayed entries from the scheduler ZSET. Re-entrant
+   * guard prevents overlapping ticks on slow brokers; errors are
+   * swallowed so a transient `EVAL` failure does not poison the
+   * timer. The Lua script is the only authority for race-free
+   * dispatch — see {@link SCHEDULER_DISPATCH_SCRIPT}.
+   */
+  async #runSchedulerTick(): Promise<void> {
+    if (this.#disposed || this.#schedulerRunning) return
+    this.#schedulerRunning = true
+    try {
+      // The `redis` v5 client exposes `eval` with `keys` / `arguments`
+      // option fields; the cast keeps `RedisLikeClient` opaque.
+      const evalFn = this.#client.eval as (
+        script: string,
+        opts: { keys: string[]; arguments: string[] },
+      ) => Promise<unknown>
+      await evalFn.call(this.#client, SCHEDULER_DISPATCH_SCRIPT, {
+        keys: [this.#schedulerKey()],
+        arguments: [String(Date.now()), String(SCHEDULER_BATCH_LIMIT), this.#topicPrefix],
+      })
+    } catch {
+      // Best-effort: a transient broker failure means due entries stay
+      // in the ZSET and the next tick retries.
+    } finally {
+      this.#schedulerRunning = false
+    }
   }
 
   #streamsFor(subscription: WorkerSubscription): string[] {

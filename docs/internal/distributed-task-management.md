@@ -1454,10 +1454,8 @@ Decisions and deviations from the PRD settled during implementation:
       `fleetCapEnforcement: false`._
 - [x] Visibility timeout via stream pending entries + `XAUTOCLAIM`
       reclaim per slot iteration.
-- [ ] Delayed dispatch via sorted-set `notBefore` index + scheduler.
-      _Deferred to a follow-up PR; capability flag is
-      `delayedDispatch: false`. The runner core throws at submit time
-      when `notBefore` is set against this adapter._
+- [x] Delayed dispatch via single-ZSET scheduler index + Lua
+      atomic-pop dispatcher. Capability flag is `delayedDispatch: true`.
 - [x] Capability flags reflect persistence / fleet cap / delayed dispatch
       (and the new `brokerSideReclaim`).
 - [x] Integration tests gated on `docker-compose up redis` covering
@@ -1566,6 +1564,32 @@ Decisions and deviations from the PRD settled during implementation:
     blocking reads queue rather than overlap. Heavy-throughput
     deployments should provide a dedicated client (the PRD §8.3
     pattern) or open multiple redis-task-runner bindings.
+
+11. **Delayed dispatch — single global ZSET + Lua atomic pop.** Tasks
+    with `notBefore` in the future are parked in
+    `${prefix}tasks:scheduler` (a single ZSET per topicPrefix, member
+    encoded as JSON `{taskId, type, handlerVersion}`, score = epoch
+    ms). Every adapter instance runs a 250 ms scheduler timer (the
+    interval is configurable). On each tick the timer evaluates a
+    short Lua script that atomically `ZRANGEBYSCORE … LIMIT 0 64`,
+    `ZREM`s each due member, and `XADD`s the encoded payload to its
+    matching `tasks:queue:${type}:v${version}` stream. Lua's atomicity
+    is the only race-avoidance primitive — multiple adapter instances
+    racing the same tick cannot double-dispatch because the `ZREM`
+    inside the script is the gating side effect.
+
+    Group creation is eager on enqueue (regardless of delayed vs.
+    immediate) so the consumer group's cursor is set at the stream's
+    `$` BEFORE the scheduler appends — if a worker subscribes between
+    `ZADD` and the eventual `XADD`, the group already exists and the
+    new entry lands after `$`, ready for delivery.
+
+    Delayed dispatch was decided to be a single global ZSET (rather
+    than one ZSET per `(type, version)` shard) because (a) ZSET
+    operations are O(log n) regardless of size, (b) one ZRANGEBYSCORE
+    per tick is cheaper than fan-out across N shards, and (c) the
+    scheduler runs broker-side and has no claim-time concern requiring
+    sharding.
 
 ### Milestone 4 — Client SDK
 

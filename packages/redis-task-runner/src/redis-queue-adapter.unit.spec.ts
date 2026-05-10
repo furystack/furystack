@@ -18,6 +18,8 @@ type MockClient = {
   xClaimJustId: AnyMock
   set: AnyMock
   get: AnyMock
+  zAdd: AnyMock
+  eval: AnyMock
 }
 
 /**
@@ -41,31 +43,37 @@ const buildClient = (overrides: Partial<MockClient> = {}): MockClient => ({
   xClaimJustId: vi.fn().mockResolvedValue([]),
   set: vi.fn().mockResolvedValue('OK'),
   get: vi.fn().mockResolvedValue(null),
+  zAdd: vi.fn().mockResolvedValue(1),
+  eval: vi.fn().mockResolvedValue(0),
   ...overrides,
 })
 
-const makeAdapter = (client: MockClient, prefix = 'svc-a/'): RedisQueueAdapter => {
+const makeAdapter = (client: MockClient, prefix = 'svc-a/', schedulerIntervalMs = 1_000_000): RedisQueueAdapter => {
   return new RedisQueueAdapter({
     client: client as unknown as ConstructorParameters<typeof RedisQueueAdapter>[0]['client'],
     serviceName: 'svc-a',
     topicPrefix: prefix,
     blockTimeoutMs: 5,
     retryBackoffMs: 5,
+    // Disable the auto-tick by default — tests that exercise the
+    // scheduler trigger it manually via internal test hooks. A huge
+    // value keeps `setInterval` cheap without rewriting timer plumbing.
+    schedulerIntervalMs,
   })
 }
 
 describe('RedisQueueAdapter', () => {
   describe('capabilities', () => {
-    it('declares persistent + distributed + brokerSideReclaim', () => {
+    it('declares persistent + distributed + brokerSideReclaim + delayedDispatch', () => {
       using adapter = makeAdapter(buildClient())
       expect(adapter.capabilities.persistent).toBe(true)
       expect(adapter.capabilities.distributed).toBe(true)
       expect(adapter.capabilities.brokerSideReclaim).toBe(true)
+      expect(adapter.capabilities.delayedDispatch).toBe(true)
     })
 
-    it('flags delayedDispatch + fleetCapEnforcement as not supported in this revision', () => {
+    it('flags fleetCapEnforcement as not supported in this revision', () => {
       using adapter = makeAdapter(buildClient())
-      expect(adapter.capabilities.delayedDispatch).toBe(false)
       expect(adapter.capabilities.fleetCapEnforcement).toBe(false)
     })
   })
@@ -103,6 +111,78 @@ describe('RedisQueueAdapter', () => {
       using adapter = makeAdapter(client)
       await expect(adapter.enqueue({ taskId: 't1', type: 'echo', handlerVersion: 1 })).resolves.toBeUndefined()
       expect(client.xAdd).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe('delayed dispatch', () => {
+    it('ZADDs to the scheduler ZSET when notBefore is in the future', async () => {
+      const client = buildClient()
+      using adapter = makeAdapter(client)
+      const future = new Date(Date.now() + 60_000)
+      await adapter.enqueue({ taskId: 't1', type: 'echo', handlerVersion: 1, notBefore: future })
+
+      expect(client.xAdd).not.toHaveBeenCalled()
+      expect(client.zAdd).toHaveBeenCalledWith('svc-a/tasks:scheduler', {
+        score: future.getTime(),
+        value: JSON.stringify({ taskId: 't1', type: 'echo', handlerVersion: 1 }),
+      })
+    })
+
+    it('XADDs immediately when notBefore is in the past', async () => {
+      const client = buildClient()
+      using adapter = makeAdapter(client)
+      await adapter.enqueue({
+        taskId: 't1',
+        type: 'echo',
+        handlerVersion: 1,
+        notBefore: new Date(Date.now() - 1000),
+      })
+      expect(client.zAdd).not.toHaveBeenCalled()
+      expect(client.xAdd).toHaveBeenCalledOnce()
+    })
+
+    it('eagerly creates the consumer group on the destination stream so scheduler XADDs are not lost', async () => {
+      const client = buildClient()
+      using adapter = makeAdapter(client)
+      await adapter.enqueue({
+        taskId: 't1',
+        type: 'echo',
+        handlerVersion: 1,
+        notBefore: new Date(Date.now() + 60_000),
+      })
+      expect(client.xGroupCreate).toHaveBeenCalledWith('svc-a/tasks:queue:echo:v1', 'runner', '$', {
+        MKSTREAM: true,
+      })
+    })
+
+    it('runs the scheduler tick on the configured interval and EVALs the dispatch script', async () => {
+      const client = buildClient()
+      using adapter = makeAdapter(client, 'svc-a/', 20)
+      // Block until at least one tick fired against the broker.
+      await waitFor(() => client.eval.mock.calls.length > 0, 500)
+      const firstCall = client.eval.mock.calls[0] as unknown as [string, { keys: string[]; arguments: string[] }]
+      const opts = firstCall[1]
+      expect(opts.keys).toEqual(['svc-a/tasks:scheduler'])
+      expect(opts.arguments[2]).toBe('svc-a/')
+      // ARGV[1] is `now` epoch ms; sanity-check it parses.
+      expect(Number.isFinite(Number(opts.arguments[0]))).toBe(true)
+      // ARGV[2] is the batch limit — must be a positive integer.
+      expect(Number(opts.arguments[1])).toBeGreaterThan(0)
+      void adapter
+    })
+
+    it('swallows EVAL errors so a transient broker failure does not poison the timer', async () => {
+      const errors: unknown[] = []
+      const client = buildClient({
+        eval: vi.fn().mockImplementation(() => {
+          const error = new Error('LOADING Redis is starting')
+          errors.push(error)
+          throw error
+        }),
+      })
+      using adapter = makeAdapter(client, 'svc-a/', 10)
+      await waitFor(() => errors.length >= 2, 500)
+      void adapter
     })
   })
 

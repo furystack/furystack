@@ -49,6 +49,7 @@ export const defineRedisTaskRunner = (options: DefineRedisTaskRunnerOptions): Se
     blockTimeoutMs,
     retryBackoffMs,
     idempotencyTtlSec,
+    schedulerIntervalMs,
     reconcilerIntervalMs,
     sweepIntervalMs,
   } = options
@@ -77,6 +78,7 @@ export const defineRedisTaskRunner = (options: DefineRedisTaskRunnerOptions): Se
         blockTimeoutMs,
         retryBackoffMs,
         idempotencyTtlSec,
+        schedulerIntervalMs,
       },
       { reconcilerIntervalMs, sweepIntervalMs },
     )

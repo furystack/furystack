@@ -30,6 +30,7 @@ const buildHarness = async (options: {
   workerCount: number
   handlers: AnyTaskHandlerDescriptor[]
   visibilityTimeoutMs?: number
+  schedulerIntervalMs?: number
 }): Promise<Harness> => {
   const client = createClient({ url: REDIS_URL })
   await client.connect()
@@ -51,6 +52,7 @@ const buildHarness = async (options: {
       topicPrefix: options.prefix,
       visibilityTimeoutMs: options.visibilityTimeoutMs ?? 60_000,
       blockTimeoutMs: 50,
+      schedulerIntervalMs: options.schedulerIntervalMs ?? 50,
       reconcilerIntervalMs: 200,
       sweepIntervalMs: 100,
     }),
@@ -110,25 +112,49 @@ describe('RedisTaskRunner (integration)', () => {
     await cleanupStreams(prefix)
   })
 
-  it('declares persistent + delayed-dispatch=false capabilities', async () => {
+  it('declares persistent + delayedDispatch=true capabilities', async () => {
     await using harness = await buildHarness({ prefix, workerCount: 0, handlers: [] })
     const caps: TaskRunnerCapabilities = harness.runner.capabilities
     expect(caps.persistent).toBe(true)
-    expect(caps.delayedDispatch).toBe(false)
+    expect(caps.delayedDispatch).toBe(true)
     expect(caps.fleetCapEnforcement).toBe(false)
   })
 
-  it('rejects submit({ notBefore }) because the adapter does not declare delayedDispatch', async () => {
-    await using harness = await buildHarness({ prefix, workerCount: 0, handlers: [] })
-    await expect(
-      harness.runner.submit({
-        type: 'echo',
-        payload: { value: 'x' },
-        handlerVersion: 1,
-        notBefore: new Date(Date.now() + 1000),
-      }),
-    ).rejects.toThrow(/delayed dispatch/)
-  })
+  it('honors notBefore by parking the task in the scheduler ZSET until it is due', async () => {
+    const ranAt: number[] = []
+    const stamper = defineTaskHandler<Record<string, never>, void>({
+      type: 'stamp',
+      version: 1,
+      handler: async (ctx) => {
+        ranAt.push(ctx.now().getTime())
+      },
+    })
+
+    await using harness = await buildHarness({ prefix, workerCount: 1, handlers: [stamper] })
+    const submittedAt = Date.now()
+    const dueAt = submittedAt + 400
+    const task = await harness.runner.submit({
+      type: 'stamp',
+      payload: {},
+      handlerVersion: 1,
+      notBefore: new Date(dueAt),
+    })
+
+    // Task should still be 'pending' shortly after submit and the
+    // queue stream should be empty — payload is parked in the
+    // scheduler ZSET. Allow a small tolerance for clock drift.
+    await sleep(120)
+    const streamLen = await harness.client.xLen(`${prefix}tasks:queue:stamp:v1`).catch(() => 0)
+    expect(streamLen).toBe(0)
+    const schedSize = await harness.client.zCard(`${prefix}tasks:scheduler`).catch(() => 0)
+    expect(schedSize).toBe(1)
+
+    const completed = await runTaskToCompletion({ runner: harness.runner, taskId: task.id, timeoutMs: 5000 })
+    expect(completed.status).toBe('succeeded')
+    expect(ranAt).toHaveLength(1)
+    // First and only run should not have started before the due time.
+    expect(ranAt[0]).toBeGreaterThanOrEqual(dueAt - 50)
+  }, 15_000)
 
   it('submit → claim → handler runs → terminal succeeded (happy path)', async () => {
     const echo = defineTaskHandler<{ value: string }, { echoed: string }>({

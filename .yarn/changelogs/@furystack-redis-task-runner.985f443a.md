@@ -35,19 +35,34 @@ Each slot iteration runs `XAUTOCLAIM` first (idle threshold = the per-type `visi
 
 `acquireIdempotencyLease({ type, key, taskId })` writes `${prefix}tasks:idem:${type}:${key} → taskId` with `NX EX 86400`. Concurrent submitters across nodes lose the race deterministically — the runner core returns the prior winner's task instead of duplicating the row.
 
+### Delayed dispatch via single-ZSET scheduler
+
+Tasks submitted with a future `notBefore` are parked in a single global `${prefix}tasks:scheduler` ZSET (member = JSON `{taskId, type, handlerVersion}`, score = epoch ms). Every adapter instance runs a 250 ms scheduler timer that evaluates a small Lua script atomically popping due entries (`ZRANGEBYSCORE` + `ZREM`) and `XADD`ing them onto the matching `(type, version)` stream. Lua atomicity prevents two adapter instances from double-dispatching the same delayed task.
+
+```typescript
+await runner.submit({
+  type: 'send-reminder',
+  payload: { userId: 'u1' },
+  handlerVersion: 1,
+  notBefore: new Date(Date.now() + 60_000),
+})
+```
+
+Tune via the new `schedulerIntervalMs` constructor option — default 250 ms balances delay precision against broker chatter.
+
 ### Capability declaration
 
 | Capability            | Value   |
 | --------------------- | ------- |
 | `persistent`          | `true`  |
 | `distributed`         | `true`  |
-| `delayedDispatch`     | `false` |
+| `delayedDispatch`     | `true`  |
 | `fleetCapEnforcement` | `false` |
 | `brokerSideReclaim`   | `true`  |
 
-`delayedDispatch` and `fleetCapEnforcement` are intentionally `false` in this release; both land in follow-up PRs as described in `docs/internal/distributed-task-management.md` Milestone 3 implementation notes.
+`fleetCapEnforcement` is intentionally `false` in this release and lands in a follow-up PR as described in `docs/internal/distributed-task-management.md` Milestone 3 implementation notes.
 
 ## 🧪 Tests
 
-- Unit suite stubbing the `redis` client to verify XADD / XREADGROUP / XAUTOCLAIM / XACK / XCLAIM JUSTID / SET NX EX call shapes, BUSYGROUP idempotency, idempotency-lease race outcomes, and malformed-entry handling.
-- Integration suite gated on `docker-compose up redis` covering submit/claim/complete, two-worker no-double-execute, broker-side reclaim, draft/start two-phase, and cancel-broadcast.
+- Unit suite stubbing the `redis` client to verify XADD / XREADGROUP / XAUTOCLAIM / XACK / XCLAIM JUSTID / SET NX EX / ZADD / EVAL call shapes, BUSYGROUP idempotency, idempotency-lease race outcomes, scheduler-tick payload shape, and malformed-entry handling.
+- Integration suite gated on `docker-compose up redis` covering submit/claim/complete, two-worker no-double-execute, broker-side reclaim, draft/start two-phase, cancel-broadcast, and `notBefore` honoring with scheduler ZSET parking.
