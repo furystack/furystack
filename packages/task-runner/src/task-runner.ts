@@ -18,6 +18,24 @@ export type SubmitOptions<TPayload> = {
   tags?: string[]
   parentTaskId?: string
   retentionPolicy?: Partial<TaskRetentionPolicy>
+  /**
+   * Identity that submitted the task. Populated by the REST surface from
+   * `IdentityContext.getCurrentUser()`; server-internal callers leave it
+   * unset.
+   */
+  submittedBy?: string
+}
+
+/**
+ * Options accepted by {@link TaskRunner.start}. When `payload` is supplied
+ * the draft's payload is replaced wholesale before the task is released to
+ * the queue. Used by the two-phase submit flow: the REST layer creates a
+ * draft, returns presigned upload URLs, then `start`s the task once the
+ * client has finished uploading and substituted the resolved blob keys
+ * into the payload.
+ */
+export type StartOptions<TPayload = unknown> = {
+  payload?: TPayload
 }
 
 export type RegisterWorkerOptions = {
@@ -50,7 +68,21 @@ export type Worker = Disposable & {
  * Bind a concrete implementation via `injector.bind(TaskRunner, defineInProcessTaskRunner())`.
  */
 export type TaskRunner = Disposable & {
+  /** Submit a new task. Creates the row and immediately enqueues it for dispatch. */
   submit<TPayload = unknown>(args: SubmitOptions<TPayload>): Promise<Task>
+  /**
+   * Create a task in `'draft'` status without enqueueing. Returned task is
+   * invisible to workers until {@link TaskRunner.start} flips it to
+   * `'pending'`. Used by the REST surface to mint presigned upload URLs
+   * before the task is dispatched.
+   */
+  draft<TPayload = unknown>(args: SubmitOptions<TPayload>): Promise<Task>
+  /**
+   * Release a draft task to the queue. Optionally replaces the draft's
+   * payload (e.g. with one carrying resolved blob keys after upload).
+   * Throws when the task is not in `'draft'` status.
+   */
+  start<TPayload = unknown>(taskId: string, opts?: StartOptions<TPayload>): Promise<Task>
   cancel(taskId: string, reason?: string): Promise<void>
   get(taskId: string): Promise<Task | undefined>
   getTree(taskId: string): Promise<TaskTreeNode>

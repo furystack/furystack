@@ -20,7 +20,13 @@ export type {
 } from './types.js'
 
 export { TaskRunner } from './task-runner.js'
-export type { TaskRunnerCapabilities, SubmitOptions, RegisterWorkerOptions, Worker } from './task-runner.js'
+export type {
+  TaskRunnerCapabilities,
+  SubmitOptions,
+  StartOptions,
+  RegisterWorkerOptions,
+  Worker,
+} from './task-runner.js'
 
 export type { TaskContext, SpawnOptions } from './task-context.js'
 export type { ChildHandle, ResultOf } from './child-handle.js'

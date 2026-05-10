@@ -7,6 +7,7 @@ import { noDirectGetValueInRender } from './rules/no-direct-get-value-in-render.
 import { noDirectStoreToken } from './rules/no-direct-store-token.js'
 import { noManualSubscribeInRender } from './rules/no-manual-subscribe-in-render.js'
 import { noModuleLevelJsx } from './rules/no-module-level-jsx.js'
+import { noNonDeterministicGlobalsInHandler } from './rules/no-non-deterministic-globals-in-handler.js'
 import { preferLocationService } from './rules/prefer-location-service.js'
 import { preferNestedRouteLink } from './rules/prefer-nested-route-link.js'
 import { preferUseState } from './rules/prefer-use-state.js'
@@ -27,6 +28,7 @@ const rules = {
   'no-direct-store-token': noDirectStoreToken,
   'no-manual-subscribe-in-render': noManualSubscribeInRender,
   'no-module-level-jsx': noModuleLevelJsx,
+  'no-non-deterministic-globals-in-handler': noNonDeterministicGlobalsInHandler,
   'prefer-location-service': preferLocationService,
   'prefer-nested-route-link': preferNestedRouteLink,
   'prefer-use-state': preferUseState,

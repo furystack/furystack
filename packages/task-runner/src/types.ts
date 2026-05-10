@@ -1,14 +1,15 @@
 import type { BlobRef } from '@furystack/blob-store'
 
 export type TaskStatus =
-  | 'pending'
-  | 'claimed'
-  | 'running'
-  | 'waiting'
-  | 'cancelling'
-  | 'cancelled'
-  | 'succeeded'
-  | 'failed'
+  | 'draft' // created, not yet released to the queue (two-phase submit)
+  | 'pending' // released, waiting for a worker to claim
+  | 'claimed' // a worker holds the lease
+  | 'running' // handler started
+  | 'waiting' // suspended, waiting for children to terminate
+  | 'cancelling' // cancellation requested, propagating
+  | 'cancelled' // terminal
+  | 'succeeded' // terminal
+  | 'failed' // terminal, retries exhausted
 
 export type AttemptStatus = 'in-progress' | 'succeeded' | 'failed' | 'cancelled' | 'timed-out'
 

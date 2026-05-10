@@ -299,7 +299,8 @@ and `EntityChangeBus`.
 
 ```ts
 type TaskStatus =
-  | 'pending' // submitted, waiting for a worker to claim
+  | 'draft' // created, not yet released to the queue (two-phase submit)
+  | 'pending' // released, waiting for a worker to claim
   | 'claimed' // a worker holds the lease
   | 'running' // handler started
   | 'waiting' // suspended, waiting for children to terminate
@@ -1055,8 +1056,11 @@ the abort or perform unkillable work).
 
 - All REST endpoints (`POST /tasks`, `GET /tasks/${id}`, `DELETE /tasks/${id}`,
   `GET /tasks/${id}/download`, `GET /tasks/${id}/tree`,
-  `WS /tasks/subscribe`) are mounted with `@furystack/security`
-  authorizers configured per task type by the app.
+  `WS /tasks/subscribe`) are mounted with `@furystack/rest-service`
+  `Authenticate()` + `Authorize(...roles)` wrappers configured per task
+  type by the app via the `useTaskRunnerEndpoints({ authorizers })`
+  option. Credential storage continues to live behind
+  `@furystack/security`.
 - The submitter identity (when available) is captured on the task
   entity (`submittedBy`) for audit and visibility filtering.
 - Workers authenticate as service-account identities and require a
@@ -1354,16 +1358,92 @@ Decisions and deviations from the PRD settled during implementation:
 
 ### Milestone 2 — REST + WS surface
 
-- [ ] REST endpoints: `POST /tasks`, `GET /tasks/:id`, `DELETE /tasks/:id`,
-      `GET /tasks/:id/download`, `GET /tasks/:id/tree`.
-- [ ] WS endpoint: `WS /tasks/subscribe` riding on the existing
-      entity-sync transport, exposing `TaskUpdate` events sourced from
-      both bus (hot) and dataset (cold).
-- [ ] `@furystack/security` authorizer integration; `submittedBy`
-      capture.
-- [ ] Blob upload-ticket flow (`POST /tasks` returns presigned URLs +
-      blob keys; `POST /tasks/:id/start` releases the task).
-- [ ] Determinism ESLint rule in `@furystack/eslint-plugin`.
+- [x] REST endpoints: `POST /tasks` (draft + upload tickets),
+      `POST /tasks/:id/start`, `GET /tasks/:id`, `GET /tasks/:id/tree`,
+      `DELETE /tasks/:id`, `GET /tasks/:id/download`,
+      `GET /tasks/:id/blobs/:key`.
+- [x] WS endpoint: `WS /tasks-socket` (default path) carrying the
+      `subscribe-task` / `unsubscribe-task` envelope. Snapshots the task
+      from the dataset and streams hot-lane bus events from
+      `tasks/progress/${type}` and `tasks/status/${type}`, deduping by
+      `bus.compareSeq` per §7.7.
+- [x] `@furystack/rest-service` `Authenticate()` / `Authorize(...roles)`
+      integration via per-type `authorizers` map; `submittedBy` capture
+      from `IdentityContext`. (PRD §11 originally referenced
+      `@furystack/security`; corrected — credential storage stays with
+      `@furystack/security`, REST authorizers ship with `rest-service`.)
+- [x] Blob upload-ticket flow on `POST /tasks` (returns server-allocated
+      keys + presigned URLs); `POST /tasks/:id/start` releases the
+      draft and may replace `payload`.
+- [x] Determinism ESLint rule
+      `furystack/no-non-deterministic-globals-in-handler` in
+      `@furystack/eslint-plugin`.
+
+#### M2 implementation notes
+
+Decisions and deviations from the PRD settled during implementation:
+
+1. **`'draft'` task status added.** `TaskStatus` gains `'draft'` to
+   support the two-phase submit flow (PRD §10.2). `runner.draft(opts)`
+   creates the row without enqueueing; `runner.start(taskId, { payload? })`
+   flips the status to `'pending'` and dispatches, optionally replacing
+   the draft's payload (typically with one carrying the resolved blob
+   keys returned by the upload-ticket flow). `runner.submit()` keeps M1
+   semantics (immediate enqueue) so callers from M1 are unaffected.
+
+2. **Bus topic split.** M1 published every `TaskUpdate` on
+   `tasks/status/${type}`. M2 separates them per PRD §6 — `progress`
+   updates ride `tasks/progress/${type}`, status / `spawned-child` /
+   `child-completed` ride `tasks/status/${type}`. `runner.cancel()`
+   additionally publishes a `tasks/cancel/${type}` broadcast carrying
+   `{ taskIds: [...] }` per PRD §11; workers subscribe to that topic
+   for every task type they declare and intersect with locally held
+   leases to abort matching cancellation signals.
+
+3. **Authorizers live with endpoints, not handlers.** Per-type role
+   lists are configured via `useTaskRunnerEndpoints({ authorizers })`
+   rather than on `defineTaskHandler`. Worker code stays
+   identity-shape-agnostic; deployment shape (which roles can submit /
+   cancel / subscribe / download) is owned by the API wiring layer.
+
+4. **WS endpoint is purpose-built, not entity-sync-routed.** PRD §13
+   originally suggested riding the entity-sync transport. The §7.7
+   snapshot+stream flow with explicit hot/cold lane handling, bus
+   `compareSeq` dedup, and per-socket subscription cleanup did not fit
+   `subscribe-entity`'s registration model — implemented as a dedicated
+   `subscribe-task` `WebSocketAction` mounted under a separate WS path
+   (`/tasks-socket` by default). The shape is still close enough that
+   the M4 client SDK can reuse the entity-sync envelope conventions.
+
+5. **`whenReady?` deferred.** PRD §7.7 references an optional
+   `bus.whenReady?(topic)` await before snapshotting. The current
+   `CrossNodeBus` interface does not expose this; for the in-process
+   bus no readiness wait is needed and the M3 Redis adapter will add
+   the hook (Redis Streams cursor initialisation needs a wire round-trip
+   to become live). M2 omits the call; the hook will land alongside
+   the Redis adapter in M3.
+
+6. **Download routes.** `GET /tasks/:id/download` redirects to the
+   first `producedBlobs[0]` entry (ergonomic default for the
+   single-output case from PRD §10.2). `GET /tasks/:id/blobs/:key`
+   covers explicit selection for multi-output tasks; the helper
+   refuses keys not on the task's `producedBlobs` allowlist.
+
+7. **Submit body shape.** `POST /tasks` accepts an optional
+   `uploads: Record<name, { contentType?, maxBytes?, ttlSec? }>` map
+   alongside the standard submit options. Server allocates blob keys
+   under `tasks/${id}/uploads/${name}` per slot and returns
+   `{ task, uploads: Record<name, { key, url, method, fields? }> }`.
+   Slot names are validated against `^[A-Za-z0-9_.-]{1,64}$` to keep
+   keys filesystem-safe across adapters. Upload TTL defaults to 1 hour
+   (`defaultUploadTtlSec`); per-slot overrides take precedence.
+
+8. **Adapters that lack presigned URLs return 501.** `POST /tasks`
+   with `uploads:` against an `InMemoryBlobStore` (or any other
+   adapter that throws `BlobStoreError({ code: 'capability-missing' })`
+   from `getUploadUrl`) replies `501 capability-missing`. Apps either
+   bind a URL-capable adapter (S3, filesystem with `publicUrlBase`)
+   or omit `uploads:` and pre-populate payload-side blob refs.
 
 ### Milestone 3 — Redis Streams adapter
 

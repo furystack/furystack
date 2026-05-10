@@ -1,11 +1,18 @@
 import type { BlobStore } from '@furystack/blob-store'
 import type { DataSet } from '@furystack/repository'
-import type { CrossNodeBus } from '@furystack/cross-node-bus'
+import type { BusMessage, CrossNodeBus } from '@furystack/cross-node-bus'
 import type { Injector, ServiceFactory } from '@furystack/inject'
 import { BlobStore as BlobStoreToken } from '@furystack/blob-store'
 import { CrossNodeBus as CrossNodeBusToken } from '@furystack/cross-node-bus'
 import type { AnyTaskHandlerDescriptor } from './define-task-handler.js'
-import type { RegisterWorkerOptions, SubmitOptions, TaskRunner, TaskRunnerCapabilities, Worker } from './task-runner.js'
+import type {
+  RegisterWorkerOptions,
+  StartOptions,
+  SubmitOptions,
+  TaskRunner,
+  TaskRunnerCapabilities,
+  Worker,
+} from './task-runner.js'
 import { Task, DEFAULT_RETENTION_POLICY, MAX_EVENTS_PER_TASK, isTerminalStatus } from './types.js'
 import type {
   AttemptRecord,
@@ -47,7 +54,17 @@ type WorkerRegistration = {
   activeTasks: Set<string>
   draining: boolean
   drainResolve?: () => void
+  /** Per-type cancel-topic subscriptions held for the lifetime of the worker. */
+  cancelSubscriptions: Disposable[]
 }
+
+/**
+ * Payload shape for `tasks/cancel/${type}` bus messages. Workers subscribe
+ * to this topic for every task type they declare, intersect the carried
+ * task ids with their own held leases, and abort matching cancellation
+ * signals (PRD §11 cancel transport).
+ */
+type CancelBroadcastPayload = { taskIds: string[] }
 
 type PendingTask = {
   taskId: string
@@ -151,6 +168,66 @@ export class InProcessTaskRunner implements TaskRunner {
       if (existing) return existing
     }
 
+    const persisted = await this.#persistInitialTask(args, 'pending')
+    this.#telemetry.emit('onTaskSubmitted', {
+      taskId: persisted.id,
+      type: persisted.type,
+      parentTaskId: persisted.parentTaskId,
+      payloadBytes: estimateSize(persisted.payload),
+    })
+    this.#enqueue(persisted)
+    this.#tryDispatch()
+    return persisted
+  }
+
+  public async draft<TPayload = unknown>(args: SubmitOptions<TPayload>): Promise<Task> {
+    this.#ensureLive()
+
+    if (args.idempotencyKey) {
+      const existing = await this.#findByIdempotencyKey(args.idempotencyKey, args.type)
+      if (existing) return existing
+    }
+
+    return this.#persistInitialTask(args, 'draft')
+  }
+
+  public async start<TPayload = unknown>(taskId: string, opts?: StartOptions<TPayload>): Promise<Task> {
+    this.#ensureLive()
+
+    const released = await this.#withTaskLock(taskId, async () => {
+      const task = await this.#taskDs.get(this.#injector, taskId)
+      if (!task) throw new Error(`Task ${taskId} not found`)
+      if (task.status !== 'draft') {
+        throw new Error(`Task ${taskId} cannot be started: status is '${task.status}', expected 'draft'`)
+      }
+      const update: Partial<Task> = { status: 'pending' }
+      if (opts && 'payload' in opts) {
+        update.payload = opts.payload
+      }
+      await this.#taskDs.update(this.#injector, taskId, update)
+      return this.#taskDs.get(this.#injector, taskId)
+    })
+
+    if (!released) throw new Error(`Task ${taskId} disappeared during start`)
+
+    this.#telemetry.emit('onTaskSubmitted', {
+      taskId: released.id,
+      type: released.type,
+      parentTaskId: released.parentTaskId,
+      payloadBytes: estimateSize(released.payload),
+    })
+    this.#enqueue(released)
+    this.#tryDispatch()
+    return released
+  }
+
+  /**
+   * Builds and persists an initial Task row in the requested non-terminal
+   * status. Shared by {@link InProcessTaskRunner.submit} (status `'pending'`)
+   * and {@link InProcessTaskRunner.draft} (status `'draft'`); see
+   * {@link InProcessTaskRunner.start} for the draft-release flow.
+   */
+  async #persistInitialTask<TPayload>(args: SubmitOptions<TPayload>, status: 'pending' | 'draft'): Promise<Task> {
     const now = new Date().toISOString()
     const taskId = randomUUID()
 
@@ -163,10 +240,11 @@ export class InProcessTaskRunner implements TaskRunner {
       id: taskId,
       type: args.type,
       handlerVersion: args.handlerVersion,
-      status: 'pending' satisfies TaskStatus,
+      status,
       payload: args.payload,
       childTaskIds: [],
       submittedAt: now,
+      submittedBy: args.submittedBy,
       notBefore: args.notBefore?.toISOString(),
       idempotencyKey: args.idempotencyKey,
       attempts: [],
@@ -179,19 +257,7 @@ export class InProcessTaskRunner implements TaskRunner {
     })
 
     const result = await this.#taskDs.add(this.#injector, task)
-    const persisted = result.created[0]
-
-    this.#telemetry.emit('onTaskSubmitted', {
-      taskId: persisted.id,
-      type: persisted.type,
-      parentTaskId: persisted.parentTaskId,
-      payloadBytes: estimateSize(persisted.payload),
-    })
-
-    this.#enqueue(persisted)
-    this.#tryDispatch()
-
-    return persisted
+    return result.created[0]
   }
 
   public async cancel(taskId: string, reason?: string): Promise<void> {
@@ -238,6 +304,17 @@ export class InProcessTaskRunner implements TaskRunner {
       handlers,
       activeTasks: new Set(),
       draining: false,
+      cancelSubscriptions: [],
+    }
+
+    // Workers subscribe to `tasks/cancel/${type}` for every type they declare
+    // so cross-process cancel broadcasts (PRD §11) reach handlers running on
+    // any node. The handler intersects payload `taskIds` with the locally
+    // held leases — workers without a matching lease ignore the event.
+    for (const type of handlers.keys()) {
+      reg.cancelSubscriptions.push(
+        this.#bus.subscribe(`tasks/cancel/${type}`, (message) => this.#handleCancelBroadcast(reg, message)),
+      )
     }
 
     this.#workers.set(workerId, reg)
@@ -261,9 +338,29 @@ export class InProcessTaskRunner implements TaskRunner {
       },
       [Symbol.dispose]: () => {
         reg.draining = true
+        for (const sub of reg.cancelSubscriptions) sub[Symbol.dispose]()
+        reg.cancelSubscriptions.length = 0
         this.#workers.delete(workerId)
         reg.drainResolve?.()
       },
+    }
+  }
+
+  /**
+   * Cross-node cancel handler — intersects the broadcast `taskIds` with
+   * leases held by `worker` and aborts matching cancellation signals.
+   * Workers without a matching lease drop the event after a single map
+   * lookup. Aborts are idempotent, so the local synchronous abort path
+   * (see {@link InProcessTaskRunner.#cascadeCancel}) racing against this
+   * handler is harmless.
+   */
+  #handleCancelBroadcast(worker: WorkerRegistration, message: BusMessage): void {
+    const payload = message.payload as CancelBroadcastPayload | null
+    if (!payload || !Array.isArray(payload.taskIds)) return
+    for (const taskId of payload.taskIds) {
+      if (!worker.activeTasks.has(taskId)) continue
+      const ac = this.#abortControllers.get(taskId)
+      ac?.abort()
     }
   }
 
@@ -506,6 +603,13 @@ export class InProcessTaskRunner implements TaskRunner {
   async #cascadeCancel(rootTaskId: string, reason?: string): Promise<void> {
     const visited = new Set<string>()
     const queue: string[] = [rootTaskId]
+    /**
+     * Affected task ids grouped by task type; one bus publish per type at
+     * the end of the cascade carries the full batch so other nodes can
+     * intersect against locally held leases in a single pass (PRD §11).
+     */
+    const broadcastByType = new Map<string, string[]>()
+
     while (queue.length > 0) {
       const taskId = queue.shift() as string
       if (visited.has(taskId)) continue
@@ -531,9 +635,18 @@ export class InProcessTaskRunner implements TaskRunner {
         await this.#wakeParent(taskId)
       }
 
+      const list = broadcastByType.get(task.type)
+      if (list) list.push(taskId)
+      else broadcastByType.set(task.type, [taskId])
+
       for (const childId of task.childTaskIds) {
         if (!visited.has(childId)) queue.push(childId)
       }
+    }
+
+    for (const [type, taskIds] of broadcastByType) {
+      const payload: CancelBroadcastPayload = { taskIds }
+      void this.#bus.publish(`tasks/cancel/${type}`, payload).catch(() => {})
     }
   }
 
@@ -807,12 +920,20 @@ export class InProcessTaskRunner implements TaskRunner {
 
   /**
    * Fan a {@link TaskUpdate} to local subscribers and re-publish it on the
-   * cross-node bus under `tasks/status/${type}`.
+   * cross-node bus.
+   *
+   * Topic split (PRD §6, §11): `progress` updates ride the high-frequency
+   * `tasks/progress/${type}` topic so workers and admin/UI nodes can opt
+   * in or out of the progress firehose independently from the
+   * lower-frequency `tasks/status/${type}` topic that carries status
+   * flips, child spawns, and child completions. Cancellation rides its
+   * own `tasks/cancel/${type}` topic with a different payload shape and
+   * is published from {@link InProcessTaskRunner.#cascadeCancel}.
    *
    * The bus publish is the runner's "hot lane" (PRD §11) — multi-process
    * deployments running a persistent runner backend on a cross-node bus
-   * subscribe to this topic for low-latency progress fan-out. The
-   * in-process runner publishes the same envelope so a single set of
+   * subscribe to these topics for low-latency progress fan-out. The
+   * in-process runner publishes the same envelopes so a single set of
    * subscribers works across deployment shapes; on a single node, with
    * `InProcessCrossNodeBus` as the bus, this round-trip is cheap.
    */
@@ -831,7 +952,8 @@ export class InProcessTaskRunner implements TaskRunner {
         /* swallow */
       }
     }
-    void this.#bus.publish(`tasks/status/${type}`, update).catch(() => {})
+    const topic = update.kind === 'progress' ? `tasks/progress/${type}` : `tasks/status/${type}`
+    void this.#bus.publish(topic, update).catch(() => {})
   }
 
   #ensureLive(): void {
