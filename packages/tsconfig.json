@@ -39,6 +39,9 @@
       "path": "./redis-store"
     },
     {
+      "path": "./redis-task-runner"
+    },
+    {
       "path": "./repository"
     },
     {

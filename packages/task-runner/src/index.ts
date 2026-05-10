@@ -49,6 +49,21 @@ export type { TaskRunnerTelemetryEvents } from './task-runner-telemetry.js'
 export { InProcessTaskRunner, defineInProcessTaskRunner } from './in-process-task-runner.js'
 export type { InProcessTaskRunnerOptions, DefineInProcessTaskRunnerOptions } from './in-process-task-runner.js'
 
+export { TaskRunnerCore } from './task-runner-core.js'
+export type { TaskRunnerCoreOptions, TaskRunnerCoreDeps } from './task-runner-core.js'
+
+export { InProcessQueueAdapter } from './in-process-queue-adapter.js'
+
+export type {
+  QueueAdapter,
+  QueueAdapterCapabilities,
+  EnqueueInput,
+  ClaimedTask,
+  ClaimOutcome,
+  WorkerSubscription,
+  IdempotencyLeaseInput,
+} from './queue-adapter.js'
+
 export { DEFAULT_RETRY_POLICY, calculateBackoff } from './retry-policy.js'
 export type { RetryPolicy } from './retry-policy.js'
 

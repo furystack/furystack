@@ -51,6 +51,7 @@ export default defineConfig({
             'packages/mongodb-store/src/**/*.spec.ts',
             'packages/redis-cross-node-bus/src/**/*.spec.ts',
             'packages/redis-store/src/**/*.spec.ts',
+            'packages/redis-task-runner/src/**/*.spec.ts',
             'packages/s3-blob-store/src/**/*.spec.ts',
             'packages/websocket-api/src/**/*.spec.ts',
             'packages/entity-sync-service/src/**/*.spec.ts',

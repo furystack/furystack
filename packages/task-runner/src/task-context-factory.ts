@@ -263,6 +263,13 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
       if (cached?.kind === 'sleep') return
 
       await new Promise<void>((resolve, reject) => {
+        if (signal.aborted) {
+          // Already aborted before sleep entry — the 'abort' event has
+          // already fired and a fresh listener would never trigger.
+          // Reject synchronously to short-circuit the wait.
+          reject(signal.reason instanceof Error ? signal.reason : new Error('Task cancelled'))
+          return
+        }
         const timer = setTimeout(resolve, ms)
         signal.addEventListener(
           'abort',

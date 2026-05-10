@@ -1447,16 +1447,125 @@ Decisions and deviations from the PRD settled during implementation:
 
 ### Milestone 3 — Redis Streams adapter
 
-- [ ] `@furystack/redis-task-runner` package using Redis Streams +
+- [x] `@furystack/redis-task-runner` package using Redis Streams +
       consumer groups for competing-consumer dispatch.
 - [ ] Atomic fleet-wide concurrency cap (Lua `INCR`/`DECR` with TTL
-      fallback).
-- [ ] Visibility timeout via stream pending entries + reclaim script.
+      fallback). _Deferred to a follow-up PR; capability flag is
+      `fleetCapEnforcement: false`._
+- [x] Visibility timeout via stream pending entries + `XAUTOCLAIM`
+      reclaim per slot iteration.
 - [ ] Delayed dispatch via sorted-set `notBefore` index + scheduler.
-- [ ] Capability flags reflect persistence / fleet cap / delayed dispatch.
-- [ ] Integration tests gated on `docker-compose up redis`.
+      _Deferred to a follow-up PR; capability flag is
+      `delayedDispatch: false`. The runner core throws at submit time
+      when `notBefore` is set against this adapter._
+- [x] Capability flags reflect persistence / fleet cap / delayed dispatch
+      (and the new `brokerSideReclaim`).
+- [x] Integration tests gated on `docker-compose up redis` covering
+      submit/claim/complete, two-worker no-double-execute, broker-side
+      reclaim, draft/start two-phase, and cancel-broadcast.
 - [ ] Multi-worker smoke test against dockerized Redis covering claim
-      concurrency, fleet cap, visibility reclaim, drain.
+      concurrency, fleet cap, visibility reclaim, drain. _Deferred to a
+      follow-up PR; the integration suite covers single-process
+      multi-consumer; cross-process and drain land alongside the fleet
+      cap + delayed dispatch work._
+
+#### M3 implementation notes
+
+Decisions and deviations from the PRD settled during implementation:
+
+1. **`QueueAdapter` abstraction extracted from the runner.** Adding a
+   second transport surfaced that the in-process runner mixed core
+   lifecycle with queue plumbing. M3 splits the runner into
+   `TaskRunnerCore` (transport-agnostic: lifecycle, replay, retry,
+   cancel cascade, parent wake, telemetry, lock chain) and a
+   `QueueAdapter` interface (transport-specific: `enqueue`, `subscribe`,
+   `heartbeat`, optional `acquireIdempotencyLease`).
+   `InProcessTaskRunner` and the new `RedisTaskRunner` both extend
+   `TaskRunnerCore` with their adapter pre-bound. Public exports of
+   `@furystack/task-runner` are unchanged.
+
+2. **`WorkerSubscription.onClaim` returns a `ClaimOutcome`.** Adapters
+   own ack/requeue lifecycle. The core hands work to the adapter via a
+   subscription; the adapter spawns `concurrency` claim slots and
+   awaits `onClaim` per claim. Outcomes drive the adapter's terminal
+   ack vs. re-publish decision (in-process: drop / push-back; Redis:
+   `XACK` / `XACK + XADD`).
+
+3. **Stream sharded by `(type, handlerVersion)`.** Resolves §16 Q6's
+   version-gating worry by routing at publish time. Workers declare
+   `compatibleVersions: { type: [v1, v2] }`; the adapter reads only
+   matching shards, so a v3-only worker never claims a v1 message.
+   Tag filtering remains a claim-time concern (worker code-side
+   filter + `requeue`); tag dimensions are dynamic per-worker
+   registration and would explode the shard count if encoded at
+   publish.
+
+4. **Idempotency-key lease via `SET NX EX`.** `QueueAdapter` exposes
+   an optional `acquireIdempotencyLease(input)` hook that returns the
+   winning task id for `(type, key)`. The runner core consults it
+   before persisting a new task whose `idempotencyKey` is set; if the
+   returned id ≠ the proposed id, the existing task is loaded and
+   returned. Default TTL is 24h. The in-process adapter implements
+   the hook with a `Map`; Redis uses a SET-NX-EX on
+   `${prefix}tasks:idem:${type}:${key}`. Apps without idempotency
+   keys are unaffected.
+
+5. **Broker-side reclaim is a capability flag.** When
+   `QueueAdapter.capabilities.brokerSideReclaim` is `true`, the core
+   skips its dataset-driven `#sweepVisibility`. The adapter's
+   `XAUTOCLAIM` loop is the only authority on stale-claim recovery.
+   Reclaim flow inside the core's `#handleClaim`:
+   - Detect status `'claimed'` or `'running'` → reclaim path.
+   - Abort the prior in-process AbortController (best-effort cleanup
+     of the stalled handler).
+   - Rewrite the in-progress `AttemptRecord` to `'timed-out'`.
+   - Proceed with a fresh attempt as if a normal `'pending'` claim.
+
+   The prior `#runHandler` invocation (if it is still alive) checks
+   `this.#abortControllers.get(taskId) === ac` before any dataset
+   write — when the AC has been replaced by reclaim, the obsolete
+   handler exits silently via `{ kind: 'success' }` so the new
+   attempt's status writes are not trampled.
+
+6. **`ctx.sleep` fix surfaced by the adapter refactor.** The new
+   slot-based dispatch changes the order of microtask flushes around
+   cancel-cascade vs. claim-transition. A pre-existing latent bug in
+   `ctx.sleep` — `addEventListener('abort', …)` does not fire when
+   the signal is already aborted at entry — became reproducible: the
+   handler's `sleep(60_000)` would wait 60 s instead of cancelling.
+   Fixed by checking `signal.aborted` at sleep entry and rejecting
+   synchronously.
+
+7. **Per-task lock now serializes claim transition + cancel cascade.**
+   Without the lock, a cascade reading status `'running'` between the
+   claim-transition's status update and AC installation could miss
+   the AC and write `'cancelled'` directly while the handler kept
+   running. M3 wraps the AC-install + `'claimed'` write in
+   `#withTaskLock`; the cascade's per-task decide block does the
+   same. The lock is short and uses the existing chain — handler
+   execution and downstream lock acquisitions inside helpers
+   (`#pushAttempt`, `#pushEvent`) remain unaffected.
+
+8. **`v1` is the version assumed when a worker omits
+   `compatibleVersions[type]`.** The Redis adapter must know which
+   version shards to subscribe; the documented default keeps the
+   common case (single-version handlers) zero-config. Apps using
+   non-default versions must specify them.
+
+9. **Cross-node bus left unchanged.** M3 uses the existing
+   `tasks/cancel/${type}` / `tasks/status/${type}` /
+   `tasks/progress/${type}` topic split (M2). The bus capability
+   check from §9 (`assertCapabilities`) remains a manual call by
+   apps; the M3 PR does not auto-enforce it.
+
+10. **Caller-owned `redis` client.** `RedisQueueAdapter` does not
+    duplicate the client (unlike `RedisCrossNodeBus`, which needs a
+    duplicate for the blocking `XREAD` reader loop). Each subscription
+    issues its own `XREADGROUP BLOCK` calls on the shared client; the
+    `redis` client serializes commands per connection, so multiple
+    blocking reads queue rather than overlap. Heavy-throughput
+    deployments should provide a dedicated client (the PRD §8.3
+    pattern) or open multiple redis-task-runner bindings.
 
 ### Milestone 4 — Client SDK
 
