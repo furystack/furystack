@@ -152,6 +152,7 @@ export class InProcessTaskRunner implements TaskRunner {
       submitChild: (parentId, parentType, childId, childType, childPayload, retention, tags) =>
         this.#submitChild(parentId, parentType, childId, childType, childPayload, retention, tags),
       allChildrenTerminal: (ids) => this.#allChildrenTerminal(ids),
+      withTaskLock: (taskId, fn) => this.#withTaskLock(taskId, fn),
     }
 
     this.#reconcilerTimer = setInterval(() => void this.#reconcile(), options?.reconcilerIntervalMs ?? 30_000)
@@ -657,37 +658,62 @@ export class InProcessTaskRunner implements TaskRunner {
     if (!child?.parentTaskId || !isChildCompletionStatus(child.status)) return
 
     const parentId = child.parentTaskId
-    const preParent = await this.#taskDs.get(this.#injector, parentId)
-    if (!preParent || preParent.status !== 'waiting') return
+    const childStatus = child.status
+    const at = new Date().toISOString()
 
-    await this.#pushEvent(parentId, {
-      at: new Date().toISOString(),
-      kind: 'child-completed',
-      childTaskId,
-      status: child.status,
-    })
-    this.#emit(preParent.type, {
-      kind: 'child-completed',
-      taskId: parentId,
-      childTaskId,
-      status: child.status,
-      at: new Date().toISOString(),
-    })
-
-    // Concurrent child completions (and the periodic reconciler) can race
-    // on the waiting → pending transition. Serialize per parent so only one
-    // caller flips status and enqueues the parent.
-    const transitioned = await this.#withTaskLock(parentId, async () => {
+    // Three convergence paths can call this for the same child completion
+    // (originating worker, bus-driven backup, periodic reconciler). The lock
+    // serializes them; inside the lock we dedup the event log + emit fan-out
+    // against an existing `child-completed` entry, and only flip the
+    // `waiting → pending` transition once. Event recording runs whenever
+    // the parent is non-terminal — sibling completions arriving after the
+    // first wake already transitioned the parent must still be recorded
+    // on the audit trail.
+    const result = await this.#withTaskLock(parentId, async () => {
       const parent = await this.#taskDs.get(this.#injector, parentId)
-      if (!parent || parent.status !== 'waiting') return undefined
-      const awaited = parseAwaitedChildIds(parent.resumeToken) ?? parent.childTaskIds
-      if (!(await this.#allChildrenTerminal(awaited))) return undefined
-      await this.#taskDs.update(this.#injector, parentId, { status: 'pending', resumeToken: undefined })
-      return parent
+      if (!parent || isTerminalStatus(parent.status)) return undefined
+
+      const alreadyRecorded = parent.events.some((e) => e.kind === 'child-completed' && e.childTaskId === childTaskId)
+
+      const update: Partial<Task> = {}
+
+      if (!alreadyRecorded) {
+        const events = [...parent.events, { at, kind: 'child-completed' as const, childTaskId, status: childStatus }]
+        if (events.length > MAX_EVENTS_PER_TASK) events.splice(0, events.length - MAX_EVENTS_PER_TASK)
+        update.events = events
+      }
+
+      let shouldTransition = false
+      if (parent.status === 'waiting') {
+        const awaited = parseAwaitedChildIds(parent.resumeToken) ?? parent.childTaskIds
+        shouldTransition = await this.#allChildrenTerminal(awaited)
+        if (shouldTransition) {
+          update.status = 'pending'
+          update.resumeToken = undefined
+        }
+      }
+
+      if (Object.keys(update).length > 0) {
+        await this.#taskDs.update(this.#injector, parentId, update)
+      }
+
+      return { parentType: parent.type, alreadyRecorded, transitioned: shouldTransition ? parent : undefined }
     })
 
-    if (transitioned) {
-      this.#enqueue(transitioned)
+    if (!result) return
+
+    if (!result.alreadyRecorded) {
+      this.#emit(result.parentType, {
+        kind: 'child-completed',
+        taskId: parentId,
+        childTaskId,
+        status: childStatus,
+        at,
+      })
+    }
+
+    if (result.transitioned) {
+      this.#enqueue(result.transitioned)
       this.#tryDispatch()
     }
   }

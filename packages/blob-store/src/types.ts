@@ -125,7 +125,16 @@ export type BlobDownloadUrlOptions = {
 export type BlobUploadUrlOptions = {
   ttlSec: number
   contentType?: string
-  /** Maximum bytes the issued URL will accept; enforced server-side. */
+  /**
+   * Upper bound on bytes accepted at the issued URL. **Adapter-dependent
+   * enforcement** — adapters that proxy uploads through a server (e.g.
+   * `@furystack/filesystem-blob-store`) reject oversize streams in
+   * flight; pre-signed direct-to-storage adapters (e.g.
+   * `@furystack/s3-blob-store`) cannot enforce a maximum on a PUT
+   * pre-sign and therefore treat the value as advisory. Apps that need a
+   * hard cap on direct uploads must layer a server-side check (POST
+   * policy, lambda, …) in front of the blob store.
+   */
   maxBytes?: number
 }
 

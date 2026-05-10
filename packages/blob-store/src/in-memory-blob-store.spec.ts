@@ -152,6 +152,17 @@ describe('InMemoryBlobStore', () => {
       using store = new InMemoryBlobStore()
       await expect(store.head('')).rejects.toThrow(BlobStoreError)
     })
+
+    it('returns frozen metadata so callers cannot mutate stored state', async () => {
+      using store = new InMemoryBlobStore()
+      await store.put('frozen', Buffer.from('x'), { contentType: 'text/plain', metadata: { tag: 'v1' } })
+      const meta = await store.head('frozen')
+      expect(Object.isFrozen(meta)).toBe(true)
+      expect(meta?.customMetadata && Object.isFrozen(meta.customMetadata)).toBe(true)
+      expect(() => {
+        ;(meta as unknown as { contentType: string }).contentType = 'mutated'
+      }).toThrow(TypeError)
+    })
   })
 
   describe('delete', () => {

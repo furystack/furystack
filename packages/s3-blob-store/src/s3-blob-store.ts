@@ -318,13 +318,20 @@ export class S3BlobStore implements BlobStore {
   public async getUploadUrl(key: string, options: BlobUploadUrlOptions): Promise<BlobUploadUrl> {
     this.#ensureLive()
     validateBlobKey(key)
+    // Note on `maxBytes`: a pre-signed PUT cannot enforce a server-side
+    // upload size cap — `ContentLength` would lock the upload to an exact
+    // size, not a maximum, so we deliberately omit it. Apps that need a
+    // hard cap should either use the filesystem adapter's server-proxy
+    // endpoint (which streams through a size enforcer) or layer a POST
+    // policy in front of S3. `options.maxBytes` is treated as advisory
+    // here so callers who pass it on a heterogeneous adapter set still
+    // see uniform behaviour.
     const url = await getSignedUrl(
       this.#client,
       new PutObjectCommand({
         Bucket: this.#bucket,
         Key: this.#wireKey(key),
         ContentType: options.contentType,
-        ContentLength: options.maxBytes,
       }),
       { expiresIn: options.ttlSec },
     )

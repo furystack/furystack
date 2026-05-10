@@ -74,14 +74,18 @@ export class InMemoryBlobStore implements BlobStore {
       )
     }
     const etag = createHash('sha256').update(data).digest('hex')
-    const metadata: BlobMetadata = {
+    // Freeze the metadata + nested `customMetadata` so consumers of
+    // `head()` / `list()` cannot mutate stored state via the returned
+    // reference.
+    const customMetadata = options.metadata ? Object.freeze({ ...options.metadata }) : undefined
+    const metadata: BlobMetadata = Object.freeze({
       key,
       contentType: options.contentType,
       contentLength: data.byteLength,
       etag,
       lastModified: new Date(),
-      customMetadata: options.metadata ? { ...options.metadata } : undefined,
-    }
+      customMetadata,
+    })
     this.#blobs.set(key, { data, metadata })
     return {
       storeName: this.storeName,

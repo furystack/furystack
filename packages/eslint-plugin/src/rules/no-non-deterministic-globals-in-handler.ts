@@ -19,33 +19,33 @@ const FORBIDDEN_MEMBERS: Array<readonly [string, string]> = [
  * Bare globals to refuse inside handler bodies. `setTimeout` /
  * `setInterval` schedule against the worker's wall clock — replay would
  * re-fire them; `fetch` performs network IO without recording the
- * request/response so successive replays diverge. Apps reach for
- * `ctx.sleep()` and (post-v1.x) `ctx.fetch()` instead.
+ * request/response so successive replays diverge.
+ *
+ * TODO(v1.x): `fetch` will gain a determinism-safe `ctx.fetch` wrapper
+ * that records request/response into the replay log (PRD §11 + M1
+ * implementation note 2). Until that lands, handlers must hoist `fetch`
+ * out of the function body or accept the lint failure as documentation
+ * that the call is non-replay-safe.
  */
 const FORBIDDEN_GLOBALS = new Set(['setTimeout', 'setInterval', 'fetch'])
 
 /**
  * Walks up from `node` and returns `true` when any ancestor is the
  * `handler:` property of a `defineTaskHandler({...})` call expression.
- * Handlers are the only place determinism matters; helpers / hoisted
- * functions called from inside the handler are out of the rule's reach
- * — a follow-up rule can extend the analysis if needed.
+ * Inner nested functions (callbacks, helpers) inside the handler body
+ * are still considered part of the handler — the walk continues past
+ * each containing function until either the handler property is reached
+ * or the program root.
  */
 const isInsideTaskHandlerBody = (node: TSESTree.Node): boolean => {
   let current: TSESTree.Node | undefined = node.parent
-  let nestedFunctionCount = 0
   while (current) {
     if (
       current.type === AST_NODE_TYPES.FunctionDeclaration ||
       current.type === AST_NODE_TYPES.FunctionExpression ||
       current.type === AST_NODE_TYPES.ArrowFunctionExpression
     ) {
-      // Direct ancestor function: the property carrying it must be `handler`
-      // on a `defineTaskHandler(...)` call argument. Inner nested functions
-      // (callbacks, helpers) inside the handler body are still considered
-      // part of the handler — drop the count and keep walking.
-      const fn = current
-      const { parent } = fn
+      const { parent } = current
       if (parent?.type === AST_NODE_TYPES.Property) {
         const prop = parent
         if (prop.key.type === AST_NODE_TYPES.Identifier && prop.key.name === 'handler') {
@@ -62,12 +62,9 @@ const isInsideTaskHandlerBody = (node: TSESTree.Node): boolean => {
           }
         }
       }
-      nestedFunctionCount++
     }
     current = current.parent
   }
-  // Reached program root without seeing a `defineTaskHandler` ancestor.
-  void nestedFunctionCount
   return false
 }
 
@@ -111,7 +108,11 @@ export const noNonDeterministicGlobalsInHandler = createRule({
         const match = FORBIDDEN_MEMBERS.find(([obj, prop]) => obj === objectName && prop === propertyName)
         if (!match) return
         if (!isInsideTaskHandlerBody(node)) return
-        const replacement = objectName === 'Date' ? 'now()' : objectName === 'Math' ? 'random()' : 'random()' // crypto.* mostly maps to ctx.random; apps that need UUIDs derive from ctx.random()
+        // For `crypto.randomUUID` / `crypto.getRandomValues` the closest
+        // ctx replacement is `ctx.random()` — apps that need UUIDs derive
+        // them from `ctx.random()` so the value lands in the replay log.
+        const replacement =
+          objectName === 'Date' ? 'now()' : objectName === 'Math' ? 'random()' : 'random() (derive UUIDs from it)'
         context.report({
           node,
           messageId: 'forbiddenGlobal',
@@ -131,7 +132,11 @@ export const noNonDeterministicGlobalsInHandler = createRule({
         }
         if (!isInsideTaskHandlerBody(node)) return
         const replacement =
-          node.name === 'fetch' ? 'fetch (planned in v1.x)' : node.name === 'setInterval' ? 'sleep loop' : 'sleep'
+          node.name === 'fetch'
+            ? 'fetch (replay-safe wrapper planned in v1.x; until then, hoist out of the handler)'
+            : node.name === 'setInterval'
+              ? 'sleep loop (await ctx.sleep(...) inside a while-not-cancelled loop)'
+              : 'sleep'
         context.report({
           node,
           messageId: 'forbiddenGlobal',

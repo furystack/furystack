@@ -489,4 +489,149 @@ describe('InProcessTaskRunner', () => {
       expect(timedOut?.finishedAt).toBeDefined()
     })
   })
+
+  describe('heartbeat / progress refresh visibilityDeadline', () => {
+    it('ctx.heartbeat() advances visibilityDeadline', async () => {
+      let heartbeatDone: () => void = () => {}
+      const heartbeatHandler = defineTaskHandler<Record<string, never>, void>({
+        type: 'hb',
+        version: 1,
+        visibilityTimeoutMs: 60_000,
+        handler: async (ctx) => {
+          await ctx.sleep(50)
+          await ctx.heartbeat()
+          heartbeatDone()
+          await ctx.sleep(60_000)
+        },
+      })
+
+      tr = createTestRunner({ handlers: [heartbeatHandler] })
+      const task = await tr.runner.submit({ type: 'hb', payload: {}, handlerVersion: 1 })
+
+      // Wait for the initial claim so visibilityDeadline gets its first value.
+      await new Promise<void>((r) => setTimeout(r, 50))
+      const before = await tr.runner.get(task.id)
+      const beforeDeadline = before?.visibilityDeadline ? Date.parse(before.visibilityDeadline) : 0
+
+      await new Promise<void>((resolve) => {
+        heartbeatDone = resolve
+      })
+
+      const after = await tr.runner.get(task.id)
+      const afterDeadline = after?.visibilityDeadline ? Date.parse(after.visibilityDeadline) : 0
+      expect(afterDeadline).toBeGreaterThan(beforeDeadline)
+
+      await tr.runner.cancel(task.id)
+    })
+
+    it('ctx.reportProgress() advances visibilityDeadline (implicit heartbeat)', async () => {
+      const progressBeats = defineTaskHandler<Record<string, never>, void>({
+        type: 'progress-beats',
+        version: 1,
+        visibilityTimeoutMs: 60_000,
+        progressThrottleMs: 0,
+        handler: async (ctx) => {
+          await ctx.sleep(50)
+          ctx.reportProgress({ percent: 50 })
+          await ctx.sleep(60_000)
+        },
+      })
+
+      tr = createTestRunner({ handlers: [progressBeats] })
+      const task = await tr.runner.submit({ type: 'progress-beats', payload: {}, handlerVersion: 1 })
+
+      await new Promise<void>((r) => setTimeout(r, 30))
+      const before = await tr.runner.get(task.id)
+      const beforeDeadline = before?.visibilityDeadline ? Date.parse(before.visibilityDeadline) : 0
+
+      await new Promise<void>((r) => setTimeout(r, 100))
+      const after = await tr.runner.get(task.id)
+      const afterDeadline = after?.visibilityDeadline ? Date.parse(after.visibilityDeadline) : 0
+      expect(afterDeadline).toBeGreaterThan(beforeDeadline)
+
+      await tr.runner.cancel(task.id)
+    })
+  })
+
+  describe('drain', () => {
+    it('drain({ timeoutMs }) resolves before active task finishes', async () => {
+      const slow = defineTaskHandler<Record<string, never>, void>({
+        type: 'slow-drain-timeout',
+        version: 1,
+        handler: async (ctx) => {
+          await ctx.sleep(2000)
+        },
+      })
+
+      tr = createTestRunner({ handlers: [slow] })
+      await tr.runner.submit({ type: 'slow-drain-timeout', payload: {}, handlerVersion: 1 })
+      await new Promise<void>((r) => setTimeout(r, 30))
+
+      const startMs = Date.now()
+      await tr.worker!.drain({ timeoutMs: 80 })
+      const elapsedMs = Date.now() - startMs
+      expect(elapsedMs).toBeLessThan(500)
+      expect(tr.worker?.activeTaskCount).toBeGreaterThan(0)
+    })
+  })
+
+  describe('subscribeByType isolation', () => {
+    it('does not receive updates for unrelated task types', async () => {
+      const beepHandler = defineTaskHandler<Record<string, never>, void>({
+        type: 'beep',
+        version: 1,
+        handler: async () => undefined,
+      })
+
+      tr = createTestRunner({ handlers: [echoHandler, beepHandler] })
+
+      const echoUpdates: string[] = []
+      using _sub = tr.runner.subscribeByType('echo', (e) => {
+        if (e.kind === 'status') echoUpdates.push(e.status)
+      })
+
+      const beepTask = await tr.runner.submit({ type: 'beep', payload: {}, handlerVersion: 1 })
+      await runTaskToCompletion({ runner: tr.runner, taskId: beepTask.id })
+
+      expect(echoUpdates).not.toContain('succeeded')
+    })
+  })
+
+  describe('idempotency across submit + draft', () => {
+    it('draft() then submit() with the same key returns the same task id', async () => {
+      tr = createTestRunner({ handlers: [echoHandler] })
+      const draft = await tr.runner.draft({
+        type: 'echo',
+        payload: { value: 'x' },
+        handlerVersion: 1,
+        idempotencyKey: 'mixed',
+      })
+      const submitted = await tr.runner.submit({
+        type: 'echo',
+        payload: { value: 'y' },
+        handlerVersion: 1,
+        idempotencyKey: 'mixed',
+      })
+      expect(submitted.id).toBe(draft.id)
+    })
+  })
+
+  describe('wake-parent dedup', () => {
+    it('records exactly one child-completed event per child even with eager reconciler ticks', async () => {
+      tr = createTestRunner({ handlers: [echoHandler, parentHandler], reconcilerIntervalMs: 20 })
+      const task = await tr.runner.submit({
+        type: 'parent',
+        payload: { childPayloads: ['a', 'b', 'c'] },
+        handlerVersion: 1,
+      })
+
+      await runTaskToCompletion({ runner: tr.runner, taskId: task.id, timeoutMs: 5000 })
+
+      const completed = await tr.runner.get(task.id)
+      const childCompletedEvents = completed?.events.filter((e) => e.kind === 'child-completed') ?? []
+      expect(childCompletedEvents).toHaveLength(3)
+      const childIds = childCompletedEvents.map((e) => (e.kind === 'child-completed' ? e.childTaskId : ''))
+      expect(new Set(childIds).size).toBe(3)
+    })
+  })
 })

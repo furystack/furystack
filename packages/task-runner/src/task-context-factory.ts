@@ -44,6 +44,12 @@ export type TaskContextFactoryDeps = {
     tags?: string[],
   ) => Promise<void>
   allChildrenTerminal: (ids: string[]) => Promise<boolean>
+  /**
+   * Serializes `fn` against any other operation on the same `taskId` —
+   * exposed so {@link TaskContext.heartbeat} can refresh the visibility
+   * deadline without racing the runner's read-modify-write paths.
+   */
+  withTaskLock: <T>(taskId: string, fn: () => Promise<T>) => Promise<T>
 }
 
 /**
@@ -90,7 +96,17 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
     setLastProgress,
     getLastProgress,
   } = options
-  const { injector, blobStore, taskDs, telemetry, emit, persistReplayEntry, submitChild, allChildrenTerminal } = deps
+  const {
+    injector,
+    blobStore,
+    taskDs,
+    telemetry,
+    emit,
+    persistReplayEntry,
+    submitChild,
+    allChildrenTerminal,
+    withTaskLock,
+  } = deps
 
   const ctx: TaskContext = {
     taskId,
@@ -101,9 +117,11 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
     cancellationSignal: signal,
 
     async heartbeat() {
-      await taskDs.update(injector, taskId, {
-        visibilityDeadline: new Date(Date.now() + visibilityTimeoutMs).toISOString(),
-      })
+      await withTaskLock(taskId, () =>
+        taskDs.update(injector, taskId, {
+          visibilityDeadline: new Date(Date.now() + visibilityTimeoutMs).toISOString(),
+        }),
+      )
     },
 
     reportProgress(progress) {
@@ -111,9 +129,14 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
       if (now - getLastProgress() < progressThrottleMs) return
       setLastProgress(now)
       const at = new Date(now).toISOString()
+      // Hot lane is throttled (default 4Hz). The same throttled write also
+      // refreshes `visibilityDeadline` so handlers reporting progress are
+      // implicitly heartbeating — matches PRD §11 ("heartbeat … refreshes
+      // broker-side visibility deadline").
       void taskDs
         .update(injector, taskId, {
           progress: { percent: progress.percent, meta: progress.meta, updatedAt: at },
+          visibilityDeadline: new Date(now + visibilityTimeoutMs).toISOString(),
         })
         .catch(() => {})
       emit(type, { kind: 'progress', taskId, percent: progress.percent, meta: progress.meta, at })
