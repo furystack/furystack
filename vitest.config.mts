@@ -25,6 +25,7 @@ export default defineConfig({
             'packages/i18n/src/**/*.spec.ts',
             'packages/yarn-plugin-changelog/src/**/*.spec.ts',
             'packages/entity-sync-client/src/**/*.spec.ts',
+            'packages/task-runner/src/**/*.spec.ts',
           ],
           setupFiles: ['./vitest.setup.ts'],
         },

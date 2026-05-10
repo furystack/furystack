@@ -103,6 +103,9 @@
     },
     {
       "path": "./eslint-plugin"
+    },
+    {
+      "path": "./task-runner"
     }
   ]
 }

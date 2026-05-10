@@ -308,12 +308,14 @@ type TaskStatus =
   | 'succeeded' // terminal
   | 'failed' // terminal, retries exhausted
 
+type AttemptStatus = 'in-progress' | 'succeeded' | 'failed' | 'cancelled' | 'timed-out'
+
 type AttemptRecord = {
   attempt: number
   workerId: string
   startedAt: string
   finishedAt?: string
-  status: 'succeeded' | 'failed' | 'cancelled' | 'timed-out'
+  status: AttemptStatus
   error?: { name: string; message: string; stack?: string }
 }
 
@@ -325,6 +327,7 @@ type TaskEvent =
   | { at: string; kind: 'child-completed'; childTaskId: string; status: 'succeeded' | 'failed' | 'cancelled' }
   | { at: string; kind: 'status-changed'; from: TaskStatus; to: TaskStatus }
   | { at: string; kind: 'attempt-failed'; attempt: number; willRetry: boolean }
+  | { at: string; kind: 'cancellation-requested'; reason?: string }
 
 type Task<TPayload = unknown, TResult = unknown> = {
   id: string
@@ -368,10 +371,10 @@ pruned.
 ### 7.2 `TaskRunner` interface
 
 ```ts
-export interface TaskRunner extends Disposable {
+export type TaskRunner = Disposable & {
   /** Submit a new task. Returns the persisted Task. */
-  submit<TType extends string, TPayload, TResult>(args: {
-    type: TType
+  submit<TPayload = unknown>(args: {
+    type: string
     payload: TPayload
     handlerVersion: number
     idempotencyKey?: string
@@ -379,9 +382,10 @@ export interface TaskRunner extends Disposable {
     tags?: string[]
     parentTaskId?: string // framework-set; not for app use
     retentionPolicy?: Partial<TaskRetentionPolicy>
-  }): Promise<Task<TPayload, TResult>>
+  }): Promise<Task>
 
-  /** Cancel a task. Cascades to children. Idempotent. */
+  /** Cancel a task. Cascades to children. Idempotent. `reason` is recorded
+   *  on the event log and surfaced on the resulting `TaskUpdate`. */
   cancel(taskId: string, reason?: string): Promise<void>
 
   /** Get current task state. */
@@ -396,11 +400,15 @@ export interface TaskRunner extends Disposable {
   /** Subscribe to all updates of a given task type (admin / observability). */
   subscribeByType(type: string, handler: (event: TaskUpdate) => void): Disposable
 
+  /** Register a worker. Used by `defineWorker` via DI; apps rarely call
+   *  this directly. See implementation note 6. */
+  registerWorker(options: RegisterWorkerOptions): Worker
+
   /** Adapter capabilities, declared statically. */
   readonly capabilities: TaskRunnerCapabilities
 }
 
-export interface TaskRunnerCapabilities {
+export type TaskRunnerCapabilities = {
   readonly persistent: boolean // queue survives broker restart
   readonly fleetCapEnforcement: boolean
   readonly delayedDispatch: boolean // notBefore honored at broker level
@@ -408,10 +416,16 @@ export interface TaskRunnerCapabilities {
 }
 
 export type TaskUpdate =
-  | { kind: 'status'; status: TaskStatus; at: string }
-  | { kind: 'progress'; percent: number; meta?: Record<string, unknown>; at: string }
-  | { kind: 'spawned-child'; childTaskId: string; at: string }
-  | { kind: 'child-completed'; childTaskId: string; status: 'succeeded' | 'failed' | 'cancelled'; at: string }
+  | { kind: 'status'; taskId: string; status: TaskStatus; at: string; reason?: string }
+  | { kind: 'progress'; taskId: string; percent: number; meta?: Record<string, unknown>; at: string }
+  | { kind: 'spawned-child'; taskId: string; childTaskId: string; at: string }
+  | {
+      kind: 'child-completed'
+      taskId: string
+      childTaskId: string
+      status: 'succeeded' | 'failed' | 'cancelled'
+      at: string
+    }
 ```
 
 ### 7.3 Worker DSL
@@ -1177,26 +1191,127 @@ runner can develop in parallel against an in-process bus.
 
 ### Milestone 1 — Task runner core
 
-- [ ] Create `@furystack/task-runner` package with the `TaskRunner`
+- [x] Create `@furystack/task-runner` package with the `TaskRunner`
       token, `Task` entity definition, `defineTaskHandler`,
       `defineWorker`, `TaskContext`, `BlobRef` re-export from blob-store.
-- [ ] Task dataset definition (consumer apps bind it over their chosen
+- [x] Task dataset definition (consumer apps bind it over their chosen
       `defineStore`).
-- [ ] In-process queue adapter as default factory.
-- [ ] DAG primitives: `spawnChild`, `awaitChildren`, `spawnChildAndAwait`.
-- [ ] Replay engine: handler step log, `Suspended` sentinel, resume
+- [x] In-process queue adapter as default factory.
+- [x] DAG primitives: `spawnChild`, `awaitChildren`, `spawnChildAndAwait`.
+- [x] Replay engine: handler step log, `SuspendedError` sentinel, resume
       tokens.
-- [ ] Determinism-safe ctx helpers: `now`, `random`, `sleep`, `fetch`.
-- [ ] Retry policy + exponential backoff with jitter.
-- [ ] Visibility timeout + heartbeat.
-- [ ] Cancellation cascade.
-- [ ] Capability cross-check between runner and blob-store at boot.
-- [ ] `@furystack/task-runner/testing` subpath: `runTaskToCompletion`
-      mocked-ctx unit harness; `createTestRunner` multi-worker integration
-      harness.
-- [ ] Telemetry hooks (§11).
-- [ ] Unit tests covering submit, claim, progress, retry, cancel, replay,
-      DAG fan-out/fan-in, visibility reclaim.
+- [x] Determinism-safe ctx helpers: `now`, `random`, `sleep`. `fetch`
+      recording deferred to v1.x (see M1 implementation notes below).
+- [x] Retry policy + exponential backoff with jitter.
+- [x] Visibility timeout + heartbeat.
+- [x] Cancellation cascade.
+- [x] Capability cross-check between runner, blob-store, and bus at boot.
+- [x] `@furystack/task-runner/testing` subpath: `runTaskToCompletion`
+      polling helper; `createTestRunner` self-contained integration
+      harness with in-memory blob store.
+- [x] Telemetry hooks (§11).
+- [x] Unit tests covering submit, claim, progress, retry, cancel,
+      DAG fan-out/fan-in, idempotency, worker concurrency, drain.
+- [x] `crossNodeDelivery` flag added to `CrossNodeBusCapabilities`
+      (in-process: `false`, Redis: `true`), required for §9 capability
+      cross-check.
+
+#### M1 implementation notes
+
+Decisions and deviations from the PRD settled during implementation:
+
+1. **`spawnChild` is async.** The PRD spec'd a sync return
+   (`ChildHandle<TOut>`); implementation changed to
+   `Promise<ChildHandle<TOut>>` so the replay log entry is persisted
+   _before_ the child task is submitted. Fire-and-forget submit was
+   the alternative but risks orphaned handles pointing to never-created
+   children if the submit fails silently. Handlers use
+   `await Promise.all(items.map(v => ctx.spawnChild(...)))` instead of
+   a plain `.map()`.
+
+2. **`ctx.fetch` not replay-recorded in M1.** Recording full
+   request/response for deterministic replay is expensive and complex
+   (large bodies, streaming, headers). Deferred to v1.x. Handlers
+   that use `fetch` in M1 must be idempotent across retries.
+
+3. **`SuspendedError` (not `Suspended`).** The PRD used `Suspended`
+   as the sentinel name; implementation uses `SuspendedError` per the
+   codebase convention that Error subclasses carry the `Error` suffix.
+
+4. **Task IDs use `crypto.randomUUID()` (UUID v4).** The PRD called
+   for opaque task IDs. UUID v7 (time-sortable) was considered but
+   deferred — Node ships `crypto.randomUUIDv7()` from v26; swap when
+   the engine requirement moves to `>=26`.
+
+5. **Reconciler interval defaults to 30 s for in-process.** The PRD
+   suggested 1 h (§7.4) with a question about sub-minute for
+   in-process (§16 Q5). 30 s chosen because the in-process queue is
+   volatile — after a restart, `waiting` parents whose children
+   completed during downtime need re-enqueueing within a reasonable
+   window for dev/test ergonomics.
+
+6. **`TaskRunner.registerWorker` on the public interface.** The PRD
+   placed worker-side methods (claim/ack/heartbeat) as internal to
+   the runner. `registerWorker` was added to the `TaskRunner`
+   interface directly so `defineWorker` can register via DI without
+   type-casting or a separate internal token. Every adapter must
+   implement it.
+
+7. **`TaskRunner` default factory throws.** Unlike `CrossNodeBus`
+   (which defaults to in-process), `TaskRunner` has no default
+   binding — apps must explicitly call
+   `injector.bind(TaskRunner, defineInProcessTaskRunner())`. This
+   mirrors the `BlobStore` pattern (§7.6) where unbound resolution
+   is treated as misconfiguration.
+
+8. **Replay log primary key.** `TaskReplayLogEntry.id` is a composite
+   string `${taskId}:${stepIndex}` to satisfy `PhysicalStore`'s
+   single-field primary key constraint while preserving per-step
+   uniqueness for dedup.
+
+9. **Fire-and-forget vs. awaited persistence.** Async replay-bearing
+   ctx helpers (`spawnChild`, `awaitChildren`, `sleep`) await their
+   replay log persist before returning so a crash mid-handler cannot
+   orphan child references or break determinism on resumption.
+   Synchronous ctx helpers (`now`, `random`) cannot await — their
+   replay log persist remains fire-and-forget per PRD §11. The narrow
+   crash window is the documented determinism trade-off; replay still
+   converges as long as the persist completed before the crash.
+   `reportProgress`, `bus.publish` (hot lane), and the live subscriber
+   fan-out also stay fire-and-forget — none of them affect handler
+   correctness.
+
+10. **Per-task mutex serializes read-modify-write paths.** `#submitChild`
+    appending to `parent.childTaskIds`, `#pushEvent` appending to
+    `task.events`, `#pushAttempt` / `#finalizeAttempt` updating
+    `task.attempts` all funnel through `#withTaskLock(taskId, fn)`.
+    Without it, a parent that calls `spawnChild` N times in a row races
+    its own `taskDs.update(parentId, …)` and loses child IDs from
+    `childTaskIds`, which corrupts `getTree`, cascade-cancel, and the
+    reconciler. The mutex is a per-`taskId` Promise chain, evicted on
+    settle; errors do not poison the chain.
+
+11. **`AttemptRecord.status` includes `'in-progress'`.** Initial pushes
+    record `'in-progress'`; `#finalizeAttempt` later overwrites with
+    `'succeeded'` / `'failed'` / `'cancelled'` / `'timed-out'`. The
+    visibility-timeout sweeper specifically rewrites the in-flight
+    attempt to `'timed-out'` when its `visibilityDeadline` lapses, so
+    operators can see whether a stalled attempt was still running or
+    had reached terminal state.
+
+12. **`cancel(reason)` plumbs through events + bus.** A
+    `cancellation-requested` event with the supplied `reason` is
+    appended to `task.events`, and the resulting `'cancelled'` /
+    `'cancelling'` `TaskUpdate` carries the same `reason` on the wire
+    so subscribers (UI, audit log) can surface why a task was killed.
+
+13. **`wakeParent` and `#reconcile` consult `resumeToken` first.** The
+    parent's `awaitedChildIds` (persisted in `resumeToken` on
+    suspension via `SuspendedError`) is the authoritative resumption
+    set — `parent.childTaskIds` is a fallback only. This decouples
+    "children spawned" from "children awaited" so a parent that awaits
+    a strict subset of its spawned children is not stuck waiting on
+    fire-and-forget siblings.
 
 ### Milestone 2 — REST + WS surface
 
@@ -1349,20 +1464,17 @@ nonce }` and is verified by the `endpoints` subpath helper before
    reason about; the trade-off is that revoking a single in-flight URL
    requires rotating the secret. Apps that need per-URL revocation can
    layer a tiny denylist cache in front of the helper.
-5. **In-process queue replay log persistence.** Largely covered by
-   the §7.4 continuation flow: dataset is the source of truth;
-   crash mid-`spawnChild` before the dataset write means the parent
-   re-runs from the top, hits `spawnChild` again, the
-   `(parentTaskId, stepIndex)` key on `Task` dedups against any
-   already-inserted child row, and the `(taskId, stepIndex)` key on
-   `TaskReplayLog` dedups the step record. The §7.4 reconciler is
-   the safety net for the "in-process queue process restarts after
-   the parent suspended but before any restart-time worker has
-   subscribed to `tasks/status/${type}`" edge case — at most one
-   reconciler-interval delay before the parent is re-enqueued. M1
-   open question: do we need a sub-minute reconciler interval as an
-   in-process-queue-only optimisation, or does the 1h default
-   suffice given the dataset is durable?
+5. **In-process queue replay log persistence.** _Settled — 30 s
+   reconciler default for in-process._ The §7.4 continuation flow
+   handles crash recovery: dataset is the source of truth; crash
+   mid-`spawnChild` before the dataset write means the parent re-runs
+   from the top, hits `spawnChild` again, the `(taskId, stepIndex)`
+   key on `TaskReplayLog` dedups the step record. The reconciler is
+   the safety net for missed parent wake-ups. 30 s (not 1 h) was
+   chosen for the in-process adapter because the queue is volatile —
+   a restart needs stuck `waiting` parents re-enqueued within a
+   reasonable window for dev/test ergonomics. The interval is
+   configurable via `InProcessTaskRunnerOptions.reconcilerIntervalMs`.
 6. **Worker self-throttle on broker latency.** If submit-to-claim
    latency rises, should workers slow down their claim rate to give
    slow tasks a chance to heartbeat? Out of scope for v1 plain FIFO,
