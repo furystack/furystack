@@ -483,7 +483,7 @@ test.describe('Advanced Form', () => {
     await expect(resetNameInput).toHaveValue('')
   })
 
-  test('should reflect checkbox and switch toggles in the form raw data', async ({ page }) => {
+  test('should reflect input changes in the form raw data', async ({ page }) => {
     await page.goto('/inputs-and-forms/form')
 
     const content = page.locator('forms-page')
@@ -532,10 +532,73 @@ test.describe('Advanced Form', () => {
       notifications: 'yes',
     })
 
+    // Select the Intermediate radio — RadioGroup forwards `name` to its
+    // children, so FormData should report `experienceLevel: "intermediate"`.
+    const intermediateRadio = advancedForm.getByRole('radio', { name: 'Intermediate' })
+    await intermediateRadio.scrollIntoViewIfNeeded()
+    await intermediateRadio.evaluate((el: HTMLInputElement) => el.click())
+    await expect(intermediateRadio).toBeChecked()
+    await expect.poll(readRawData).toMatchObject({
+      workshops: 'yes',
+      networking: 'yes',
+      notifications: 'yes',
+      experienceLevel: 'intermediate',
+    })
+
+    // Pick a Track from the custom Select component. Even though Select is
+    // not a native input, it must dispatch a change event so the form
+    // observes the new value.
+    const trackTrigger = advancedForm.locator('shade-select').locator('[role="combobox"]')
+    await trackTrigger.scrollIntoViewIfNeeded()
+    await trackTrigger.click()
+    await advancedForm.locator('[role="listbox"]').getByRole('option', { name: 'Frontend' }).click()
+    await expect(trackTrigger.locator('.select-value')).toContainText('Frontend')
+    await expect.poll(readRawData).toMatchObject({
+      workshops: 'yes',
+      networking: 'yes',
+      notifications: 'yes',
+      experienceLevel: 'intermediate',
+      track: 'frontend',
+    })
+
     // Untick Workshops — the key should disappear from raw data.
     await workshopsCheckbox.evaluate((el: HTMLInputElement) => el.click())
     await expect(workshopsCheckbox).not.toBeChecked()
     await expect.poll(async () => Object.keys((await readRawData()) ?? {})).not.toContain('workshops')
-    await expect.poll(readRawData).toMatchObject({ networking: 'yes', notifications: 'yes' })
+    await expect.poll(readRawData).toMatchObject({
+      networking: 'yes',
+      notifications: 'yes',
+      experienceLevel: 'intermediate',
+      track: 'frontend',
+    })
+  })
+
+  test('should clear raw form data on reset', async ({ page }) => {
+    await page.goto('/inputs-and-forms/form')
+
+    const content = page.locator('forms-page')
+    await content.waitFor({ state: 'visible' })
+
+    const advancedForm = page.locator('form').nth(1)
+    await advancedForm.scrollIntoViewIfNeeded()
+
+    const rawValue = advancedForm.locator('#raw')
+
+    // Populate at least one field so `rawFormData` becomes a real object.
+    const networkingCheckbox = advancedForm.getByRole('checkbox', { name: 'Networking' })
+    await networkingCheckbox.scrollIntoViewIfNeeded()
+    await networkingCheckbox.evaluate((el: HTMLInputElement) => el.click())
+    await expect(networkingCheckbox).toBeChecked()
+    await expect(rawValue).not.toHaveText('Raw: null')
+
+    // Click Reset. The native reset event fires before the form's onreset
+    // handler, so this also exercises real-browser ordering that the JSDOM
+    // unit tests cannot replicate.
+    const resetButton = advancedForm.getByRole('button', { name: 'Reset' })
+    await resetButton.scrollIntoViewIfNeeded()
+    await resetButton.click()
+
+    await expect(rawValue).toHaveText('Raw: null')
+    await expect(networkingCheckbox).not.toBeChecked()
   })
 })
