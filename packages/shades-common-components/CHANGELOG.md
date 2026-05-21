@@ -1,5 +1,27 @@
 # Changelog
 
+## [17.0.1] - 2026-05-21
+
+### 📚 Documentation
+
+- Rewrote JSDoc on `CacheView` to follow the new value-test guidance: dropped restate-the-type narration, kept intent / trade-offs / constraints, and added a usage example for the recommended cache-rendering pattern.
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Bumped `@furystack/cache` to its new major version. No call sites in this package used the removed `obsoleteRange` / `removeRange` APIs, so no source changes were required. See the `@furystack/cache` changelog for the migration if you import the cache directly alongside this package.
+- Bumped `vitest` to `^4.1.7`. No source changes — dev-tooling bump only.
+
+### 🔧 Chores
+
+- Bumped to keep the `@furystack/cache` dependency in sync after the `getKey` option was added to `Cache`. No code changes.
+
+### 🐛 Bug fixes
+
+- `Checkbox` change events now propagate to the parent `<Form>`, so `rawFormData` updates when the checkbox is toggled. Previously the inner input called `ev.stopPropagation()`, which swallowed the event before it reached the form.
+- `Radio` and `Switch` no longer fire `props.onchange` twice per change. The inner input no longer carries a duplicate `onchange={props.onchange}` — Shade's `attachProps` already wires the handler on the host element, and the bubbled change event triggers it once.
+- `Checkbox` and `Switch` now preserve the browser's native `"on"` default when the `value` prop is omitted, so form submissions emit `{ [name]: "on" }` instead of `{ [name]: "" }`.
+
 ## [17.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

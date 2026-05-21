@@ -1,5 +1,81 @@
 # Changelog
 
+## [9.0.2] - 2026-05-21
+
+### 🔧 Chores
+
+### Cursor rules + skills consolidation
+
+Migrated the legacy `.md` rules in `.cursor/rules/` to FuryStack's targeted `.mdc` format and trimmed each one to its auto-applied surface. The previous monoliths were split into focused rules:
+
+- `CODE_STYLE.mdc`, `TYPESCRIPT_GUIDELINES.mdc`, `COMPLEXITY.mdc` — auto-applied to all `.ts` / `.tsx`
+- `LIBRARY_DEVELOPMENT.mdc` — auto-applied in `packages/`
+- `SHADES_RENDER.mdc` — auto-applied to `packages/**/*.tsx`
+- `TESTING_GUIDELINES.mdc` — auto-applied to `*.spec.ts` / `*.spec.tsx`
+- `CACHE_HANDLING.mdc` — auto-applied to `.tsx`
+
+Removed the now-redundant `.cursor/rules/README.md`, `LIBRARY_DEVELOPMENT.md`, `TESTING_GUIDELINES.md`, `VERSIONING_AND_CHANGELOG.md`, and `CACHE_HANDLING.md`. `rules-index.mdc` is the new entry point.
+
+Added on-demand skills under `.cursor/skills/`:
+
+- `create-shade-component` — scaffolds a Shade component from scratch
+- `implement-store-adapter` — guides adding a new physical-store backend
+- `write-tests` — authors Vitest unit / Vitest integration / Playwright E2E tests
+- `fill-changelog`, `review-changes` — refreshed against the new rule layout
+
+Added the `reviewer-complexity` agent and refreshed `reviewer-changelog` and `reviewer-versioning` so `/review-changes` flags overgrown components, services, and REST actions per `COMPLEXITY.mdc` heuristics.
+
+### ESLint JSDoc enforcement
+
+Enabled `jsdoc/check-alignment`, `jsdoc/check-tag-names`, and `jsdoc/empty-tags` in the workspace ESLint config, set the `jsdoc` plugin to `mode: 'typescript'`, and aliased `@template` to `@typeParam`. `jsdoc/no-undefined-types` and `jsdoc/require-jsdoc` were intentionally left disabled — TypeScript's own `{@link}` validation covers cross-module references, and `publicOnly` overshoots the actual JSDoc surface required by `CODE_STYLE.mdc`.
+
+### ⬆️ Dependencies
+
+Routine maintenance bump of repo-wide tooling. No source code changes — every package picks up newer dev dependencies and the upgraded Yarn release.
+
+- Bumped Yarn from `4.14.1` to `4.15.0` (`packageManager` field and `.yarn/releases/yarn-4.15.0.cjs`).
+- Bumped `vitest` and `@vitest/coverage-istanbul` from `^4.1.5` to `^4.1.7`.
+- Bumped `vite` from `^8.0.10` to `^8.0.14`.
+- Bumped `eslint` from `^10.2.1` to `^10.4.0`.
+- Bumped `eslint-plugin-jsdoc` from `^62.9.0` to `^63.0.0` (major; dev-only).
+- Bumped `eslint-plugin-playwright` from `^2.10.2` to `^2.10.4`.
+- Bumped `typescript-eslint` from `^8.59.0` to `^8.59.4`.
+- Bumped `lint-staged` from `^16.4.0` to `^17.0.5` (major; dev-only).
+- Bumped `jsdom` from `^29.1.0` to `^29.1.1` and `@types/jsdom` from `^28.0.1` to `^28.0.3`.
+
+- `@vitest/coverage-istanbul` `^4.1.5`
+- `ajv` `^8.20.0`
+- `eslint` `^10.2.1`
+- `eslint-plugin-playwright` `^2.10.2`
+- `jsdom` `^29.1.0`
+- `typescript-eslint` `^8.59.0`
+- `vite` `^8.0.10`
+- `vitest` `^4.1.5`
+- Released alongside the new major of `@furystack/cache`. See the `@furystack/cache` changelog for the breaking change (removal of `obsoleteRange` / `removeRange`) and the new tag-based invalidation API (`getTags`, `obsoleteByTag`, `removeByTag`).
+
+### 📦 Build
+
+- Wired the new `@furystack/cross-node-bus` and `@furystack/redis-cross-node-bus` packages into `packages/tsconfig.json` reference graph and the `vitest.config.mts` unit / integration project lists.
+
+### 📚 Documentation
+
+- Added `docs/internal/cross-node-bus-spike.md` (PRD v1) — the design document for the new cross-node pub/sub primitive, its in-process and Redis Streams adapters, and the `IdentityEventBus` / `EntityChangeBus` facades layered on top.
+- Added `docs/internal/distributed-task-management.md` — companion design note covering the future task-management subsystem that will sit on the same bus.
+
+### ✨ Features
+
+### Short-TTL user-resolution cache
+
+Added a singleton `UserResolutionCache` token in `@furystack/rest-service` and a corresponding `getCacheKey` hook on `AuthenticationProvider`. `HttpUserContext.getCurrentUser` now caches successful identity resolutions for `userCacheTtlMs` (default 30 s), bounding cross-instance staleness for out-of-band session/role changes and cutting auth-store load on chatty clients.
+
+`@furystack/cache` gained a `getKey` option so callers can index entries by a derived key when their cache args include large or non-stringifiable values; `setExplicitValue` also now respects the configured TTL timers when priming a `loaded` value.
+
+See the `@furystack/cache` and `@furystack/rest-service` changelogs for the full details and migration notes.
+
+### 🐛 Bug Fixes
+
+- Fixed `Cache.setExplicitValue` not arming `staleTimeMs` / `cacheTimeMs` timers when the supplied value's status was `'loaded'`. Explicitly-primed entries now expire on the same schedule as entries populated via `load()`.
+
 ## [9.0.1] - 2026-04-26
 
 ### 🐛 Bug Fixes

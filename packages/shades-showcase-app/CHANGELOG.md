@@ -1,5 +1,23 @@
 # Changelog
 
+## [10.0.1] - 2026-05-21
+
+### ⬆️ Dependencies
+
+- Bump dev `vite` to `^8.0.10`.
+- Bump dev `vitest` to `^4.1.5`.
+- Bumped `@furystack/cache` to its new major version. No call sites in this package used the removed `obsoleteRange` / `removeRange` APIs, so no source changes were required. See the `@furystack/cache` changelog for the migration if you import the cache directly alongside this package.
+- Bumped `@playwright/test` from `^1.59.1` to `^1.60.0` (E2E test runner).
+- Bumped `vite` to `^8.0.14` and `vitest` to `^4.1.7`. Dev-tooling only.
+
+### 🔧 Chores
+
+- Bumped to keep the `@furystack/cache` dependency in sync after the `getKey` option was added to `Cache`. No code changes.
+
+### 🧪 Tests
+
+- Added an E2E spec for the Advanced Form that toggles the `Workshops` and `Networking` checkboxes and the `Notifications` switch, asserting that the parent `<Form>`'s raw data reflects each toggle (covers the propagation fix in `@furystack/shades-common-components`).
+
 ## [10.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

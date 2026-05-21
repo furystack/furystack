@@ -1,14 +1,14 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/cross-node-bus
+## [1.0.0] - 2026-05-21
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### Initial 1.0.0 release
 
 First public release of `@furystack/cross-node-bus` — a transport-agnostic publish/subscribe primitive for FuryStack apps that scale beyond a single process. There is no migration path from a previous version because none exists; this section is required by the major-release contract.
 
-## ✨ Features
+### ✨ Features
 
 ### `CrossNodeBus` — shared, typed, multi-node event bus
 
@@ -72,3 +72,7 @@ const [a, b, c] = network.buses
 `CrossNodeBusTelemetry` emits `onCrossNodePublished`, `onCrossNodeReceived`, `onCrossNodeError`, and `onCrossNodeWindowEvicted` events with `topic`, `originId`, `byteLength` / `lagMs` / error-and-phase / eviction context — wire it into existing logging without touching adapter code. The shared sink is exposed via `CrossNodeBusTelemetryToken` so adapter factories (in-process or transport-specific) inject the same hub.
 
 `onCrossNodeWindowEvicted` only fires for adapters that own their replay buffer (the in-process default today). Network-broker adapters that delegate trimming to the broker — Redis Streams' `MAXLEN`, NATS JetStream's max-bytes — cannot observe individual evictions on the client side; consumers needing that signal should read it from the broker's native metrics.
+
+### ⬆️ Dependencies
+
+- Bumped `@types/node` to `^25.9.1` and `vitest` to `^4.1.7`. No source changes — dev-tooling bump only.

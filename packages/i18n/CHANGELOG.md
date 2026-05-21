@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.1] - 2026-05-21
+
+### 📚 Documentation
+
+- Rewrote JSDoc on `I18nService` and `createLanguage` to follow the new value-test guidance: dropped restate-the-type narration, kept intent / trade-offs / constraints, and added type-only imports for cross-file `{@link}` targets.
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Bumped `@types/node` to `^25.9.1` and `vitest` to `^4.1.7`. No source changes — dev-tooling bump only.
+
 ## [2.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

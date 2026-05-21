@@ -1,5 +1,13 @@
 # Changelog
 
+## [12.0.1] - 2026-05-21
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Bumped `nipplejs` from `^1.0.1` to `^1.0.3` (runtime dependency).
+- Bumped `vitest` to `^4.1.7`. Dev-tooling only.
+
 ## [12.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

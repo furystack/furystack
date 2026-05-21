@@ -1,14 +1,14 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/redis-cross-node-bus
+## [1.0.0] - 2026-05-21
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### Initial 1.0.0 release
 
 First public release of `@furystack/redis-cross-node-bus` — the production-grade Redis Streams adapter for `@furystack/cross-node-bus`. There is no migration path from a previous version because none exists; this section is required by the major-release contract.
 
-## ✨ Features
+### ✨ Features
 
 ### Redis Streams adapter for `CrossNodeBus`
 
@@ -55,3 +55,7 @@ The caller owns the supplied client's `connect` / `quit` lifecycle (mirrors `@fu
 - `subscribeForeign` opt-in delivers cross-service traffic.
 
 The harness is gated on `docker-compose up redis` the same way `@furystack/redis-store` integration tests are.
+
+### ⬆️ Dependencies
+
+- Bumped `@types/node` to `^25.9.1` and `vitest` to `^4.1.7`. No source changes — dev-tooling bump only.

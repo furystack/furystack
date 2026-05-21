@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.1] - 2026-05-21
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Bumped `@types/node` to `^25.9.1` and `vitest` to `^4.1.7`. No source changes — dev-tooling bump only.
+
 ## [5.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

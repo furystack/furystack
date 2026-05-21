@@ -1,6 +1,6 @@
 {
   "name": "@furystack/redis-cross-node-bus",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Redis Streams adapter for the @furystack/cross-node-bus pub/sub primitive",
   "type": "module",
   "scripts": {
