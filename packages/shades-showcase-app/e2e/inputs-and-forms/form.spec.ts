@@ -482,4 +482,60 @@ test.describe('Advanced Form', () => {
 
     await expect(resetNameInput).toHaveValue('')
   })
+
+  test('should reflect checkbox and switch toggles in the form raw data', async ({ page }) => {
+    await page.goto('/inputs-and-forms/form')
+
+    const content = page.locator('forms-page')
+    await content.waitFor({ state: 'visible' })
+
+    const advancedForm = page.locator('form').nth(1)
+    await advancedForm.scrollIntoViewIfNeeded()
+
+    const rawValue = advancedForm.locator('#raw')
+
+    // Returns the parsed object from the FormStatusMonitor's `#raw` block, or
+    // `null` if the form has not received any change events yet.
+    const readRawData = async (): Promise<Record<string, string> | null> => {
+      const text = (await rawValue.textContent()) ?? ''
+      const jsonText = text.replace(/^Raw:\s*/, '')
+      if (jsonText === 'null') {
+        return null
+      }
+      return JSON.parse(jsonText) as Record<string, string>
+    }
+
+    await expect(rawValue).toHaveText('Raw: null')
+
+    // Toggle the Workshops checkbox — change should bubble to the form
+    // and populate `rawFormData` with `workshops: "yes"`.
+    const workshopsCheckbox = advancedForm.getByRole('checkbox', { name: 'Workshops' })
+    await workshopsCheckbox.scrollIntoViewIfNeeded()
+    await workshopsCheckbox.evaluate((el: HTMLInputElement) => el.click())
+    await expect(workshopsCheckbox).toBeChecked()
+    await expect.poll(readRawData).toMatchObject({ workshops: 'yes' })
+
+    // Toggle the Networking checkbox; both keys should now be present.
+    const networkingCheckbox = advancedForm.getByRole('checkbox', { name: 'Networking' })
+    await networkingCheckbox.evaluate((el: HTMLInputElement) => el.click())
+    await expect(networkingCheckbox).toBeChecked()
+    await expect.poll(readRawData).toMatchObject({ workshops: 'yes', networking: 'yes' })
+
+    // Toggle the Switch — same propagation contract as Checkbox.
+    const notificationsSwitch = advancedForm.getByRole('switch', { name: 'Receive email notifications' })
+    await notificationsSwitch.scrollIntoViewIfNeeded()
+    await notificationsSwitch.evaluate((el: HTMLInputElement) => el.click())
+    await expect(notificationsSwitch).toBeChecked()
+    await expect.poll(readRawData).toMatchObject({
+      workshops: 'yes',
+      networking: 'yes',
+      notifications: 'yes',
+    })
+
+    // Untick Workshops — the key should disappear from raw data.
+    await workshopsCheckbox.evaluate((el: HTMLInputElement) => el.click())
+    await expect(workshopsCheckbox).not.toBeChecked()
+    await expect.poll(async () => Object.keys((await readRawData()) ?? {})).not.toContain('workshops')
+    await expect.poll(readRawData).toMatchObject({ networking: 'yes', notifications: 'yes' })
+  })
 })
