@@ -43,14 +43,14 @@
     "@furystack/inject": "workspace:^",
     "@furystack/repository": "workspace:^",
     "@furystack/websocket-api": "workspace:^",
-    "ws": "^8.20.0"
+    "ws": "^8.20.1"
   },
   "devDependencies": {
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@types/ws": "^8.18.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.7"
   },
   "engines": {
     "node": ">=22.0.0"
