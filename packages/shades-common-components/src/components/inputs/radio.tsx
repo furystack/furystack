@@ -232,11 +232,10 @@ export const Radio = Shade<RadioProps>({
           <input
             ref={inputRef}
             type="radio"
-            value={props.value}
             checked={isChecked}
             disabled={isDisabled}
             name={effectiveName}
-            onchange={props.onchange}
+            {...(props.value !== undefined ? { value: props.value } : {})}
           />
         </span>
         {props.labelTitle ? <span className="radio-label">{props.labelTitle}</span> : null}

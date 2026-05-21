@@ -251,7 +251,7 @@ describe('Switch', () => {
 
         await flushUpdates()
 
-        expect(onchange).toHaveBeenCalled()
+        expect(onchange).toHaveBeenCalledOnce()
       })
     })
   })
@@ -405,6 +405,64 @@ describe('Switch', () => {
 
         const input = document.querySelector('shade-switch input[type="checkbox"]') as HTMLInputElement
         expect(input.value).toBe('yes')
+      })
+    })
+
+    it('should fall back to the native "on" default when value prop is omitted', async () => {
+      await usingAsync(createInjector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        type TestFormData = { notifications: string }
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Form<TestFormData> onSubmit={() => {}} validate={(_data): _data is TestFormData => true}>
+              <Switch name="notifications" labelTitle="Enable notifications" checked />
+            </Form>
+          ),
+        })
+
+        await flushUpdates()
+
+        const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+        const input = form.querySelector('input[type="checkbox"]') as HTMLInputElement
+
+        expect(input.hasAttribute('value')).toBe(false)
+        expect(Object.fromEntries(new FormData(form).entries())).toEqual({ notifications: 'on' })
+      })
+    })
+
+    it('should propagate change events to the parent Form so rawFormData updates', async () => {
+      await usingAsync(createInjector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        type TestFormData = { notifications: string }
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Form<TestFormData> onSubmit={() => {}} validate={(_data): _data is TestFormData => true}>
+              <Switch name="notifications" value="yes" labelTitle="Enable notifications" />
+            </Form>
+          ),
+        })
+
+        await flushUpdates()
+
+        const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+        const input = form.querySelector('input[type="checkbox"]') as HTMLInputElement
+        const formInjector = (form as unknown as { injector: Injector }).injector
+        const formService = formInjector.get(FormContextToken)!
+
+        input.checked = true
+        input.dispatchEvent(new Event('change', { bubbles: true }))
+
+        await flushUpdates()
+
+        expect(formService.rawFormData.getValue()).toEqual({ notifications: 'yes' })
       })
     })
   })
