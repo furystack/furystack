@@ -1232,6 +1232,118 @@ describe('Select', () => {
     })
   })
 
+  describe('form change event propagation', () => {
+    // Capture every bubbling `change` event seen at document.body. Tests assert
+    // both that a change fires AND that the hidden input already carries the
+    // new value when handlers run (the Form reads FormData on the event).
+    const collectChangeEvents = (select: HTMLElement): Array<{ value: string }> => {
+      const events: Array<{ value: string }> = []
+      select.addEventListener('change', (ev) => {
+        const target = ev.target as HTMLInputElement | null
+        if (target && target.type === 'hidden') {
+          events.push({ value: target.value })
+        }
+      })
+      return events
+    }
+    it('should dispatch a bubbling change event on the hidden input when a single-mode option is clicked', async () => {
+      await usingAsync(await renderSelect({ options: defaultOptions, name: 'myField' }), async ({ select }) => {
+        const events = collectChangeEvents(select)
+
+        const trigger = select.querySelector('.select-trigger') as HTMLElement
+        trigger.click()
+        await flushUpdates()
+
+        const items = select.querySelectorAll('.dropdown-item')
+        ;(items[1] as HTMLElement).click()
+        await flushUpdates()
+
+        expect(events).toEqual([{ value: 'b' }])
+        const input = select.querySelector('input[type="hidden"]') as HTMLInputElement
+        expect(input.value).toBe('b')
+      })
+    })
+
+    it('should dispatch a bubbling change event with comma-joined values in multiple mode', async () => {
+      await usingAsync(
+        await renderSelect({ options: defaultOptions, name: 'tags', mode: 'multiple', value: ['a'] }),
+        async ({ select }) => {
+          const events = collectChangeEvents(select)
+
+          const trigger = select.querySelector('.select-trigger') as HTMLElement
+          trigger.click()
+          await flushUpdates()
+
+          const items = select.querySelectorAll('.dropdown-item')
+          ;(items[1] as HTMLElement).click()
+          await flushUpdates()
+
+          expect(events).toEqual([{ value: 'a,b' }])
+        },
+      )
+    })
+
+    it('should dispatch a bubbling change event when a chip is removed', async () => {
+      await usingAsync(
+        await renderSelect({ options: defaultOptions, name: 'tags', mode: 'multiple', value: ['a', 'b'] }),
+        async ({ select }) => {
+          const events = collectChangeEvents(select)
+
+          const chipRemoves = select.querySelectorAll('.select-chip-remove')
+          ;(chipRemoves[0] as HTMLElement).click()
+          await flushUpdates()
+
+          expect(events).toEqual([{ value: 'b' }])
+        },
+      )
+    })
+
+    it('should dispatch a bubbling change event when Backspace removes the last chip in searchable multi mode', async () => {
+      await usingAsync(
+        await renderSelect({
+          options: defaultOptions,
+          name: 'tags',
+          mode: 'multiple',
+          value: ['a', 'b'],
+          showSearch: true,
+        }),
+        async ({ select }) => {
+          const events = collectChangeEvents(select)
+
+          const trigger = select.querySelector('.select-trigger') as HTMLElement
+          trigger.click()
+          await flushUpdates()
+
+          const searchInput = select.querySelector('.dropdown-search') as HTMLInputElement
+          searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }))
+          await flushUpdates()
+
+          expect(events).toEqual([{ value: 'a' }])
+        },
+      )
+    })
+
+    it('should not dispatch a change event when a disabled option is clicked', async () => {
+      const options: SelectOption[] = [
+        { value: 'a', label: 'Alpha' },
+        { value: 'b', label: 'Beta', disabled: true },
+      ]
+      await usingAsync(await renderSelect({ options, name: 'myField' }), async ({ select }) => {
+        const events = collectChangeEvents(select)
+
+        const trigger = select.querySelector('.select-trigger') as HTMLElement
+        trigger.click()
+        await flushUpdates()
+
+        const items = select.querySelectorAll('.dropdown-item')
+        ;(items[1] as HTMLElement).click()
+        await flushUpdates()
+
+        expect(events).toEqual([])
+      })
+    })
+  })
+
   describe('size', () => {
     it('should not set data-size when size is not specified', async () => {
       await usingAsync(await renderSelect({ options: defaultOptions }), async ({ select }) => {

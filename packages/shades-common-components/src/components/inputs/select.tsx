@@ -470,6 +470,18 @@ export const Select = Shade<SelectProps>({
       setState({ ...state, isOpen: true, highlightedIndex: Math.max(firstIndex, 0), searchText: '' })
     }
 
+    // The Shades render cycle is microtask-batched, so the hidden input's
+    // declarative `value` prop has not been applied yet when we react to a
+    // user-driven mutation. Set the value imperatively and synthesise a
+    // bubbling `change` event so a surrounding `<Form>` observes the update
+    // (native `<input type="hidden">` never fires `change` on its own).
+    const notifyFormChange = (newValue: string) => {
+      const input = hiddenInputRef.current
+      if (!input) return
+      input.value = newValue
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
     const selectOption = (option: SelectOption) => {
       if (option.disabled) return
       if (isMultiple) {
@@ -485,6 +497,7 @@ export const Select = Shade<SelectProps>({
         })
         props.onMultiValueChange?.(newValues)
         props.onValueChange?.(newValues.join(','))
+        notifyFormChange(newValues.join(','))
       } else {
         setState({
           ...state,
@@ -494,6 +507,7 @@ export const Select = Shade<SelectProps>({
           searchText: '',
         })
         props.onValueChange?.(option.value)
+        notifyFormChange(option.value)
       }
     }
 
@@ -504,6 +518,7 @@ export const Select = Shade<SelectProps>({
       setState({ ...state, value: newValues })
       props.onMultiValueChange?.(newValues)
       props.onValueChange?.(newValues.join(','))
+      notifyFormChange(newValues.join(','))
     }
 
     const getEnabledFilteredOptions = () => filteredAllOptions.filter((o) => !o.disabled)
@@ -582,6 +597,7 @@ export const Select = Shade<SelectProps>({
               setState({ ...state, value: newValues })
               props.onMultiValueChange?.(newValues)
               props.onValueChange?.(newValues.join(','))
+              notifyFormChange(newValues.join(','))
             }
           }
           break

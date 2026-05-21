@@ -220,7 +220,7 @@ describe('Radio', () => {
 
         await flushUpdates()
 
-        expect(onchange).toHaveBeenCalled()
+        expect(onchange).toHaveBeenCalledOnce()
       })
     })
   })
@@ -249,6 +249,38 @@ describe('Radio', () => {
         const formService = formInjector.get(FormContextToken)!
 
         expect(formService.inputs.size).toBe(1)
+      })
+    })
+
+    it('should propagate change events to the parent Form so rawFormData updates', async () => {
+      await usingAsync(createInjector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        type TestFormData = { choice: string }
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Form<TestFormData> onSubmit={() => {}} validate={(_data): _data is TestFormData => true}>
+              <Radio value="option1" name="choice" labelTitle="Option 1" />
+            </Form>
+          ),
+        })
+
+        await flushUpdates()
+
+        const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+        const input = form.querySelector('input[type="radio"]') as HTMLInputElement
+        const formInjector = (form as unknown as { injector: Injector }).injector
+        const formService = formInjector.get(FormContextToken)!
+
+        input.checked = true
+        input.dispatchEvent(new Event('change', { bubbles: true }))
+
+        await flushUpdates()
+
+        expect(formService.rawFormData.getValue()).toEqual({ choice: 'option1' })
       })
     })
   })

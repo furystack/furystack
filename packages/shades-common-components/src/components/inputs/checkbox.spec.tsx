@@ -255,7 +255,7 @@ describe('Checkbox', () => {
 
         await flushUpdates()
 
-        expect(onchange).toHaveBeenCalled()
+        expect(onchange).toHaveBeenCalledOnce()
       })
     })
   })
@@ -372,6 +372,64 @@ describe('Checkbox', () => {
         rootElement.innerHTML = ''
 
         await flushUpdates()
+      })
+    })
+
+    it('should propagate change events to the parent Form so rawFormData updates', async () => {
+      await usingAsync(createInjector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        type TestFormData = { workshops: string }
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Form<TestFormData> onSubmit={() => {}} validate={(_data): _data is TestFormData => true}>
+              <Checkbox name="workshops" value="yes" labelTitle="Workshops" />
+            </Form>
+          ),
+        })
+
+        await flushUpdates()
+
+        const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+        const input = form.querySelector('input[type="checkbox"]') as HTMLInputElement
+        const formInjector = (form as unknown as { injector: Injector }).injector
+        const formService = formInjector.get(FormContextToken)!
+
+        input.checked = true
+        input.dispatchEvent(new Event('change', { bubbles: true }))
+
+        await flushUpdates()
+
+        expect(formService.rawFormData.getValue()).toEqual({ workshops: 'yes' })
+      })
+    })
+
+    it('should submit the native "on" default when value prop is omitted', async () => {
+      await usingAsync(createInjector(), async (injector) => {
+        const rootElement = document.getElementById('root') as HTMLDivElement
+
+        type TestFormData = { agree: string }
+
+        initializeShadeRoot({
+          injector,
+          rootElement,
+          jsxElement: (
+            <Form<TestFormData> onSubmit={() => {}} validate={(_data): _data is TestFormData => true}>
+              <Checkbox name="agree" labelTitle="I agree" checked />
+            </Form>
+          ),
+        })
+
+        await flushUpdates()
+
+        const form = document.querySelector('form[is="shade-form"]') as HTMLFormElement
+        const input = form.querySelector('input[type="checkbox"]') as HTMLInputElement
+
+        expect(input.hasAttribute('value')).toBe(false)
+        expect(Object.fromEntries(new FormData(form).entries())).toEqual({ agree: 'on' })
       })
     })
   })
