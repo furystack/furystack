@@ -27,7 +27,12 @@ describe('InProcessCrossNodeBus', () => {
 
     it('declares replay + assignsSequence capabilities and non-persistent', () => {
       using bus = new InProcessCrossNodeBus()
-      expect(bus.capabilities).toEqual({ persistent: false, replay: true, assignsSequence: true })
+      expect(bus.capabilities).toEqual({
+        persistent: false,
+        replay: true,
+        assignsSequence: true,
+        crossNodeDelivery: false,
+      })
     })
   })
 

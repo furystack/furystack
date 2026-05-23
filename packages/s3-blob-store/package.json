@@ -1,0 +1,55 @@
+{
+  "name": "@furystack/s3-blob-store",
+  "version": "0.0.1",
+  "description": "S3-compatible adapter for the @furystack/blob-store primitive (AWS S3, MinIO, R2, B2, GCS-S3)",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "blob",
+    "object-storage",
+    "s3",
+    "minio",
+    "r2"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1041.0",
+    "@aws-sdk/s3-request-presigner": "^3.1041.0",
+    "@furystack/blob-store": "workspace:^",
+    "@furystack/inject": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
+}

@@ -1,0 +1,59 @@
+{
+  "name": "@furystack/redis-task-runner",
+  "version": "0.0.1",
+  "description": "Redis Streams adapter for the @furystack/task-runner queue transport",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "task-runner",
+    "job-queue",
+    "redis",
+    "streams",
+    "distributed"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@furystack/blob-store": "workspace:^",
+    "@furystack/cross-node-bus": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/repository": "workspace:^",
+    "@furystack/task-runner": "workspace:^",
+    "redis": "^5.12.1"
+  },
+  "devDependencies": {
+    "@furystack/core": "workspace:^",
+    "@furystack/utils": "workspace:^",
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
+}

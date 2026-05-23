@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./esm",
+    "composite": true,
+    "rootDir": "./src"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../blob-store" },
+    { "path": "../core" },
+    { "path": "../cross-node-bus" },
+    { "path": "../inject" },
+    { "path": "../repository" },
+    { "path": "../utils" }
+  ]
+}

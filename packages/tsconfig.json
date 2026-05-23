@@ -9,7 +9,13 @@
       "path": "./auth-jwt"
     },
     {
+      "path": "./blob-store"
+    },
+    {
       "path": "./core"
+    },
+    {
+      "path": "./filesystem-blob-store"
     },
     {
       "path": "./filesystem-store"
@@ -33,6 +39,9 @@
       "path": "./redis-store"
     },
     {
+      "path": "./redis-task-runner"
+    },
+    {
       "path": "./repository"
     },
     {
@@ -43,6 +52,9 @@
     },
     {
       "path": "./rest-service"
+    },
+    {
+      "path": "./s3-blob-store"
     },
     {
       "path": "./security"
@@ -94,6 +106,9 @@
     },
     {
       "path": "./eslint-plugin"
+    },
+    {
+      "path": "./task-runner"
     }
   ]
 }

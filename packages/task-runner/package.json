@@ -1,0 +1,68 @@
+{
+  "name": "@furystack/task-runner",
+  "version": "0.0.1",
+  "description": "Transport-agnostic distributed task runner for FuryStack",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    },
+    "./endpoints": {
+      "types": "./esm/endpoints/index.d.ts",
+      "import": "./esm/endpoints/index.js"
+    },
+    "./testing": {
+      "types": "./esm/testing/index.d.ts",
+      "import": "./esm/testing/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "task-runner",
+    "job-queue",
+    "distributed",
+    "DAG"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@furystack/blob-store": "workspace:^",
+    "@furystack/core": "workspace:^",
+    "@furystack/cross-node-bus": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/repository": "workspace:^",
+    "@furystack/rest-service": "workspace:^",
+    "@furystack/utils": "workspace:^",
+    "@furystack/websocket-api": "workspace:^",
+    "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/ws": "^8.18.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
+}

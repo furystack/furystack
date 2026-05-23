@@ -1,0 +1,3 @@
+releases:
+  "@furystack/task-runner": minor
+  "@furystack/redis-task-runner": patch

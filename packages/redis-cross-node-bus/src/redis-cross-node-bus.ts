@@ -58,6 +58,7 @@ const CAPABILITIES: CrossNodeBusCapabilities = Object.freeze({
   persistent: true,
   replay: true,
   assignsSequence: true,
+  crossNodeDelivery: true,
 })
 
 const DEFAULT_REPLAY_WINDOW = 10_000
