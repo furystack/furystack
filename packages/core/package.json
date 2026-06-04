@@ -55,7 +55,7 @@
     "@furystack/utils": "workspace:^"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

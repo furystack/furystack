@@ -2,6 +2,10 @@
 
 # @furystack/redis-store
 
+## 👷 CI
+
+- Raised the minimum supported Node.js to `>=24.0.0` (Node 24 LTS) in `engines`, dropping Node 22.
+
 ## ⬆️ Dependencies
 
 ### Upgraded `redis` to v6
