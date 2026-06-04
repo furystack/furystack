@@ -31,6 +31,8 @@ const buildHarness = async (options: {
   handlers: AnyTaskHandlerDescriptor[]
   visibilityTimeoutMs?: number
   schedulerIntervalMs?: number
+  concurrencyLimits?: Record<string, number>
+  workerConcurrency?: number
 }): Promise<Harness> => {
   const client = createClient({ url: REDIS_URL })
   await client.connect()
@@ -52,9 +54,11 @@ const buildHarness = async (options: {
       topicPrefix: options.prefix,
       visibilityTimeoutMs: options.visibilityTimeoutMs ?? 60_000,
       blockTimeoutMs: 50,
+      retryBackoffMs: 50,
       schedulerIntervalMs: options.schedulerIntervalMs ?? 50,
       reconcilerIntervalMs: 200,
       sweepIntervalMs: 100,
+      concurrencyLimits: options.concurrencyLimits,
     }),
   )
 
@@ -65,7 +69,7 @@ const buildHarness = async (options: {
       runner.registerWorker({
         name: `worker-${i}`,
         handlers: options.handlers,
-        concurrency: 2,
+        concurrency: options.workerConcurrency ?? 2,
         tags: [],
         compatibleVersions: {},
       }),
@@ -117,7 +121,7 @@ describe('RedisTaskRunner (integration)', () => {
     const caps: TaskRunnerCapabilities = harness.runner.capabilities
     expect(caps.persistent).toBe(true)
     expect(caps.delayedDispatch).toBe(true)
-    expect(caps.fleetCapEnforcement).toBe(false)
+    expect(caps.fleetCapEnforcement).toBe(true)
   })
 
   it('honors notBefore by parking the task in the scheduler ZSET until it is due', async () => {
@@ -309,4 +313,94 @@ describe('RedisTaskRunner (integration)', () => {
     expect(final?.status).toBe('cancelled')
     expect(aborted).toBe(true)
   }, 15_000)
+
+  it('enforces a fleet-wide concurrency cap across two workers', async () => {
+    let live = 0
+    let maxLive = 0
+    const capped = defineTaskHandler<Record<string, never>, void>({
+      type: 'capped',
+      version: 1,
+      handler: async (ctx) => {
+        live += 1
+        maxLive = Math.max(maxLive, live)
+        try {
+          await ctx.sleep(300)
+        } finally {
+          live -= 1
+        }
+      },
+    })
+
+    // 2 workers × concurrency 2 = 4 fleet slots, but the cap is 2 — so at
+    // most two `capped` handlers may run at once across the whole fleet.
+    await using harness = await buildHarness({
+      prefix,
+      workerCount: 2,
+      workerConcurrency: 2,
+      handlers: [capped],
+      concurrencyLimits: { capped: 2 },
+    })
+
+    const tasks = await Promise.all(
+      Array.from({ length: 6 }, () => harness.runner.submit({ type: 'capped', payload: {}, handlerVersion: 1 })),
+    )
+
+    for (const task of tasks) {
+      const completed = await runTaskToCompletion({ runner: harness.runner, taskId: task.id, timeoutMs: 15_000 })
+      expect(completed.status).toBe('succeeded')
+    }
+
+    // Cap holds (never exceeded) and is actually exercised (parallelism
+    // reached the cap rather than serializing).
+    expect(maxLive).toBeLessThanOrEqual(2)
+    expect(maxLive).toBe(2)
+  }, 30_000)
+
+  it('drains a worker: in-flight task finishes, no new tasks are claimed', async () => {
+    let started = 0
+    let finished = 0
+    let resolveStarted: () => void = () => {}
+    const startedSignal = new Promise<void>((resolve) => {
+      resolveStarted = resolve
+    })
+
+    const slow = defineTaskHandler<Record<string, never>, void>({
+      type: 'drainable',
+      version: 1,
+      handler: async (ctx) => {
+        started += 1
+        resolveStarted()
+        await ctx.sleep(600)
+        finished += 1
+      },
+    })
+
+    await using harness = await buildHarness({
+      prefix,
+      workerCount: 1,
+      workerConcurrency: 1,
+      handlers: [slow],
+    })
+
+    const inFlight = await harness.runner.submit({ type: 'drainable', payload: {}, handlerVersion: 1 })
+    await startedSignal
+
+    // Begin draining while the first task is mid-handler, then submit a
+    // second task that the draining worker must not pick up.
+    const drainPromise = harness.workers[0]?.drain({ timeoutMs: 5000 }) ?? Promise.resolve()
+    const queued = await harness.runner.submit({ type: 'drainable', payload: {}, handlerVersion: 1 })
+
+    await drainPromise
+
+    // The in-flight task completed despite the drain.
+    const inFlightFinal = await harness.runner.get(inFlight.id)
+    expect(inFlightFinal?.status).toBe('succeeded')
+    expect(finished).toBe(1)
+
+    // The second task was never claimed by the drained worker.
+    await sleep(400)
+    const queuedFinal = await harness.runner.get(queued.id)
+    expect(queuedFinal?.status).toBe('pending')
+    expect(started).toBe(1)
+  }, 20_000)
 })

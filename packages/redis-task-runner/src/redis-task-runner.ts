@@ -43,6 +43,7 @@ export class RedisTaskRunner extends TaskRunnerCore {
       retryBackoffMs: deps.retryBackoffMs,
       idempotencyTtlSec: deps.idempotencyTtlSec,
       schedulerIntervalMs: deps.schedulerIntervalMs,
+      concurrencyLimits: deps.concurrencyLimits,
     })
     super(
       {

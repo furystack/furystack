@@ -76,13 +76,22 @@ export type RedisQueueAdapterOptions = {
    * floor on `notBefore` granularity. Default: `250`.
    */
   schedulerIntervalMs?: number
+  /**
+   * Fleet-wide max-concurrent claims per task type. A claim whose lane
+   * is at its cap is released back to the stream and retried, so the
+   * limit holds across every worker process sharing the broker (PRD
+   * §11 fleet cap). Types absent from the map are uncapped. Enforced by
+   * a per-type ZSET of holder tokens scored by expiry (crash-safe TTL
+   * tied to the type's visibility timeout).
+   */
+  concurrencyLimits?: Record<string, number>
 }
 
 const CAPABILITIES: QueueAdapterCapabilities = Object.freeze({
   persistent: true,
   distributed: true,
   delayedDispatch: true,
-  fleetCapEnforcement: false,
+  fleetCapEnforcement: true,
   brokerSideReclaim: true,
 })
 
@@ -129,6 +138,32 @@ for _, member in ipairs(members) do
   end
 end
 return dispatched
+`
+
+/**
+ * Atomically admit one holder to a fleet-cap lane. Evicts expired
+ * holders (score ≤ now), then admits the caller's token only if the
+ * lane is below its cap.
+ *
+ * `KEYS[1]` — per-type cap ZSET key.
+ * `ARGV[1]` — current epoch ms (used to evict expired holders).
+ * `ARGV[2]` — cap (max concurrent holders).
+ * `ARGV[3]` — caller's holder token.
+ * `ARGV[4]` — holder expiry epoch ms (now + visibility timeout). The
+ * TTL frees a crashed holder's slot exactly when its claim becomes
+ * reclaimable.
+ *
+ * Returns `1` when admitted, `0` when the lane is full.
+ */
+const CAP_ACQUIRE_SCRIPT = `
+local now = tonumber(ARGV[1])
+local cap = tonumber(ARGV[2])
+redis.call('ZREMRANGEBYSCORE', KEYS[1], '-inf', now)
+if redis.call('ZCARD', KEYS[1]) < cap then
+  redis.call('ZADD', KEYS[1], ARGV[4], ARGV[3])
+  return 1
+end
+return 0
 `
 
 type RedisReceipt = {
@@ -180,11 +215,18 @@ type SubscriptionState = {
  *
  * **Heartbeat.** {@link RedisQueueAdapter.heartbeat} resets the PEL
  * idle counter via `XCLAIM JUSTID` so long-running handlers don't get
- * reclaimed.
+ * reclaimed, and refreshes the holder's fleet-cap lease.
  *
- * Single-PUT only — see PRD §7.6 / §16 Q7. Delayed dispatch is not
- * implemented in this revision; setting `notBefore` against this
- * adapter is rejected at the runner-core boundary (capability flag).
+ * **Delayed dispatch.** `notBefore` parks the entry in a per-prefix
+ * scheduler ZSET; a timer atomically pops due entries onto the matching
+ * stream (`delayedDispatch: true`).
+ *
+ * **Fleet cap.** When a type appears in
+ * {@link RedisQueueAdapterOptions.concurrencyLimits}, each claim must
+ * admit a holder token into a per-type ZSET (scored by expiry) before
+ * the handler runs; a claim that finds its lane full is released back to
+ * the stream and retried, so the cap holds fleet-wide
+ * (`fleetCapEnforcement: true`).
  */
 export class RedisQueueAdapter implements QueueAdapter {
   public readonly capabilities: QueueAdapterCapabilities = CAPABILITIES
@@ -198,6 +240,7 @@ export class RedisQueueAdapter implements QueueAdapter {
   readonly #retryBackoffMs: number
   readonly #idempotencyTtlSec: number
   readonly #schedulerIntervalMs: number
+  readonly #concurrencyLimits: Record<string, number>
 
   readonly #subscriptions = new Set<SubscriptionState>()
   readonly #ensuredGroups = new Set<string>()
@@ -219,6 +262,7 @@ export class RedisQueueAdapter implements QueueAdapter {
     this.#retryBackoffMs = options.retryBackoffMs ?? DEFAULT_RETRY_BACKOFF_MS
     this.#idempotencyTtlSec = options.idempotencyTtlSec ?? DEFAULT_IDEMPOTENCY_TTL_SEC
     this.#schedulerIntervalMs = options.schedulerIntervalMs ?? DEFAULT_SCHEDULER_INTERVAL_MS
+    this.#concurrencyLimits = options.concurrencyLimits ?? {}
 
     // `unref()` so an idle scheduler timer never holds the process
     // open in single-shot scripts / tests.
@@ -305,6 +349,9 @@ export class RedisQueueAdapter implements QueueAdapter {
       // PEL idle counter keeps ticking; XAUTOCLAIM will reclaim the
       // attempt if the issue persists past the visibility timeout.
     }
+    if (this.#concurrencyLimits[claim.type] !== undefined) {
+      await this.#refreshCap(claim.type, `${receipt.consumer}:${receipt.msgId}`)
+    }
   }
 
   public async acquireIdempotencyLease(input: IdempotencyLeaseInput): Promise<string> {
@@ -355,21 +402,73 @@ export class RedisQueueAdapter implements QueueAdapter {
     if (this.#disposed || this.#schedulerRunning) return
     this.#schedulerRunning = true
     try {
-      // The `redis` v5 client exposes `eval` with `keys` / `arguments`
-      // option fields; the cast keeps `RedisLikeClient` opaque.
-      const evalFn = this.#client.eval as (
-        script: string,
-        opts: { keys: string[]; arguments: string[] },
-      ) => Promise<unknown>
-      await evalFn.call(this.#client, SCHEDULER_DISPATCH_SCRIPT, {
-        keys: [this.#schedulerKey()],
-        arguments: [String(Date.now()), String(SCHEDULER_BATCH_LIMIT), this.#topicPrefix],
-      })
+      await this.#eval(
+        SCHEDULER_DISPATCH_SCRIPT,
+        [this.#schedulerKey()],
+        [String(Date.now()), String(SCHEDULER_BATCH_LIMIT), this.#topicPrefix],
+      )
     } catch {
       // Best-effort: a transient broker failure means due entries stay
       // in the ZSET and the next tick retries.
     } finally {
       this.#schedulerRunning = false
+    }
+  }
+
+  /**
+   * Runs a Lua script via the redis client's `eval` (keys/arguments
+   * option shape). The cast keeps {@link RedisLikeClient} opaque to the
+   * exact `redis` command typings.
+   */
+  #eval(script: string, keys: string[], args: string[]): Promise<unknown> {
+    const evalFn = this.#client.eval as (
+      script: string,
+      opts: { keys: string[]; arguments: string[] },
+    ) => Promise<unknown>
+    return evalFn.call(this.#client, script, { keys, arguments: args })
+  }
+
+  // ── Fleet cap ─────────────────────────────────────────────────────
+
+  #capKey(type: string): string {
+    return `${this.#topicPrefix}tasks:cap:${type}`
+  }
+
+  /**
+   * Admit a holder token into the type's fleet-cap lane. Returns `false`
+   * when the lane is full (caller releases the claim back to the stream)
+   * or when the broker errors — failing closed avoids over-admitting.
+   */
+  async #acquireCap(type: string, token: string, cap: number): Promise<boolean> {
+    const now = Date.now()
+    const expiry = now + this.#visibilityFor(type)
+    try {
+      const result = await this.#eval(
+        CAP_ACQUIRE_SCRIPT,
+        [this.#capKey(type)],
+        [String(now), String(cap), token, String(expiry)],
+      )
+      return result === 1
+    } catch {
+      return false
+    }
+  }
+
+  async #releaseCap(type: string, token: string): Promise<void> {
+    try {
+      await this.#client.zRem(this.#capKey(type), token)
+    } catch {
+      // Best-effort: a leaked holder expires via its ZSET score TTL.
+    }
+  }
+
+  async #refreshCap(type: string, token: string): Promise<void> {
+    const expiry = Date.now() + this.#visibilityFor(type)
+    try {
+      await this.#client.zAdd(this.#capKey(type), { score: expiry, value: token }, { XX: true })
+    } catch {
+      // Best-effort: a missed refresh only risks an early reclaim, which
+      // the reclaim path already handles idempotently.
     }
   }
 
@@ -410,7 +509,7 @@ export class RedisQueueAdapter implements QueueAdapter {
       // 1. Try to reclaim any stale PEL entries (broker-side reclaim).
       const reclaimed = await this.#tryReclaim(streams, consumerName, signal)
       if (reclaimed) {
-        await this.#deliver(state, reclaimed.stream, reclaimed.entry, consumerName)
+        await this.#deliver(state, reclaimed.stream, reclaimed.entry, consumerName, signal)
         continue
       }
 
@@ -425,7 +524,7 @@ export class RedisQueueAdapter implements QueueAdapter {
         continue
       }
       if (fresh.entry) {
-        await this.#deliver(state, fresh.stream, fresh.entry, consumerName)
+        await this.#deliver(state, fresh.stream, fresh.entry, consumerName, signal)
       }
     }
   }
@@ -479,6 +578,7 @@ export class RedisQueueAdapter implements QueueAdapter {
     stream: string,
     entry: StreamMessageEntry,
     consumerName: string,
+    signal: AbortSignal,
   ): Promise<void> {
     const { taskId } = entry.message
     const { type } = entry.message
@@ -493,6 +593,25 @@ export class RedisQueueAdapter implements QueueAdapter {
       return
     }
 
+    const limit = this.#concurrencyLimits[type]
+    const capToken = `${consumerName}:${entry.id}`
+    if (limit !== undefined) {
+      const acquired = await this.#acquireCap(type, capToken, limit)
+      if (!acquired) {
+        // Lane at fleet cap: release the entry back to the stream tail and
+        // back off so this slot does not hot-loop re-reading it. Ordering
+        // churn is the accepted trade-off of FIFO + fleet cap (PRD §11).
+        try {
+          await this.#client.xAck(stream, this.#group, entry.id)
+          await this.#client.xAdd(stream, '*', entry.message)
+        } catch {
+          // Ack/re-add failed: entry stays in PEL, XAUTOCLAIM recovers it.
+        }
+        await sleep(this.#retryBackoffMs, signal)
+        return
+      }
+    }
+
     const claim: ClaimedTask = {
       taskId,
       type,
@@ -504,24 +623,31 @@ export class RedisQueueAdapter implements QueueAdapter {
       } satisfies RedisReceipt,
     }
 
-    let outcome: ClaimOutcome
     try {
-      outcome = await state.subscription.onClaim(claim)
-    } catch {
-      outcome = { kind: 'requeue' }
-    }
-
-    try {
-      if (outcome.kind === 'requeue') {
-        await this.#client.xAck(stream, this.#group, entry.id)
-        await this.#client.xAdd(stream, '*', entry.message)
-      } else {
-        await this.#client.xAck(stream, this.#group, entry.id)
+      let outcome: ClaimOutcome
+      try {
+        outcome = await state.subscription.onClaim(claim)
+      } catch {
+        outcome = { kind: 'requeue' }
       }
-    } catch {
-      // Ack failure leaves the entry in PEL; the next XAUTOCLAIM cycle
-      // will surface it for re-delivery once the visibility timeout
-      // expires. Better than silently leaking the message.
+
+      try {
+        if (outcome.kind === 'requeue') {
+          await this.#client.xAck(stream, this.#group, entry.id)
+          await this.#client.xAdd(stream, '*', entry.message)
+        } else {
+          await this.#client.xAck(stream, this.#group, entry.id)
+        }
+      } catch {
+        // Ack failure leaves the entry in PEL; the next XAUTOCLAIM cycle
+        // will surface it for re-delivery once the visibility timeout
+        // expires. Better than silently leaking the message.
+      }
+    } finally {
+      // Release the fleet-cap slot on every outcome — including
+      // `suspended` (awaitChildren frees the worker slot, so it must
+      // free the lane too, else a deep DAG deadlocks its own lane).
+      if (limit !== undefined) await this.#releaseCap(type, capToken)
     }
   }
 

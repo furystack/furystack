@@ -1,6 +1,10 @@
 # PRD: `@furystack/task-runner` + `@furystack/blob-store` — distributed task management
 
-> **Status:** Draft v1.
+> **Status:** Draft v1 — **M0–M3 implemented.** Blob stores (in-memory /
+> filesystem / S3), task-runner core (in-process + Redis Streams runner,
+> replay, retry, cancel cascade, DAG), REST/WS surface, delayed dispatch,
+> and fleet-wide concurrency cap are all in. **M4 (client SDK) is next.**
+> See §13 "Open follow-ups (post-M3)" for carry-over work.
 > **Owner:** FuryStack core team.
 > **Target release:** follows `@furystack/cross-node-bus` v1 (sibling primitive
 > referenced as a prerequisite throughout this doc). Initial public packages
@@ -1449,9 +1453,13 @@ Decisions and deviations from the PRD settled during implementation:
 
 - [x] `@furystack/redis-task-runner` package using Redis Streams +
       consumer groups for competing-consumer dispatch.
-- [ ] Atomic fleet-wide concurrency cap (Lua `INCR`/`DECR` with TTL
-      fallback). _Deferred to a follow-up PR; capability flag is
-      `fleetCapEnforcement: false`._
+- [x] Atomic fleet-wide concurrency cap via a per-type ZSET of holder
+      tokens scored by expiry (crash-safe TTL = the type's visibility
+      timeout), admitted by a Lua `ZREMRANGEBYSCORE` + `ZCARD` + `ZADD`
+      script. Configured with `concurrencyLimits: { [type]: N }`;
+      capability flag is now `fleetCapEnforcement: true`. (Chose
+      ZSET-with-expiry over raw `INCR`/`DECR` so a crashed holder's slot
+      frees automatically once its claim becomes reclaimable.)
 - [x] Visibility timeout via stream pending entries + `XAUTOCLAIM`
       reclaim per slot iteration.
 - [x] Delayed dispatch via single-ZSET scheduler index + Lua
@@ -1461,11 +1469,14 @@ Decisions and deviations from the PRD settled during implementation:
 - [x] Integration tests gated on `docker-compose up redis` covering
       submit/claim/complete, two-worker no-double-execute, broker-side
       reclaim, draft/start two-phase, and cancel-broadcast.
-- [ ] Multi-worker smoke test against dockerized Redis covering claim
-      concurrency, fleet cap, visibility reclaim, drain. _Deferred to a
-      follow-up PR; the integration suite covers single-process
-      multi-consumer; cross-process and drain land alongside the fleet
-      cap + delayed dispatch work._
+- [x] Multi-worker smoke coverage in the integration suite (dockerized
+      Redis, multi-consumer): claim concurrency + no-double-execute,
+      fleet-cap enforcement (2 workers, cap binds and is never
+      exceeded), visibility reclaim, and graceful drain (in-flight task
+      finishes, drained worker stops claiming). Full OS-cross-process
+      forking was descoped — see note 12: a cross-process harness needs
+      a partial-update + `find`-capable shared Task store (Mongo /
+      Sequelize), which is tracked as a follow-up.
 
 #### M3 implementation notes
 
@@ -1591,7 +1602,59 @@ Decisions and deviations from the PRD settled during implementation:
     scheduler runs broker-side and has no claim-time concern requiring
     sharding.
 
+12. **`RedisStore` cannot back the Task dataset (follow-up).**
+    `DataSet.update` forwards the partial change straight to
+    `PhysicalStore.update` with no read-modify-write, and
+    `RedisStore.update` does a full `SET key JSON(change)` — so a
+    `taskDs.update(id, { status })` would clobber the rest of the Task
+    row. The runner therefore requires a partial-update + `find`-capable
+    store (`InMemoryStore`, `MongodbStore`, `SequelizeStore`). This
+    contradicts §17's "reuses every existing store adapter … redis …
+    without modification" claim, and is why the multi-worker smoke runs
+    single-process over an in-memory store rather than forking processes
+    over a shared Redis store. **Follow-up:** teach `RedisStore`
+    read-modify-write (or a HASH-field layout) so it supports partial
+    updates; then it can back both the Task dataset and a true
+    cross-process smoke harness.
+
+13. **Idempotency submit race fixed.** The earlier `#resolveIdempotency`
+    won the adapter lease with a throwaway UUID, then persisted the task
+    under a _different_ id; a second submit interleaving before the
+    winner persisted saw neither the lease winner's row nor a matching
+    `idempotencyKey` and created a duplicate. The lease value is now the
+    reserved task id (`reservedId`), the winning submit persists under
+    it, and a loser whose winner has not finished persisting polls
+    `findByIdempotencyKey` a few times before falling through. Closes the
+    cross-replica dedup gap for the documented `nightly-${date}` pattern.
+
+### Open follow-ups (post-M3)
+
+Carry-over work surfaced during M0–M3. None block M4; listed so the next
+phase starts with eyes open.
+
+| #   | Item                                  | Severity | Notes                                                                                                                                                                                                                           |
+| --- | ------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1  | `RedisStore` partial-update support   | high     | Runner cannot use `redis-store` as its Task store (full-overwrite `update`); contradicts §17. Teach `RedisStore` read-modify-write / HASH layout. Unblocks a true cross-process smoke (M6) over a shared store. See M3 note 12. |
+| F2  | True cross-process multi-worker smoke | medium   | M3 smoke runs single-process (in-memory store). A forked-process harness needs a partial-update + `find` store (blocked on F1, or use Mongo/Sequelize). Feeds M6.                                                               |
+| F3  | Claim-time `tags` matching            | medium   | `tags` are declared on workers + tasks but never enforced at claim time; the §14 "workers without GPU pulling encode tasks" risk is unmitigated. Redis adapter shards by `(type, version)` only.                                |
+| F4  | Fleet cap on the in-process adapter   | low      | `InProcessQueueAdapter` keeps `fleetCapEnforcement: false`. Single-pod caps still hold via per-worker `concurrency`; add an in-process semaphore if a dev/test fleet-cap path is wanted.                                        |
+| F5  | In-process idempotency lease TTL      | low      | `InProcessQueueAdapter`'s idempotency `Map` never expires. Harmless for a volatile adapter; noted for completeness.                                                                                                             |
+| F6  | `ctx.fetch` replay recording          | low      | Deferred since M1 (note 2). Handlers using `fetch` must stay idempotent across retries until v1.x.                                                                                                                              |
+
 ### Milestone 4 — Client SDK
+
+#### M4 readiness
+
+The M2 REST/WS contract the client consumes is stable and unaffected by
+the M3 work, so M4 can start immediately:
+
+- REST: `POST /tasks` (+ upload tickets), `POST /tasks/:id/start`,
+  `GET /tasks/:id`, `GET /tasks/:id/tree`, `DELETE /tasks/:id`,
+  `GET /tasks/:id/download`, `GET /tasks/:id/blobs/:key`.
+- WS: `/tasks-socket` with the `subscribe-task` / `unsubscribe-task`
+  envelope, snapshot + hot-lane stream, `compareSeq` dedup (§7.7).
+- Transport to reuse: `@furystack/entity-sync-client` WS plumbing.
+- None of the F1–F6 follow-ups gate M4 (client is server-contract-only).
 
 - [ ] `@furystack/task-runner-client` package with `submitTask`,
       `cancelTask`, `getTask`, `subscribeProgress`, `uploadBlob`.

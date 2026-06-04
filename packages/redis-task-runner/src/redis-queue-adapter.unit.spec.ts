@@ -19,6 +19,7 @@ type MockClient = {
   set: AnyMock
   get: AnyMock
   zAdd: AnyMock
+  zRem: AnyMock
   eval: AnyMock
 }
 
@@ -44,11 +45,17 @@ const buildClient = (overrides: Partial<MockClient> = {}): MockClient => ({
   set: vi.fn().mockResolvedValue('OK'),
   get: vi.fn().mockResolvedValue(null),
   zAdd: vi.fn().mockResolvedValue(1),
+  zRem: vi.fn().mockResolvedValue(1),
   eval: vi.fn().mockResolvedValue(0),
   ...overrides,
 })
 
-const makeAdapter = (client: MockClient, prefix = 'svc-a/', schedulerIntervalMs = 1_000_000): RedisQueueAdapter => {
+const makeAdapter = (
+  client: MockClient,
+  prefix = 'svc-a/',
+  schedulerIntervalMs = 1_000_000,
+  concurrencyLimits?: Record<string, number>,
+): RedisQueueAdapter => {
   return new RedisQueueAdapter({
     client: client as unknown as ConstructorParameters<typeof RedisQueueAdapter>[0]['client'],
     serviceName: 'svc-a',
@@ -59,6 +66,7 @@ const makeAdapter = (client: MockClient, prefix = 'svc-a/', schedulerIntervalMs 
     // scheduler trigger it manually via internal test hooks. A huge
     // value keeps `setInterval` cheap without rewriting timer plumbing.
     schedulerIntervalMs,
+    concurrencyLimits,
   })
 }
 
@@ -72,9 +80,117 @@ describe('RedisQueueAdapter', () => {
       expect(adapter.capabilities.delayedDispatch).toBe(true)
     })
 
-    it('flags fleetCapEnforcement as not supported in this revision', () => {
+    it('declares fleetCapEnforcement support', () => {
       using adapter = makeAdapter(buildClient())
-      expect(adapter.capabilities.fleetCapEnforcement).toBe(false)
+      expect(adapter.capabilities.fleetCapEnforcement).toBe(true)
+    })
+  })
+
+  describe('fleet cap', () => {
+    it('admits a claim via the cap script and releases the slot after onClaim', async () => {
+      const onClaim = vi.fn().mockResolvedValue({ kind: 'success' })
+      const xReadGroup = oneShotXReadGroup({
+        stream: 'svc-a/tasks:queue:echo:v1',
+        message: { id: '1-0', fields: { taskId: 't1', type: 'echo', handlerVersion: '1' } },
+      })
+      // eval resolves 1 → admitted.
+      const client = buildClient({ xReadGroup, eval: vi.fn().mockResolvedValue(1) })
+      using adapter = makeAdapter(client, 'svc-a/', 1_000_000, { echo: 2 })
+      using sub = adapter.subscribe({
+        workerId: 'w-1',
+        concurrency: 1,
+        types: ['echo'],
+        compatibleVersions: { echo: [1] },
+        shouldDrain: () => false,
+        onClaim,
+      })
+      void sub
+
+      await waitFor(() => onClaim.mock.calls.length > 0, 1000)
+      const evalCall = client.eval.mock.calls[0] as unknown as [string, { keys: string[]; arguments: string[] }]
+      expect(evalCall[1].keys).toEqual(['svc-a/tasks:cap:echo'])
+      // ARGV[2] is the cap.
+      expect(evalCall[1].arguments[1]).toBe('2')
+      await waitFor(() => client.zRem.mock.calls.length > 0, 1000)
+      expect(client.zRem).toHaveBeenCalledWith('svc-a/tasks:cap:echo', 'w-1-slot-0:1-0')
+    })
+
+    it('releases the entry back to the stream without running onClaim when the lane is full', async () => {
+      const onClaim = vi.fn().mockResolvedValue({ kind: 'success' })
+      const xReadGroup = oneShotXReadGroup({
+        stream: 'svc-a/tasks:queue:echo:v1',
+        message: { id: '1-0', fields: { taskId: 't1', type: 'echo', handlerVersion: '1' } },
+      })
+      // eval resolves 0 → lane full.
+      const client = buildClient({ xReadGroup, eval: vi.fn().mockResolvedValue(0) })
+      using adapter = makeAdapter(client, 'svc-a/', 1_000_000, { echo: 1 })
+      using sub = adapter.subscribe({
+        workerId: 'w-1',
+        concurrency: 1,
+        types: ['echo'],
+        compatibleVersions: { echo: [1] },
+        shouldDrain: () => false,
+        onClaim,
+      })
+      void sub
+
+      await waitFor(() => client.xAdd.mock.calls.length > 0, 1000)
+      expect(onClaim).not.toHaveBeenCalled()
+      expect(client.xAck).toHaveBeenCalledWith('svc-a/tasks:queue:echo:v1', 'runner', '1-0')
+      expect(client.xAdd).toHaveBeenCalledWith('svc-a/tasks:queue:echo:v1', '*', {
+        taskId: 't1',
+        type: 'echo',
+        handlerVersion: '1',
+      })
+      // Slot never admitted → nothing to release.
+      expect(client.zRem).not.toHaveBeenCalled()
+    })
+
+    it('does not consult the cap script for uncapped types', async () => {
+      const onClaim = vi.fn().mockResolvedValue({ kind: 'success' })
+      const xReadGroup = oneShotXReadGroup({
+        stream: 'svc-a/tasks:queue:echo:v1',
+        message: { id: '1-0', fields: { taskId: 't1', type: 'echo', handlerVersion: '1' } },
+      })
+      const client = buildClient({ xReadGroup })
+      using adapter = makeAdapter(client, 'svc-a/', 1_000_000)
+      using sub = adapter.subscribe({
+        workerId: 'w-1',
+        concurrency: 1,
+        types: ['echo'],
+        compatibleVersions: { echo: [1] },
+        shouldDrain: () => false,
+        onClaim,
+      })
+      void sub
+
+      await waitFor(() => onClaim.mock.calls.length > 0, 1000)
+      expect(client.eval).not.toHaveBeenCalled()
+      expect(client.zRem).not.toHaveBeenCalled()
+    })
+
+    it('refreshes the holder lease on heartbeat for capped types', async () => {
+      const client = buildClient()
+      using adapter = makeAdapter(client, 'svc-a/', 1_000_000, { echo: 2 })
+      await adapter.heartbeat({
+        taskId: 't1',
+        type: 'echo',
+        receipt: { stream: 'svc-a/tasks:queue:echo:v1', msgId: '1-0', consumer: 'w-0', deliveryCount: 0 },
+      })
+      expect(client.zAdd).toHaveBeenCalledWith('svc-a/tasks:cap:echo', expect.objectContaining({ value: 'w-0:1-0' }), {
+        XX: true,
+      })
+    })
+
+    it('does not refresh a holder lease on heartbeat for uncapped types', async () => {
+      const client = buildClient()
+      using adapter = makeAdapter(client)
+      await adapter.heartbeat({
+        taskId: 't1',
+        type: 'echo',
+        receipt: { stream: 'svc-a/tasks:queue:echo:v1', msgId: '1-0', consumer: 'w-0', deliveryCount: 0 },
+      })
+      expect(client.zAdd).not.toHaveBeenCalled()
     })
   })
 

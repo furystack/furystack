@@ -28,6 +28,13 @@ import type {
 import type { TaskRunnerTelemetry } from './task-runner-telemetry.js'
 import { buildReplayIndex, buildTaskContext, type TaskContextFactoryDeps } from './task-context-factory.js'
 
+/** Retry budget for resolving a lost idempotency race before the winning
+ *  submit has finished persisting its task. */
+const IDEMPOTENCY_FIND_RETRIES = 5
+const IDEMPOTENCY_FIND_DELAY_MS = 50
+
+const waitMs = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
+
 const parseAwaitedChildIds = (resumeToken: string | undefined): string[] | undefined => {
   if (!resumeToken) return undefined
   try {
@@ -153,12 +160,14 @@ export class TaskRunnerCore implements TaskRunner {
     this.#ensureLive()
     this.#validateNotBefore(args)
 
+    let reservedId: string | undefined
     if (args.idempotencyKey) {
-      const existing = await this.#resolveIdempotency(args.type, args.idempotencyKey)
+      const { existing, reservedId: reserved } = await this.#resolveIdempotency(args.type, args.idempotencyKey)
       if (existing) return existing
+      reservedId = reserved
     }
 
-    const persisted = await this.#persistInitialTask(args, 'pending')
+    const persisted = await this.#persistInitialTask(args, 'pending', reservedId)
     this.#telemetry.emit('onTaskSubmitted', {
       taskId: persisted.id,
       type: persisted.type,
@@ -177,12 +186,14 @@ export class TaskRunnerCore implements TaskRunner {
   public async draft<TPayload = unknown>(args: SubmitOptions<TPayload>): Promise<Task> {
     this.#ensureLive()
 
+    let reservedId: string | undefined
     if (args.idempotencyKey) {
-      const existing = await this.#resolveIdempotency(args.type, args.idempotencyKey)
+      const { existing, reservedId: reserved } = await this.#resolveIdempotency(args.type, args.idempotencyKey)
       if (existing) return existing
+      reservedId = reserved
     }
 
-    return this.#persistInitialTask(args, 'draft')
+    return this.#persistInitialTask(args, 'draft', reservedId)
   }
 
   public async start<TPayload = unknown>(taskId: string, opts?: StartOptions<TPayload>): Promise<Task> {
@@ -350,23 +361,51 @@ export class TaskRunnerCore implements TaskRunner {
 
   // ── Idempotency ───────────────────────────────────────────────────
 
-  async #resolveIdempotency(type: string, key: string): Promise<Task | undefined> {
+  /**
+   * Resolves an idempotency key to either the already-persisted task or a
+   * reserved task id to persist under.
+   *
+   * The reserved id is the same id used as the adapter lease value, so a
+   * winning submit persists under the id every loser observes. A loser
+   * whose winner has not finished persisting yet polls
+   * {@link TaskRunnerCore.#findByIdempotencyKey} a few times before
+   * falling through to its own reserved id — the fall-through only
+   * triggers when the winner crashed between lease and persist, which is
+   * rare and self-heals on the next submit.
+   */
+  async #resolveIdempotency(type: string, key: string): Promise<{ existing?: Task; reservedId?: string }> {
     const existing = await this.#findByIdempotencyKey(key, type)
-    if (existing) return existing
+    if (existing) return { existing }
 
-    if (!this.#queueAdapter.acquireIdempotencyLease) return undefined
+    if (!this.#queueAdapter.acquireIdempotencyLease) return {}
 
     const proposed = randomUUID()
     const winner = await this.#queueAdapter.acquireIdempotencyLease({ type, key, taskId: proposed })
-    if (winner === proposed) return undefined
-    return this.#findByIdempotencyKey(key, type)
+    if (winner === proposed) return { reservedId: proposed }
+
+    const found = await this.#pollForIdempotent(key, type)
+    if (found) return { existing: found }
+    return { reservedId: proposed }
+  }
+
+  async #pollForIdempotent(key: string, type: string): Promise<Task | undefined> {
+    for (let attempt = 0; attempt < IDEMPOTENCY_FIND_RETRIES; attempt++) {
+      await waitMs(IDEMPOTENCY_FIND_DELAY_MS)
+      const found = await this.#findByIdempotencyKey(key, type)
+      if (found) return found
+    }
+    return undefined
   }
 
   // ── Initial-task persistence ──────────────────────────────────────
 
-  async #persistInitialTask<TPayload>(args: SubmitOptions<TPayload>, status: 'pending' | 'draft'): Promise<Task> {
+  async #persistInitialTask<TPayload>(
+    args: SubmitOptions<TPayload>,
+    status: 'pending' | 'draft',
+    reservedId?: string,
+  ): Promise<Task> {
     const now = new Date().toISOString()
-    const taskId = randomUUID()
+    const taskId = reservedId ?? randomUUID()
 
     if (args.parentTaskId) {
       const hasCycle = await this.#detectCycle(taskId, args.parentTaskId)
