@@ -1311,7 +1311,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/redis-cross-node-bus@workspace:packages/redis-cross-node-bus":
+"@furystack/redis-cross-node-bus@workspace:^, @furystack/redis-cross-node-bus@workspace:packages/redis-cross-node-bus":
   version: 0.0.0-use.local
   resolution: "@furystack/redis-cross-node-bus@workspace:packages/redis-cross-node-bus"
   dependencies:
@@ -1345,12 +1345,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/redis-task-runner@workspace:packages/redis-task-runner"
   dependencies:
+    "@aws-sdk/client-s3": "npm:^3.1060.0"
     "@furystack/blob-store": "workspace:^"
     "@furystack/core": "workspace:^"
     "@furystack/cross-node-bus": "workspace:^"
     "@furystack/inject": "workspace:^"
+    "@furystack/redis-cross-node-bus": "workspace:^"
     "@furystack/redis-store": "workspace:^"
     "@furystack/repository": "workspace:^"
+    "@furystack/s3-blob-store": "workspace:^"
     "@furystack/task-runner": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@types/node": "npm:^25.9.1"
@@ -1419,7 +1422,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/s3-blob-store@workspace:packages/s3-blob-store":
+"@furystack/s3-blob-store@workspace:^, @furystack/s3-blob-store@workspace:packages/s3-blob-store":
   version: 0.0.0-use.local
   resolution: "@furystack/s3-blob-store@workspace:packages/s3-blob-store"
   dependencies:

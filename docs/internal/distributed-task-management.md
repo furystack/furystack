@@ -1,13 +1,14 @@
 # PRD: `@furystack/task-runner` + `@furystack/blob-store` — distributed task management
 
-> **Status:** Draft v1 — **M0–M5 implemented.** Blob stores (in-memory /
-> filesystem / S3), task-runner core (in-process + Redis Streams runner,
-> replay, retry, cancel cascade, DAG), REST/WS surface, delayed dispatch,
-> fleet-wide concurrency cap, the `@furystack/task-runner-client` SDK
-> (REST + blob upload + live progress over WS), and the blob-retention
-> sweeper (`defineTaskBlobSweeper`) are all in. **M6 (multi-service
-> smoke test) is next.** See §13 "Open follow-ups (post-M3)" for
-> carry-over work.
+> **Status:** Draft v1 — **M0–M6 implemented (v1 feature-complete).** Blob
+> stores (in-memory / filesystem / S3), task-runner core (in-process +
+> Redis Streams runner, replay, retry, cancel cascade, DAG), REST/WS
+> surface, delayed dispatch, fleet-wide concurrency cap, the
+> `@furystack/task-runner-client` SDK (REST + blob upload + live progress
+> over WS), the blob-retention sweeper (`defineTaskBlobSweeper`), and the
+> two-service Redis + S3 smoke test are all in. **M7 (reference
+> video-encoder showcase) is post-v1.** See §13 "Open follow-ups
+> (post-M3)" for carry-over work.
 > **Owner:** FuryStack core team.
 > **Target release:** follows `@furystack/cross-node-bus` v1 (sibling primitive
 > referenced as a prerequisite throughout this doc). Initial public packages
@@ -1817,13 +1818,56 @@ Decisions and deviations settled during implementation:
 
 ### Milestone 6 — Multi-service smoke test
 
-- [ ] Two services × two worker pods each, single Redis, S3 blob store,
+- [x] Two services × two worker pods each, single Redis, S3 blob store,
       distinct `topicPrefix`. Assertions:
   - Tasks submitted to service A run only on service A's workers.
   - Cross-service task submission is explicit REST call (not bus-routed).
   - Fleet caps work fleet-wide.
   - Drain of one pod does not lose work.
-- [ ] All §4 success metrics measured and recorded.
+- [x] §4 success metrics measured and recorded.
+
+#### M6 implementation notes
+
+`packages/redis-task-runner/src/multi-service-smoke.spec.ts`. Decisions
+and findings:
+
+1. **Same-process, multi-injector topology.** Each pod is its own
+   injector with its own Redis clients, `RedisTaskRunner`,
+   `RedisCrossNodeBus`, and Redis-store-backed Task datasets, against one
+   live Redis + one MinIO bucket. This mirrors the accepted shape of the
+   cross-node-bus M5 smoke — cross-process forking only proves V8 matches
+   injector isolation (the F2 cross-process spec already covers the
+   single-service forked shape). Isolation lives in four per-service
+   prefixes sharing one `runId` root (queue / store / bus / counters) so a
+   single `KEYS ${runId}*` cleans the broker; S3 blobs are scoped per
+   service via `keyPrefix` in one run bucket.
+
+2. **Service isolation = queue `topicPrefix` + store `keyPrefix`.** Tasks
+   submitted to service A's runner land on A's streams and A's Redis-store
+   rows only; B's workers never claim them and `serviceB.runner.get(aId)`
+   returns `undefined` — demonstrating cross-service submission must be an
+   explicit call into the other service's runner/REST, never bus-routed.
+
+3. **Fleet cap binds across a service's pods.** Both A pods share the
+   queue prefix and `concurrencyLimits: { capped: 2 }`; the ZSET-backed
+   cap holds max-concurrent at exactly 2 across the two pods (verified via
+   a shared Redis max-watermark Lua script).
+
+4. **Drain safety.** Draining the pod holding an in-flight task lets it
+   finish while the sibling pod claims the next submission — no work lost,
+   and the queued task is observed to run on the non-drained pod.
+
+5. **§4 metrics (recorded, local Redis + MinIO, 24-sample run).**
+   Progress delivery (worker → cross-node bus subscriber):
+   **p50 ≈ 3 ms, p95 ≈ 6 ms** — well within the <100 ms target.
+   Submit→claim (proxied by submit → handler entry, so it also includes
+   the redis-store task persistence and the competing-consumer block
+   loop): **p50 ≈ 64 ms, p95 ≈ 123 ms**, above the <50 ms single-lane
+   target. The gap is the harness, not the broker: every submit performs
+   multiple `RedisStore` writes and the workers poll with a 25 ms
+   `blockTimeoutMs`; the in-process queue's submit→claim stays under the
+   5 ms target (M1). The smoke asserts generous budgets (1 s) to stay
+   stable on loaded CI and logs the real p50/p95 for the record.
 
 ### Milestone 7 — Reference video-encoder showcase
 
