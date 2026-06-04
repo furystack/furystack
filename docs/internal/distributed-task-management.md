@@ -1663,20 +1663,43 @@ Decisions and deviations from the PRD settled during implementation:
     output) — both satisfied in CI. This is single-service; the
     two-service shape remains **M6**.
 
+16. **Claim constraints + in-process parity (F3–F6).**
+    - **F3 tags.** Claim-time tag matching uses a subset model: a worker
+      claims a task only when its tags are a superset of the task's tags
+      (`workerSatisfiesTags`; empty requirement = any worker). `tags` now
+      ride `EnqueueInput` + `WorkerSubscription`; the in-process adapter
+      pre-filters in `#takeReady` (no requeue spin) and the runner core
+      requeues on mismatch (the enforcement path for Redis, which cannot
+      shard by dynamic tags — M3 note 3).
+    - **F4 in-process fleet cap.** `InProcessQueueAdapter` gained
+      `concurrencyLimits`; a per-type live counter gates `#takeReady` and
+      releases on every outcome. Now `fleetCapEnforcement: true`, the
+      single-process analogue of the Redis ZSET cap.
+    - **F5 idempotency TTL.** In-process leases now carry an `expiresAt`
+      and lazily expire on acquire (`idempotencyTtlSec`, default 24h),
+      matching the Redis `SET NX EX` semantics.
+    - **F6 `ctx.fetch`.** Added the determinism-safe `ctx.fetch`: first
+      run hits the global `fetch`, buffers the body, and records
+      `{ status, statusText, headers, bodyBase64 }` under the `'fetch'`
+      replay step; replay rebuilds the `Response` with no network call.
+      Bodies are fully buffered and base64'd on the replay log (no
+      streaming; large responses bloat the log), and `input` is limited to
+      `string | URL` so the call is recordable. Supersedes M1 note 2.
+
 ### Open follow-ups (post-M3)
 
 Carry-over work surfaced during M0–M3. None block M4; listed so the next
 phase starts with eyes open.
 
-| #   | Item                                  | Severity | Notes                                                                                                                                                                                                                                                           |
-| --- | ------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F1  | `RedisStore` partial-update support   | done     | **Done.** `RedisStore.update` now does JS read-modify-write (partial merge, `undefined`-clears, empty-array-safe). See M3 note 12.                                                                                                                              |
-| F1b | `RedisStore` `find` + key namespacing | done     | **Done (breaking).** Per-store namespaced keys (`${prefix}:e:${id}`) + a per-store index Set (`${prefix}:keys`); `find` / `count` load via the index and filter in memory. `keyPrefix` defaults to the store name. See note 14.                                 |
-| F2  | True cross-process multi-worker smoke | done     | **Done.** `cross-process-smoke.spec.ts` forks real worker processes over a shared Redis (queue + `redis-store` Task store): claim concurrency, fleet cap, visibility reclaim, graceful drain. See note 15. Single-service; M6 still adds the two-service shape. |
-| F3  | Claim-time `tags` matching            | medium   | `tags` are declared on workers + tasks but never enforced at claim time; the §14 "workers without GPU pulling encode tasks" risk is unmitigated. Redis adapter shards by `(type, version)` only.                                                                |
-| F4  | Fleet cap on the in-process adapter   | low      | `InProcessQueueAdapter` keeps `fleetCapEnforcement: false`. Single-pod caps still hold via per-worker `concurrency`; add an in-process semaphore if a dev/test fleet-cap path is wanted.                                                                        |
-| F5  | In-process idempotency lease TTL      | low      | `InProcessQueueAdapter`'s idempotency `Map` never expires. Harmless for a volatile adapter; noted for completeness.                                                                                                                                             |
-| F6  | `ctx.fetch` replay recording          | low      | Deferred since M1 (note 2). Handlers using `fetch` must stay idempotent across retries until v1.x.                                                                                                                                                              |
+| #   | Item                                  | Severity | Notes                                                                                                                                                                                                                                                                         |
+| --- | ------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1  | `RedisStore` partial-update support   | done     | **Done.** `RedisStore.update` now does JS read-modify-write (partial merge, `undefined`-clears, empty-array-safe). See M3 note 12.                                                                                                                                            |
+| F1b | `RedisStore` `find` + key namespacing | done     | **Done (breaking).** Per-store namespaced keys (`${prefix}:e:${id}`) + a per-store index Set (`${prefix}:keys`); `find` / `count` load via the index and filter in memory. `keyPrefix` defaults to the store name. See note 14.                                               |
+| F2  | True cross-process multi-worker smoke | done     | **Done.** `cross-process-smoke.spec.ts` forks real worker processes over a shared Redis (queue + `redis-store` Task store): claim concurrency, fleet cap, visibility reclaim, graceful drain. See note 15. Single-service; M6 still adds the two-service shape.               |
+| F3  | Claim-time `tags` matching            | done     | **Done.** Subset model: a worker claims a task only when its tags ⊇ the task's tags (`workerSatisfiesTags`). Threaded onto `EnqueueInput` + `WorkerSubscription`; in-process adapter pre-filters in `#takeReady`, runner core requeues on mismatch (Redis path). See note 16. |
+| F4  | Fleet cap on the in-process adapter   | done     | **Done.** `InProcessQueueAdapter` takes `concurrencyLimits`; a per-type live counter gates `#takeReady` and releases on outcome. `fleetCapEnforcement: true`. Exposed via `InProcessTaskRunnerOptions.concurrencyLimits`.                                                     |
+| F5  | In-process idempotency lease TTL      | done     | **Done.** Leases store `{ taskId, expiresAt }` and lazily expire on acquire; `idempotencyTtlSec` default 24h (matches Redis).                                                                                                                                                 |
+| F6  | `ctx.fetch` replay recording          | done     | **Done.** `ctx.fetch(input, init)` buffers + records the response (`status`/`headers`/base64 body) under the `'fetch'` step and replays it on re-execution. Caveats: bodies buffered (no streaming) and base64'd on the replay log — keep responses modest.                   |
 
 ### Milestone 4 — Client SDK
 

@@ -7,19 +7,44 @@ import type {
   QueueAdapterCapabilities,
   WorkerSubscription,
 } from './queue-adapter.js'
+import { workerSatisfiesTags } from './queue-adapter.js'
 
 type PendingEntry = {
   taskId: string
   type: string
   handlerVersion: number
   notBefore?: number
+  tags: readonly string[]
+}
+
+type IdempotencyLease = {
+  taskId: string
+  expiresAt: number
+}
+
+const DEFAULT_IDEMPOTENCY_TTL_SEC = 86_400
+
+export type InProcessQueueAdapterOptions = {
+  /**
+   * Process-wide max-concurrent claims per task type. Types absent from
+   * the map are uncapped. Enforced in-process via a per-type live
+   * counter — the single-process analogue of the Redis adapter's
+   * broker-side ZSET cap.
+   */
+  concurrencyLimits?: Record<string, number>
+  /**
+   * Idempotency-lease TTL (seconds). A `(type, key)` lease older than
+   * this is treated as expired so a later submit can win it. Default 24h,
+   * matching `@furystack/redis-task-runner`.
+   */
+  idempotencyTtlSec?: number
 }
 
 const CAPABILITIES: QueueAdapterCapabilities = Object.freeze({
   persistent: false,
   distributed: false,
   delayedDispatch: true,
-  fleetCapEnforcement: false,
+  fleetCapEnforcement: true,
   brokerSideReclaim: false,
 })
 
@@ -28,6 +53,10 @@ const CAPABILITIES: QueueAdapterCapabilities = Object.freeze({
  * FIFO queues in memory and serves concurrent claim slots via a single
  * `Promise`-based wakeup. No persistence — tasks lost on restart are
  * recovered through the runner core's dataset-based reconciler (PRD §7.4).
+ *
+ * Supports the same optional features the Redis adapter does, scoped to
+ * one process: tag-constrained claims, a per-type concurrency cap, and
+ * TTL'd idempotency leases.
  */
 export class InProcessQueueAdapter implements QueueAdapter {
   public readonly capabilities: QueueAdapterCapabilities = CAPABILITIES
@@ -35,11 +64,19 @@ export class InProcessQueueAdapter implements QueueAdapter {
   readonly #queues = new Map<string, PendingEntry[]>()
   readonly #subscriptions = new Set<WorkerSubscription>()
   readonly #subscriptionAborts = new Map<WorkerSubscription, AbortController>()
-  readonly #idempotencyLeases = new Map<string, string>()
+  readonly #idempotencyLeases = new Map<string, IdempotencyLease>()
+  readonly #liveByType = new Map<string, number>()
+  readonly #concurrencyLimits: Record<string, number>
+  readonly #idempotencyTtlSec: number
 
   #wakeup: (() => void) | undefined
   #notBeforeTimer: ReturnType<typeof setTimeout> | undefined
   #disposed = false
+
+  constructor(options?: InProcessQueueAdapterOptions) {
+    this.#concurrencyLimits = options?.concurrencyLimits ?? {}
+    this.#idempotencyTtlSec = options?.idempotencyTtlSec ?? DEFAULT_IDEMPOTENCY_TTL_SEC
+  }
 
   // ── Public API ────────────────────────────────────────────────────
 
@@ -50,6 +87,7 @@ export class InProcessQueueAdapter implements QueueAdapter {
       type: input.type,
       handlerVersion: input.handlerVersion,
       notBefore: input.notBefore?.getTime(),
+      tags: input.tags ?? [],
     }
     let q = this.#queues.get(input.type)
     if (!q) {
@@ -89,9 +127,10 @@ export class InProcessQueueAdapter implements QueueAdapter {
 
   public async acquireIdempotencyLease(input: IdempotencyLeaseInput): Promise<string> {
     const key = `${input.type}:${input.key}`
+    const now = Date.now()
     const existing = this.#idempotencyLeases.get(key)
-    if (existing !== undefined) return existing
-    this.#idempotencyLeases.set(key, input.taskId)
+    if (existing && existing.expiresAt > now) return existing.taskId
+    this.#idempotencyLeases.set(key, { taskId: input.taskId, expiresAt: now + this.#idempotencyTtlSec * 1000 })
     return input.taskId
   }
 
@@ -107,6 +146,7 @@ export class InProcessQueueAdapter implements QueueAdapter {
     this.#subscriptions.clear()
     this.#queues.clear()
     this.#idempotencyLeases.clear()
+    this.#liveByType.clear()
     this.#wake()
   }
 
@@ -134,6 +174,10 @@ export class InProcessQueueAdapter implements QueueAdapter {
         // Adapter contract: onClaim must not throw. If it does, treat as
         // a requeue without delay so the task is not silently dropped.
         outcome = { kind: 'requeue' }
+      } finally {
+        // Release the cap slot taken in `#takeReady` regardless of outcome
+        // (including `suspended`, so a deep DAG cannot deadlock its lane).
+        this.#releaseCap(ready.type)
       }
 
       if (outcome.kind === 'requeue') {
@@ -142,6 +186,7 @@ export class InProcessQueueAdapter implements QueueAdapter {
           type: ready.type,
           handlerVersion: ready.handlerVersion,
           notBefore: outcome.notBefore?.getTime(),
+          tags: ready.tags,
         }
         let q = this.#queues.get(ready.type)
         if (!q) {
@@ -149,9 +194,11 @@ export class InProcessQueueAdapter implements QueueAdapter {
           this.#queues.set(ready.type, q)
         }
         q.push(requeued)
-        this.#wake()
         this.#scheduleNotBeforeWake()
       }
+      // Nudge sibling slots: a freed cap slot or a requeued entry may now
+      // be claimable by a slot parked in `#waitForChange`.
+      this.#wake()
     }
   }
 
@@ -160,19 +207,33 @@ export class InProcessQueueAdapter implements QueueAdapter {
     for (const type of subscription.types) {
       const q = this.#queues.get(type)
       if (!q || q.length === 0) continue
+
+      const limit = this.#concurrencyLimits[type]
+      if (limit !== undefined && (this.#liveByType.get(type) ?? 0) >= limit) continue
+
       const idx = q.findIndex((entry) => {
         if (entry.notBefore !== undefined && entry.notBefore > now) return false
         const versions = subscription.compatibleVersions[type]
         if (versions && versions.length > 0 && !versions.includes(entry.handlerVersion)) return false
+        if (!workerSatisfiesTags(subscription.tags, entry.tags)) return false
         return true
       })
       if (idx === -1) continue
+
       const taken = q[idx]
       q.splice(idx, 1)
       if (q.length === 0) this.#queues.delete(type)
+      if (limit !== undefined) this.#liveByType.set(type, (this.#liveByType.get(type) ?? 0) + 1)
       return taken
     }
     return undefined
+  }
+
+  #releaseCap(type: string): void {
+    if (this.#concurrencyLimits[type] === undefined) return
+    const next = (this.#liveByType.get(type) ?? 0) - 1
+    if (next <= 0) this.#liveByType.delete(type)
+    else this.#liveByType.set(type, next)
   }
 
   async #waitForChange(signal: AbortSignal): Promise<void> {

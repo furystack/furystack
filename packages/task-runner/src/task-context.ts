@@ -39,4 +39,17 @@ export type TaskContext<TPayload = unknown> = {
   now(): Date
   random(): number
   sleep(ms: number): Promise<void>
+
+  /**
+   * Determinism-safe `fetch`. On first execution the request runs against
+   * the global `fetch`, the response body is fully buffered, and
+   * `{ status, statusText, headers, body }` is recorded on the replay log;
+   * on replay the recorded response is returned without a network call.
+   *
+   * Constraints: the body is buffered (no streaming) and stored base64 on
+   * the replay log, so very large responses bloat the log / hit row-size
+   * limits — keep handler `fetch` responses modest. `input` is limited to
+   * `string | URL` (not a `Request`) so the call is recordable.
+   */
+  fetch(input: string | URL, init?: RequestInit): Promise<Response>
 }

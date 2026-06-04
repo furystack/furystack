@@ -1,4 +1,12 @@
 /**
+ * Returns whether a worker advertising `workerTags` may claim a task
+ * requiring `taskTags`: every required tag must be present on the worker
+ * (subset model). An empty requirement set matches any worker.
+ */
+export const workerSatisfiesTags = (workerTags: readonly string[], taskTags: readonly string[]): boolean =>
+  taskTags.every((tag) => workerTags.includes(tag))
+
+/**
  * Capabilities a {@link QueueAdapter} declares statically. Used by the
  * boot-time capability cross-check (PRD §9) and to gate optional features
  * (delayed dispatch, fleet caps) at submit time.
@@ -37,6 +45,11 @@ export type EnqueueInput = {
    *  the runner core throws at submit time when set against an
    *  incapable adapter. */
   notBefore?: Date
+  /** Task tags (claim constraints). Adapters that can pre-filter by tag
+   *  (in-process) use these to avoid handing a task to a worker that
+   *  does not satisfy them; adapters that cannot (Redis) ignore them and
+   *  the runner core enforces the constraint at claim time. */
+  tags?: readonly string[]
 }
 
 /**
@@ -78,6 +91,11 @@ export type ClaimOutcome =
 export type WorkerSubscription = {
   readonly workerId: string
   readonly concurrency: number
+  /** Capability tags this worker advertises. A task is only claimable
+   *  when the worker's tags are a superset of the task's tags (see
+   *  {@link workerSatisfiesTags}). Adapters that pre-filter use it; the
+   *  runner core enforces it at claim time regardless. */
+  readonly tags: readonly string[]
   /** Task types this worker can handle. Adapter only yields claims
    *  whose `type` is in this list. */
   readonly types: readonly string[]

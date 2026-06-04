@@ -32,7 +32,7 @@ describe('TaskRunner', () => {
       expect(runner).toBeInstanceOf(InProcessTaskRunner)
       expect(runner.capabilities).toMatchObject({
         persistent: false,
-        fleetCapEnforcement: false,
+        fleetCapEnforcement: true,
         delayedDispatch: true,
       })
     })

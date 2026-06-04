@@ -11,7 +11,13 @@ import { TaskRunnerTelemetryToken, type TaskRunnerTelemetry } from './task-runne
 import type { TaskRunner } from './task-runner.js'
 import type { Task, TaskReplayLogEntry } from './types.js'
 
-export type InProcessTaskRunnerOptions = TaskRunnerCoreOptions
+export type InProcessTaskRunnerOptions = TaskRunnerCoreOptions & {
+  /** Process-wide max-concurrent claims per task type (PRD §11 fleet cap,
+   *  single-process scope). Types absent from the map are uncapped. */
+  concurrencyLimits?: Record<string, number>
+  /** Idempotency-lease TTL (seconds). Default 24h. */
+  idempotencyTtlSec?: number
+}
 
 /**
  * Single-process {@link TaskRunner}. All queue, replay, and dispatch
@@ -37,7 +43,10 @@ export class InProcessTaskRunner extends TaskRunnerCore {
     telemetry: TaskRunnerTelemetry,
     options?: InProcessTaskRunnerOptions,
   ) {
-    const queueAdapter = new InProcessQueueAdapter()
+    const queueAdapter = new InProcessQueueAdapter({
+      concurrencyLimits: options?.concurrencyLimits,
+      idempotencyTtlSec: options?.idempotencyTtlSec,
+    })
     super(
       {
         injector,

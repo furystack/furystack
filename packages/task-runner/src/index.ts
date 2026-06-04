@@ -54,6 +54,8 @@ export type { TaskRunnerCoreOptions, TaskRunnerCoreDeps } from './task-runner-co
 
 export { InProcessQueueAdapter } from './in-process-queue-adapter.js'
 
+export { workerSatisfiesTags } from './queue-adapter.js'
+
 export type {
   QueueAdapter,
   QueueAdapterCapabilities,

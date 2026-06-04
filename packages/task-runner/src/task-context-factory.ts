@@ -21,6 +21,23 @@ export const buildReplayIndex = (log: TaskReplayLogEntry[]): ReplayIndex => {
   return index
 }
 
+/** Recorded {@link TaskContext.fetch} response, persisted on the replay log. */
+type FetchRecord = {
+  status: number
+  statusText: string
+  headers: Record<string, string>
+  bodyBase64: string
+}
+
+/** HTTP statuses that must not carry a response body. */
+const NULL_BODY_STATUSES: ReadonlySet<number> = new Set([101, 103, 204, 205, 304])
+
+const rebuildResponse = (record: FetchRecord): Response => {
+  const hasBody = !NULL_BODY_STATUSES.has(record.status) && record.bodyBase64.length > 0
+  const body = hasBody ? Buffer.from(record.bodyBase64, 'base64') : null
+  return new Response(body, { status: record.status, statusText: record.statusText, headers: record.headers })
+}
+
 /**
  * Runner-side dependencies the {@link TaskContext} needs to fulfill the
  * handler-facing API. Bundled into a single deps record so the factory has
@@ -288,6 +305,39 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
         input: ms,
         createdAt: new Date().toISOString(),
       })
+    },
+
+    async fetch(input, init) {
+      const step = nextStep()
+      const cached = replayIndex.get(step)
+      if (cached?.kind === 'fetch' && cached.output) {
+        return rebuildResponse(cached.output as FetchRecord)
+      }
+
+      const response = await globalThis.fetch(input, init)
+      const bytes = new Uint8Array(await response.arrayBuffer())
+      const headers: Record<string, string> = {}
+      response.headers.forEach((value, key) => {
+        headers[key] = value
+      })
+      const record: FetchRecord = {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+        bodyBase64: Buffer.from(bytes).toString('base64'),
+      }
+
+      await persistReplayEntry({
+        id: `${taskId}:${step}`,
+        taskId,
+        stepIndex: step,
+        kind: 'fetch',
+        input: { url: input.toString(), method: init?.method ?? 'GET' },
+        output: record,
+        createdAt: new Date().toISOString(),
+      })
+
+      return rebuildResponse(record)
     },
   }
 

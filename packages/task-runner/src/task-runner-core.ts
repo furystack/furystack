@@ -7,6 +7,7 @@ import type { AnyTaskHandlerDescriptor } from './define-task-handler.js'
 import { isSuspendedError } from './suspended-error.js'
 import { calculateBackoff } from './retry-policy.js'
 import type { ClaimedTask, ClaimOutcome, QueueAdapter, WorkerSubscription } from './queue-adapter.js'
+import { workerSatisfiesTags } from './queue-adapter.js'
 import type {
   RegisterWorkerOptions,
   StartOptions,
@@ -179,6 +180,7 @@ export class TaskRunnerCore implements TaskRunner {
       type: persisted.type,
       handlerVersion: persisted.handlerVersion,
       notBefore: persisted.notBefore ? new Date(persisted.notBefore) : undefined,
+      tags: persisted.tags,
     })
     return persisted
   }
@@ -232,6 +234,7 @@ export class TaskRunnerCore implements TaskRunner {
       type: released.type,
       handlerVersion: released.handlerVersion,
       notBefore: released.notBefore ? new Date(released.notBefore) : undefined,
+      tags: released.tags,
     })
     return released
   }
@@ -295,6 +298,7 @@ export class TaskRunnerCore implements TaskRunner {
     const subscription: WorkerSubscription = {
       workerId,
       concurrency: options.concurrency,
+      tags: options.tags,
       types: Array.from(handlers.keys()),
       compatibleVersions: options.compatibleVersions,
       shouldDrain: () => reg.draining,
@@ -493,6 +497,12 @@ export class TaskRunnerCore implements TaskRunner {
         return { kind: 'requeue' }
       }
 
+      // Tag constraint (PRD §11): the worker must advertise every tag the
+      // task requires. Release back to the queue for a worker that does.
+      if (!workerSatisfiesTags(worker.tags, task.tags)) {
+        return { kind: 'requeue' }
+      }
+
       // Reclaim: a broker-delivered claim arrived while the dataset
       // still says the prior attempt is in-flight. Abort the prior AC
       // (best-effort cleanup of the stalled handler) and finalize the
@@ -684,6 +694,7 @@ export class TaskRunnerCore implements TaskRunner {
           type: task.type,
           handlerVersion: task.handlerVersion,
           notBefore: nextRunAt,
+          tags: task.tags,
         })
       }
       return { kind: 'failed' }
@@ -821,6 +832,7 @@ export class TaskRunnerCore implements TaskRunner {
         taskId: result.transitioned.id,
         type: result.transitioned.type,
         handlerVersion: result.transitioned.handlerVersion,
+        tags: result.transitioned.tags,
       })
     }
   }
@@ -885,6 +897,7 @@ export class TaskRunnerCore implements TaskRunner {
       taskId: childId,
       type: childType,
       handlerVersion: 1,
+      tags: tags ?? [],
     })
   }
 
@@ -921,6 +934,7 @@ export class TaskRunnerCore implements TaskRunner {
         taskId: task.id,
         type: task.type,
         handlerVersion: task.handlerVersion,
+        tags: task.tags,
       })
     }
   }
@@ -949,6 +963,7 @@ export class TaskRunnerCore implements TaskRunner {
           taskId: transitioned.id,
           type: transitioned.type,
           handlerVersion: transitioned.handlerVersion,
+          tags: transitioned.tags,
         })
       }
     }

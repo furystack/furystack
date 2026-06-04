@@ -99,6 +99,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => false,
@@ -127,6 +128,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => false,
@@ -157,6 +159,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => false,
@@ -376,6 +379,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['video-encode'],
         compatibleVersions: { 'video-encode': [1, 2] },
         shouldDrain: () => false,
@@ -399,6 +403,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: {},
         shouldDrain: () => false,
@@ -426,6 +431,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => false,
@@ -449,6 +455,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => false,
@@ -485,6 +492,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => false,
@@ -510,6 +518,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => false,
@@ -530,6 +539,7 @@ describe('RedisQueueAdapter', () => {
       using sub = adapter.subscribe({
         workerId: 'w-1',
         concurrency: 1,
+        tags: [],
         types: ['echo'],
         compatibleVersions: { echo: [1] },
         shouldDrain: () => draining,
