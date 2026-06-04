@@ -1569,6 +1569,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/task-runner-client@workspace:packages/task-runner-client":
+  version: 0.0.0-use.local
+  resolution: "@furystack/task-runner-client@workspace:packages/task-runner-client"
+  dependencies:
+    "@furystack/blob-store": "workspace:^"
+    "@furystack/core": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/rest-service": "workspace:^"
+    "@furystack/task-runner": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    "@types/ws": "npm:^8.18.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.8"
+    ws: "npm:^8.21.0"
+  languageName: unknown
+  linkType: soft
+
 "@furystack/task-runner@workspace:^, @furystack/task-runner@workspace:packages/task-runner":
   version: 0.0.0-use.local
   resolution: "@furystack/task-runner@workspace:packages/task-runner"
