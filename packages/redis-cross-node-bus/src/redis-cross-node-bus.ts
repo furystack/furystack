@@ -383,10 +383,10 @@ export class RedisCrossNodeBus implements CrossNodeBus {
       }
       let result: XReadStreamReply | null
       try {
-        result = (await this.#readClient.xRead(
+        result = await this.#readClient.xRead(
           wires.map((key, i) => ({ key, id: ids[i] ?? '$' })),
           { BLOCK: READ_LOOP_BLOCK_MS, COUNT: 200 },
-        )) as XReadStreamReply | null
+        )
       } catch (error) {
         if (this.#disposed) return
         this.#telemetry?.emit('onCrossNodeError', { topic: READ_LOOP_TOPIC, error, phase: 'subscribe' })
