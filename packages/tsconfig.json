@@ -109,6 +109,9 @@
     },
     {
       "path": "./task-runner"
+    },
+    {
+      "path": "./task-runner-client"
     }
   ]
 }

@@ -1,10 +1,12 @@
 # PRD: `@furystack/task-runner` + `@furystack/blob-store` — distributed task management
 
-> **Status:** Draft v1 — **M0–M3 implemented.** Blob stores (in-memory /
+> **Status:** Draft v1 — **M0–M4 implemented.** Blob stores (in-memory /
 > filesystem / S3), task-runner core (in-process + Redis Streams runner,
 > replay, retry, cancel cascade, DAG), REST/WS surface, delayed dispatch,
-> and fleet-wide concurrency cap are all in. **M4 (client SDK) is next.**
-> See §13 "Open follow-ups (post-M3)" for carry-over work.
+> fleet-wide concurrency cap, and the `@furystack/task-runner-client`
+> SDK (REST + blob upload + live progress over WS) are all in. **M5
+> (blob sweeper) is next.** See §13 "Open follow-ups (post-M3)" for
+> carry-over work.
 > **Owner:** FuryStack core team.
 > **Target release:** follows `@furystack/cross-node-bus` v1 (sibling primitive
 > referenced as a prerequisite throughout this doc). Initial public packages
@@ -1716,12 +1718,50 @@ the M3 work, so M4 can start immediately:
 - Transport to reuse: `@furystack/entity-sync-client` WS plumbing.
 - None of the F1–F6 follow-ups gate M4 (client is server-contract-only).
 
-- [ ] `@furystack/task-runner-client` package with `submitTask`,
-      `cancelTask`, `getTask`, `subscribeProgress`, `uploadBlob`.
-- [ ] Reuses `@furystack/entity-sync-client` transport for WS
-      subscriptions.
-- [ ] Reference upload helper handles both presigned-direct and
-      server-proxy paths transparently.
+- [x] `@furystack/task-runner-client` package with `submitTask`,
+      `cancelTask`, `getTask`, `getTaskTree`, `subscribeProgress`,
+      `uploadBlob` (plus low-level `draftTask` / `startTask`).
+- [x] WS subscriptions over a dedicated transport mirroring
+      `@furystack/entity-sync-client`'s reconnect/backoff/pending-queue
+      plumbing (see note 1 below).
+- [x] Reference upload helper handles both presigned-direct (`PUT`) and
+      POST-policy (`POST` + `fields`) paths transparently.
+
+#### M4 implementation notes
+
+Decisions and deviations from the PRD settled during implementation:
+
+1. **Dedicated WS transport, not the `EntitySyncService` instance.** The
+   milestone called for reusing `@furystack/entity-sync-client`'s
+   transport. `EntitySyncService` is hardwired to the entity envelope
+   (`subscribe-entity` / `subscribe-collection`, model-bound) and cannot
+   carry the task `subscribe-task` envelope, so a focused `TaskSocket`
+   mirrors its reconnect / exponential-backoff / pending-message /
+   resubscribe-on-reconnect plumbing instead. This matches M2 note 4,
+   which already flagged the WS endpoint as purpose-built and committed
+   only to reusing the _envelope conventions_.
+
+2. **`submitTask` orchestrates the two-phase flow.** With no `uploads`
+   it is draft + start. With `uploads` it drafts, uploads each slot to
+   its presigned ticket, then calls `resolvePayload({ payload,
+uploadedKeys })` to patch the server-allocated blob keys into the
+   final payload before `start`. The slot→payload mapping is
+   app-specific, so it is a caller-supplied callback rather than a
+   framework convention. `draftTask` / `startTask` / `uploadBlob` are
+   exported for callers that want manual control.
+
+3. **`LiveTask.state` folds hot-lane updates into the snapshot.** The WS
+   `subscribed-task` ack seeds an `ObservableValue<TaskSubscriptionState>`
+   with the persisted row; each `task-update` is folded in
+   (`status` → `task.status`, `progress` → `task.progress`,
+   `spawned-child` → appended `childTaskIds`). The server already dedups
+   by `bus.compareSeq`, so the client applies updates without re-running
+   seq comparison.
+
+4. **`TaskRunnerClientError`** carries the server `{ code, message }`
+   discriminant plus the HTTP `status`, so callers branch exhaustively
+   instead of substring-matching. `getTask` maps `404` to `undefined`
+   rather than throwing.
 
 ### Milestone 5 — Sweeper
 

@@ -53,6 +53,7 @@ export default defineConfig({
             'packages/redis-store/src/**/*.spec.ts',
             'packages/redis-task-runner/src/**/*.spec.ts',
             'packages/s3-blob-store/src/**/*.spec.ts',
+            'packages/task-runner-client/src/**/*.spec.ts',
             'packages/websocket-api/src/**/*.spec.ts',
             'packages/entity-sync-service/src/**/*.spec.ts',
             'packages/security/src/**/*.spec.ts',
