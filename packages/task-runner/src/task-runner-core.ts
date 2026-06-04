@@ -610,7 +610,11 @@ export class TaskRunnerCore implements TaskRunner {
       if (!isStillOwning()) return { kind: 'success' }
       this.#abortControllers.delete(taskId)
 
-      await this.#taskDs.update(this.#injector, taskId, { status: 'succeeded', result })
+      await this.#taskDs.update(this.#injector, taskId, {
+        status: 'succeeded',
+        result,
+        terminalAt: new Date().toISOString(),
+      })
       await this.#finalizeAttempt(taskId, attempt, 'succeeded')
       this.#emit(type, { kind: 'status', taskId, status: 'succeeded', at: new Date().toISOString() })
       this.#telemetry.emit('onTaskCompleted', {
@@ -642,7 +646,10 @@ export class TaskRunnerCore implements TaskRunner {
       if (!stillOwning) return { kind: 'success' }
 
       if (ac.signal.aborted) {
-        await this.#taskDs.update(this.#injector, taskId, { status: 'cancelled' })
+        await this.#taskDs.update(this.#injector, taskId, {
+          status: 'cancelled',
+          terminalAt: new Date().toISOString(),
+        })
         await this.#finalizeAttempt(taskId, attempt, 'cancelled')
         this.#emit(type, { kind: 'status', taskId, status: 'cancelled', at: new Date().toISOString() })
         this.#telemetry.emit('onTaskCancelled', { taskId, type })
@@ -700,7 +707,11 @@ export class TaskRunnerCore implements TaskRunner {
       return { kind: 'failed' }
     }
 
-    await this.#taskDs.update(this.#injector, taskId, { status: 'failed', error: errInfo })
+    await this.#taskDs.update(this.#injector, taskId, {
+      status: 'failed',
+      error: errInfo,
+      terminalAt: new Date().toISOString(),
+    })
     this.#emit(type, { kind: 'status', taskId, status: 'failed', at: new Date().toISOString() })
     this.#telemetry.emit('onTaskCompleted', {
       taskId,
@@ -744,7 +755,10 @@ export class TaskRunnerCore implements TaskRunner {
           ac.abort()
           return { task, mode: 'cancelling' as const }
         }
-        await this.#taskDs.update(this.#injector, taskId, { status: 'cancelled' })
+        await this.#taskDs.update(this.#injector, taskId, {
+          status: 'cancelled',
+          terminalAt: new Date().toISOString(),
+        })
         return { task, mode: 'cancelled' as const }
       })
 

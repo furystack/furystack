@@ -46,6 +46,9 @@ export { TaskStore, TaskDataSet, TaskReplayLogStore, TaskReplayLogDataSet } from
 export { TaskRunnerTelemetry, TaskRunnerTelemetryToken } from './task-runner-telemetry.js'
 export type { TaskRunnerTelemetryEvents } from './task-runner-telemetry.js'
 
+export { TaskBlobSweeper, defineTaskBlobSweeper } from './task-blob-sweeper.js'
+export type { TaskBlobSweeperOptions, SweeperRunResult } from './task-blob-sweeper.js'
+
 export { InProcessTaskRunner, defineInProcessTaskRunner } from './in-process-task-runner.js'
 export type { InProcessTaskRunnerOptions, DefineInProcessTaskRunnerOptions } from './in-process-task-runner.js'
 

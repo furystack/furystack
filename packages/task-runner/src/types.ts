@@ -95,6 +95,20 @@ export class Task {
   declare visibilityDeadline?: string
   declare workerId?: string
   declare resumeToken?: string
+  /**
+   * Wall-clock instant (ISO-8601) the task entered a terminal status
+   * (`succeeded` / `failed` / `cancelled`). Anchors the blob-retention TTL
+   * (`retentionPolicy.ttlAfterTerminalDays`); the blob sweeper compares it
+   * against `now`. Unset while the task is non-terminal.
+   */
+  declare terminalAt?: string
+  /**
+   * Wall-clock instant (ISO-8601) the blob sweeper applied this task's
+   * retention policy. Set once the sweep completes so subsequent scans skip
+   * the task; its presence — not the emptiness of the blob lists — is the
+   * dedup marker (a `keep`-policy task is marked without deleting anything).
+   */
+  declare blobsSweptAt?: string
 }
 
 export const DEFAULT_RETENTION_POLICY: TaskRetentionPolicy = {

@@ -1,11 +1,12 @@
 # PRD: `@furystack/task-runner` + `@furystack/blob-store` — distributed task management
 
-> **Status:** Draft v1 — **M0–M4 implemented.** Blob stores (in-memory /
+> **Status:** Draft v1 — **M0–M5 implemented.** Blob stores (in-memory /
 > filesystem / S3), task-runner core (in-process + Redis Streams runner,
 > replay, retry, cancel cascade, DAG), REST/WS surface, delayed dispatch,
-> fleet-wide concurrency cap, and the `@furystack/task-runner-client`
-> SDK (REST + blob upload + live progress over WS) are all in. **M5
-> (blob sweeper) is next.** See §13 "Open follow-ups (post-M3)" for
+> fleet-wide concurrency cap, the `@furystack/task-runner-client` SDK
+> (REST + blob upload + live progress over WS), and the blob-retention
+> sweeper (`defineTaskBlobSweeper`) are all in. **M6 (multi-service
+> smoke test) is next.** See §13 "Open follow-ups (post-M3)" for
 > carry-over work.
 > **Owner:** FuryStack core team.
 > **Target release:** follows `@furystack/cross-node-bus` v1 (sibling primitive
@@ -357,6 +358,8 @@ type Task<TPayload = unknown, TResult = unknown> = {
   consumedBlobs: BlobRef[]
   retentionPolicy: TaskRetentionPolicy
   tags: string[]
+  terminalAt?: string // set on terminal transition; anchors retention TTL
+  blobsSweptAt?: string // set by the blob sweeper once retention is applied
   // adapter-managed:
   visibilityDeadline?: string
   workerId?: string
@@ -1765,11 +1768,52 @@ uploadedKeys })` to patch the server-allocated blob keys into the
 
 ### Milestone 5 — Sweeper
 
-- [ ] `defineTaskBlobSweeper` service: scans terminal tasks past
+- [x] `defineTaskBlobSweeper` service: scans terminal tasks past
       `retentionPolicy.ttlAfterTerminalDays`, deletes blobs per policy,
       idempotent.
-- [ ] Configurable scan interval (default 1 h) and batch size.
-- [ ] Telemetry hooks: `onSweeperRun`, `onSweeperBlobDeleted`.
+- [x] Configurable scan interval (default 1 h) and batch size.
+- [x] Telemetry hooks: `onSweeperRun`, `onSweeperBlobDeleted`.
+
+#### M5 implementation notes
+
+Decisions and deviations settled during implementation:
+
+1. **New `Task.terminalAt` field anchors the TTL.** `Task` previously had
+   no "became terminal at" timestamp (only per-attempt `finishedAt`, and
+   tasks cancelled before running had neither). Added an additive
+   `terminalAt?: string`, stamped by the core on every terminal
+   transition (`succeeded` / `failed` / `cancelled`, on both the
+   in-process and Redis paths since both go through `TaskRunnerCore`).
+   The sweeper compares `terminalAt + ttlAfterTerminalDays` against now;
+   it falls back to `submittedAt` for any legacy terminal row missing
+   `terminalAt`.
+
+2. **`delete-intermediate` = the task's own `producedBlobs`.** The PRD
+   left the semantics to the implementer (§16). Resolved as: `keep`
+   deletes nothing; `delete-intermediate` deletes `producedBlobs` (the
+   intermediate artifacts the task created via `ctx.allocateBlob`);
+   `delete-all` deletes `producedBlobs` **and** `consumedBlobs`. This
+   matches the §10 video example — `video-probe` uses
+   `delete-intermediate` and _consumes_ the source video, which must not
+   be deleted (it is claimed input, not a produced artifact). `failed`
+   and `cancelled` tasks use `onFailure` (§10.3 step 5).
+
+3. **`blobsSweptAt` marker prevents reprocessing.** Per the M5 scope the
+   sweeper deletes blobs only — it does **not** delete the control-plane
+   `Task` row or replay-log entries (that remains a possible follow-up,
+   open question §16.1). After applying the policy it stamps
+   `blobsSweptAt` and clears the deleted blob refs from the row. The scan
+   query excludes swept tasks via `{ blobsSweptAt: { $eq: undefined } }`,
+   so already-swept terminal rows do not starve the batch. Requires the
+   Task store to support absence (`$eq: undefined`) filters — the
+   in-memory store and the FuryStack adapters do.
+
+4. **Per-task TTL, in-loop expiry check.** Because
+   `ttlAfterTerminalDays` is per-task, the scan cannot push the cutoff
+   into a single query; it fetches a batch of terminal, unswept tasks and
+   evaluates expiry per row. Not-yet-expired tasks are left unmarked and
+   revisited on a later scan. `scanIntervalMs: Infinity` disables the
+   timer for manual `runOnce()` control (used by tests).
 
 ### Milestone 6 — Multi-service smoke test
 

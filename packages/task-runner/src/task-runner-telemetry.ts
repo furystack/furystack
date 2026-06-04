@@ -18,6 +18,8 @@ export type TaskRunnerTelemetryEvents = {
   onBlobPut: { key: string; byteLength: number; durationMs: number }
   onBlobGet: { key: string; byteLength: number; durationMs: number }
   onBlobDelete: { key: string; durationMs: number }
+  onSweeperRun: { scannedCount: number; sweptCount: number; deletedBlobCount: number; durationMs: number }
+  onSweeperBlobDeleted: { taskId: string; type: string; key: string; reason: 'produced' | 'consumed' }
 }
 
 export class TaskRunnerTelemetry extends EventHub<TaskRunnerTelemetryEvents> {}
