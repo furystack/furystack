@@ -4,7 +4,7 @@
 
 ## 👷 CI
 
-- Updated the CI test matrices (`build-test`, `showcase-ui-tests`) to run on Node `24.x` and `26.x`, dropping `22.x` and `25.x`. Single-run pipelines (release, version check, changelog check) stay on Node `24.x`.
+- Updated the CI test matrices (GitHub `build-test`, `showcase-ui-tests` and Azure Pipelines) to run on Node `24.x` and `26.x`, dropping `22.x` and `25.x`. Single-run pipelines (release, version check, changelog check) stay on Node `24.x`.
 - Raised the minimum supported Node.js to `>=24.0.0` (Node 24 LTS) in `engines`, dropping Node 22.
 
 ## ⬆️ Dependencies
