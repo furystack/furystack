@@ -45,7 +45,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@furystack/cache": "workspace:^",
@@ -56,7 +56,7 @@
     "path-to-regexp": "^8.4.2"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }
