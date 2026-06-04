@@ -12,6 +12,8 @@
     { "path": "../cross-node-bus" },
     { "path": "../inject" },
     { "path": "../repository" },
-    { "path": "../utils" }
+    { "path": "../rest-service" },
+    { "path": "../utils" },
+    { "path": "../websocket-api" }
   ]
 }
