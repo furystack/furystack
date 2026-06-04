@@ -1,6 +1,6 @@
 import type { Constructable, StoreToken } from '@furystack/core'
 import { defineStore } from '@furystack/core'
-import type { createClient } from 'redis'
+import type { RedisClientType } from 'redis'
 import { RedisStore } from './redis-store.js'
 
 /**
@@ -14,7 +14,7 @@ export type DefineRedisStoreOptions<T, TPrimaryKey extends keyof T> = {
    * Redis client. Ownership stays with the caller — the store does not
    * connect or quit it. Multiple stores backed by the same client are fine.
    */
-  client: ReturnType<typeof createClient>
+  client: RedisClientType
 }
 
 /**

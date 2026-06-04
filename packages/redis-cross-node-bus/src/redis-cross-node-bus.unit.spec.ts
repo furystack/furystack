@@ -1,10 +1,10 @@
 import { CrossNodeBusTelemetry } from '@furystack/cross-node-bus'
 import { usingAsync } from '@furystack/utils'
-import type { createClient } from 'redis'
+import type { RedisClientType } from 'redis'
 import { describe, expect, it, vi } from 'vitest'
 import { RedisCrossNodeBus } from './redis-cross-node-bus.js'
 
-type RedisClient = ReturnType<typeof createClient>
+type RedisClient = RedisClientType
 
 type StubOverrides = {
   xAdd?: (...args: unknown[]) => Promise<unknown>

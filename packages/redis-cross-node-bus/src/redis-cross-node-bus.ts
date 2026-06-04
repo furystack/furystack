@@ -6,10 +6,10 @@ import {
   type CrossNodeBusCapabilities,
   type CrossNodeBusTelemetry,
 } from '@furystack/cross-node-bus'
-import type { createClient } from 'redis'
+import type { RedisClientType } from 'redis'
 import { compareRedisStreamId } from './compare-redis-stream-id.js'
 
-type RedisLikeClient = ReturnType<typeof createClient>
+type RedisLikeClient = RedisClientType
 
 /**
  * Options accepted by {@link RedisCrossNodeBus}.

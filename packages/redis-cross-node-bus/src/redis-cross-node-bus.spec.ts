@@ -1,7 +1,7 @@
 import { ReplayWindowExceededError, type BusMessage } from '@furystack/cross-node-bus'
 import { usingAsync } from '@furystack/utils'
 import { randomUUID } from 'node:crypto'
-import { createClient } from 'redis'
+import { createClient, type RedisClientType } from 'redis'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { RedisCrossNodeBus } from './redis-cross-node-bus.js'
 
@@ -17,7 +17,7 @@ const setupBus = async (
   options: { topicPrefix?: string; replayWindow?: number; nodeId?: string } = {},
 ): Promise<{
   bus: RedisCrossNodeBus
-  client: ReturnType<typeof createClient>
+  client: RedisClientType
   [Symbol.asyncDispose]: () => Promise<void>
 }> => {
   const client = createClient({ url: redisUrl })

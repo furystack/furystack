@@ -1,5 +1,5 @@
 import { createInjector } from '@furystack/inject'
-import type { createClient } from 'redis'
+import type { RedisClientType } from 'redis'
 import { describe, expect, it, vi } from 'vitest'
 import { defineRedisStore } from './define-redis-store.js'
 import { RedisStore } from './redis-store.js'
@@ -9,7 +9,7 @@ class Item {
   declare value: string
 }
 
-const stubClient = {} as ReturnType<typeof createClient>
+const stubClient = {} as RedisClientType
 
 describe('defineRedisStore (metadata)', () => {
   it('propagates name, lifetime, model and primaryKey onto the returned token', () => {
@@ -45,7 +45,7 @@ describe('defineRedisStore (metadata)', () => {
 describe('defineRedisStore (factory + disposal)', () => {
   it('instantiates a RedisStore that uses the supplied client verbatim', async () => {
     const set = vi.fn<() => Promise<string>>(() => Promise.resolve('OK'))
-    const client = { set } as unknown as ReturnType<typeof createClient>
+    const client = { set } as unknown as RedisClientType
     const Token = defineRedisStore<Item, 'id'>({
       name: 'test/RedisFactory',
       model: Item,
@@ -69,7 +69,7 @@ describe('defineRedisStore (factory + disposal)', () => {
 
   it('ownership of the client stays with the caller -- disposal does not close it', async () => {
     const quit = vi.fn<() => Promise<'OK'>>(() => Promise.resolve('OK'))
-    const client = { quit } as unknown as ReturnType<typeof createClient>
+    const client = { quit } as unknown as RedisClientType
     const Token = defineRedisStore<Item, 'id'>({
       name: 'test/RedisDispose',
       model: Item,
