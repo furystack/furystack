@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@furystack/core": "workspace:^",
+    "@furystack/redis-store": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@types/node": "^25.9.1",
     "typescript": "^6.0.3",

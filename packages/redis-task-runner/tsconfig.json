@@ -11,6 +11,7 @@
     { "path": "../core" },
     { "path": "../cross-node-bus" },
     { "path": "../inject" },
+    { "path": "../redis-store" },
     { "path": "../repository" },
     { "path": "../task-runner" },
     { "path": "../utils" }

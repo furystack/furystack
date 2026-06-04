@@ -1327,7 +1327,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/redis-store@workspace:packages/redis-store":
+"@furystack/redis-store@workspace:^, @furystack/redis-store@workspace:packages/redis-store":
   version: 0.0.0-use.local
   resolution: "@furystack/redis-store@workspace:packages/redis-store"
   dependencies:
@@ -1349,6 +1349,7 @@ __metadata:
     "@furystack/core": "workspace:^"
     "@furystack/cross-node-bus": "workspace:^"
     "@furystack/inject": "workspace:^"
+    "@furystack/redis-store": "workspace:^"
     "@furystack/repository": "workspace:^"
     "@furystack/task-runner": "workspace:^"
     "@furystack/utils": "workspace:^"

@@ -1602,20 +1602,21 @@ Decisions and deviations from the PRD settled during implementation:
     scheduler runs broker-side and has no claim-time concern requiring
     sharding.
 
-12. **`RedisStore` cannot back the Task dataset (follow-up).**
-    `DataSet.update` forwards the partial change straight to
-    `PhysicalStore.update` with no read-modify-write, and
-    `RedisStore.update` does a full `SET key JSON(change)` — so a
-    `taskDs.update(id, { status })` would clobber the rest of the Task
-    row. The runner therefore requires a partial-update + `find`-capable
-    store (`InMemoryStore`, `MongodbStore`, `SequelizeStore`). This
-    contradicts §17's "reuses every existing store adapter … redis …
-    without modification" claim, and is why the multi-worker smoke runs
-    single-process over an in-memory store rather than forking processes
-    over a shared Redis store. **Follow-up:** teach `RedisStore`
-    read-modify-write (or a HASH-field layout) so it supports partial
-    updates; then it can back both the Task dataset and a true
-    cross-process smoke harness.
+12. **`RedisStore` partial-update fixed (F1).** `DataSet.update`
+    forwards the partial change straight to `PhysicalStore.update` with
+    no read-modify-write. The original `RedisStore.update` did a full
+    `SET key JSON(change)`, so a `taskDs.update(id, { status })`
+    clobbered the rest of the Task row. **Fixed:** `RedisStore.update`
+    now does a JS read-modify-write (`GET` → shallow-merge → `SET`),
+    matching the `Partial<T>` contract and `InMemoryStore` semantics
+    (untouched fields preserved, `undefined` clears, arrays — including
+    empty `[]` — preserved). A Lua/`cjson` RMW was rejected because
+    `lua-cjson` re-encodes empty arrays as `{}`, which would corrupt the
+    Task model's many empty-array fields; the JS path is correct but
+    non-atomic on a hot same-key write (acceptable given the runner's
+    per-task lock + status-CAS reconciliation). `find` support — the
+    other piece needed for runner-over-redis — landed separately in
+    note 14 (F1b).
 
 13. **Idempotency submit race fixed.** The earlier `#resolveIdempotency`
     won the adapter lease with a throwaway UUID, then persisted the task
@@ -1627,19 +1628,55 @@ Decisions and deviations from the PRD settled during implementation:
     `findByIdempotencyKey` a few times before falling through. Closes the
     cross-replica dedup gap for the documented `nightly-${date}` pattern.
 
+14. **`RedisStore` `find` / `count` + key namespacing (F1b, breaking).**
+    `RedisStore.find` / `count` previously threw. They now load the
+    store's entities via a per-store index Set and apply
+    filter / order / skip / top / select in memory (reusing
+    `@furystack/core`'s `filterItems` / `selectFields`). To make
+    enumeration possible and collision-free on a shared client, the key
+    layout changed: entities live at `${keyPrefix}:e:${id}` and their ids
+    in an index Set at `${keyPrefix}:keys`, with `keyPrefix` defaulting to
+    the store name (overridable via `defineRedisStore({ keyPrefix })`).
+    `add` / `update` / `remove` keep entity + index consistent via
+    `MULTI`. **This is a breaking wire-format change** — existing bare-key
+    data is orphaned on upgrade, so `@furystack/redis-store` needs a major
+    bump + changelog. With F1 + F1b together, `redis-store` now satisfies
+    the runner's store contract (partial update + `find`), so §17's
+    "reuses every existing store adapter … redis …" claim finally holds
+    and a Redis-backed cross-process smoke (F2) is unblocked. Caveat:
+    in-memory filtering is O(store-size) per `find`; high-cardinality
+    query workloads still want `MongodbStore` / `SequelizeStore`.
+
+15. **Cross-process multi-worker smoke (F2).**
+    `redis-task-runner/src/cross-process-smoke.spec.ts` `fork`s real OS
+    worker processes (compiled `esm/*.js`, mirroring
+    `redis-cross-node-bus`'s cross-process smoke). Each child hosts its
+    own injector + Redis client + `RedisTaskRunner`; the Task and
+    TaskReplayLog datasets bind to `@furystack/redis-store` (now viable
+    via F1+F1b) so state is coherent across processes, while the
+    cross-node bus is in-process per child (the four scenarios are broker-
+    or worker-local). Scenarios: (1) claim concurrency / no double-execute
+    across two processes, (2) fleet cap holding across processes (shared
+    Redis counter asserts max-concurrent ≤ cap), (3) visibility reclaim
+    after a worker is `SIGKILL`ed mid-handler, (4) graceful drain. Gated
+    on Redis (`REDIS_URL`) and a prior build (children execute compiled
+    output) — both satisfied in CI. This is single-service; the
+    two-service shape remains **M6**.
+
 ### Open follow-ups (post-M3)
 
 Carry-over work surfaced during M0–M3. None block M4; listed so the next
 phase starts with eyes open.
 
-| #   | Item                                  | Severity | Notes                                                                                                                                                                                                                           |
-| --- | ------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F1  | `RedisStore` partial-update support   | high     | Runner cannot use `redis-store` as its Task store (full-overwrite `update`); contradicts §17. Teach `RedisStore` read-modify-write / HASH layout. Unblocks a true cross-process smoke (M6) over a shared store. See M3 note 12. |
-| F2  | True cross-process multi-worker smoke | medium   | M3 smoke runs single-process (in-memory store). A forked-process harness needs a partial-update + `find` store (blocked on F1, or use Mongo/Sequelize). Feeds M6.                                                               |
-| F3  | Claim-time `tags` matching            | medium   | `tags` are declared on workers + tasks but never enforced at claim time; the §14 "workers without GPU pulling encode tasks" risk is unmitigated. Redis adapter shards by `(type, version)` only.                                |
-| F4  | Fleet cap on the in-process adapter   | low      | `InProcessQueueAdapter` keeps `fleetCapEnforcement: false`. Single-pod caps still hold via per-worker `concurrency`; add an in-process semaphore if a dev/test fleet-cap path is wanted.                                        |
-| F5  | In-process idempotency lease TTL      | low      | `InProcessQueueAdapter`'s idempotency `Map` never expires. Harmless for a volatile adapter; noted for completeness.                                                                                                             |
-| F6  | `ctx.fetch` replay recording          | low      | Deferred since M1 (note 2). Handlers using `fetch` must stay idempotent across retries until v1.x.                                                                                                                              |
+| #   | Item                                  | Severity | Notes                                                                                                                                                                                                                                                           |
+| --- | ------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1  | `RedisStore` partial-update support   | done     | **Done.** `RedisStore.update` now does JS read-modify-write (partial merge, `undefined`-clears, empty-array-safe). See M3 note 12.                                                                                                                              |
+| F1b | `RedisStore` `find` + key namespacing | done     | **Done (breaking).** Per-store namespaced keys (`${prefix}:e:${id}`) + a per-store index Set (`${prefix}:keys`); `find` / `count` load via the index and filter in memory. `keyPrefix` defaults to the store name. See note 14.                                 |
+| F2  | True cross-process multi-worker smoke | done     | **Done.** `cross-process-smoke.spec.ts` forks real worker processes over a shared Redis (queue + `redis-store` Task store): claim concurrency, fleet cap, visibility reclaim, graceful drain. See note 15. Single-service; M6 still adds the two-service shape. |
+| F3  | Claim-time `tags` matching            | medium   | `tags` are declared on workers + tasks but never enforced at claim time; the §14 "workers without GPU pulling encode tasks" risk is unmitigated. Redis adapter shards by `(type, version)` only.                                                                |
+| F4  | Fleet cap on the in-process adapter   | low      | `InProcessQueueAdapter` keeps `fleetCapEnforcement: false`. Single-pod caps still hold via per-worker `concurrency`; add an in-process semaphore if a dev/test fleet-cap path is wanted.                                                                        |
+| F5  | In-process idempotency lease TTL      | low      | `InProcessQueueAdapter`'s idempotency `Map` never expires. Harmless for a volatile adapter; noted for completeness.                                                                                                                                             |
+| F6  | `ctx.fetch` replay recording          | low      | Deferred since M1 (note 2). Handlers using `fetch` must stay idempotent across retries until v1.x.                                                                                                                                                              |
 
 ### Milestone 4 — Client SDK
 
