@@ -1,6 +1,6 @@
 {
   "name": "@furystack/rest-service",
-  "version": "14.0.0",
+  "version": "14.1.0",
   "description": "REST API service implementation for FuryStack",
   "type": "module",
   "scripts": {
@@ -53,14 +53,14 @@
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.9.1",
     "@types/ws": "^8.18.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5",
-    "ws": "^8.20.0"
+    "vitest": "^4.1.8",
+    "ws": "^8.21.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

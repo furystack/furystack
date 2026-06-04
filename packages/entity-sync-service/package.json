@@ -1,6 +1,6 @@
 {
   "name": "@furystack/entity-sync-service",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Server-side entity synchronization for FuryStack",
   "type": "module",
   "scripts": {
@@ -43,17 +43,17 @@
     "@furystack/inject": "workspace:^",
     "@furystack/repository": "workspace:^",
     "@furystack/websocket-api": "workspace:^",
-    "ws": "^8.20.0"
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@types/ws": "^8.18.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.8"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

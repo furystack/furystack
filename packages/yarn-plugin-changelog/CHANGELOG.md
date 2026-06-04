@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.11] - 2026-05-21
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Bumped `@yarnpkg/cli` from `^4.14.1` to `^4.15.0` and `@yarnpkg/core` from `^4.7.0` to `^4.8.0` to track the upgraded Yarn release.
+- Bumped `@types/node` to `^25.9.1` and `vitest` to `^4.1.7`. Dev-tooling only.
+
 ## [1.0.10] - 2026-04-17
 
 ### ⬆️ Dependencies

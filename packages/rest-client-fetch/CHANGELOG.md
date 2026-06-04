@@ -1,5 +1,16 @@
 # Changelog
 
+## [9.0.1] - 2026-05-21
+
+### 📚 Documentation
+
+- Rewrote JSDoc on `createClient` and `ResponseError` to follow the new value-test guidance: dropped restate-the-type narration, kept intent / trade-offs / constraints around error shape and request building.
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Bumped `vitest` to `^4.1.7`. No source changes — dev-tooling bump only.
+
 ## [9.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

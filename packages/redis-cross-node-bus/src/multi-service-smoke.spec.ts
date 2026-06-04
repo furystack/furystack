@@ -3,7 +3,7 @@ import { CrossNodeBus, type BusMessage } from '@furystack/cross-node-bus'
 import { createInjector, type Injector } from '@furystack/inject'
 import { IDENTITY_EVENT_TOPIC, IdentityEventBus, sessionCacheKey, UserResolutionCache } from '@furystack/rest-service'
 import { randomUUID } from 'node:crypto'
-import { createClient } from 'redis'
+import { createClient, type RedisClientType } from 'redis'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { defineRedisCrossNodeBusAdapter } from './define-redis-cross-node-bus-adapter.js'
 import { RedisCrossNodeBus } from './redis-cross-node-bus.js'
@@ -67,7 +67,7 @@ type ServiceNode = {
   bus: RedisCrossNodeBus
   cache: UserResolutionCache
   identityBus: IdentityEventBus
-  client: ReturnType<typeof createClient>
+  client: RedisClientType
   [Symbol.asyncDispose]: () => Promise<void>
 }
 

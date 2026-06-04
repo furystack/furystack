@@ -226,12 +226,13 @@ export const Checkbox = Shade<CheckboxProps>({
       style: { '--checkbox-color': color },
     })
 
-    const handleChange = function (this: GlobalEventHandlers, ev: Event) {
-      ev.stopPropagation()
+    // The host element already receives `props.onchange` via Shade's attachProps;
+    // a bubbled change from the inner input triggers it once. This handler exists
+    // only to keep the input in its `indeterminate` visual state across toggles.
+    const handleChange = (): void => {
       if (props.indeterminate && inputRef.current) {
         inputRef.current.indeterminate = true
       }
-      props.onchange?.call(this, ev)
     }
 
     return (
@@ -243,9 +244,9 @@ export const Checkbox = Shade<CheckboxProps>({
             checked={props.checked}
             disabled={props.disabled}
             name={props.name}
-            value={props.value}
             required={props.required}
             onchange={handleChange}
+            {...(props.value !== undefined ? { value: props.value } : {})}
           />
         </span>
         {props.labelTitle ? <span className="checkbox-label">{props.labelTitle}</span> : null}

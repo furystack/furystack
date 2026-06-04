@@ -222,9 +222,8 @@ export const Switch = Shade<SwitchProps>({
             checked={props.checked}
             disabled={props.disabled}
             name={props.name}
-            value={props.value}
             required={props.required}
-            onchange={props.onchange}
+            {...(props.value !== undefined ? { value: props.value } : {})}
           />
           <span className="switch-track">
             <span className="switch-thumb" />

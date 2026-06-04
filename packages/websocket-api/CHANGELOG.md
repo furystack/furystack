@@ -1,5 +1,46 @@
 # Changelog
 
+## [14.1.0] - 2026-05-21
+
+### 📚 Documentation
+
+- Rewrote JSDoc on `WebSocketApi`, the action models, and the built-in `whoami` action to follow the new value-test guidance: dropped restate-the-type narration, kept intent / trade-offs / constraints around connection lifecycle and message dispatch.
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Imports `IdentityEventBus`, `HttpAuthenticationSettings`, and `extractSessionIdFromCookies` from `@furystack/rest-service` (already a peer; no new packages introduced).
+- Bumped the transitive `@furystack/cache` dependency (via `@furystack/rest-service`) to its new major version. No source changes were required in this package.
+- Bumped `ws` from `^8.20.0` to `^8.20.1` (runtime dependency).
+- Bumped `vitest` to `^4.1.7`. Dev-tooling only.
+
+### ✨ Features
+
+### WebSocket connections close on cross-node logout
+
+`useWebSocketApi` now subscribes to `IdentityEventBus`. When a `userLoggedOut` event fires — locally or from a sibling node via the bus — every WebSocket whose connect-time cookie carries the invalidated session id is closed with code `1008` ("Session invalidated").
+
+```typescript
+import { useWebSocketApi } from '@furystack/websocket-api'
+
+await useWebSocketApi({ injector, port: 8080 })
+
+const userContext = injector.get(HttpUserContext)
+await userContext.cookieLogout(request, response)
+// → publishes `userLoggedOut` on the bus
+// → every node closes the affected sockets
+```
+
+This ties WebSocket lifecycle to identity invalidation across a horizontally-scaled deployment. Apps that have not bound a transport adapter run against the in-process default `CrossNodeBus` and only see the local effect — but the API surface is unchanged.
+
+### 🐛 Bug Fixes
+
+- WebSockets opened on the same node that processed a logout are now closed too. Previously the originating node only invalidated the identity cache; long-lived sockets stayed open until the client noticed.
+
+### 🔧 Chores
+
+- Updated the websocket integration test that exercises mid-session role updates to invalidate the new `UserResolutionCache` after mutating the user record. Documents the recommended pattern for apps that mutate user state out-of-band: call `injector.get(UserResolutionCache).invalidate(...)` (or `invalidateAll()`) after the change so the next websocket message picks up the new identity instead of waiting for the cache TTL to elapse.
+
 ## [14.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

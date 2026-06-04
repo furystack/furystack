@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.0.1] - 2026-05-21
+
+### 📚 Documentation
+
+- Rewrote JSDoc across the public API (`JwtAuthenticationSettings`, fingerprint cookie helpers, JWT utilities, `RefreshTokenStore`) to follow the new value-test guidance: dropped restate-the-type narration, kept intent / trade-offs / constraints, and added type-only imports for cross-file `{@link}` targets.
+- Documented why `createJwtAuthProvider` intentionally does not implement the new `AuthenticationProvider.getCacheKey` hook: caching the user lookup risks serving an expired or revoked token's identity for up to a full TTL window. Apps that want to amortize the user-data-set lookup should embed the needed claims in the JWT itself.
+
+### ⬆️ Dependencies
+
+- Bump dev `vitest` to `^4.1.5`.
+- Bump `@furystack/rest-service` to pick up `IdentityEventBus`, `UserResolutionCache.invalidateByUser`, and the new `identity-cache-keys` exports. No code changes in this package — version bump only.
+- Bumped the transitive `@furystack/cache` dependency (via `@furystack/rest-service`) to its new major version. No source changes were required in this package.
+- Bumped `@types/node` to `^25.9.1` and `vitest` to `^4.1.7`. No source changes — dev-tooling bump only.
+
 ## [4.0.0] - 2026-04-25
 
 ### 💥 Breaking Changes

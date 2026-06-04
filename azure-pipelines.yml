@@ -16,12 +16,10 @@ jobs:
   - job: buildAndTest
     strategy:
       matrix:
-        node_22_x:
-          node_version: 22.x
         node_24_x:
           node_version: 24.x
-        node_25_x:
-          node_version: 25.x
+        node_26_x:
+          node_version: 26.x
 
     displayName: Build and test
     steps:
@@ -77,12 +75,10 @@ jobs:
   - job: showcaseUiTests
     strategy:
       matrix:
-        node_22_x:
-          node_version: 22.x
         node_24_x:
           node_version: 24.x
-        node_25_x:
-          node_version: 25.x
+        node_26_x:
+          node_version: 26.x
     displayName: Showcase app UI tests
     steps:
       - task: NodeTool@0

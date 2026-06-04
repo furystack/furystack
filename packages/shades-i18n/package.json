@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-i18n",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "I18n translation package and components for Shades",
   "type": "module",
   "scripts": {
@@ -42,12 +42,12 @@
     "@furystack/shades": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.9.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.8"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

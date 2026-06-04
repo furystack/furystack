@@ -1,7 +1,7 @@
 import type { Constructable, CreateResult, PhysicalStore } from '@furystack/core'
 import { NotSupportedError } from '@furystack/core'
 import { EventHub } from '@furystack/utils'
-import type { createClient } from 'redis'
+import type { RedisClientType } from 'redis'
 
 /**
  * {@link PhysicalStore} backed by a Redis client.
@@ -39,7 +39,7 @@ export class RedisStore<
   constructor(
     private readonly options: {
       model: Constructable<T>
-      client: ReturnType<typeof createClient>
+      client: RedisClientType
       primaryKey: TPrimaryKey
     },
   ) {
