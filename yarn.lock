@@ -348,7 +348,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/client-s3@npm:^3.1041.0":
+"@aws-sdk/client-s3@npm:^3.1060.0":
   version: 3.1060.0
   resolution: "@aws-sdk/client-s3@npm:3.1060.0"
   dependencies:
@@ -620,7 +620,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aws-sdk/s3-request-presigner@npm:^3.1041.0":
+"@aws-sdk/s3-request-presigner@npm:^3.1060.0":
   version: 3.1060.0
   resolution: "@aws-sdk/s3-request-presigner@npm:3.1060.0"
   dependencies:
@@ -1143,9 +1143,9 @@ __metadata:
   resolution: "@furystack/blob-store@workspace:packages/blob-store"
   dependencies:
     "@furystack/inject": "workspace:^"
-    "@types/node": "npm:^25.6.0"
+    "@types/node": "npm:^25.9.1"
     typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
+    vitest: "npm:^4.1.8"
   languageName: unknown
   linkType: soft
 
@@ -1245,9 +1245,9 @@ __metadata:
     "@furystack/blob-store": "workspace:^"
     "@furystack/inject": "workspace:^"
     "@furystack/rest-service": "workspace:^"
-    "@types/node": "npm:^25.6.0"
+    "@types/node": "npm:^25.9.1"
     typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
+    vitest: "npm:^4.1.8"
   languageName: unknown
   linkType: soft
 
@@ -1352,10 +1352,10 @@ __metadata:
     "@furystack/repository": "workspace:^"
     "@furystack/task-runner": "workspace:^"
     "@furystack/utils": "workspace:^"
-    "@types/node": "npm:^25.6.0"
-    redis: "npm:^5.12.1"
+    "@types/node": "npm:^25.9.1"
+    redis: "npm:^6.0.0"
     typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
+    vitest: "npm:^4.1.8"
   languageName: unknown
   linkType: soft
 
@@ -1422,13 +1422,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/s3-blob-store@workspace:packages/s3-blob-store"
   dependencies:
-    "@aws-sdk/client-s3": "npm:^3.1041.0"
-    "@aws-sdk/s3-request-presigner": "npm:^3.1041.0"
+    "@aws-sdk/client-s3": "npm:^3.1060.0"
+    "@aws-sdk/s3-request-presigner": "npm:^3.1060.0"
     "@furystack/blob-store": "workspace:^"
     "@furystack/inject": "workspace:^"
-    "@types/node": "npm:^25.6.0"
+    "@types/node": "npm:^25.9.1"
     typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
+    vitest: "npm:^4.1.8"
   languageName: unknown
   linkType: soft
 
@@ -1580,11 +1580,11 @@ __metadata:
     "@furystack/rest-service": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@furystack/websocket-api": "workspace:^"
-    "@types/node": "npm:^25.6.0"
+    "@types/node": "npm:^25.9.1"
     "@types/ws": "npm:^8.18.1"
     typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-    ws: "npm:^8.20.0"
+    vitest: "npm:^4.1.8"
+    ws: "npm:^8.21.0"
   languageName: unknown
   linkType: soft
 
@@ -1979,38 +1979,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redis/bloom@npm:5.12.1":
-  version: 5.12.1
-  resolution: "@redis/bloom@npm:5.12.1"
-  peerDependencies:
-    "@redis/client": ^5.12.1
-  checksum: 10c0/b267b1a80568beb188d89a9f2f07db16c88e4bfd2258873126d13b7ed722616dbb21fffdab0797d54a8547845fe3e4c5dc212d1af94f22a21c2a2a12bae71976
-  languageName: node
-  linkType: hard
-
 "@redis/bloom@npm:6.0.0":
   version: 6.0.0
   resolution: "@redis/bloom@npm:6.0.0"
   peerDependencies:
     "@redis/client": ^6.0.0
   checksum: 10c0/85570136bc522a330da6c8ae30a9d6899d9a4892ab366d9bbb09b7e23529b695497cacfd8072cb86e0be55d61bb737fc04c6e4c6027be7d4f6fda3271694cda1
-  languageName: node
-  linkType: hard
-
-"@redis/client@npm:5.12.1":
-  version: 5.12.1
-  resolution: "@redis/client@npm:5.12.1"
-  dependencies:
-    cluster-key-slot: "npm:1.1.2"
-  peerDependencies:
-    "@node-rs/xxhash": ^1.1.0
-    "@opentelemetry/api": ">=1 <2"
-  peerDependenciesMeta:
-    "@node-rs/xxhash":
-      optional: true
-    "@opentelemetry/api":
-      optional: true
-  checksum: 10c0/f475aa936b7cf73c3d2166862377d3502f16deaf5423d31f6899f6387440195aa2524c74d1df26da591a61b4ac0122a1e1f8d783b770e7630c5f7444445c41b0
   languageName: node
   linkType: hard
 
@@ -2031,15 +2005,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redis/json@npm:5.12.1":
-  version: 5.12.1
-  resolution: "@redis/json@npm:5.12.1"
-  peerDependencies:
-    "@redis/client": ^5.12.1
-  checksum: 10c0/c02a94e148944c47c2995bb8df61c6cde51c7a4e380e7f4832fb56ff586754e5cc788edf0a470e5eee3cf19af8ad0b85c94bc759f91c93986d14b52fa1829200
-  languageName: node
-  linkType: hard
-
 "@redis/json@npm:6.0.0":
   version: 6.0.0
   resolution: "@redis/json@npm:6.0.0"
@@ -2049,30 +2014,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redis/search@npm:5.12.1":
-  version: 5.12.1
-  resolution: "@redis/search@npm:5.12.1"
-  peerDependencies:
-    "@redis/client": ^5.12.1
-  checksum: 10c0/1dfe70e173e4544ae7c8d8a172e069fbf47f525066fcd43952628f037b61137673ef2dad1454982c9508e4575ec63626f4dc3793c20eef65b61b8b195cc75289
-  languageName: node
-  linkType: hard
-
 "@redis/search@npm:6.0.0":
   version: 6.0.0
   resolution: "@redis/search@npm:6.0.0"
   peerDependencies:
     "@redis/client": ^6.0.0
   checksum: 10c0/04e4f841ff23202a1660496e441cf2ac4b9827bf4a69c63ae24ab77bbb9c62213df77ac182f694f3d61adb25e0fd6a904a69ca054b62237c2c999827f02fcafb
-  languageName: node
-  linkType: hard
-
-"@redis/time-series@npm:5.12.1":
-  version: 5.12.1
-  resolution: "@redis/time-series@npm:5.12.1"
-  peerDependencies:
-    "@redis/client": ^5.12.1
-  checksum: 10c0/8d450fdaa370e3ab7bff31197bf3e5102b3cfccbd0e0997a6d17b00e51f67447c355ae2cd76268e83f9459f1a23f606286eab2e81b57fded147fae6c5438b4ca
   languageName: node
   linkType: hard
 
@@ -2509,7 +2456,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^25.6.0, @types/node@npm:^25.9.1":
+"@types/node@npm:*, @types/node@npm:^25.9.1":
   version: 25.9.1
   resolution: "@types/node@npm:25.9.1"
   dependencies:
@@ -6637,19 +6584,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redis@npm:^5.12.1":
-  version: 5.12.1
-  resolution: "redis@npm:5.12.1"
-  dependencies:
-    "@redis/bloom": "npm:5.12.1"
-    "@redis/client": "npm:5.12.1"
-    "@redis/json": "npm:5.12.1"
-    "@redis/search": "npm:5.12.1"
-    "@redis/time-series": "npm:5.12.1"
-  checksum: 10c0/ad80825241bced474b104279339f26207b9bb0e6f4d425061f0ccfe7935576c8d70272389c30f49a77bd06fe8e791a09756dbb9280099f358ce63c79efe0b99e
-  languageName: node
-  linkType: hard
-
 "redis@npm:^6.0.0":
   version: 6.0.0
   resolution: "redis@npm:6.0.0"
@@ -7777,7 +7711,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^4.1.5, vitest@npm:^4.1.8":
+"vitest@npm:^4.1.8":
   version: 4.1.8
   resolution: "vitest@npm:4.1.8"
   dependencies:
@@ -8046,7 +7980,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.20.0, ws@npm:^8.21.0":
+"ws@npm:^8.21.0":
   version: 8.21.0
   resolution: "ws@npm:8.21.0"
   peerDependencies:

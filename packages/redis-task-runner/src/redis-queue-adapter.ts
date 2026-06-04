@@ -7,9 +7,9 @@ import type {
   QueueAdapterCapabilities,
   WorkerSubscription,
 } from '@furystack/task-runner'
-import type { createClient } from 'redis'
+import type { RedisClientType } from 'redis'
 
-type RedisLikeClient = ReturnType<typeof createClient>
+type RedisLikeClient = RedisClientType
 
 /**
  * Options accepted by {@link RedisQueueAdapter}.
@@ -458,12 +458,12 @@ export class RedisQueueAdapter implements QueueAdapter {
   ): Promise<{ stream: string; entry: StreamMessageEntry | undefined } | undefined> {
     let reply: XReadGroupReply | null
     try {
-      reply = (await this.#client.xReadGroup(
+      reply = await this.#client.xReadGroup(
         this.#group,
         consumerName,
         streams.map((key) => ({ key, id: '>' })),
         { BLOCK: this.#blockMs, COUNT: 1 },
-      )) as unknown as XReadGroupReply | null
+      )
     } catch {
       return undefined
     }

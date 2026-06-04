@@ -2,8 +2,8 @@ import { BlobStore as BlobStoreToken } from '@furystack/blob-store'
 import { CrossNodeBus as CrossNodeBusToken } from '@furystack/cross-node-bus'
 import type { ServiceFactory } from '@furystack/inject'
 import { TaskDataSet, TaskReplayLogDataSet, TaskRunnerTelemetryToken, type TaskRunner } from '@furystack/task-runner'
-import { RedisTaskRunner, type RedisTaskRunnerOptions } from './redis-task-runner.js'
 import type { RedisQueueAdapterOptions } from './redis-queue-adapter.js'
+import { RedisTaskRunner, type RedisTaskRunnerOptions } from './redis-task-runner.js'
 
 /**
  * Options accepted by {@link defineRedisTaskRunner}. `client` and

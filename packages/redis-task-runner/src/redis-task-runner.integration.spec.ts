@@ -10,7 +10,7 @@ import {
   type Worker,
 } from '@furystack/task-runner'
 import { runTaskToCompletion } from '@furystack/task-runner/testing'
-import { createClient } from 'redis'
+import { createClient, type RedisClientType } from 'redis'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { defineRedisTaskRunner } from './define-redis-task-runner.js'
 
@@ -21,7 +21,7 @@ type Harness = {
   runner: TaskRunner
   workers: Worker[]
   prefix: string
-  client: ReturnType<typeof createClient>
+  client: RedisClientType
   [Symbol.asyncDispose]: () => Promise<void>
 }
 
