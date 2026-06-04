@@ -21,6 +21,10 @@ type MockClient = {
   zAdd: AnyMock
   zRem: AnyMock
   eval: AnyMock
+  duplicate: AnyMock
+  connect: AnyMock
+  destroy: AnyMock
+  isOpen: boolean
 }
 
 /**
@@ -29,26 +33,37 @@ type MockClient = {
  * slot loop spins as fast as possible and `mock.calls` accumulates
  * unbounded (OOMs vitest).
  */
-const buildClient = (overrides: Partial<MockClient> = {}): MockClient => ({
-  xAdd: vi.fn().mockResolvedValue('1-0'),
-  xGroupCreate: vi.fn().mockResolvedValue('OK'),
-  xReadGroup: vi.fn().mockImplementation(async (_g, _c, _streams, opts?: { BLOCK?: number }) => {
-    if (opts?.BLOCK) await new Promise<void>((r) => setTimeout(r, opts.BLOCK))
-    return null
-  }),
-  xAutoClaim: vi.fn().mockImplementation(async () => {
-    await new Promise<void>((r) => setTimeout(r, 1))
-    return { nextId: '0-0', messages: [] }
-  }),
-  xAck: vi.fn().mockResolvedValue(1),
-  xClaimJustId: vi.fn().mockResolvedValue([]),
-  set: vi.fn().mockResolvedValue('OK'),
-  get: vi.fn().mockResolvedValue(null),
-  zAdd: vi.fn().mockResolvedValue(1),
-  zRem: vi.fn().mockResolvedValue(1),
-  eval: vi.fn().mockResolvedValue(0),
-  ...overrides,
-})
+const buildClient = (overrides: Partial<MockClient> = {}): MockClient => {
+  const client: MockClient = {
+    xAdd: vi.fn().mockResolvedValue('1-0'),
+    xGroupCreate: vi.fn().mockResolvedValue('OK'),
+    xReadGroup: vi.fn().mockImplementation(async (_g, _c, _streams, opts?: { BLOCK?: number }) => {
+      if (opts?.BLOCK) await new Promise<void>((r) => setTimeout(r, opts.BLOCK))
+      return null
+    }),
+    xAutoClaim: vi.fn().mockImplementation(async () => {
+      await new Promise<void>((r) => setTimeout(r, 1))
+      return { nextId: '0-0', messages: [] }
+    }),
+    xAck: vi.fn().mockResolvedValue(1),
+    xClaimJustId: vi.fn().mockResolvedValue([]),
+    set: vi.fn().mockResolvedValue('OK'),
+    get: vi.fn().mockResolvedValue(null),
+    zAdd: vi.fn().mockResolvedValue(1),
+    zRem: vi.fn().mockResolvedValue(1),
+    eval: vi.fn().mockResolvedValue(0),
+    duplicate: vi.fn(),
+    connect: vi.fn(),
+    destroy: vi.fn(),
+    isOpen: true,
+    ...overrides,
+  }
+  // The adapter duplicates the client for its blocking read loop. Return the
+  // same mock so blocking-read / reclaim assertions still observe the calls.
+  client.duplicate = vi.fn(() => client)
+  client.connect = vi.fn().mockResolvedValue(client)
+  return client
+}
 
 const makeAdapter = (
   client: MockClient,

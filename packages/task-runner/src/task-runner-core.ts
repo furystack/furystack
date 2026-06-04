@@ -519,9 +519,8 @@ export class TaskRunnerCore implements TaskRunner {
         attempts = attempts.map((entry) =>
           entry.status === 'in-progress' ? { ...entry, status: 'timed-out' as const, finishedAt: finalizedAt } : entry,
         )
-        if (attempts !== task.attempts) {
-          await this.#taskDs.update(this.#injector, task.id, { attempts })
-        }
+        // The timed-out fix is persisted together with the new attempt by
+        // the single claim write below — no separate update needed here.
       }
 
       const ac = new AbortController()
@@ -532,26 +531,42 @@ export class TaskRunnerCore implements TaskRunner {
       const attempt = attempts.length + 1
       const claimTime = new Date().toISOString()
 
+      // Collapse the claim transition into a single read-modify-write:
+      // persist the running status, worker/visibility lease, the new
+      // in-progress attempt, and the `claimed` event in one update instead
+      // of four (`claimed` status → `pushAttempt` → `pushEvent` → `running`
+      // status, each its own get+update). The intermediate `claimed` row
+      // state is never persisted (status goes pending → running); both
+      // status events still emit on the hot lane below for subscribers.
+      const nextAttempts: AttemptRecord[] = [
+        ...attempts,
+        { attempt, workerId: worker.workerId, startedAt: claimTime, status: 'in-progress' },
+      ]
+      const nextEvents: TaskEvent[] = [...task.events, { at: claimTime, kind: 'claimed', workerId: worker.workerId }]
+      if (nextEvents.length > MAX_EVENTS_PER_TASK) nextEvents.splice(0, nextEvents.length - MAX_EVENTS_PER_TASK)
+
       await this.#taskDs.update(this.#injector, task.id, {
-        status: 'claimed',
+        status: 'running',
         workerId: worker.workerId,
         visibilityDeadline: new Date(Date.now() + handler.visibilityTimeoutMs).toISOString(),
+        attempts: nextAttempts,
+        events: nextEvents,
       })
 
-      return { kind: 'claimed', task: { ...task, attempts }, handler, ac, attempt, claimTime }
+      return {
+        kind: 'claimed',
+        task: { ...task, attempts: nextAttempts, events: nextEvents },
+        handler,
+        ac,
+        attempt,
+        claimTime,
+      }
     })
 
     if (setup.kind !== 'claimed') return setup
 
     const { task, handler, ac, attempt, claimTime } = setup
 
-    await this.#pushAttempt(task.id, {
-      attempt,
-      workerId: worker.workerId,
-      startedAt: claimTime,
-      status: 'in-progress',
-    })
-    await this.#pushEvent(task.id, { at: claimTime, kind: 'claimed', workerId: worker.workerId })
     this.#emit(task.type, { kind: 'status', taskId: task.id, status: 'claimed', at: claimTime })
     this.#telemetry.emit('onTaskClaimed', {
       taskId: task.id,
@@ -559,8 +574,6 @@ export class TaskRunnerCore implements TaskRunner {
       workerId: worker.workerId,
       queueLagMs: Date.now() - Date.parse(task.submittedAt),
     })
-
-    await this.#taskDs.update(this.#injector, task.id, { status: 'running' })
     this.#emit(task.type, { kind: 'status', taskId: task.id, status: 'running', at: new Date().toISOString() })
 
     try {
@@ -579,7 +592,11 @@ export class TaskRunnerCore implements TaskRunner {
     attempt: number,
     ac: AbortController,
   ): Promise<ClaimOutcome> {
-    const replayIndex = buildReplayIndex(await this.#loadReplayLog(taskId))
+    // First attempt has no replay log yet — skip the load (a `find` that
+    // scans the whole replay store). Continuations after a crash or an
+    // `awaitChildren` suspension always run as attempt > 1, where replay
+    // entries may exist and must be loaded.
+    const replayIndex = buildReplayIndex(attempt > 1 ? await this.#loadReplayLog(taskId) : [])
     let stepIndex = 0
     let lastProgressMs = 0
 
@@ -1024,14 +1041,6 @@ export class TaskRunnerCore implements TaskRunner {
       const events = [...task.events, event]
       if (events.length > MAX_EVENTS_PER_TASK) events.splice(0, events.length - MAX_EVENTS_PER_TASK)
       await this.#taskDs.update(this.#injector, taskId, { events })
-    })
-  }
-
-  async #pushAttempt(taskId: string, record: AttemptRecord): Promise<void> {
-    await this.#withTaskLock(taskId, async () => {
-      const task = await this.#taskDs.get(this.#injector, taskId)
-      if (!task) return
-      await this.#taskDs.update(this.#injector, taskId, { attempts: [...task.attempts, record] })
     })
   }
 

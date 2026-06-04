@@ -245,6 +245,17 @@ export class RedisQueueAdapter implements QueueAdapter {
   readonly #subscriptions = new Set<SubscriptionState>()
   readonly #ensuredGroups = new Set<string>()
 
+  /**
+   * Dedicated connection for the blocking `XREADGROUP` / `XAUTOCLAIM`
+   * slot loops. A blocking command holds the connection's reply stream
+   * until it returns, so sharing the main client would stall every store
+   * read/write, `XADD`, and `XACK` behind an in-flight `BLOCK` for up to
+   * `blockTimeoutMs` (head-of-line blocking). Duplicating mirrors
+   * `RedisCrossNodeBus`; the caller's client stays free for everything else.
+   */
+  readonly #readClient: RedisLikeClient
+  readonly #readConnectPromise: Promise<void>
+
   readonly #schedulerTimer: ReturnType<typeof setInterval>
   #schedulerRunning = false
   #disposed = false
@@ -263,6 +274,17 @@ export class RedisQueueAdapter implements QueueAdapter {
     this.#idempotencyTtlSec = options.idempotencyTtlSec ?? DEFAULT_IDEMPOTENCY_TTL_SEC
     this.#schedulerIntervalMs = options.schedulerIntervalMs ?? DEFAULT_SCHEDULER_INTERVAL_MS
     this.#concurrencyLimits = options.concurrencyLimits ?? {}
+
+    this.#readClient = options.client.duplicate()
+    this.#readConnectPromise = this.#readClient
+      .connect()
+      .then(() => {
+        // Disposed before the connection finished coming up — close it now.
+        if (this.#disposed) this.#safeDestroyReadClient()
+      })
+      .catch(() => {
+        // Read connection failed to come up; slot reads no-op and back off.
+      })
 
     // `unref()` so an idle scheduler timer never holds the process
     // open in single-shot scripts / tests.
@@ -375,6 +397,15 @@ export class RedisQueueAdapter implements QueueAdapter {
       state.abortController.abort()
     }
     this.#subscriptions.clear()
+    this.#safeDestroyReadClient()
+  }
+
+  #safeDestroyReadClient(): void {
+    try {
+      if (this.#readClient.isOpen) this.#readClient.destroy()
+    } catch {
+      // Best-effort: the duplicated connection is force-closed on dispose.
+    }
   }
 
   // ── Internal helpers ──────────────────────────────────────────────
@@ -503,6 +534,10 @@ export class RedisQueueAdapter implements QueueAdapter {
   async #runSlot(state: SubscriptionState, consumerName: string, signal: AbortSignal): Promise<void> {
     const { subscription, streams } = state
 
+    // Block until the dedicated read connection is live before issuing any
+    // blocking command on it.
+    await this.#readConnectPromise
+
     while (!signal.aborted && !this.#disposed) {
       if (subscription.shouldDrain()) return
 
@@ -539,7 +574,7 @@ export class RedisQueueAdapter implements QueueAdapter {
       const minIdle = this.#visibilityForStream(stream)
       let reply: XAutoClaimReply | undefined
       try {
-        reply = await this.#client.xAutoClaim(stream, this.#group, consumerName, minIdle, '0', {
+        reply = await this.#readClient.xAutoClaim(stream, this.#group, consumerName, minIdle, '0', {
           COUNT: 1,
         })
       } catch {
@@ -557,7 +592,7 @@ export class RedisQueueAdapter implements QueueAdapter {
   ): Promise<{ stream: string; entry: StreamMessageEntry | undefined } | undefined> {
     let reply: XReadGroupReply | null
     try {
-      reply = await this.#client.xReadGroup(
+      reply = await this.#readClient.xReadGroup(
         this.#group,
         consumerName,
         streams.map((key) => ({ key, id: '>' })),

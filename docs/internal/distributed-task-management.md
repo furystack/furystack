@@ -1857,17 +1857,49 @@ and findings:
    finish while the sibling pod claims the next submission — no work lost,
    and the queued task is observed to run on the non-drained pod.
 
-5. **§4 metrics (recorded, local Redis + MinIO, 24-sample run).**
+5. **§4 metrics (recorded, local Redis + MinIO, 24-sample burst).**
    Progress delivery (worker → cross-node bus subscriber):
    **p50 ≈ 3 ms, p95 ≈ 6 ms** — well within the <100 ms target.
    Submit→claim (proxied by submit → handler entry, so it also includes
-   the redis-store task persistence and the competing-consumer block
-   loop): **p50 ≈ 64 ms, p95 ≈ 123 ms**, above the <50 ms single-lane
-   target. The gap is the harness, not the broker: every submit performs
-   multiple `RedisStore` writes and the workers poll with a 25 ms
-   `blockTimeoutMs`; the in-process queue's submit→claim stays under the
-   5 ms target (M1). The smoke asserts generous budgets (1 s) to stay
-   stable on loaded CI and logs the real p50/p95 for the record.
+   the redis-store task persistence, the claim-transition writes, and the
+   competing-consumer block loop): **p50 ≈ 46–56 ms, p95 ≈ 98–109 ms**
+   after the M6.1 optimizations below (was ≈ 64 ms / 123 ms). The residual
+   gap above the <50 ms single-lane target is the harness, not the broker:
+   it is a 24-task burst against 4 slots where each slot is occupied for a
+   full handler (an S3 PUT to MinIO), so most of the number is queueing +
+   handler time, not dispatch. The in-process queue's submit→claim stays
+   under the 5 ms target (M1). The smoke asserts generous budgets (1 s) to
+   stay stable on loaded CI and logs the real p50/p95 for the record.
+
+#### M6.1 submit→claim optimizations
+
+Surfaced by profiling the M6 submit→claim path; all three are
+self-contained and covered by the existing in-process + Redis suites:
+
+1. **Dedicated blocking connection (`RedisQueueAdapter`).** The slot
+   loop's blocking `XREADGROUP` / `XAUTOCLAIM` now run on a `.duplicate()`d
+   connection instead of the shared client. A blocking command holds the
+   connection's reply stream until it returns, so the old shared-client
+   layout stalled every store read/write, `XADD`, and `XACK` behind an
+   in-flight `BLOCK` for up to `blockTimeoutMs` (head-of-line blocking).
+   This mirrors `RedisCrossNodeBus`, which already isolated its read loop.
+   The adapter force-closes its duplicate on dispose; the caller's client
+   lifecycle is unchanged.
+
+2. **Single-write claim transition (`TaskRunnerCore`).** The claim path
+   collapsed from four dataset writes (`claimed` status → `pushAttempt`
+   → `pushEvent` → `running` status, each its own get+update read-modify-
+   write) into one update that persists the running status, the
+   worker/visibility lease, the new in-progress attempt, and the `claimed`
+   event together. The row now goes `pending → running` (the intermediate
+   `claimed` state is never persisted); both status events still publish
+   on the hot lane, so subscribers are unaffected.
+
+3. **Skip the replay-log load on first attempts (`TaskRunnerCore`).** A
+   fresh task has no replay log, so `#runHandler` no longer issues the
+   `find` (a full `RedisStore` index scan) when `attempt === 1`.
+   Continuations after a crash or `awaitChildren` suspension always run as
+   `attempt > 1`, where the log is still loaded.
 
 ### Milestone 7 — Reference video-encoder showcase
 
