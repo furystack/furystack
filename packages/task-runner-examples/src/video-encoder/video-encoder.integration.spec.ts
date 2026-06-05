@@ -57,6 +57,24 @@ const waitFor = async (
 
 const flattenTree = (node: TaskTreeNode): Task[] => [node.task, ...node.children.flatMap(flattenTree)]
 
+// Cancellation is eventually consistent across the tree: the cascade flips live
+// handlers to `cancelling` and fires their abort, but does not await each one
+// unwinding to terminal `cancelled`. Poll the whole tree until it settles.
+const waitForTree = async (
+  client: TaskRunnerClient,
+  taskId: string,
+  predicate: (all: Task[]) => boolean,
+  timeoutMs = 30_000,
+): Promise<Task[]> => {
+  const deadline = Date.now() + timeoutMs
+  for (;;) {
+    const all = flattenTree(await client.getTaskTree(taskId))
+    if (predicate(all)) return all
+    if (Date.now() > deadline) throw new Error(`Timed out waiting for task tree ${taskId} to settle`)
+    await sleep(25)
+  }
+}
+
 describe('video-encoder showcase — integration', () => {
   it('runs the full process-upload DAG to success with fan-in and live progress', async () => {
     await using server = await startVideoEncoderServer()
@@ -133,8 +151,7 @@ describe('video-encoder showcase — integration', () => {
     const terminal = await waitFor(client, submitted.id, (t) => TERMINAL.has(t.status))
     expect(terminal.status).toBe('cancelled')
 
-    const all = flattenTree(await client.getTaskTree(submitted.id))
-    expect(all.every((t) => !ACTIVE.has(t.status))).toBe(true)
+    const all = await waitForTree(client, submitted.id, (tasks) => tasks.every((t) => !ACTIVE.has(t.status)))
     expect(all.some((t) => t.status === 'cancelled')).toBe(true)
   })
 })
