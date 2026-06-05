@@ -73,11 +73,15 @@ type WorkerRegistration = {
  */
 type CancelBroadcastPayload = { taskIds: string[] }
 
+/** Timer knobs for the core. Both intervals accept `Infinity` to disable the loop (tests drive manually). */
 export type TaskRunnerCoreOptions = {
+  /** How often to re-enqueue stuck `waiting` parents whose wake was missed. */
   reconcilerIntervalMs?: number
+  /** How often to scan for visibility-lapsed claims to reclaim. */
   sweepIntervalMs?: number
 }
 
+/** Collaborators the core resolves up front. Concrete runners assemble this from the injector. */
 export type TaskRunnerCoreDeps = {
   injector: Injector
   bus: CrossNodeBus

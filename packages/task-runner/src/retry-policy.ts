@@ -1,3 +1,4 @@
+/** How a failed task is retried. `maxAttempts: 1` (the default) means no retry. */
 export type RetryPolicy = {
   maxAttempts: number
   backoff: 'exponential' | 'linear' | 'none'
@@ -6,6 +7,7 @@ export type RetryPolicy = {
   jitter: number
 }
 
+/** No-retry default: one attempt, no backoff. Handlers opt into retries explicitly. */
 export const DEFAULT_RETRY_POLICY: RetryPolicy = {
   maxAttempts: 1,
   backoff: 'none',

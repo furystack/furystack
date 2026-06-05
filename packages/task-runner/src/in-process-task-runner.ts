@@ -79,6 +79,10 @@ export type DefineInProcessTaskRunnerOptions = InProcessTaskRunnerOptions
  *
  * @example
  * ```typescript
+ * import { createInjector } from '@furystack/inject'
+ * import { BlobStore, InMemoryBlobStore } from '@furystack/blob-store'
+ * import { TaskRunner, defineInProcessTaskRunner } from '@furystack/task-runner'
+ *
  * await using injector = createInjector()
  * injector.bind(BlobStore, ({ onDispose }) => {
  *   const store = new InMemoryBlobStore({ name: 'blobs' })

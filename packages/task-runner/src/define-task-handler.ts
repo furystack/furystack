@@ -4,6 +4,11 @@ import type { TaskRetentionPolicy } from './types.js'
 import { DEFAULT_RETRY_POLICY } from './retry-policy.js'
 import { DEFAULT_RETENTION_POLICY } from './types.js'
 
+/**
+ * Fully-resolved handler registration (defaults applied). Produced by
+ * {@link defineTaskHandler} and handed to a worker via `defineWorker`;
+ * `type` + `version` route a task to a compatible handler.
+ */
 export type TaskHandlerDescriptor<TPayload = unknown, TResult = unknown> = {
   readonly type: string
   readonly version: number
@@ -26,6 +31,7 @@ export type TaskHandlerDescriptor<TPayload = unknown, TResult = unknown> = {
  */
 export type AnyTaskHandlerDescriptor = TaskHandlerDescriptor<any, any>
 
+/** Options for {@link defineTaskHandler}; the optional policy fields fall back to defaults. */
 export type DefineTaskHandlerOptions<TPayload, TResult> = {
   type: string
   version: number
@@ -45,6 +51,9 @@ export type DefineTaskHandlerOptions<TPayload, TResult> = {
  *
  * @example
  * ```typescript
+ * import type { BlobRef } from '@furystack/blob-store'
+ * import { defineTaskHandler } from '@furystack/task-runner'
+ *
  * const encodeHandler = defineTaskHandler<
  *   { inputBlob: BlobRef; preset: string },
  *   { outputBlob: BlobRef }

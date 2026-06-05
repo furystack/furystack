@@ -9,9 +9,11 @@ import { FileSystemBlobStore, type FileSystemBlobStoreOptions } from './filesyst
  *
  * @example
  * ```ts
+ * import { createInjector } from '@furystack/inject'
  * import { BlobStore } from '@furystack/blob-store'
  * import { defineFileSystemBlobStore } from '@furystack/filesystem-blob-store'
  *
+ * await using injector = createInjector()
  * injector.bind(
  *   BlobStore,
  *   defineFileSystemBlobStore({

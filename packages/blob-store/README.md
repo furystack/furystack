@@ -38,20 +38,25 @@ const { stream, contentLength } = await store.get(ref.key)
 ## Capabilities
 
 Every adapter declares a static `BlobStoreCapabilities` object so
-consumers (notably the future `@furystack/task-runner`) can fail loudly
+consumers (notably `@furystack/task-runner`) can fail loudly
 on incompatible deployment shapes — for example, pairing a
 multi-node queue with a single-node-only blob store.
 
 | Capability            | In-memory | Filesystem | S3-compatible |
 | --------------------- | --------- | ---------- | ------------- |
 | `presignedUrls`       | ❌        | ❌\*       | ✅            |
-| `multipart`           | ❌        | ❌         | ✅            |
+| `multipart`           | ❌        | ❌         | ❌†           |
 | `range`               | ❌        | ❌         | ✅            |
 | `crossNodeAccessible` | ❌        | ❌         | ✅            |
 
 \* Filesystem adapter exposes server-proxy upload/download endpoints
 that mimic the presigned-URL flow at the API layer; the capability
 flag is `false` because the URL is not transport-direct.
+
+† S3 adapter is single-part `PutObject` only in v1 (`maxObjectBytes`
+5 GiB); a multipart-aware `put` variant lands in v1.x. Apps needing
+resumable multipart can compose `@aws-sdk/lib-storage` on the
+underlying client and pass the resulting key back as a `BlobRef`.
 
 ## Errors
 

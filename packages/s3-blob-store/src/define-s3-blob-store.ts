@@ -10,14 +10,19 @@ import { S3BlobStore, type S3BlobStoreOptions } from './s3-blob-store.js'
  * @example
  * ```ts
  * import { S3Client } from '@aws-sdk/client-s3'
+ * import { createInjector } from '@furystack/inject'
  * import { BlobStore } from '@furystack/blob-store'
  * import { defineS3BlobStore } from '@furystack/s3-blob-store'
  *
  * const client = new S3Client({
  *   region: 'eu-central-1',
- *   credentials: { accessKeyId, secretAccessKey },
+ *   credentials: {
+ *     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+ *     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+ *   },
  * })
  *
+ * await using injector = createInjector()
  * injector.bind(
  *   BlobStore,
  *   defineS3BlobStore({

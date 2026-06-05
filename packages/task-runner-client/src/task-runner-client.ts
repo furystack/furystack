@@ -43,6 +43,8 @@ const stripTrailingSlash = (s: string): string => (s.endsWith('/') ? s.slice(0, 
  *
  * @example
  * ```ts
+ * import { TaskRunnerClient } from '@furystack/task-runner-client'
+ *
  * using client = new TaskRunnerClient({
  *   rootUrl: 'http://localhost:3000/tasks',
  *   wsUrl: 'ws://localhost:3000/tasks-socket',

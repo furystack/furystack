@@ -50,9 +50,10 @@ const CAPABILITIES: QueueAdapterCapabilities = Object.freeze({
 
 /**
  * In-process implementation of {@link QueueAdapter}. Holds per-type
- * FIFO queues in memory and serves concurrent claim slots via a single
- * `Promise`-based wakeup. No persistence — tasks lost on restart are
- * recovered through the runner core's dataset-based reconciler (PRD §7.4).
+ * FIFO queues in memory and serves concurrent claim slots via a set of
+ * `Promise`-based waiters (one per parked slot), all woken on any change.
+ * No persistence — tasks lost on restart are recovered through the runner
+ * core's dataset-based reconciler (PRD §7.4).
  *
  * Supports the same optional features the Redis adapter does, scoped to
  * one process: tag-constrained claims, a per-type concurrency cap, and
@@ -69,7 +70,7 @@ export class InProcessQueueAdapter implements QueueAdapter {
   readonly #concurrencyLimits: Record<string, number>
   readonly #idempotencyTtlSec: number
 
-  #wakeup: (() => void) | undefined
+  readonly #waiters = new Set<() => void>()
   #notBeforeTimer: ReturnType<typeof setTimeout> | undefined
   #disposed = false
 
@@ -239,23 +240,28 @@ export class InProcessQueueAdapter implements QueueAdapter {
   async #waitForChange(signal: AbortSignal): Promise<void> {
     if (signal.aborted || this.#disposed) return
     await new Promise<void>((resolve) => {
-      const onAbort = (): void => {
+      const wake = (): void => {
         signal.removeEventListener('abort', onAbort)
+        this.#waiters.delete(wake)
+        resolve()
+      }
+      const onAbort = (): void => {
+        this.#waiters.delete(wake)
         resolve()
       }
       signal.addEventListener('abort', onAbort, { once: true })
-      this.#wakeup = () => {
-        signal.removeEventListener('abort', onAbort)
-        resolve()
-      }
+      this.#waiters.add(wake)
     })
-    this.#wakeup = undefined
   }
 
+  // Wake every parked slot — each re-checks `#takeReady` and re-parks if it
+  // finds nothing. Waking all (not one) is what lets a worker's `concurrency`
+  // slots actually run in parallel; the fleet cap remains the only gate.
   #wake(): void {
-    const w = this.#wakeup
-    this.#wakeup = undefined
-    if (w) w()
+    if (this.#waiters.size === 0) return
+    const waiters = [...this.#waiters]
+    this.#waiters.clear()
+    for (const wake of waiters) wake()
   }
 
   #scheduleNotBeforeWake(): void {

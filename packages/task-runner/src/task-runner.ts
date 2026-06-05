@@ -2,6 +2,12 @@ import { defineService, type Token } from '@furystack/inject'
 import type { AnyTaskHandlerDescriptor } from './define-task-handler.js'
 import type { Task, TaskRetentionPolicy, TaskTreeNode, TaskUpdate } from './types.js'
 
+/**
+ * What the bound queue adapter guarantees. Checked at boot by
+ * {@link assertCapabilities} so an incompatible deployment shape (e.g. a
+ * single-node blob store behind a multi-node queue) fails loudly rather
+ * than silently losing work.
+ */
 export type TaskRunnerCapabilities = {
   readonly persistent: boolean
   readonly fleetCapEnforcement: boolean
@@ -9,6 +15,7 @@ export type TaskRunnerCapabilities = {
   readonly maxPayloadBytes: number
 }
 
+/** Arguments to {@link TaskRunner.submit} / {@link TaskRunner.draft}. */
 export type SubmitOptions<TPayload> = {
   type: string
   payload: TPayload
@@ -38,6 +45,11 @@ export type StartOptions<TPayload = unknown> = {
   payload?: TPayload
 }
 
+/**
+ * Fully-resolved worker registration passed to
+ * {@link TaskRunner.registerWorker}. {@link Worker} (via `defineWorker`)
+ * applies the defaults; this is the no-defaults shape the runner stores.
+ */
 export type RegisterWorkerOptions = {
   name: string
   handlers: AnyTaskHandlerDescriptor[]

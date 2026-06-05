@@ -2,6 +2,12 @@ import type { BlobStore, BlobRef } from '@furystack/blob-store'
 import type { Injector } from '@furystack/inject'
 import type { ChildHandle } from './child-handle.js'
 
+/**
+ * Per-child overrides for {@link TaskContext.spawnChild}. A child inherits
+ * its handler's defaults unless overridden here; `retentionPolicy` lets a
+ * parent mark intermediate children for cleanup, and `tags` constrains
+ * which workers may claim the child.
+ */
 export type SpawnOptions = {
   retentionPolicy?: {
     onSuccess?: 'keep' | 'delete-intermediate' | 'delete-all'
@@ -56,7 +62,7 @@ export type TaskContext<TPayload = unknown> = {
    * ```ts
    * import { defineTaskHandler } from '@furystack/task-runner'
    *
-   * const fanOut = defineTaskHandler({
+   * export const fanOut = defineTaskHandler({
    *   type: 'fan-out',
    *   version: 1,
    *   handler: async (ctx, payload: { ids: string[] }) => {

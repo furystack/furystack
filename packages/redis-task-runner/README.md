@@ -20,6 +20,7 @@ The caller owns the `redis` client lifecycle (`connect` / `quit`) — same as
 [`@furystack/redis-store`](../redis-store).
 
 ```ts
+import { S3Client } from '@aws-sdk/client-s3'
 import { createInjector } from '@furystack/inject'
 import { BlobStore } from '@furystack/blob-store'
 import { CrossNodeBus } from '@furystack/cross-node-bus'
@@ -31,6 +32,8 @@ import { createClient } from 'redis'
 
 const client = createClient({ url: process.env.REDIS_URL })
 await client.connect()
+
+const s3Client = new S3Client({ region: process.env.AWS_REGION })
 
 await using injector = createInjector()
 injector.bind(CrossNodeBus, defineRedisCrossNodeBusAdapter({ client, serviceName: 'svc-a' }))
@@ -66,13 +69,13 @@ are named `${workerId}-slot-${index}`.
 
 ## Capabilities
 
-| Capability            | Value   | Notes                                                                          |
-| --------------------- | ------- | ------------------------------------------------------------------------------ |
-| `persistent`          | `true`  | Streams survive broker restarts (configure broker durability separately).      |
-| `distributed`         | `true`  | Consumer-group competing-consumer dispatch across nodes.                       |
-| `delayedDispatch`     | `true`  | Scheduler ZSET + Lua atomic-pop dispatcher; `notBefore` honored at the broker. |
-| `fleetCapEnforcement` | `false` | Lua-atomic fleet caps land in a follow-up.                                     |
-| `brokerSideReclaim`   | `true`  | `XAUTOCLAIM` recovers stale PEL entries past the visibility timeout.           |
+| Capability            | Value  | Notes                                                                                                                                                     |
+| --------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `persistent`          | `true` | Streams survive broker restarts (configure broker durability separately).                                                                                 |
+| `distributed`         | `true` | Consumer-group competing-consumer dispatch across nodes.                                                                                                  |
+| `delayedDispatch`     | `true` | Scheduler ZSET + Lua atomic-pop dispatcher; `notBefore` honored at the broker.                                                                            |
+| `fleetCapEnforcement` | `true` | Per-type ZSET holder tokens (scored by expiry); a claim that finds its lane full is released back to the stream and retried, so the cap holds fleet-wide. |
+| `brokerSideReclaim`   | `true` | `XAUTOCLAIM` recovers stale PEL entries past the visibility timeout.                                                                                      |
 
 ## Delayed dispatch
 

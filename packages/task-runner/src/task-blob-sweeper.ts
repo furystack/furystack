@@ -173,7 +173,14 @@ export class TaskBlobSweeper implements Disposable {
  *
  * @example
  * ```ts
- * export const AppTaskSweeper = defineTaskBlobSweeper({ scanIntervalMs: 1_800_000 })
+ * import { createInjector } from '@furystack/inject'
+ * import { BlobStore, InMemoryBlobStore } from '@furystack/blob-store'
+ * import { defineTaskBlobSweeper } from '@furystack/task-runner'
+ *
+ * const AppTaskSweeper = defineTaskBlobSweeper({ scanIntervalMs: 1_800_000 })
+ *
+ * await using injector = createInjector()
+ * injector.bind(BlobStore, () => new InMemoryBlobStore({ name: 'blobs' }))
  * injector.get(AppTaskSweeper) // start sweeping
  * ```
  */

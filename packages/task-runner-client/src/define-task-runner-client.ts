@@ -14,11 +14,15 @@ import { TaskRunnerClient, type TaskRunnerClientOptions } from './task-runner-cl
  *
  * @example
  * ```ts
- * export const AppTasks = defineTaskRunnerClient({
+ * import { createInjector } from '@furystack/inject'
+ * import { defineTaskRunnerClient } from '@furystack/task-runner-client'
+ *
+ * const AppTasks = defineTaskRunnerClient({
  *   rootUrl: 'http://localhost:3000/tasks',
  *   wsUrl: 'ws://localhost:3000/tasks-socket',
  * })
  *
+ * await using injector = createInjector()
  * const client = injector.get(AppTasks)
  * const task = await client.submitTask({ type: 'echo', payload: { value: 'hi' }, handlerVersion: 1 })
  * ```

@@ -13,4 +13,9 @@ export class SuspendedError extends Error {
   }
 }
 
+/**
+ * Guards the {@link SuspendedError} sentinel so the runner can distinguish a
+ * handler suspension (re-enqueue as `waiting`) from a genuine failure.
+ * Handlers must never catch-all in a way that swallows it.
+ */
 export const isSuspendedError = (value: unknown): value is SuspendedError => value instanceof SuspendedError

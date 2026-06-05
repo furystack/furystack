@@ -2,6 +2,12 @@ import { defineService, type Token } from '@furystack/inject'
 import type { AnyTaskHandlerDescriptor } from './define-task-handler.js'
 import { TaskRunner, type Worker } from './task-runner.js'
 
+/**
+ * Options for {@link defineWorker}. `tags` gate which tasks this worker may
+ * claim (a worker claims a task only when its tags ⊇ the task's tags);
+ * `compatibleVersions` maps each task `type` to the handler versions this
+ * worker accepts.
+ */
 export type WorkerOptions = {
   name: string
   types: AnyTaskHandlerDescriptor[]
@@ -17,6 +23,13 @@ export type WorkerOptions = {
  *
  * @example
  * ```typescript
+ * import { createInjector } from '@furystack/inject'
+ * import { BlobStore, InMemoryBlobStore } from '@furystack/blob-store'
+ * import { TaskRunner, defineInProcessTaskRunner, defineTaskHandler, defineWorker } from '@furystack/task-runner'
+ *
+ * const encodeHandler = defineTaskHandler({ type: 'video-encode', version: 1, handler: async () => ({}) })
+ * const probeHandler = defineTaskHandler({ type: 'video-probe', version: 1, handler: async () => ({}) })
+ *
  * const VideoEncoder = defineWorker({
  *   name: 'my-app/VideoEncoder',
  *   types: [encodeHandler, probeHandler],
@@ -26,6 +39,7 @@ export type WorkerOptions = {
  * })
  *
  * await using injector = createInjector()
+ * injector.bind(BlobStore, () => new InMemoryBlobStore({ name: 'blobs' }))
  * injector.bind(TaskRunner, defineInProcessTaskRunner())
  * injector.get(VideoEncoder)
  * ```
