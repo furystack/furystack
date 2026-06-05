@@ -1,6 +1,16 @@
-<!-- version-type: patch -->
+<!-- version-type: major -->
 
 # @furystack/redis-store
+
+## 💥 Breaking Changes
+
+### Namespaced key layout (not wire-compatible with prior versions)
+
+Entities are now stored under `${keyPrefix}:e:${id}` with a per-store primary-key index Set at `${keyPrefix}:keys`, where `keyPrefix` defaults to the store `name`. The previous bare-key format is **not** readable under the new layout — data written by an earlier version is invisible after upgrading.
+
+**Impact:** Any deployment with existing data in a Redis-backed store.
+
+**Migration:** Re-seed the store, or run a one-off migration that copies each existing bare key into `${name}:e:${id}` and rebuilds the `${name}:keys` index Set. If you cannot migrate, pin to the previous major.
 
 ## ✨ Features
 
