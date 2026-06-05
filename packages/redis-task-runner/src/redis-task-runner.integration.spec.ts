@@ -403,4 +403,38 @@ describe('RedisTaskRunner (integration)', () => {
     expect(queuedFinal?.status).toBe('pending')
     expect(started).toBe(1)
   }, 20_000)
+
+  it('reaps a child spawned-without-await when the parent succeeds (orphan reaping)', async () => {
+    const blocker = defineTaskHandler<Record<string, never>, void>({
+      type: 'reap-blocker',
+      version: 1,
+      handler: async (ctx) => {
+        await ctx.sleep(60_000)
+      },
+    })
+    const spawnAndForget = defineTaskHandler<Record<string, never>, { done: true }>({
+      type: 'reap-parent',
+      version: 1,
+      handler: async (ctx) => {
+        await ctx.spawnChild<Record<string, never>, void>('reap-blocker', {})
+        return { done: true }
+      },
+    })
+
+    await using harness = await buildHarness({
+      prefix,
+      workerCount: 1,
+      workerConcurrency: 2,
+      handlers: [blocker, spawnAndForget],
+    })
+
+    const task = await harness.runner.submit({ type: 'reap-parent', payload: {}, handlerVersion: 1 })
+    const parent = await runTaskToCompletion({ runner: harness.runner, taskId: task.id, timeoutMs: 8000 })
+    expect(parent.status).toBe('succeeded')
+
+    const childId = parent.childTaskIds[0]
+    expect(childId).toBeTruthy()
+    const child = await runTaskToCompletion({ runner: harness.runner, taskId: childId, timeoutMs: 8000 })
+    expect(child.status).toBe('cancelled')
+  }, 30_000)
 })
