@@ -1238,7 +1238,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/filesystem-blob-store@workspace:packages/filesystem-blob-store":
+"@furystack/filesystem-blob-store@workspace:^, @furystack/filesystem-blob-store@workspace:packages/filesystem-blob-store":
   version: 0.0.0-use.local
   resolution: "@furystack/filesystem-blob-store@workspace:packages/filesystem-blob-store"
   dependencies:
@@ -1572,7 +1572,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@furystack/task-runner-client@workspace:packages/task-runner-client":
+"@furystack/task-runner-client@workspace:^, @furystack/task-runner-client@workspace:packages/task-runner-client":
   version: 0.0.0-use.local
   resolution: "@furystack/task-runner-client@workspace:packages/task-runner-client"
   dependencies:
@@ -1582,6 +1582,27 @@ __metadata:
     "@furystack/rest-service": "workspace:^"
     "@furystack/task-runner": "workspace:^"
     "@furystack/utils": "workspace:^"
+    "@types/ws": "npm:^8.18.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.8"
+    ws: "npm:^8.21.0"
+  languageName: unknown
+  linkType: soft
+
+"@furystack/task-runner-examples@workspace:packages/task-runner-examples":
+  version: 0.0.0-use.local
+  resolution: "@furystack/task-runner-examples@workspace:packages/task-runner-examples"
+  dependencies:
+    "@furystack/blob-store": "workspace:^"
+    "@furystack/core": "workspace:^"
+    "@furystack/filesystem-blob-store": "workspace:^"
+    "@furystack/inject": "workspace:^"
+    "@furystack/repository": "workspace:^"
+    "@furystack/rest-service": "workspace:^"
+    "@furystack/task-runner": "workspace:^"
+    "@furystack/task-runner-client": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    "@types/node": "npm:^25.9.1"
     "@types/ws": "npm:^8.18.1"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.8"

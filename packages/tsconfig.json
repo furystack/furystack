@@ -112,6 +112,9 @@
     },
     {
       "path": "./task-runner-client"
+    },
+    {
+      "path": "./task-runner-examples"
     }
   ]
 }

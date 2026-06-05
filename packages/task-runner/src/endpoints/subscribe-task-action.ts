@@ -96,9 +96,9 @@ const send = (socket: WebSocket, message: ServerTaskMessage): void => {
  *    `subscribed-task` carrying the persisted row.
  * 3. Subscribes to `tasks/progress/${task.type}` and
  *    `tasks/status/${task.type}`, filters every message by `taskId`
- *    client-side, dedups against the latest seen `seq` via
- *    {@link CrossNodeBus.compareSeq}, and forwards matching updates as
- *    `task-update` messages.
+ *    client-side, dedups each topic against its own latest seen `seq` via
+ *    {@link CrossNodeBus.compareSeq} (seq is per-topic monotonic), and
+ *    forwards matching updates as `task-update` messages.
  *
  * On `unsubscribe-task` the bus-topic subscriptions for the matching
  * `subscriptionId` are disposed synchronously. Per-socket state is held
@@ -145,18 +145,25 @@ export const createSubscribeTaskAction = (options?: SubscribeTaskActionOptions):
     const subscriptionId = `task-sub-${++subscriptionCounter}`
     const state = getOrInitSocketState(ctx.socket)
 
-    let lastSeenSeq: string | undefined
-    const dispatch = (busMessage: BusMessage): void => {
-      const payload = busMessage.payload as TaskUpdate | null
-      if (!payload || (payload as { taskId?: string }).taskId !== message.taskId) return
-      if (lastSeenSeq && busMessage.seq && bus.compareSeq(busMessage.seq, lastSeenSeq) <= 0) return
-      if (busMessage.seq) lastSeenSeq = busMessage.seq
-      send(ctx.socket, { type: 'task-update', subscriptionId, ...payload })
+    // `seq` is per-topic monotonic and `compareSeq` only compares tokens
+    // from the *same* topic, so each topic subscription must keep its own
+    // `lastSeenSeq`. A shared cursor would compare progress-topic seqs
+    // against status-topic seqs and silently drop the lower-numbered stream
+    // (e.g. early progress events starved by status updates).
+    const makeDispatch = (): ((busMessage: BusMessage) => void) => {
+      let lastSeenSeq: string | undefined
+      return (busMessage: BusMessage): void => {
+        const payload = busMessage.payload as TaskUpdate | null
+        if (!payload || (payload as { taskId?: string }).taskId !== message.taskId) return
+        if (lastSeenSeq && busMessage.seq && bus.compareSeq(busMessage.seq, lastSeenSeq) <= 0) return
+        if (busMessage.seq) lastSeenSeq = busMessage.seq
+        send(ctx.socket, { type: 'task-update', subscriptionId, ...payload })
+      }
     }
 
     const disposables: Disposable[] = [
-      bus.subscribe(`tasks/progress/${task.type}`, dispatch),
-      bus.subscribe(`tasks/status/${task.type}`, dispatch),
+      bus.subscribe(`tasks/progress/${task.type}`, makeDispatch()),
+      bus.subscribe(`tasks/status/${task.type}`, makeDispatch()),
     ]
 
     state.subscriptions.set(subscriptionId, { taskId: message.taskId, disposables })

@@ -6,9 +6,10 @@
 > surface, delayed dispatch, fleet-wide concurrency cap, the
 > `@furystack/task-runner-client` SDK (REST + blob upload + live progress
 > over WS), the blob-retention sweeper (`defineTaskBlobSweeper`), and the
-> two-service Redis + S3 smoke test are all in. **M7 (reference
-> video-encoder showcase) is post-v1.** See §13 "Open follow-ups
-> (post-M3)" for carry-over work.
+> two-service Redis + S3 smoke test are all in. **M7 (the reference
+> video-encoder showcase, `@furystack/task-runner-examples`) is now
+> implemented** as a private, unpublished example package. See §13 "Open
+> follow-ups (post-M3)" for carry-over work.
 > **Owner:** FuryStack core team.
 > **Target release:** follows `@furystack/cross-node-bus` v1 (sibling primitive
 > referenced as a prerequisite throughout this doc). Initial public packages
@@ -1910,9 +1911,56 @@ self-contained and covered by the existing in-process + Redis suites:
 
 ### Milestone 7 — Reference video-encoder showcase
 
-- [ ] `@furystack/task-runner-examples/video-encoder` package
-      demonstrating the full pipeline. **Not** part of v1 release; lands
-      after v1 ships, used as the canonical multi-stage DAG example.
+- [x] `@furystack/task-runner-examples` package (subpath
+      `./video-encoder`) demonstrating the full pipeline. **Not** part of
+      the v1 release (`private: true`, unpublished); the canonical
+      multi-stage DAG example.
+
+#### M7 implementation notes
+
+Decisions and deviations settled during implementation:
+
+1. **Simulated codec, not real ffmpeg.** The showcase's value is the DAG
+   orchestration (spawn/await fan-in, blobs, progress, cancel cascade),
+   not pixel output. Each "encode" is a deterministic byte transform
+   (`codec.ts`) plus a short `ctx.sleep`, so handlers stay replay-safe and
+   the integration suite runs in milliseconds with no binary dependency,
+   large fixtures, or CI flakiness. The DAG structure is identical to a
+   real-ffmpeg variant (which would isolate the subprocess call behind a
+   swappable codec service).
+
+2. **Full §10.1 tree, small counts.** `process-upload` →
+   {`video-probe`, `video-encode-h264` ×3 profiles, `thumbnail`}, then
+   `video-package`; each `video-encode-h264` is itself a sub-DAG
+   (`video-probe` → `video-encode-chunk` ×N → `video-mux`), so the tree is
+   three levels deep. `chooseChunkCount` clamps to 2–4 chunks/profile to
+   keep the run fast while still exercising grandchild fan-in.
+
+3. **Handlers self-record `producedBlobs` / `consumedBlobs`.** The runner
+   does not derive blob ownership from a handler's return value, so each
+   handler writes its refs onto its own Task row via the `TaskDataSet`
+   (`recordTaskBlobs`). This is the partial-merge update path the core's
+   own success write merges with, and it is what the
+   `GET /tasks/:id/download` endpoint (`producedBlobs[0]`) and the M5
+   sweeper read.
+
+4. **Single-injector full-stack, self-contained.** `startVideoEncoderServer`
+   wires a `FileSystemBlobStore` (HMAC-signed upload/download endpoints —
+   `InMemoryBlobStore` has no presigned URLs), the in-process runner with a
+   `video-encode-chunk` fleet cap (models P1 GPU scarcity), one worker
+   hosting all seven handlers, a thin fake `AuthenticationProvider` +
+   submitter/admin authorizers (§11), and the REST + WS surface — all on
+   one loopback HTTP server. `start.ts` drives the full client flow
+   (`TaskRunnerClient`: upload → start → live WS progress → download).
+
+5. **Fixed an M2 WS dispatch bug surfaced by the showcase.**
+   `createSubscribeTaskAction` shared one `lastSeenSeq` cursor across its
+   `tasks/progress/*` and `tasks/status/*` subscriptions. Because `seq` is
+   per-topic monotonic and `compareSeq` only compares same-topic tokens, a
+   status event would set the cursor and silently drop the lower-numbered
+   early progress events. Each topic subscription now keeps its own cursor
+   (regression test in `subscribe-task-action.spec.ts`). The M2 suite had
+   only ever asserted status delivery, so the defect was latent.
 
 ## 14. Risks & mitigations
 

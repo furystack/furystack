@@ -1,0 +1,64 @@
+{
+  "name": "@furystack/task-runner-examples",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Worked examples for the @furystack/task-runner primitive (PRD §13 Milestone 7)",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm",
+    "start": "node ./esm/video-encoder/start.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    },
+    "./video-encoder": {
+      "types": "./esm/video-encoder/index.d.ts",
+      "import": "./esm/video-encoder/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "task-runner",
+    "example",
+    "video-encoder",
+    "DAG"
+  ],
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "dependencies": {
+    "@furystack/blob-store": "workspace:^",
+    "@furystack/core": "workspace:^",
+    "@furystack/filesystem-blob-store": "workspace:^",
+    "@furystack/inject": "workspace:^",
+    "@furystack/repository": "workspace:^",
+    "@furystack/rest-service": "workspace:^",
+    "@furystack/task-runner": "workspace:^",
+    "@furystack/task-runner-client": "workspace:^",
+    "@furystack/utils": "workspace:^",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/ws": "^8.18.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "sideEffects": false
+}

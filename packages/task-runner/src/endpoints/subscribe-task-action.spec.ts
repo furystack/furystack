@@ -124,6 +124,37 @@ describe('createSubscribeTaskAction', () => {
     expect(lastSent[lastSent.length - 1]).toMatchObject({ type: 'task-update', kind: 'progress', percent: 42 })
   })
 
+  it('dedups each topic independently so status updates do not starve progress', async () => {
+    injector = buildInjector(ADMIN_USER)
+    const runner = injector.get(TaskRunner)
+    const bus = injector.get(CrossNodeBus)
+    const draft = await runner.draft({ type: 'echo', payload: {}, handlerVersion: 1 })
+
+    const action = createSubscribeTaskAction()
+    const sock = buildFakeSocket()
+    await action.execute({
+      data: JSON.stringify({ type: 'subscribe-task', requestId: 'rseq', taskId: draft.id }),
+      request: {} as IncomingMessage,
+      socket: sock,
+      injector,
+    })
+    sock.send.mockClear()
+
+    // First a status event (seq 1 on the status topic), then a progress
+    // event (seq 1 on the progress topic). A shared cursor would compare the
+    // progress seq against the status seq and drop it; per-topic cursors keep
+    // both.
+    const at = new Date().toISOString()
+    const statusUpdate: TaskUpdate = { kind: 'status', taskId: draft.id, status: 'running', at }
+    const progressUpdate: TaskUpdate = { kind: 'progress', taskId: draft.id, percent: 7, at }
+    await bus.publish('tasks/status/echo', statusUpdate)
+    await bus.publish('tasks/progress/echo', progressUpdate)
+
+    const sent = sentMessages(sock)
+    expect(sent.some((m) => (m as { kind?: string }).kind === 'status')).toBe(true)
+    expect(sent.some((m) => (m as { kind?: string; percent?: number }).percent === 7)).toBe(true)
+  })
+
   it('drops bus events for other taskIds', async () => {
     injector = buildInjector(ADMIN_USER)
     const runner = injector.get(TaskRunner)
