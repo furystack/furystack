@@ -2,41 +2,17 @@ import { randomUUID } from 'node:crypto'
 import type { BlobStore } from '@furystack/blob-store'
 import type { DataSet } from '@furystack/repository'
 import type { Injector } from '@furystack/inject'
+import { resolveAwaitChildren, resolveAwaitChildrenSettled } from './await-children.js'
+import { recordedFetch } from './replay-fetch.js'
 import type { ChildHandle } from './child-handle.js'
+import type { ReplayIndex } from './replay-index.js'
 import type { SettledChildResult, SpawnOptions, TaskContext } from './task-context.js'
 import type { TaskRunnerTelemetry } from './task-runner-telemetry.js'
-import { SuspendedError } from './suspended-error.js'
 import { DEFAULT_RETENTION_POLICY } from './types.js'
 import type { Task, TaskReplayLogEntry, TaskRetentionPolicy, TaskUpdate } from './types.js'
 
-/**
- * O(1) lookup over the replay log: a `Map<stepIndex, entry>` built once per
- * handler invocation. Replaces an O(n²) per-step linear scan.
- */
-export type ReplayIndex = Map<number, TaskReplayLogEntry>
-
-export const buildReplayIndex = (log: TaskReplayLogEntry[]): ReplayIndex => {
-  const index: ReplayIndex = new Map()
-  for (const entry of log) index.set(entry.stepIndex, entry)
-  return index
-}
-
-/** Recorded {@link TaskContext.fetch} response, persisted on the replay log. */
-type FetchRecord = {
-  status: number
-  statusText: string
-  headers: Record<string, string>
-  bodyBase64: string
-}
-
-/** HTTP statuses that must not carry a response body. */
-const NULL_BODY_STATUSES: ReadonlySet<number> = new Set([101, 103, 204, 205, 304])
-
-const rebuildResponse = (record: FetchRecord): Response => {
-  const hasBody = !NULL_BODY_STATUSES.has(record.status) && record.bodyBase64.length > 0
-  const body = hasBody ? Buffer.from(record.bodyBase64, 'base64') : null
-  return new Response(body, { status: record.status, statusText: record.statusText, headers: record.headers })
-}
+export { buildReplayIndex } from './replay-index.js'
+export type { ReplayIndex } from './replay-index.js'
 
 /**
  * Runner-side dependencies the {@link TaskContext} needs to fulfill the
@@ -125,6 +101,8 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
     withTaskLock,
   } = deps
 
+  const awaitDeps = { taskId, injector, taskDs, allChildrenTerminal, persistReplayEntry }
+
   const ctx: TaskContext = {
     taskId,
     attempt,
@@ -188,40 +166,7 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
       handles: THandles,
     ): Promise<{ [K in keyof THandles]: THandles[K] extends ChildHandle<infer R> ? R : never }> {
       type Tuple = { [K in keyof THandles]: THandles[K] extends ChildHandle<infer R> ? R : never }
-      const step = nextStep()
-      const cached = replayIndex.get(step)
-      if (cached?.kind === 'await-children' && Array.isArray(cached.output)) {
-        return cached.output as unknown as Tuple
-      }
-
-      const childIds = handles.map((h) => h.taskId)
-      const allDone = await allChildrenTerminal(childIds)
-
-      if (!allDone) throw new SuspendedError(childIds)
-
-      const results: unknown[] = []
-      for (const h of handles) {
-        const child = await taskDs.get(injector, h.taskId)
-        if (!child) throw new Error(`Child task ${h.taskId} not found`)
-        if (child.status === 'failed') {
-          throw new Error(`Child task ${h.taskId} failed: ${child.error?.message ?? 'unknown'}`)
-        }
-        if (child.status === 'cancelled') {
-          throw new Error(`Child task ${h.taskId} was cancelled`)
-        }
-        results.push(child.result)
-      }
-
-      await persistReplayEntry({
-        id: `${taskId}:${step}`,
-        taskId,
-        stepIndex: step,
-        kind: 'await-children',
-        childTaskIds: childIds,
-        output: results,
-        createdAt: new Date().toISOString(),
-      })
-
+      const results = await resolveAwaitChildren(awaitDeps, handles, nextStep(), replayIndex)
       return results as unknown as Tuple
     },
 
@@ -233,45 +178,7 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
       type Tuple = {
         [K in keyof THandles]: THandles[K] extends ChildHandle<infer R> ? SettledChildResult<R> : never
       }
-      const step = nextStep()
-      const cached = replayIndex.get(step)
-      if (cached?.kind === 'await-children-settled' && Array.isArray(cached.output)) {
-        return cached.output as unknown as Tuple
-      }
-
-      const childIds = handles.map((h) => h.taskId)
-      const allDone = await allChildrenTerminal(childIds)
-
-      if (!allDone) throw new SuspendedError(childIds)
-
-      const results: SettledChildResult[] = []
-      for (const h of handles) {
-        const child = await taskDs.get(injector, h.taskId)
-        if (!child) throw new Error(`Child task ${h.taskId} not found`)
-        if (child.status === 'failed') {
-          results.push({
-            status: 'failed',
-            taskId: h.taskId,
-            type: h.type,
-            error: child.error ?? { name: 'Error', message: 'unknown' },
-          })
-        } else if (child.status === 'cancelled') {
-          results.push({ status: 'cancelled', taskId: h.taskId, type: h.type })
-        } else {
-          results.push({ status: 'succeeded', taskId: h.taskId, type: h.type, result: child.result })
-        }
-      }
-
-      await persistReplayEntry({
-        id: `${taskId}:${step}`,
-        taskId,
-        stepIndex: step,
-        kind: 'await-children-settled',
-        childTaskIds: childIds,
-        output: results,
-        createdAt: new Date().toISOString(),
-      })
-
+      const results = await resolveAwaitChildrenSettled(awaitDeps, handles, nextStep(), replayIndex)
       return results as unknown as Tuple
     },
 
@@ -358,36 +265,7 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
     },
 
     async fetch(input, init) {
-      const step = nextStep()
-      const cached = replayIndex.get(step)
-      if (cached?.kind === 'fetch' && cached.output) {
-        return rebuildResponse(cached.output as FetchRecord)
-      }
-
-      const response = await globalThis.fetch(input, init)
-      const bytes = new Uint8Array(await response.arrayBuffer())
-      const headers: Record<string, string> = {}
-      response.headers.forEach((value, key) => {
-        headers[key] = value
-      })
-      const record: FetchRecord = {
-        status: response.status,
-        statusText: response.statusText,
-        headers,
-        bodyBase64: Buffer.from(bytes).toString('base64'),
-      }
-
-      await persistReplayEntry({
-        id: `${taskId}:${step}`,
-        taskId,
-        stepIndex: step,
-        kind: 'fetch',
-        input: { url: input.toString(), method: init?.method ?? 'GET' },
-        output: record,
-        createdAt: new Date().toISOString(),
-      })
-
-      return rebuildResponse(record)
+      return recordedFetch({ taskId, persistReplayEntry }, input, init, nextStep(), replayIndex)
     },
   }
 

@@ -1,6 +1,23 @@
-<!-- version-type: minor -->
+<!-- version-type: major -->
 
 # @furystack/task-runner
+
+## 💥 Breaking Changes
+
+### First public release — initial stable API surface
+
+This is the first public release of `@furystack/task-runner`, published as a major to establish the package's stable, SemVer-governed public API. There is no prior published version to migrate from. Everything documented below under **Features** is part of this initial surface; future changes to it will follow SemVer.
+
+**Public surface established by this release:**
+
+- `TaskRunner` token and `defineInProcessTaskRunner()` (the default in-process deployment entrypoint).
+- `TaskRunnerCore` base class + the `QueueAdapter` interface (`enqueue`, `subscribe`, `heartbeat`, optional `acquireIdempotencyLease`) for authoring custom transports, with `InProcessQueueAdapter` exposed publicly.
+- The handler/worker DSL (`defineTaskHandler`, `defineWorker`) and the determinism-safe `ctx.*` helpers (`ctx.now()`, `ctx.random()`, `ctx.sleep()`, `ctx.fetch()`).
+- DAG composition via `ctx.spawnChild` / `ctx.awaitChildren` / `ctx.awaitChildrenSettled`.
+- The REST + WebSocket surface under `@furystack/task-runner/endpoints` and the testing helpers under `@furystack/task-runner/testing` (`createTestRunner`, `runTaskToCompletion`).
+- `defineTaskBlobSweeper` for blob retention, and the `TaskRunner.capabilities` matrix with `assertCapabilities` boot-time enforcement.
+
+**Impact:** New consumers only — there is no migration path because no earlier version was published.
 
 ## ✨ Features
 

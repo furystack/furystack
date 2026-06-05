@@ -16,39 +16,20 @@ import type {
   TaskRunnerCapabilities,
   Worker,
 } from './task-runner.js'
-import { Task, DEFAULT_RETENTION_POLICY, MAX_EVENTS_PER_TASK, isTerminalStatus } from './types.js'
-import type {
-  AttemptRecord,
-  TaskEvent,
-  TaskReplayLogEntry,
-  TaskRetentionPolicy,
-  TaskStatus,
-  TaskTreeNode,
-  TaskUpdate,
-} from './types.js'
+import { Task, DEFAULT_RETENTION_POLICY, MAX_EVENTS_PER_TASK } from './types.js'
+import type { AttemptRecord, TaskEvent, TaskReplayLogEntry, TaskTreeNode, TaskUpdate } from './types.js'
 import type { TaskRunnerTelemetry } from './task-runner-telemetry.js'
 import { buildReplayIndex, buildTaskContext, type TaskContextFactoryDeps } from './task-context-factory.js'
+import { estimateSize, toErrorInfo, waitMs, type CancelBroadcastPayload } from './task-runner-internals.js'
+import { allChildrenTerminal, buildTree, detectCycle, findByIdempotencyKey } from './task-queries.js'
+import { cascadeCancel, reapOrphans, type CancelDeps } from './cancel-cascade.js'
+import { reconcile, submitChild, wakeParent } from './dag-continuation.js'
+import type { CoreTaskOps } from './task-runner-ops.js'
 
 /** Retry budget for resolving a lost idempotency race before the winning
  *  submit has finished persisting its task. */
 const IDEMPOTENCY_FIND_RETRIES = 5
 const IDEMPOTENCY_FIND_DELAY_MS = 50
-
-const waitMs = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
-
-const parseAwaitedChildIds = (resumeToken: string | undefined): string[] | undefined => {
-  if (!resumeToken) return undefined
-  try {
-    const parsed: unknown = JSON.parse(resumeToken)
-    if (Array.isArray(parsed) && parsed.every((id) => typeof id === 'string')) return parsed
-    return undefined
-  } catch {
-    return undefined
-  }
-}
-
-const isChildCompletionStatus = (status: TaskStatus): status is 'succeeded' | 'failed' | 'cancelled' =>
-  status === 'succeeded' || status === 'failed' || status === 'cancelled'
 
 type WorkerRegistration = {
   workerId: string
@@ -65,13 +46,18 @@ type WorkerRegistration = {
   queueSubscription?: Disposable
 }
 
-/**
- * Payload shape for `tasks/cancel/${type}` bus messages. Workers subscribe
- * to this topic for every task type they declare, intersect the carried
- * task ids with their own held leases, and abort matching cancellation
- * signals (PRD §11 cancel transport).
- */
-type CancelBroadcastPayload = { taskIds: string[] }
+/** Result of a successful claim transition — everything `#runHandler` needs. */
+type ClaimSetup = {
+  kind: 'claimed'
+  task: Task
+  handler: AnyTaskHandlerDescriptor
+  ac: AbortController
+  attempt: number
+  claimTime: string
+}
+
+/** Claim transition outcomes that do not run a handler (already-done / wrong-worker). */
+type ClaimReject = { kind: 'success' } | { kind: 'requeue' }
 
 /** Timer knobs for the core. Both intervals accept `Infinity` to disable the loop (tests drive manually). */
 export type TaskRunnerCoreOptions = {
@@ -122,6 +108,8 @@ export class TaskRunnerCore implements TaskRunner {
   readonly #sweepTimer: ReturnType<typeof setInterval> | undefined
 
   readonly #contextDeps: TaskContextFactoryDeps
+  readonly #ops: CoreTaskOps
+  readonly #cancelDeps: CancelDeps
 
   #disposed = false
 
@@ -140,6 +128,20 @@ export class TaskRunnerCore implements TaskRunner {
       maxPayloadBytes: Infinity,
     })
 
+    this.#ops = {
+      injector: deps.injector,
+      taskDs: deps.taskDs,
+      queueAdapter: deps.queueAdapter,
+      bus: deps.bus,
+      telemetry: deps.telemetry,
+      abortControllers: this.#abortControllers,
+      isDisposed: () => this.#disposed,
+      withTaskLock: (taskId, fn) => this.#withTaskLock(taskId, fn),
+      pushEvent: (taskId, event) => this.#pushEvent(taskId, event),
+      emit: (type, update) => this.#emit(type, update),
+    }
+    this.#cancelDeps = { ...this.#ops, wakeParent: (childTaskId) => wakeParent(this.#ops, childTaskId) }
+
     this.#contextDeps = {
       injector: deps.injector,
       blobStore: deps.blobStore,
@@ -148,12 +150,12 @@ export class TaskRunnerCore implements TaskRunner {
       emit: (type, update) => this.#emit(type, update),
       persistReplayEntry: (entry) => this.#persistReplayEntry(entry),
       submitChild: (parentId, parentType, childId, childType, childPayload, retention, tags) =>
-        this.#submitChild(parentId, parentType, childId, childType, childPayload, retention, tags),
-      allChildrenTerminal: (ids) => this.#allChildrenTerminal(ids),
+        submitChild(this.#ops, parentId, parentType, childId, childType, childPayload, retention, tags),
+      allChildrenTerminal: (ids) => allChildrenTerminal(this.#taskDs, this.#injector, ids),
       withTaskLock: (taskId, fn) => this.#withTaskLock(taskId, fn),
     }
 
-    this.#reconcilerTimer = setInterval(() => void this.#reconcile(), options?.reconcilerIntervalMs ?? 30_000)
+    this.#reconcilerTimer = setInterval(() => void reconcile(this.#ops), options?.reconcilerIntervalMs ?? 30_000)
     this.#sweepTimer = deps.queueAdapter.capabilities.brokerSideReclaim
       ? undefined
       : setInterval(() => void this.#sweepVisibility(), options?.sweepIntervalMs ?? 1_000)
@@ -245,7 +247,7 @@ export class TaskRunnerCore implements TaskRunner {
 
   public async cancel(taskId: string, reason?: string): Promise<void> {
     this.#ensureLive()
-    await this.#cascadeCancel(taskId, reason)
+    await cascadeCancel(this.#cancelDeps, taskId, reason)
   }
 
   public async get(taskId: string): Promise<Task | undefined> {
@@ -257,7 +259,7 @@ export class TaskRunnerCore implements TaskRunner {
     this.#ensureLive()
     const task = await this.#taskDs.get(this.#injector, taskId)
     if (!task) throw new Error(`Task ${taskId} not found`)
-    return this.#buildTree(task)
+    return buildTree(this.#taskDs, this.#injector, task)
   }
 
   public subscribe(taskId: string, handler: (event: TaskUpdate) => void): Disposable {
@@ -382,7 +384,7 @@ export class TaskRunnerCore implements TaskRunner {
    * rare and self-heals on the next submit.
    */
   async #resolveIdempotency(type: string, key: string): Promise<{ existing?: Task; reservedId?: string }> {
-    const existing = await this.#findByIdempotencyKey(key, type)
+    const existing = await findByIdempotencyKey(this.#taskDs, this.#injector, key, type)
     if (existing) return { existing }
 
     if (!this.#queueAdapter.acquireIdempotencyLease) return {}
@@ -399,7 +401,7 @@ export class TaskRunnerCore implements TaskRunner {
   async #pollForIdempotent(key: string, type: string): Promise<Task | undefined> {
     for (let attempt = 0; attempt < IDEMPOTENCY_FIND_RETRIES; attempt++) {
       await waitMs(IDEMPOTENCY_FIND_DELAY_MS)
-      const found = await this.#findByIdempotencyKey(key, type)
+      const found = await findByIdempotencyKey(this.#taskDs, this.#injector, key, type)
       if (found) return found
     }
     return undefined
@@ -416,7 +418,7 @@ export class TaskRunnerCore implements TaskRunner {
     const taskId = reservedId ?? randomUUID()
 
     if (args.parentTaskId) {
-      const hasCycle = await this.#detectCycle(taskId, args.parentTaskId)
+      const hasCycle = await detectCycle(this.#taskDs, this.#injector, taskId, args.parentTaskId)
       if (hasCycle) throw new Error(`DAG cycle detected: ${taskId} → ${args.parentTaskId}`)
     }
 
@@ -474,98 +476,9 @@ export class TaskRunnerCore implements TaskRunner {
   async #handleClaim(worker: WorkerRegistration, claim: ClaimedTask): Promise<ClaimOutcome> {
     if (worker.draining) return { kind: 'requeue' }
 
-    type ClaimSetup = {
-      kind: 'claimed'
-      task: Task
-      handler: AnyTaskHandlerDescriptor
-      ac: AbortController
-      attempt: number
-      claimTime: string
-    }
-    type ClaimReject = { kind: 'success' } | { kind: 'requeue' }
-
-    const setup = await this.#withTaskLock<ClaimSetup | ClaimReject>(claim.taskId, async () => {
-      const task = await this.#taskDs.get(this.#injector, claim.taskId)
-      if (!task) return { kind: 'success' }
-
-      const isReclaim = task.status === 'claimed' || task.status === 'running'
-      if (task.status !== 'pending' && task.status !== 'cancelling' && !isReclaim) {
-        return { kind: 'success' }
-      }
-
-      const handler = worker.handlers.get(task.type)
-      if (!handler) return { kind: 'requeue' }
-
-      const versions = worker.compatibleVersions[task.type]
-      if (versions?.length && !versions.includes(task.handlerVersion)) {
-        return { kind: 'requeue' }
-      }
-
-      // Tag constraint (PRD §11): the worker must advertise every tag the
-      // task requires. Release back to the queue for a worker that does.
-      if (!workerSatisfiesTags(worker.tags, task.tags)) {
-        return { kind: 'requeue' }
-      }
-
-      // Reclaim: a broker-delivered claim arrived while the dataset
-      // still says the prior attempt is in-flight. Abort the prior AC
-      // (best-effort cleanup of the stalled handler) and finalize the
-      // in-progress attempt as `'timed-out'` so the audit trail
-      // distinguishes a stalled attempt from a normal failure.
-      let { attempts } = task
-      if (isReclaim) {
-        const priorAc = this.#abortControllers.get(task.id)
-        if (priorAc) {
-          priorAc.abort()
-          this.#abortControllers.delete(task.id)
-        }
-        const finalizedAt = new Date().toISOString()
-        attempts = attempts.map((entry) =>
-          entry.status === 'in-progress' ? { ...entry, status: 'timed-out' as const, finishedAt: finalizedAt } : entry,
-        )
-        // The timed-out fix is persisted together with the new attempt by
-        // the single claim write below — no separate update needed here.
-      }
-
-      const ac = new AbortController()
-      this.#abortControllers.set(task.id, ac)
-      if (task.status === 'cancelling') ac.abort()
-
-      worker.activeTasks.add(task.id)
-      const attempt = attempts.length + 1
-      const claimTime = new Date().toISOString()
-
-      // Collapse the claim transition into a single read-modify-write:
-      // persist the running status, worker/visibility lease, the new
-      // in-progress attempt, and the `claimed` event in one update instead
-      // of four (`claimed` status → `pushAttempt` → `pushEvent` → `running`
-      // status, each its own get+update). The intermediate `claimed` row
-      // state is never persisted (status goes pending → running); both
-      // status events still emit on the hot lane below for subscribers.
-      const nextAttempts: AttemptRecord[] = [
-        ...attempts,
-        { attempt, workerId: worker.workerId, startedAt: claimTime, status: 'in-progress' },
-      ]
-      const nextEvents: TaskEvent[] = [...task.events, { at: claimTime, kind: 'claimed', workerId: worker.workerId }]
-      if (nextEvents.length > MAX_EVENTS_PER_TASK) nextEvents.splice(0, nextEvents.length - MAX_EVENTS_PER_TASK)
-
-      await this.#taskDs.update(this.#injector, task.id, {
-        status: 'running',
-        workerId: worker.workerId,
-        visibilityDeadline: new Date(Date.now() + handler.visibilityTimeoutMs).toISOString(),
-        attempts: nextAttempts,
-        events: nextEvents,
-      })
-
-      return {
-        kind: 'claimed',
-        task: { ...task, attempts: nextAttempts, events: nextEvents },
-        handler,
-        ac,
-        attempt,
-        claimTime,
-      }
-    })
+    const setup = await this.#withTaskLock<ClaimSetup | ClaimReject>(claim.taskId, () =>
+      this.#setupClaim(worker, claim),
+    )
 
     if (setup.kind !== 'claimed') return setup
 
@@ -585,6 +498,96 @@ export class TaskRunnerCore implements TaskRunner {
     } finally {
       worker.activeTasks.delete(task.id)
       if (worker.draining && worker.activeTasks.size === 0) worker.drainResolve?.()
+    }
+  }
+
+  /**
+   * The locked claim transition: validate the task against the worker
+   * (status, handler presence, version, tags), recover a reclaimed attempt,
+   * install the abort controller, and persist `pending → running` in a single
+   * write. Must run inside {@link TaskRunnerCore.#withTaskLock} so it cannot
+   * interleave with a cancel cascade (see {@link TaskRunnerCore.#handleClaim}).
+   */
+  async #setupClaim(worker: WorkerRegistration, claim: ClaimedTask): Promise<ClaimSetup | ClaimReject> {
+    const task = await this.#taskDs.get(this.#injector, claim.taskId)
+    if (!task) return { kind: 'success' }
+
+    const isReclaim = task.status === 'claimed' || task.status === 'running'
+    if (task.status !== 'pending' && task.status !== 'cancelling' && !isReclaim) {
+      return { kind: 'success' }
+    }
+
+    const handler = worker.handlers.get(task.type)
+    if (!handler) return { kind: 'requeue' }
+
+    const versions = worker.compatibleVersions[task.type]
+    if (versions?.length && !versions.includes(task.handlerVersion)) {
+      return { kind: 'requeue' }
+    }
+
+    // Tag constraint (PRD §11): the worker must advertise every tag the
+    // task requires. Release back to the queue for a worker that does.
+    if (!workerSatisfiesTags(worker.tags, task.tags)) {
+      return { kind: 'requeue' }
+    }
+
+    // Reclaim: a broker-delivered claim arrived while the dataset
+    // still says the prior attempt is in-flight. Abort the prior AC
+    // (best-effort cleanup of the stalled handler) and finalize the
+    // in-progress attempt as `'timed-out'` so the audit trail
+    // distinguishes a stalled attempt from a normal failure.
+    let { attempts } = task
+    if (isReclaim) {
+      const priorAc = this.#abortControllers.get(task.id)
+      if (priorAc) {
+        priorAc.abort()
+        this.#abortControllers.delete(task.id)
+      }
+      const finalizedAt = new Date().toISOString()
+      attempts = attempts.map((entry) =>
+        entry.status === 'in-progress' ? { ...entry, status: 'timed-out' as const, finishedAt: finalizedAt } : entry,
+      )
+      // The timed-out fix is persisted together with the new attempt by
+      // the single claim write below — no separate update needed here.
+    }
+
+    const ac = new AbortController()
+    this.#abortControllers.set(task.id, ac)
+    if (task.status === 'cancelling') ac.abort()
+
+    worker.activeTasks.add(task.id)
+    const attempt = attempts.length + 1
+    const claimTime = new Date().toISOString()
+
+    // Collapse the claim transition into a single read-modify-write:
+    // persist the running status, worker/visibility lease, the new
+    // in-progress attempt, and the `claimed` event in one update instead
+    // of four (`claimed` status → `pushAttempt` → `pushEvent` → `running`
+    // status, each its own get+update). The intermediate `claimed` row
+    // state is never persisted (status goes pending → running); both
+    // status events still emit on the hot lane below for subscribers.
+    const nextAttempts: AttemptRecord[] = [
+      ...attempts,
+      { attempt, workerId: worker.workerId, startedAt: claimTime, status: 'in-progress' },
+    ]
+    const nextEvents: TaskEvent[] = [...task.events, { at: claimTime, kind: 'claimed', workerId: worker.workerId }]
+    if (nextEvents.length > MAX_EVENTS_PER_TASK) nextEvents.splice(0, nextEvents.length - MAX_EVENTS_PER_TASK)
+
+    await this.#taskDs.update(this.#injector, task.id, {
+      status: 'running',
+      workerId: worker.workerId,
+      visibilityDeadline: new Date(Date.now() + handler.visibilityTimeoutMs).toISOString(),
+      attempts: nextAttempts,
+      events: nextEvents,
+    })
+
+    return {
+      kind: 'claimed',
+      task: { ...task, attempts: nextAttempts, events: nextEvents },
+      handler,
+      ac,
+      attempt,
+      claimTime,
     }
   }
 
@@ -645,8 +648,8 @@ export class TaskRunnerCore implements TaskRunner {
         attempt,
         durationMs: Date.now() - startMs,
       })
-      await this.#reapOrphans(taskId, 'parent-completed')
-      await this.#wakeParent(taskId)
+      await reapOrphans(this.#cancelDeps, taskId, 'parent-completed')
+      await wakeParent(this.#ops, taskId)
       return { kind: 'success' }
     } catch (err) {
       const stillOwning = isStillOwning()
@@ -682,7 +685,7 @@ export class TaskRunnerCore implements TaskRunner {
           attempt,
           durationMs: Date.now() - startMs,
         })
-        await this.#wakeParent(taskId)
+        await wakeParent(this.#ops, taskId)
         return { kind: 'cancelled' }
       }
 
@@ -742,220 +745,9 @@ export class TaskRunnerCore implements TaskRunner {
       attempt,
       durationMs: Date.now() - startMs,
     })
-    await this.#reapOrphans(taskId, 'parent-failed')
-    await this.#wakeParent(taskId)
+    await reapOrphans(this.#cancelDeps, taskId, 'parent-failed')
+    await wakeParent(this.#ops, taskId)
     return { kind: 'failed' }
-  }
-
-  // ── Cancellation ──────────────────────────────────────────────────
-
-  async #cascadeCancel(rootTaskId: string, reason?: string): Promise<void> {
-    const visited = new Set<string>()
-    const queue: string[] = [rootTaskId]
-    const broadcastByType = new Map<string, string[]>()
-
-    while (queue.length > 0) {
-      const taskId = queue.shift() as string
-      if (visited.has(taskId)) continue
-      visited.add(taskId)
-
-      // Push the cancellation-requested event first (own lock acquisition,
-      // own write). The decision branch below acquires the lock again to
-      // atomically read+decide+update — without the lock, a claim
-      // transition starting between our `taskDs.get` and our status update
-      // could install an AC whose abort we'd miss.
-      if (reason !== undefined) {
-        await this.#pushEvent(taskId, { at: new Date().toISOString(), kind: 'cancellation-requested', reason })
-      }
-
-      const decision = await this.#withTaskLock(taskId, async () => {
-        const task = await this.#taskDs.get(this.#injector, taskId)
-        if (!task || isTerminalStatus(task.status)) return undefined
-
-        const ac = this.#abortControllers.get(taskId)
-        if (ac) {
-          await this.#taskDs.update(this.#injector, taskId, { status: 'cancelling' })
-          ac.abort()
-          return { task, mode: 'cancelling' as const }
-        }
-        await this.#taskDs.update(this.#injector, taskId, {
-          status: 'cancelled',
-          terminalAt: new Date().toISOString(),
-        })
-        return { task, mode: 'cancelled' as const }
-      })
-
-      if (!decision) continue
-      const { task, mode } = decision
-
-      if (mode === 'cancelling') {
-        this.#emit(task.type, { kind: 'status', taskId, status: 'cancelling', at: new Date().toISOString(), reason })
-      } else {
-        this.#emit(task.type, { kind: 'status', taskId, status: 'cancelled', at: new Date().toISOString(), reason })
-        this.#telemetry.emit('onTaskCancelled', { taskId, type: task.type })
-        await this.#wakeParent(taskId)
-      }
-
-      const list = broadcastByType.get(task.type)
-      if (list) list.push(taskId)
-      else broadcastByType.set(task.type, [taskId])
-
-      for (const childId of task.childTaskIds) {
-        if (!visited.has(childId)) queue.push(childId)
-      }
-    }
-
-    for (const [type, taskIds] of broadcastByType) {
-      const payload: CancelBroadcastPayload = { taskIds }
-      void this.#bus.publish(`tasks/cancel/${type}`, payload).catch(() => {})
-    }
-  }
-
-  /**
-   * Cancels any still-active descendants of a task that has just reached a
-   * terminal status, upholding the invariant that no task outlives its
-   * parent. Reuses {@link TaskRunnerCore.#cascadeCancel} per non-terminal
-   * direct child (the parent itself is already terminal, so it is skipped);
-   * already-terminal children — the normal case for an `awaitChildren`
-   * DAG — are left untouched. Triggered on parent `succeeded` (catches
-   * handlers that spawn without awaiting) and on final `failed`.
-   */
-  async #reapOrphans(parentTaskId: string, reason: string): Promise<void> {
-    const parent = await this.#taskDs.get(this.#injector, parentTaskId)
-    if (!parent) return
-    for (const childId of parent.childTaskIds) {
-      const child = await this.#taskDs.get(this.#injector, childId)
-      if (child && !isTerminalStatus(child.status)) {
-        await this.#cascadeCancel(childId, reason)
-      }
-    }
-  }
-
-  // ── Parent continuation ───────────────────────────────────────────
-
-  async #wakeParent(childTaskId: string): Promise<void> {
-    const child = await this.#taskDs.get(this.#injector, childTaskId)
-    if (!child?.parentTaskId || !isChildCompletionStatus(child.status)) return
-
-    const parentId = child.parentTaskId
-    const childStatus = child.status
-    const at = new Date().toISOString()
-
-    const result = await this.#withTaskLock(parentId, async () => {
-      const parent = await this.#taskDs.get(this.#injector, parentId)
-      if (!parent || isTerminalStatus(parent.status)) return undefined
-
-      const alreadyRecorded = parent.events.some((e) => e.kind === 'child-completed' && e.childTaskId === childTaskId)
-
-      const update: Partial<Task> = {}
-
-      if (!alreadyRecorded) {
-        const events = [...parent.events, { at, kind: 'child-completed' as const, childTaskId, status: childStatus }]
-        if (events.length > MAX_EVENTS_PER_TASK) events.splice(0, events.length - MAX_EVENTS_PER_TASK)
-        update.events = events
-      }
-
-      let shouldTransition = false
-      if (parent.status === 'waiting') {
-        const awaited = parseAwaitedChildIds(parent.resumeToken) ?? parent.childTaskIds
-        shouldTransition = await this.#allChildrenTerminal(awaited)
-        if (shouldTransition) {
-          update.status = 'pending'
-          update.resumeToken = undefined
-        }
-      }
-
-      if (Object.keys(update).length > 0) {
-        await this.#taskDs.update(this.#injector, parentId, update)
-      }
-
-      return { parentType: parent.type, alreadyRecorded, transitioned: shouldTransition ? parent : undefined }
-    })
-
-    if (!result) return
-
-    if (!result.alreadyRecorded) {
-      this.#emit(result.parentType, {
-        kind: 'child-completed',
-        taskId: parentId,
-        childTaskId,
-        status: childStatus,
-        at,
-      })
-    }
-
-    if (result.transitioned) {
-      await this.#queueAdapter.enqueue({
-        taskId: result.transitioned.id,
-        type: result.transitioned.type,
-        handlerVersion: result.transitioned.handlerVersion,
-        tags: result.transitioned.tags,
-      })
-    }
-  }
-
-  async #allChildrenTerminal(ids: string[]): Promise<boolean> {
-    for (const id of ids) {
-      const child = await this.#taskDs.get(this.#injector, id)
-      if (!child || !isTerminalStatus(child.status)) return false
-    }
-    return true
-  }
-
-  // ── Child submit (from spawnChild) ────────────────────────────────
-
-  async #submitChild(
-    parentId: string,
-    parentType: string,
-    childId: string,
-    childType: string,
-    childPayload: unknown,
-    retention: TaskRetentionPolicy,
-    tags?: string[],
-  ): Promise<void> {
-    const now = new Date().toISOString()
-    const child: Task = Object.assign(new Task(), {
-      id: childId,
-      type: childType,
-      handlerVersion: 1,
-      status: 'pending' satisfies TaskStatus,
-      payload: childPayload,
-      childTaskIds: [],
-      submittedAt: now,
-      attempts: [],
-      events: [{ at: now, kind: 'submitted' as const }],
-      producedBlobs: [],
-      consumedBlobs: [],
-      retentionPolicy: retention,
-      tags: tags ?? [],
-      parentTaskId: parentId,
-    })
-
-    await this.#taskDs.add(this.#injector, child)
-
-    await this.#withTaskLock(parentId, async () => {
-      const parent = await this.#taskDs.get(this.#injector, parentId)
-      if (!parent) return
-      await this.#taskDs.update(this.#injector, parentId, {
-        childTaskIds: [...parent.childTaskIds, childId],
-      })
-    })
-
-    await this.#pushEvent(parentId, { at: now, kind: 'spawned-child', childTaskId: childId, childType })
-    this.#emit(parentType, { kind: 'spawned-child', taskId: parentId, childTaskId: childId, at: now })
-    this.#telemetry.emit('onTaskSubmitted', {
-      taskId: childId,
-      type: childType,
-      parentTaskId: parentId,
-      payloadBytes: estimateSize(childPayload),
-    })
-
-    await this.#queueAdapter.enqueue({
-      taskId: childId,
-      type: childType,
-      handlerVersion: 1,
-      tags: tags ?? [],
-    })
   }
 
   // ── Visibility sweep (skipped under broker-side reclaim) ─────────
@@ -994,70 +786,6 @@ export class TaskRunnerCore implements TaskRunner {
         tags: task.tags,
       })
     }
-  }
-
-  // ── Reconciler ────────────────────────────────────────────────────
-
-  async #reconcile(): Promise<void> {
-    if (this.#disposed) return
-
-    const waiting = await this.#taskDs.find(this.#injector, {
-      filter: { status: { $eq: 'waiting' } },
-    })
-
-    for (const task of waiting) {
-      const awaited = parseAwaitedChildIds(task.resumeToken) ?? task.childTaskIds
-      if (awaited.length === 0) continue
-      const transitioned = await this.#withTaskLock(task.id, async () => {
-        const fresh = await this.#taskDs.get(this.#injector, task.id)
-        if (!fresh || fresh.status !== 'waiting') return undefined
-        if (!(await this.#allChildrenTerminal(awaited))) return undefined
-        await this.#taskDs.update(this.#injector, task.id, { status: 'pending', resumeToken: undefined })
-        return fresh
-      })
-      if (transitioned) {
-        await this.#queueAdapter.enqueue({
-          taskId: transitioned.id,
-          type: transitioned.type,
-          handlerVersion: transitioned.handlerVersion,
-          tags: transitioned.tags,
-        })
-      }
-    }
-  }
-
-  // ── Cycle detection ───────────────────────────────────────────────
-
-  async #detectCycle(taskId: string, parentId: string): Promise<boolean> {
-    let current: string | undefined = parentId
-    const visited = new Set<string>()
-    while (current) {
-      if (current === taskId) return true
-      if (visited.has(current)) return false
-      visited.add(current)
-      const parent: Task | undefined = await this.#taskDs.get(this.#injector, current)
-      current = parent?.parentTaskId
-    }
-    return false
-  }
-
-  // ── Data helpers ──────────────────────────────────────────────────
-
-  async #findByIdempotencyKey(key: string, type: string): Promise<Task | undefined> {
-    const results = await this.#taskDs.find(this.#injector, {
-      filter: { idempotencyKey: { $eq: key }, type: { $eq: type } },
-      top: 1,
-    })
-    return results[0]
-  }
-
-  async #buildTree(task: Task): Promise<TaskTreeNode> {
-    const children: TaskTreeNode[] = []
-    for (const cid of task.childTaskIds) {
-      const child = await this.#taskDs.get(this.#injector, cid)
-      if (child) children.push(await this.#buildTree(child))
-    }
-    return { task, children }
   }
 
   async #pushEvent(taskId: string, event: TaskEvent): Promise<void> {
@@ -1174,19 +902,4 @@ export class TaskRunnerCore implements TaskRunner {
       if (this.#taskLocks.get(taskId) === next) this.#taskLocks.delete(taskId)
     }
   }
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────
-
-const estimateSize = (value: unknown): number => {
-  try {
-    return Buffer.byteLength(JSON.stringify(value) ?? '')
-  } catch {
-    return 0
-  }
-}
-
-const toErrorInfo = (error: unknown): { name: string; message: string; stack?: string } => {
-  if (error instanceof Error) return { name: error.name, message: error.message, stack: error.stack }
-  return { name: 'Error', message: String(error) }
 }

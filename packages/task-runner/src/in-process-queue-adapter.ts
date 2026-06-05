@@ -282,6 +282,10 @@ export class InProcessQueueAdapter implements QueueAdapter {
     this.#notBeforeTimer = setTimeout(() => {
       this.#notBeforeTimer = undefined
       this.#wake()
+      // Re-arm for the next-earliest delayed entry. Without this, a batch of
+      // staggered `notBefore` tasks strands every entry after the first timer
+      // fires, since nothing else re-runs the scheduler until a new enqueue.
+      this.#scheduleNotBeforeWake()
     }, earliest - now)
   }
 }

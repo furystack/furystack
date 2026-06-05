@@ -222,6 +222,28 @@ describe('InProcessQueueAdapter', () => {
       await waitFor(() => claimedAt.length === 1, 4000)
       expect(claimedAt[0] - enqueuedAt).toBeGreaterThanOrEqual(30)
     })
+
+    it('re-arms the scheduler so staggered notBefore tasks are not stranded', async () => {
+      using adapter = new InProcessQueueAdapter()
+      const claimed: string[] = []
+      using sub = adapter.subscribe(
+        makeSub(async (claim) => {
+          claimed.push(claim.taskId)
+          return { kind: 'success' }
+        }),
+      )
+      void sub
+
+      const at = Date.now()
+      // Two delayed tasks with different deadlines, enqueued together. The
+      // first timer wakes for `early`; `late` must still be claimed afterwards
+      // without any further enqueue re-arming the scheduler.
+      await adapter.enqueue({ taskId: 'early', type: 't', handlerVersion: 1, notBefore: new Date(at + 40) })
+      await adapter.enqueue({ taskId: 'late', type: 't', handlerVersion: 1, notBefore: new Date(at + 120) })
+
+      await waitFor(() => claimed.includes('late'), 4000)
+      expect(claimed).toEqual(['early', 'late'])
+    })
   })
 
   describe('disposal', () => {

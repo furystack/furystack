@@ -11,7 +11,7 @@ releases:
   "@furystack/redis-task-runner": patch
   "@furystack/rest-service": patch
   "@furystack/s3-blob-store": patch
-  "@furystack/task-runner": patch
+  "@furystack/task-runner": major
   "@furystack/task-runner-client": patch
   "@furystack/task-runner-examples": patch
   "@furystack/websocket-api": patch
