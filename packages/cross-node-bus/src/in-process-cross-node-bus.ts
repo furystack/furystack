@@ -37,6 +37,7 @@ const CAPABILITIES: CrossNodeBusCapabilities = Object.freeze({
   persistent: false,
   replay: true,
   assignsSequence: true,
+  crossNodeDelivery: false,
 })
 
 type LocalEntry = {

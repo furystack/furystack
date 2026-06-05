@@ -36,7 +36,7 @@ describe('defineRedisCrossNodeBusAdapter', () => {
     const bus = injector.get(CrossNodeBus)
     expect(bus).toBeInstanceOf(RedisCrossNodeBus)
     expect(bus.nodeId).toBe('fixed-node')
-    expect(bus.capabilities).toEqual({ persistent: true, replay: true, assignsSequence: true })
+    expect(bus.capabilities).toEqual({ persistent: true, replay: true, assignsSequence: true, crossNodeDelivery: true })
   })
 
   it('disposes the bus when the injector tears down', async () => {

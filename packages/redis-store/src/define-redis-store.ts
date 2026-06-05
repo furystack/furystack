@@ -15,6 +15,13 @@ export type DefineRedisStoreOptions<T, TPrimaryKey extends keyof T> = {
    * connect or quit it. Multiple stores backed by the same client are fine.
    */
   client: RedisClientType
+  /**
+   * Per-store key namespace. Entity keys become `${keyPrefix}:e:${id}` and the
+   * index Set `${keyPrefix}:keys`. Defaults to {@link DefineRedisStoreOptions.name}
+   * so each store is isolated on a shared client; override to share a namespace
+   * across deployments or to keep keys short.
+   */
+  keyPrefix?: string
 }
 
 /**
@@ -49,5 +56,6 @@ export const defineRedisStore = <T, const TPrimaryKey extends keyof T>(
         model: options.model,
         primaryKey: options.primaryKey,
         client: options.client,
+        keyPrefix: options.keyPrefix ?? options.name,
       }),
   })

@@ -44,8 +44,13 @@ describe('defineRedisStore (metadata)', () => {
 
 describe('defineRedisStore (factory + disposal)', () => {
   it('instantiates a RedisStore that uses the supplied client verbatim', async () => {
-    const set = vi.fn<() => Promise<string>>(() => Promise.resolve('OK'))
-    const client = { set } as unknown as RedisClientType
+    const chain = {
+      set: vi.fn(() => chain),
+      sAdd: vi.fn(() => chain),
+      exec: vi.fn(() => Promise.resolve([] as unknown[])),
+    }
+    const multi = vi.fn(() => chain)
+    const client = { multi } as unknown as RedisClientType
     const Token = defineRedisStore<Item, 'id'>({
       name: 'test/RedisFactory',
       model: Item,
@@ -59,9 +64,14 @@ describe('defineRedisStore (factory + disposal)', () => {
       expect(store.model).toBe(Item)
       expect(store.primaryKey).toBe('id')
 
+      // `add` writes the entity under the namespaced key and records its id
+      // in the per-store index Set, atomically via MULTI. Default key prefix
+      // is the store name.
       await store.add({ id: '1', value: 'alpha' })
-      expect(set).toHaveBeenCalledTimes(1)
-      expect(set).toHaveBeenCalledWith('1', JSON.stringify({ id: '1', value: 'alpha' }))
+      expect(multi).toHaveBeenCalledTimes(1)
+      expect(chain.set).toHaveBeenCalledWith('test/RedisFactory:e:1', JSON.stringify({ id: '1', value: 'alpha' }))
+      expect(chain.sAdd).toHaveBeenCalledWith('test/RedisFactory:keys', '1')
+      expect(chain.exec).toHaveBeenCalledTimes(1)
     } finally {
       await injector[Symbol.asyncDispose]()
     }

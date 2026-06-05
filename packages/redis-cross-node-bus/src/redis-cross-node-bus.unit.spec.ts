@@ -64,7 +64,12 @@ describe('RedisCrossNodeBus (unit)', () => {
 
     it('declares persistent + replay + assignsSequence capabilities', () => {
       using bus = new RedisCrossNodeBus({ client: makeClient(), serviceName: 'svc-a' })
-      expect(bus.capabilities).toEqual({ persistent: true, replay: true, assignsSequence: true })
+      expect(bus.capabilities).toEqual({
+        persistent: true,
+        replay: true,
+        assignsSequence: true,
+        crossNodeDelivery: true,
+      })
     })
 
     it('duplicates the supplied client and connects the duplicate', async () => {

@@ -32,4 +32,6 @@ export type CrossNodeBusCapabilities = {
   readonly replay: boolean
   /** Adapter assigns a server-monotonic {@link BusMessage.seq}. */
   readonly assignsSequence: boolean
+  /** Adapter delivers messages across OS processes / network nodes. */
+  readonly crossNodeDelivery: boolean
 }

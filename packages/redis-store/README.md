@@ -1,6 +1,18 @@
 # @furystack/redis-store
 
-Redis physical store implementation for FuryStack. `filter()` and `count()` are not supported.
+Redis physical store implementation for FuryStack.
+
+Entities are stored under namespaced keys (`${keyPrefix}:e:${id}`) with their
+primary keys tracked in a per-store index Set (`${keyPrefix}:keys`); `keyPrefix`
+defaults to the store name. `find()` and `count()` are supported — they load the
+store's entities via the index and filter/sort/page in memory (O(store-size) per
+call, so prefer `@furystack/mongodb-store` / `@furystack/sequelize-store` for
+high-cardinality query workloads). `update()` is a partial read-modify-write
+merge.
+
+> **Breaking (key layout):** versions that use the namespaced layout above are
+> not wire-compatible with the earlier bare-key format. Existing data written by
+> an older version is not visible after upgrading.
 
 ## Installation
 

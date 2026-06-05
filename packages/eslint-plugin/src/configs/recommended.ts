@@ -3,6 +3,7 @@ import type { Linter } from 'eslint'
 export const recommended: Linter.Config = {
   rules: {
     'furystack/no-direct-store-token': 'error',
+    'furystack/no-non-deterministic-globals-in-handler': 'error',
     'furystack/require-disposable-for-observable-owner': 'error',
     'furystack/require-observable-disposal': 'warn',
     'furystack/prefer-using-wrapper': 'warn',
@@ -14,6 +15,7 @@ export const recommended: Linter.Config = {
 export const recommendedStrict: Linter.Config = {
   rules: {
     'furystack/no-direct-store-token': 'error',
+    'furystack/no-non-deterministic-globals-in-handler': 'error',
     'furystack/require-disposable-for-observable-owner': 'error',
     'furystack/require-observable-disposal': 'error',
     'furystack/prefer-using-wrapper': 'error',

@@ -1,0 +1,18 @@
+releases:
+  "@furystack/auth-google": patch
+  "@furystack/auth-jwt": patch
+  "@furystack/blob-store": major
+  "@furystack/cross-node-bus": major
+  "@furystack/entity-sync-service": patch
+  "@furystack/eslint-plugin": minor
+  "@furystack/filesystem-blob-store": major
+  "@furystack/redis-cross-node-bus": patch
+  "@furystack/redis-store": major
+  "@furystack/redis-task-runner": major
+  "@furystack/rest-service": patch
+  "@furystack/s3-blob-store": major
+  "@furystack/task-runner": major
+  "@furystack/task-runner-client": major
+  "@furystack/task-runner-examples": patch
+  "@furystack/websocket-api": patch
+  furystack: patch
