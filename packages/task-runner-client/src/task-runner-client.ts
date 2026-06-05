@@ -133,7 +133,14 @@ export class TaskRunnerClient implements Disposable {
     const uploadedKeys: Record<string, string> = {}
     if (uploads) {
       for (const [name, slot] of Object.entries(uploads)) {
-        const ticket = draft.uploads[name]
+        const ticket = draft.uploads?.[name]
+        if (!ticket) {
+          throw new TaskRunnerClientError({
+            code: 'upload-slot-missing',
+            message: `Server did not return an upload ticket for slot '${name}'`,
+            status: 0,
+          })
+        }
         await uploadBlob(ticket, slot.body, { contentType: slot.contentType, fetchImpl: this.fetchImpl })
         uploadedKeys[name] = ticket.key
       }

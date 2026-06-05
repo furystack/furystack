@@ -1,6 +1,14 @@
-<!-- version-type: patch -->
+<!-- version-type: major -->
 
 # @furystack/blob-store
+
+## 💥 Breaking Changes
+
+### First public release — initial stable API surface
+
+First public release of `@furystack/blob-store`, published as a major to establish the package's stable, SemVer-governed public API. There is no prior published version to migrate from; everything documented below under **Features** is part of this initial surface.
+
+**Impact:** New consumers only — there is no migration path because no earlier version was published.
 
 ## ✨ Features
 
