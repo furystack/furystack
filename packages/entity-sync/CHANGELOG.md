@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.1] - 2026-06-05
+
+### 👷 CI
+
+- Raised the minimum supported Node.js to `>=24.0.0` (Node 24 LTS) in `engines`, dropping Node 22.
+
+### 🔧 Chores
+
+- Patch release to track the workspace `@furystack/core` bump. No source or direct dependency changes in this package.
+
 ## [3.0.0] - 2026-05-21
 
 ### 📚 Documentation

@@ -1,8 +1,8 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/redis-task-runner
+## [1.0.0] - 2026-06-05
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### First public release — initial stable API surface
 
@@ -10,7 +10,7 @@ First public release of `@furystack/redis-task-runner`, published as a major to 
 
 **Impact:** New consumers only — there is no migration path because no earlier version was published.
 
-## ✨ Features
+### ✨ Features
 
 ### Initial release — Redis Streams adapter for `@furystack/task-runner`
 
@@ -70,7 +70,7 @@ Tune via the new `schedulerIntervalMs` constructor option — default 250 ms bal
 
 `fleetCapEnforcement` is intentionally `false` in this release and lands in a follow-up PR as described in `docs/internal/distributed-task-management.md` Milestone 3 implementation notes.
 
-## 🧪 Tests
+### 🧪 Tests
 
 - Unit suite stubbing the `redis` client to verify XADD / XREADGROUP / XAUTOCLAIM / XACK / XCLAIM JUSTID / SET NX EX / ZADD / EVAL call shapes, BUSYGROUP idempotency, idempotency-lease race outcomes, scheduler-tick payload shape, and malformed-entry handling.
 - Integration suite gated on `docker-compose up redis` covering submit/claim/complete, two-worker no-double-execute, broker-side reclaim, draft/start two-phase, cancel-broadcast, and `notBefore` honoring with scheduler ZSET parking.

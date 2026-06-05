@@ -1,5 +1,43 @@
 # Changelog
 
+## [9.0.3] - 2026-06-05
+
+### 👷 CI
+
+- Updated the CI test matrices (GitHub `build-test`, `showcase-ui-tests` and Azure Pipelines) to run on Node `24.x` and `26.x`, dropping `22.x` and `25.x`. Single-run pipelines (release, version check, changelog check) stay on Node `24.x`.
+- Raised the minimum supported Node.js to `>=24.0.0` (Node 24 LTS) in `engines`, dropping Node 22.
+
+### ⬆️ Dependencies
+
+- Updated root dev tooling: `eslint` `^10.4.1`, `typescript-eslint` `^8.60.1`, `eslint-plugin-jsdoc` `^63.0.1`, `lint-staged` `^17.0.7`, `vite` `^8.0.16`, `vitest` `^4.1.8`, and `@vitest/coverage-istanbul` `^4.1.8`.
+
+### 🔧 Chores
+
+- Upgraded the Yarn release to `4.16.0` (`packageManager` field and `.yarnrc.yml`).
+
+### ✨ Features
+
+### Distributed task management subsystem
+
+This release introduces the distributed task management stack across several new packages:
+
+- `@furystack/task-runner` — transport-agnostic primitive for submitting, running, and observing distributed tasks, with a replay-based continuation engine, DAG composition (`spawnChild` / `awaitChildren`), an in-process queue adapter, a REST + WebSocket surface, a blob retention sweeper, and testing helpers.
+- `@furystack/redis-task-runner` — Redis Streams queue adapter for persistent, multi-node, broker-side-reclaimable task execution.
+- `@furystack/task-runner-client` — browser-side SDK for submitting, querying, cancelling, and live-subscribing to tasks.
+- `@furystack/blob-store` + `@furystack/filesystem-blob-store` + `@furystack/s3-blob-store` — transport-agnostic blob storage with filesystem and S3-compatible adapters.
+- `@furystack/task-runner-examples` — a worked video-encoder example (private).
+
+`@furystack/redis-store`, `@furystack/cross-node-bus`, `@furystack/redis-cross-node-bus`, and `@furystack/eslint-plugin` gained supporting changes — see their individual changelogs.
+
+### 📚 Documentation
+
+- Expanded `docs/internal/distributed-task-management.md` with the full design (architecture, capability matrices, milestone implementation notes).
+
+### 📦 Build
+
+- `docker-compose.yml` now exposes a MinIO (S3-compatible) endpoint and Redis for the new packages' integration suites.
+- Added the new packages to the build (`packages/tsconfig.json`) and test (`vitest.config.mts`) project configuration.
+
 ## [9.0.2] - 2026-05-21
 
 ### 🔧 Chores

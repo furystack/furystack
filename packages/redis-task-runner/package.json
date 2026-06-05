@@ -1,6 +1,6 @@
 {
   "name": "@furystack/redis-task-runner",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Redis Streams adapter for the @furystack/task-runner queue transport",
   "type": "module",
   "scripts": {

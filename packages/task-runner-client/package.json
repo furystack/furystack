@@ -1,6 +1,6 @@
 {
   "name": "@furystack/task-runner-client",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Browser-side SDK for the FuryStack distributed task runner",
   "type": "module",
   "scripts": {

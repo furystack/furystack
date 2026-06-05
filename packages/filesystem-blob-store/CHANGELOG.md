@@ -1,8 +1,8 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/filesystem-blob-store
+## [1.0.0] - 2026-06-05
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### First public release — initial stable API surface
 
@@ -10,7 +10,7 @@ First public release of `@furystack/filesystem-blob-store`, published as a major
 
 **Impact:** New consumers only — there is no migration path because no earlier version was published.
 
-## ✨ Features
+### ✨ Features
 
 ### Initial release — filesystem adapter for `@furystack/blob-store`
 

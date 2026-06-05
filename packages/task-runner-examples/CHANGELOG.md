@@ -1,8 +1,8 @@
-<!-- version-type: patch -->
+# Changelog
 
-# @furystack/task-runner-examples
+## [0.0.2] - 2026-06-05
 
-## ✨ Features
+### ✨ Features
 
 ### Initial release — worked examples for `@furystack/task-runner`
 

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/filesystem-blob-store",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Filesystem-backed adapter for the @furystack/blob-store primitive",
   "type": "module",
   "scripts": {

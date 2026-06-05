@@ -1,6 +1,6 @@
 {
   "name": "@furystack/task-runner-examples",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Worked examples for the @furystack/task-runner primitive (PRD §13 Milestone 7)",
   "type": "module",

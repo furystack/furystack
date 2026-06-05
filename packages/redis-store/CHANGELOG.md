@@ -1,5 +1,51 @@
 # Changelog
 
+## [12.0.0] - 2026-06-05
+
+### 👷 CI
+
+- Raised the minimum supported Node.js to `>=24.0.0` (Node 24 LTS) in `engines`, dropping Node 22.
+
+### ⬆️ Dependencies
+
+### Upgraded `redis` to v6
+
+Bumped `redis` from `^5.12.1` to `^6.0.0`. node-redis v6 defaults to the RESP3 protocol and ships new client defaults (`commandTimeout` 5s, `keepAliveInitialDelay` 30s). The store issues only `GET` / `SET` / `DEL`, which are unaffected by the protocol switch, so no behavior changes for consumers.
+
+- Bumped dev `vitest` to `^4.1.8`.
+
+### ♻️ Refactoring
+
+- Typed the `client` option (`DefineRedisStoreOptions['client']`) via redis's exported `RedisClientType` alias instead of `ReturnType<typeof createClient>`. Under redis v6 the latter widens its generics and no longer matches a real `createClient({ url })` result. Callers passing a connected `createClient(...)` instance are unaffected.
+
+### 💥 Breaking Changes
+
+### Namespaced key layout (not wire-compatible with prior versions)
+
+Entities are now stored under `${keyPrefix}:e:${id}` with a per-store primary-key index Set at `${keyPrefix}:keys`, where `keyPrefix` defaults to the store `name`. The previous bare-key format is **not** readable under the new layout — data written by an earlier version is invisible after upgrading.
+
+**Impact:** Any deployment with existing data in a Redis-backed store.
+
+**Migration:** Re-seed the store, or run a one-off migration that copies each existing bare key into `${name}:e:${id}` and rebuilds the `${name}:keys` index Set. If you cannot migrate, pin to the previous major.
+
+### ✨ Features
+
+### `find()` and `count()` are now supported
+
+Previously both threw `NotSupportedError`. `RedisStore` now tracks each store's primary keys in a per-store index Set and implements `find()` / `count()` by loading the store's entities through that index and applying filtering, ordering, projection (`select`), and paging (`top` / `skip`) in memory — reusing `@furystack/core`'s `filterItems` / `selectFields`.
+
+This is an O(store-size) scan per call, suitable for control-plane lookups. High-cardinality query workloads should still use `@furystack/mongodb-store` / `@furystack/sequelize-store`, which push the query to the server.
+
+### `update()` is now a partial merge
+
+`update(id, data)` accepts `Partial<T>` and does a read-modify-write merge: it loads the current value, shallow-merges `data` over it, and writes the result back, matching the `PhysicalStore` contract and `InMemoryStore` semantics. The GET and SET are separate commands, so it is **not** atomic against concurrent writes to the same key (last write wins).
+
+### Configurable `keyPrefix` for client sharing
+
+`defineRedisStore` accepts a new optional `keyPrefix` (defaults to the store `name`). Entities are stored under `${keyPrefix}:e:${id}` with the index Set at `${keyPrefix}:keys`, so multiple stores — and other consumers such as the bus and task queue — can share a single Redis client without key collisions.
+
+> **Note (key layout):** the namespaced key layout (`${keyPrefix}:e:${id}`) is not wire-compatible with the previous bare-key format. Data written by an earlier version is not visible after upgrading.
+
 ## [11.0.1] - 2026-05-21
 
 ### ♻️ Refactoring

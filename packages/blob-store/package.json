@@ -1,6 +1,6 @@
 {
   "name": "@furystack/blob-store",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Transport-agnostic large-binary storage primitive for FuryStack",
   "type": "module",
   "scripts": {

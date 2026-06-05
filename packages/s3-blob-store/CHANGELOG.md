@@ -1,8 +1,8 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/s3-blob-store
+## [1.0.0] - 2026-06-05
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### First public release — initial stable API surface
 
@@ -10,7 +10,7 @@ First public release of `@furystack/s3-blob-store`, published as a major to esta
 
 **Impact:** New consumers only — there is no migration path because no earlier version was published.
 
-## ✨ Features
+### ✨ Features
 
 ### Initial release — S3-compatible adapter for `@furystack/blob-store`
 
@@ -32,7 +32,7 @@ Capabilities: `presignedUrls: true`, `range: true`, `crossNodeAccessible: true`,
 
 On first `put`, the adapter installs a bucket lifecycle rule that aborts incomplete multipart uploads after 24h to avoid runaway storage costs from interrupted clients. Disable with `manageLifecycle: false` (recommended for buckets the app lacks `s3:PutLifecycleConfiguration` on) and surface failures via `onLifecycleError`.
 
-## 🧪 Tests
+### 🧪 Tests
 
 - Unit suite against a stubbed `S3Client` verifying command shapes and error mapping.
 - Integration suite gated on a reachable S3-compatible endpoint (the repo's `docker-compose.yml` exposes MinIO on `http://localhost:9000`). Endpoint and credentials override via `MINIO_URL` / `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY`.

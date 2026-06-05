@@ -1,8 +1,8 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/task-runner-client
+## [1.0.0] - 2026-06-05
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### First public release — initial stable API surface
 
@@ -10,7 +10,7 @@ First public release of `@furystack/task-runner-client`, published as a major to
 
 **Impact:** New consumers only — there is no migration path because no earlier version was published.
 
-## ✨ Features
+### ✨ Features
 
 ### Initial release — browser-side SDK for the distributed task runner
 

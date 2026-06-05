@@ -1,6 +1,6 @@
 {
   "name": "@furystack/task-runner",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Transport-agnostic distributed task runner for FuryStack",
   "type": "module",
   "scripts": {

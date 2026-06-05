@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.1.0] - 2026-06-05
+
+### 👷 CI
+
+- Raised the minimum supported Node.js to `>=24.0.0` (Node 24 LTS) in `engines`, dropping Node 22.
+
+### ⬆️ Dependencies
+
+- Bumped `@typescript-eslint/utils` to `^8.60.1` (and dev `@typescript-eslint/rule-tester` to match) plus dev `vitest` to `^4.1.8`. No source changes — dependency bump only.
+
+### ✨ Features
+
+### New rule: `no-non-deterministic-globals-in-handler`
+
+Flags non-deterministic global access inside `defineTaskHandler` factory bodies, where replay re-runs require deterministic results. Reported globals: `Date.now`, `Math.random`, `crypto.randomUUID`, `crypto.getRandomValues`, `setTimeout`, `setInterval`, `fetch`, and `new Date()` with no arguments. Each message points at the determinism-safe `ctx.*` replacement (`ctx.now()`, `ctx.random()`, `ctx.sleep()`, `ctx.fetch()`). The walk descends into nested callbacks/helpers inside the handler, and leaves member calls like `obj.fetch` and `new Date(iso)` alone.
+
+The rule is enabled as `'error'` in both the `recommended` and `recommendedStrict` shared configs.
+
 ## [4.0.0] - 2026-05-21
 
 ### 💥 Breaking Changes

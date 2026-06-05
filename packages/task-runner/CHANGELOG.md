@@ -1,8 +1,8 @@
-<!-- version-type: major -->
+# Changelog
 
-# @furystack/task-runner
+## [1.0.0] - 2026-06-05
 
-## 💥 Breaking Changes
+### 💥 Breaking Changes
 
 ### First public release — initial stable API surface
 
@@ -19,7 +19,7 @@ This is the first public release of `@furystack/task-runner`, published as a maj
 
 **Impact:** New consumers only — there is no migration path because no earlier version was published.
 
-## ✨ Features
+### ✨ Features
 
 ### `QueueAdapter` abstraction extracted from the runner
 
@@ -58,7 +58,7 @@ Adapters can implement a cross-node atomic idempotency-lease hook. When set, `su
 
 `TaskRunnerCore.submit` and `start` now throw at submit time when `notBefore` is set against a `QueueAdapter` whose `capabilities.delayedDispatch` is `false`. Misconfigurations fail loudly rather than silently dispatching tasks immediately.
 
-## 🐛 Bug Fixes
+### 🐛 Bug Fixes
 
 ### `ctx.sleep` no longer ignores cancellation when the signal is already aborted
 
@@ -68,7 +68,7 @@ Handlers that called `await ctx.sleep(60_000)` after the cancellation signal had
 
 The cancel cascade and the claim transition now both run inside the per-task lock chain. Without serialization, a cascade observing status `'running'` between the claim transition's status update and the AbortController install would write `'cancelled'` directly while the handler kept running. The lock guarantees the cascade either sees the AC and aborts the running attempt, or sees no AC and finalizes the row terminal.
 
-## ♻️ Refactoring
+### ♻️ Refactoring
 
 ### `TaskRunnerCore` is the new shared base class
 
