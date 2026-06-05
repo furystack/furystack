@@ -119,7 +119,15 @@ export const DEFAULT_RETENTION_POLICY: TaskRetentionPolicy = {
 
 export const MAX_EVENTS_PER_TASK = 1000
 
-export type ReplayStepKind = 'spawn-child' | 'await-children' | 'progress' | 'now' | 'random' | 'sleep' | 'fetch'
+export type ReplayStepKind =
+  | 'spawn-child'
+  | 'await-children'
+  | 'await-children-settled'
+  | 'progress'
+  | 'now'
+  | 'random'
+  | 'sleep'
+  | 'fetch'
 
 /**
  * A single recorded step in the replay log. Keyed by composite

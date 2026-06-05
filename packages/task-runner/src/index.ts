@@ -28,7 +28,7 @@ export type {
   Worker,
 } from './task-runner.js'
 
-export type { TaskContext, SpawnOptions } from './task-context.js'
+export type { TaskContext, SpawnOptions, SettledChildResult } from './task-context.js'
 export type { ChildHandle, ResultOf } from './child-handle.js'
 
 export { defineTaskHandler } from './define-task-handler.js'

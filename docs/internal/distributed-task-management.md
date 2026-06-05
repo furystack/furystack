@@ -507,10 +507,17 @@ type TaskContext<TPayload> = {
   /** Spawn a child task; returns a handle. Recorded for replay. */
   spawnChild<TIn, TOut>(type: string, payload: TIn, opts?: SpawnOptions): ChildHandle<TOut>
 
-  /** Block on a set of child handles. Suspends the parent (re-enqueued on completion). */
+  /** Block on a set of child handles. Suspends the parent (re-enqueued on completion).
+   *  Rejects on the first failed/cancelled child. */
   awaitChildren<THandles extends ChildHandle<unknown>[]>(
     handles: THandles,
   ): Promise<{ [K in keyof THandles]: ResultOf<THandles[K]> }>
+
+  /** Like awaitChildren, but resolves with a per-child SettledChildResult discriminated
+   *  union (succeeded/failed/cancelled) instead of rejecting. Same suspend-until-terminal gate. */
+  awaitChildrenSettled<THandles extends ChildHandle<unknown>[]>(
+    handles: THandles,
+  ): Promise<{ [K in keyof THandles]: SettledChildResult<ResultOf<THandles[K]>> }>
 
   /** Sugar for spawnChild + awaitChildren of one. */
   spawnChildAndAwait<TIn, TOut>(type: string, payload: TIn, opts?: SpawnOptions): Promise<TOut>
@@ -1980,15 +1987,36 @@ development; none of them gate the v1 plan.
    Crash mid-write is recoverable in either order: the
    `(taskId, stepIndex)` key dedups replay-time `spawnChild` reruns
    against an existing child Task row.
-2. **Child task cleanup of failed parents.** When a parent fails after
-   children succeeded, do their blobs get cleaned up under the parent's
-   `onFailure` policy? Proposed default: child tasks own their own
-   retention; parent failure does not retroactively rewrite child
-   policy. Confirm with M5 sweeper design.
-3. **`awaitChildren` partial-results API.** Should the await resolve
-   even if some children failed (returning a `PromiseSettledResult`-like
-   shape) so handlers can decide per child? Current shape rejects on
-   any failure; a `awaitChildrenSettled` variant could land in v1.x.
+2. **Child task cleanup of failed parents.** _Settled — children own
+   their own retention; parent failure never rewrites child policy._ The
+   M5 blob sweeper (`task-blob-sweeper.ts`) is per-task: it resolves
+   each terminal task's blobs against that task's _own_
+   `retentionPolicy` and never reads a parent's policy, so a failed
+   parent with `onFailure: 'delete-all'` does not touch a `keep` child's
+   blobs (covered by a sweeper spec). Additionally, to uphold the
+   invariant that **no task outlives its parent**, when a parent reaches
+   a terminal status (`succeeded` or final `failed`) the runner
+   cancel-cascades any still-active descendants (orphan reaping,
+   `TaskRunnerCore.#reapOrphans`, reasons `'parent-completed'` /
+   `'parent-failed'`); already-terminal children — the normal
+   `awaitChildren` DAG case — are left untouched, and retryable failures
+   do **not** reap (the task re-runs and may re-await the same children).
+   Reaped children then hit their own `onFailure` retention.
+3. **`awaitChildren` partial-results API.** _Settled — shipped as
+   `ctx.awaitChildrenSettled(handles)`._ It suspends until every child
+   is terminal (same gate as `awaitChildren`), then resolves to a
+   positional tuple of `SettledChildResult<R>` instead of rejecting on
+   the first non-succeeded child. The per-child shape is a discriminated
+   union keyed on `TaskStatus`
+   (`{ status: 'succeeded'; taskId; type; result }` |
+   `{ status: 'failed'; taskId; type; error }` |
+   `{ status: 'cancelled'; taskId; type }`) — `cancelled` is kept
+   distinct from `failed` rather than folding both into a
+   `PromiseSettledResult` `rejected`. The settled run is recorded under a
+   dedicated `'await-children-settled'` replay-log kind so it never
+   cross-contaminates a throwing `awaitChildren` step. No
+   `spawnChildAndAwaitSettled` sugar (the single-handle case is
+   `awaitChildrenSettled([handle])`).
 4. **Filesystem adapter URL expiry.** _Settled — HMAC-SHA256 stateless
    tokens_ signed with a constructor-provided secret (≥ 32 characters
    or bytes, enforced at construction). Token payload encodes
@@ -2010,10 +2038,15 @@ nonce }` and is verified by the `endpoints` subpath helper before
    a restart needs stuck `waiting` parents re-enqueued within a
    reasonable window for dev/test ergonomics. The interval is
    configurable via `InProcessTaskRunnerOptions.reconcilerIntervalMs`.
-6. **Worker self-throttle on broker latency.** If submit-to-claim
-   latency rises, should workers slow down their claim rate to give
-   slow tasks a chance to heartbeat? Out of scope for v1 plain FIFO,
-   but a hook (`onClaimLagDetected`) might land.
+6. **Worker self-throttle on broker latency.** _Settled — no new code;
+   the lag signal already exists, auto-throttle stays deferred._ Every
+   claim already emits `onTaskClaimed` with
+   `queueLagMs = now − task.submittedAt` (`TaskRunnerCore`), so apps and
+   dashboards already have the per-claim dwell signal a dedicated
+   `onClaimLagDetected` event would have duplicated. Adaptive
+   self-throttling (slowing the claim rate when lag rises) remains out of
+   scope for v1 plain FIFO; it can be layered later on top of the
+   existing `queueLagMs` telemetry without a breaking change.
 7. **Blob multipart upload helper API.** _Settled for v1 — single-part
    PUT only._ The S3 adapter uses raw `PutObjectCommand` (capability
    `multipart: false`, `maxObjectBytes: 5 GiB`). Reasons: (a) the

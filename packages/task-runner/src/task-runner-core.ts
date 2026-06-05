@@ -641,6 +641,7 @@ export class TaskRunnerCore implements TaskRunner {
         attempt,
         durationMs: Date.now() - startMs,
       })
+      await this.#reapOrphans(taskId, 'parent-completed')
       await this.#wakeParent(taskId)
       return { kind: 'success' }
     } catch (err) {
@@ -737,6 +738,7 @@ export class TaskRunnerCore implements TaskRunner {
       attempt,
       durationMs: Date.now() - startMs,
     })
+    await this.#reapOrphans(taskId, 'parent-failed')
     await this.#wakeParent(taskId)
     return { kind: 'failed' }
   }
@@ -802,6 +804,26 @@ export class TaskRunnerCore implements TaskRunner {
     for (const [type, taskIds] of broadcastByType) {
       const payload: CancelBroadcastPayload = { taskIds }
       void this.#bus.publish(`tasks/cancel/${type}`, payload).catch(() => {})
+    }
+  }
+
+  /**
+   * Cancels any still-active descendants of a task that has just reached a
+   * terminal status, upholding the invariant that no task outlives its
+   * parent. Reuses {@link TaskRunnerCore.#cascadeCancel} per non-terminal
+   * direct child (the parent itself is already terminal, so it is skipped);
+   * already-terminal children — the normal case for an `awaitChildren`
+   * DAG — are left untouched. Triggered on parent `succeeded` (catches
+   * handlers that spawn without awaiting) and on final `failed`.
+   */
+  async #reapOrphans(parentTaskId: string, reason: string): Promise<void> {
+    const parent = await this.#taskDs.get(this.#injector, parentTaskId)
+    if (!parent) return
+    for (const childId of parent.childTaskIds) {
+      const child = await this.#taskDs.get(this.#injector, childId)
+      if (child && !isTerminalStatus(child.status)) {
+        await this.#cascadeCancel(childId, reason)
+      }
     }
   }
 

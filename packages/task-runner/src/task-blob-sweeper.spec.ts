@@ -31,6 +31,8 @@ const seedTask = async (
     produced?: string[]
     consumed?: string[]
     blobsSweptAt?: string
+    parentTaskId?: string
+    childTaskIds?: string[]
   },
 ): Promise<Task> => {
   const blobStore = injector.get(BlobStore)
@@ -48,7 +50,8 @@ const seedTask = async (
     handlerVersion: 1,
     status: args.status,
     payload: {},
-    childTaskIds: [],
+    parentTaskId: args.parentTaskId,
+    childTaskIds: args.childTaskIds ?? [],
     submittedAt: new Date(Date.now() - 365 * MS_PER_DAY).toISOString(),
     attempts: [],
     events: [],
@@ -180,6 +183,36 @@ describe('TaskBlobSweeper', () => {
         // onFailure is 'keep' → nothing deleted, but marked swept.
         expect(result.deletedBlobCount).toBe(0)
         expect(await blobExists(injector, 'p1')).toBe(true)
+      })
+    })
+  })
+
+  describe('parent/child retention independence (open question #2)', () => {
+    it('does not apply a failed parent onFailure policy to a child that owns its own retention', async () => {
+      await usingAsync(createInjector(), async (injector) => {
+        bindBlobStore(injector)
+        const child = await seedTask(injector, {
+          status: 'succeeded',
+          retentionPolicy: KEEP,
+          terminalAgeDays: 40,
+          produced: ['child-out'],
+        })
+        await seedTask(injector, {
+          status: 'failed',
+          retentionPolicy: { onSuccess: 'keep', onFailure: 'delete-all', ttlAfterTerminalDays: 1 },
+          terminalAgeDays: 40,
+          produced: ['parent-out'],
+          childTaskIds: [child.id],
+        })
+
+        using sweeper = makeSweeper(injector)
+        await sweeper.runOnce()
+
+        // Parent's own blobs go under its onFailure policy; the child's blobs
+        // survive under the child's own `keep` policy — parent failure never
+        // rewrites child retention.
+        expect(await blobExists(injector, 'parent-out')).toBe(false)
+        expect(await blobExists(injector, 'child-out')).toBe(true)
       })
     })
   })

@@ -3,7 +3,7 @@ import type { BlobStore } from '@furystack/blob-store'
 import type { DataSet } from '@furystack/repository'
 import type { Injector } from '@furystack/inject'
 import type { ChildHandle } from './child-handle.js'
-import type { SpawnOptions, TaskContext } from './task-context.js'
+import type { SettledChildResult, SpawnOptions, TaskContext } from './task-context.js'
 import type { TaskRunnerTelemetry } from './task-runner-telemetry.js'
 import { SuspendedError } from './suspended-error.js'
 import { DEFAULT_RETENTION_POLICY } from './types.js'
@@ -217,6 +217,56 @@ export const buildTaskContext = (deps: TaskContextFactoryDeps, options: BuildTas
         taskId,
         stepIndex: step,
         kind: 'await-children',
+        childTaskIds: childIds,
+        output: results,
+        createdAt: new Date().toISOString(),
+      })
+
+      return results as unknown as Tuple
+    },
+
+    async awaitChildrenSettled<THandles extends Array<ChildHandle<unknown>>>(
+      handles: THandles,
+    ): Promise<{
+      [K in keyof THandles]: THandles[K] extends ChildHandle<infer R> ? SettledChildResult<R> : never
+    }> {
+      type Tuple = {
+        [K in keyof THandles]: THandles[K] extends ChildHandle<infer R> ? SettledChildResult<R> : never
+      }
+      const step = nextStep()
+      const cached = replayIndex.get(step)
+      if (cached?.kind === 'await-children-settled' && Array.isArray(cached.output)) {
+        return cached.output as unknown as Tuple
+      }
+
+      const childIds = handles.map((h) => h.taskId)
+      const allDone = await allChildrenTerminal(childIds)
+
+      if (!allDone) throw new SuspendedError(childIds)
+
+      const results: SettledChildResult[] = []
+      for (const h of handles) {
+        const child = await taskDs.get(injector, h.taskId)
+        if (!child) throw new Error(`Child task ${h.taskId} not found`)
+        if (child.status === 'failed') {
+          results.push({
+            status: 'failed',
+            taskId: h.taskId,
+            type: h.type,
+            error: child.error ?? { name: 'Error', message: 'unknown' },
+          })
+        } else if (child.status === 'cancelled') {
+          results.push({ status: 'cancelled', taskId: h.taskId, type: h.type })
+        } else {
+          results.push({ status: 'succeeded', taskId: h.taskId, type: h.type, result: child.result })
+        }
+      }
+
+      await persistReplayEntry({
+        id: `${taskId}:${step}`,
+        taskId,
+        stepIndex: step,
+        kind: 'await-children-settled',
         childTaskIds: childIds,
         output: results,
         createdAt: new Date().toISOString(),
