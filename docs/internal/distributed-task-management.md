@@ -836,9 +836,7 @@ injector.bind(
 const s3Client = new S3Client({
   endpoint: 'https://s3.eu-central-1.amazonaws.com',
   region: 'eu-central-1',
-  credentials: {
-    /* … */
-  },
+  credentials: {/* … */},
 })
 
 injector.bind(

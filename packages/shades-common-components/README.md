@@ -430,9 +430,7 @@ import { CollectionService } from '@furystack/shades-common-components'
 
 const service = new CollectionService<MyModel>({
   loader: async (options) => {
-    const response = await fetch('/api/items', {
-      /* ... */
-    })
+    const response = await fetch('/api/items', {/* ... */})
     return response.json()
   },
 })

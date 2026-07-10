@@ -28,9 +28,7 @@ import { useGoogleAuthentication } from '@furystack/auth-google'
 
 const injector = createInjector()
 
-useHttpAuthentication(injector, {
-  /* … */
-})
+useHttpAuthentication(injector, {/* … */})
 
 useGoogleAuthentication(injector, {
   clientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',

@@ -255,9 +255,9 @@ type CleanObject<T> = { [K in keyof T as [T[K]] extends [never] ? never : K]: T[
  */
 export type OpenApiToRestApi<T extends OpenApiDocument> =
   CleanObject<{
-    [M in LowercaseHttpMethod as [EndpointsForMethod<T, M>] extends [never]
-      ? never
-      : UppercaseMethod<M>]: EndpointsForMethod<T, M>
+    [
+      M in LowercaseHttpMethod as [EndpointsForMethod<T, M>] extends [never] ? never : UppercaseMethod<M>
+    ]: EndpointsForMethod<T, M>
   }> extends infer R extends RestApi
     ? R
     : never

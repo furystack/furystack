@@ -115,9 +115,7 @@ Import an OpenAPI JSON document and derive a strongly-typed `RestApi` from it:
 import type { OpenApiDocument, OpenApiToRestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-fetch'
 
-const apiDoc = {
-  /* downloaded OpenAPI JSON */
-} as const satisfies OpenApiDocument
+const apiDoc = {/* downloaded OpenAPI JSON */} as const satisfies OpenApiDocument
 type MyApi = OpenApiToRestApi<typeof apiDoc>
 
 const client = createClient<MyApi>({ endpointUrl: 'https://api.example.com' })

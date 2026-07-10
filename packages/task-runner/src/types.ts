@@ -150,14 +150,7 @@ export const MAX_EVENTS_PER_TASK = 1000
 
 /** Discriminator for a recorded replay step — one kind per determinism-sensitive `ctx.*` helper. */
 export type ReplayStepKind =
-  | 'spawn-child'
-  | 'await-children'
-  | 'await-children-settled'
-  | 'progress'
-  | 'now'
-  | 'random'
-  | 'sleep'
-  | 'fetch'
+  'spawn-child' | 'await-children' | 'await-children-settled' | 'progress' | 'now' | 'random' | 'sleep' | 'fetch'
 
 /**
  * A single recorded step in the replay log. Keyed by composite
