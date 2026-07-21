@@ -46,4 +46,4 @@ appear before simple list items within each section.
 
 ## 🔧 Chores
 
-- No changes in this version.
+- Updated transitive dependencies.
