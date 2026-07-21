@@ -38,10 +38,7 @@ export interface ObsoleteCacheResult<T> {
  * Discriminate on `status`. Use the type-guards below to narrow.
  */
 export type CacheResult<T> =
-  | LoadedCacheResult<T>
-  | LoadingCacheResult<T>
-  | FailedCacheResult<T>
-  | ObsoleteCacheResult<T>
+  LoadedCacheResult<T> | LoadingCacheResult<T> | FailedCacheResult<T> | ObsoleteCacheResult<T>
 
 /** Narrowing intersection: a {@link CacheResult} that definitely carries a value. */
 export type CacheWithValue<T> = CacheResult<T> & {

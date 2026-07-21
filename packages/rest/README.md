@@ -142,9 +142,7 @@ You can derive a type-safe `RestApi` from an existing OpenAPI 3.1 document, enab
 import type { OpenApiDocument, OpenApiToRestApi } from '@furystack/rest'
 import { createClient } from '@furystack/rest-client-fetch'
 
-const apiDoc = {
-  /* OpenAPI 3.1 JSON */
-} as const satisfies OpenApiDocument
+const apiDoc = {/* OpenAPI 3.1 JSON */} as const satisfies OpenApiDocument
 
 type PetStoreApi = OpenApiToRestApi<typeof apiDoc>
 

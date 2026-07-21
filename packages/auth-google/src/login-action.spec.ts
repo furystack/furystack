@@ -123,17 +123,14 @@ describe('createGoogleLoginAction', () => {
         createLoginResponse: async (user) => JsonResult(user, 200),
       }
 
-      i.bind(
-        GoogleLoginService,
-        (): GoogleLoginService => ({
-          clientId: 'test',
-          enableCsrfCheck: false,
-          getGoogleUserData: vi.fn(async () => {
-            throw new Error('Token verification failed')
-          }),
-          getUserFromGooglePayload: vi.fn(),
+      i.bind(GoogleLoginService, (): GoogleLoginService => ({
+        clientId: 'test',
+        enableCsrfCheck: false,
+        getGoogleUserData: vi.fn(async () => {
+          throw new Error('Token verification failed')
         }),
-      )
+        getUserFromGooglePayload: vi.fn(),
+      }))
 
       const action = createGoogleLoginAction(strategy)
       await expect(

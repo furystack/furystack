@@ -19,11 +19,7 @@ export type EnumFilterConfig = {
 export type DateFilterConfig = { type: 'date' }
 
 export type ColumnFilterConfig =
-  | StringFilterConfig
-  | NumberFilterConfig
-  | BooleanFilterConfig
-  | EnumFilterConfig
-  | DateFilterConfig
+  StringFilterConfig | NumberFilterConfig | BooleanFilterConfig | EnumFilterConfig | DateFilterConfig
 
 /**
  * Loosely typed find options used internally by filter components.

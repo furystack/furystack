@@ -51,8 +51,7 @@ export type AsyncToken<TService, TLifetime extends Lifetime = Lifetime> = Token<
  * to accept both varieties generically.
  */
 export type AnyToken<TService, TLifetime extends Lifetime = Lifetime> =
-  | SyncToken<TService, TLifetime>
-  | AsyncToken<TService, TLifetime>
+  SyncToken<TService, TLifetime> | AsyncToken<TService, TLifetime>
 
 /** Extracts the resolved service type from a {@link Token}. */
 export type ServiceOf<TToken> = TToken extends Token<infer T, Lifetime, boolean> ? T : never

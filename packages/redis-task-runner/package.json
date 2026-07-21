@@ -43,18 +43,18 @@
     "@furystack/inject": "workspace:^",
     "@furystack/repository": "workspace:^",
     "@furystack/task-runner": "workspace:^",
-    "redis": "^6.0.0"
+    "redis": "^6.1.0"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1060.0",
+    "@aws-sdk/client-s3": "^3.1085.0",
     "@furystack/core": "workspace:^",
     "@furystack/redis-cross-node-bus": "workspace:^",
     "@furystack/redis-store": "workspace:^",
     "@furystack/s3-blob-store": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "@types/node": "^25.9.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.8"
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": ">=22.0.0"

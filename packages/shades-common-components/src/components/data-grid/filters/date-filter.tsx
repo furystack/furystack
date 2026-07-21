@@ -25,8 +25,7 @@ export const DateFilter = Shade<{
     const { findOptions } = props
 
     const currentFilter = findOptions.filter?.[props.field] as
-      | { $lt?: Date; $gt?: Date; $gte?: Date; $lte?: Date }
-      | undefined
+      { $lt?: Date; $gt?: Date; $gte?: Date; $lte?: Date } | undefined
 
     const detectMode = (): DateMode => {
       if (currentFilter?.$gte && currentFilter?.$lte) return 'between'

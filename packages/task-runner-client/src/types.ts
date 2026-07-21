@@ -62,8 +62,6 @@ export type LiveTask = Disposable & {
  * folded task row; `error` carries the server/transport failure reason.
  */
 export type TaskSubscriptionState =
-  | { status: 'connecting' }
-  | { status: 'subscribed'; task: Task }
-  | { status: 'error'; error: string }
+  { status: 'connecting' } | { status: 'subscribed'; task: Task } | { status: 'error'; error: string }
 
 export type { BlobUploadUrl }

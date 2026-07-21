@@ -30,8 +30,7 @@ describe('SelectionCell', () => {
       cell: root.querySelector('shades-data-grid-selection-cell') as HTMLElement,
       getCheckbox: () =>
         root.querySelector('shades-data-grid-selection-cell')?.querySelector('input[type="checkbox"]') as
-          | HTMLInputElement
-          | undefined,
+          HTMLInputElement | undefined,
       [Symbol.asyncDispose]: () => injector[Symbol.asyncDispose](),
     }
   }

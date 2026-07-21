@@ -56,8 +56,7 @@ export const MicroFrontend: <TApi>(props: MicroFrontendProps<TApi>) => JSX.Eleme
 
     // Propagate prop updates to the inner MFE element (for Shade-based MFEs)
     const mfeElement = containerRef.current?.firstElementChild as
-      | (HTMLElement & { props?: unknown; updateComponent?: () => void })
-      | null
+      (HTMLElement & { props?: unknown; updateComponent?: () => void }) | null
     if (mfeElement?.updateComponent) {
       mfeElement.props = props.api
       mfeElement.updateComponent()
