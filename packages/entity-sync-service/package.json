@@ -43,7 +43,7 @@
     "@furystack/inject": "workspace:^",
     "@furystack/repository": "workspace:^",
     "@furystack/websocket-api": "workspace:^",
-    "ws": "^8.21.0"
+    "ws": "^8.21.1"
   },
   "devDependencies": {
     "@furystack/rest-service": "workspace:^",

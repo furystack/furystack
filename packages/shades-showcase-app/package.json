@@ -17,7 +17,7 @@
     "@furystack/logging": "workspace:^",
     "@playwright/test": "^1.61.1",
     "typescript": "^7.0.2",
-    "vite": "^8.1.4",
+    "vite": "^8.1.5",
     "vitest": "^4.1.10"
   },
   "dependencies": {
@@ -34,7 +34,7 @@
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12",
-    "monaco-editor": "^0.55.1"
+    "monaco-editor": "^0.56.0"
   },
   "engines": {
     "node": ">=24.0.0"

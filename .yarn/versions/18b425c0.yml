@@ -1,0 +1,16 @@
+releases:
+  "@furystack/auth-google": patch
+  "@furystack/auth-jwt": patch
+  "@furystack/entity-sync-service": patch
+  "@furystack/eslint-plugin": patch
+  "@furystack/filesystem-blob-store": patch
+  "@furystack/redis-cross-node-bus": patch
+  "@furystack/redis-task-runner": patch
+  "@furystack/rest-service": patch
+  "@furystack/s3-blob-store": patch
+  "@furystack/shades-showcase-app": patch
+  "@furystack/task-runner": patch
+  "@furystack/task-runner-client": patch
+  "@furystack/task-runner-examples": patch
+  "@furystack/websocket-api": patch
+  furystack: patch
