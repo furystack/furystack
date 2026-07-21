@@ -32,7 +32,7 @@ export function getDependencyDiff(localPath: string, upstreamContent: string): {
 
     return { added, updated }
   } catch (error) {
-    console.error('Error diffing package.json files:', error)
+    console.warn('Warning: Failed to parse package.json for diffing:', error)
     return { added: {}, updated: {} }
   }
 }

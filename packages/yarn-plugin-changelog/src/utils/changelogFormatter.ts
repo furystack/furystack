@@ -25,8 +25,20 @@ export function formatChangelogEntry(changelog: ParsedChangelog, version: string
 
   if (changelog.includeDependencies && changelog.upstreamBranch) {
     try {
-      const pkgDir = path.join(process.cwd(), 'packages', changelog.packageName)
-      const localPkgPath = path.join(pkgDir, 'package.json')
+      // Attempt to find the package directory.
+      // We'll look for the package.json in the current working directory or its children.
+      let pkgDir = process.cwd()
+      let localPkgPath = path.join(pkgDir, 'package.json')
+
+      // If the current dir isn't the package dir, try to find the one matching changelog.packageName
+      if (!fs.existsSync(localPkgPath)) {
+        const pkgDirs = fs.readdirSync(process.cwd()).filter(d => fs.lstatSync(path.join(process.cwd(), d)).isDirectory())
+        const match = pkgDirs.find(d => d.includes(changelog.packageName.split('/').pop() || ''))
+        if (match) {
+          pkgDir = path.join(process.cwd(), match)
+          localPkgPath = path.join(pkgDir, 'package.json')
+        }
+      }
 
       if (fs.existsSync(localPkgPath)) {
         const upstreamBranch = changelog.upstreamBranch
@@ -43,9 +55,11 @@ export function formatChangelogEntry(changelog: ParsedChangelog, version: string
 
           output += `## 📦 Dependencies\n${depsList}\n\n`
         }
+      } else {
+        console.warn(`Warning: Could not find package.json for ${changelog.packageName} at ${localPkgPath}. Skipping dependency section.`)
       }
     } catch (error) {
-      console.error('Error generating dependencies section:', error)
+      console.warn(`Warning: Failed to retrieve upstream dependencies for ${changelog.packageName} from branch ${changelog.upstreamBranch}. Skipping section.`)
     }
   }
 
