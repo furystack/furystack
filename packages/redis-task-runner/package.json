@@ -46,7 +46,7 @@
     "redis": "^6.1.0"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.1085.0",
+    "@aws-sdk/client-s3": "^3.1090.0",
     "@furystack/core": "workspace:^",
     "@furystack/redis-cross-node-bus": "workspace:^",
     "@furystack/redis-store": "workspace:^",
