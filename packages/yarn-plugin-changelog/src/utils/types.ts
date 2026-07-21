@@ -27,6 +27,10 @@ export type ParsedChangelog = {
   sections: ChangelogSection[]
   /** Whether the changelog contains unfilled placeholder comments */
   hasPlaceholders: boolean
+  /** Whether the changelog contains dependency updates */
+  includeDependencies?: boolean
+  /** The upstream branch to compare against (e.g., "main") */
+  upstreamBranch?: string
 }
 
 /**
