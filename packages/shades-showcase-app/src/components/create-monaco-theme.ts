@@ -1,7 +1,7 @@
 import type { DeepPartial } from '@furystack/utils'
 
 import { getRgbFromColorString, getTextColor, type Theme } from '@furystack/shades-common-components'
-import type { editor } from 'monaco-editor/editor'
+import type { editor } from 'monaco-editor/editor/editor.api'
 
 const SHADES_THEME_NAME = 'shades-theme'
 

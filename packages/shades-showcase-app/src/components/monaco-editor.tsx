@@ -1,11 +1,11 @@
 import { Shade, createComponent } from '@furystack/shades'
+import { ThemeProviderService } from '@furystack/shades-common-components'
 import 'monaco-editor/editor'
 import type { editor as editorTypes } from 'monaco-editor/editor'
-import { editor } from 'monaco-editor/editor'
-
-import { ThemeProviderService } from '@furystack/shades-common-components'
+import { editor } from 'monaco-editor/editor/editor.api'
+import 'monaco-editor/languages/definitions/typescript/register'
+import 'monaco-editor/languages/features/typescript/register'
 import { createMonacoTheme } from './create-monaco-theme.js'
-import './worker-config.js'
 
 const registerShadesTheme = (themeProvider: ThemeProviderService) => {
   const monacoTheme = createMonacoTheme(themeProvider.getAssignedTheme())
