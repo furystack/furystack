@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 
 /**
  * Compares two package.json files and identifies added or updated dependencies.

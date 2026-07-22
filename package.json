@@ -34,7 +34,7 @@
     "applyReleaseChanges": "yarn version apply --all && yarn changelog apply && yarn format",
     "build:esm": "tsc -b packages",
     "build:showcase": "yarn build && yarn workspace @furystack/shades-showcase-app build",
-    "build": "yarn build:esm && yarn workspace @furystack/yarn-plugin-changelog build:plugin",
+    "build": "yarn build:esm && yarn workspace @furystack/yarn-plugin-changelog build",
     "lint": "eslint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
