@@ -6,11 +6,10 @@
     "types": ["node"],
     "composite": true,
     "experimentalDecorators": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "Bundler",
     "declaration": true,
-    "declarationMap": true,
-    "verbatimModuleSyntax": false
+    "declarationMap": true
   },
   "include": ["src"]
 }
