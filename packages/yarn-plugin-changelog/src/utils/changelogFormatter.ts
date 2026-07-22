@@ -51,10 +51,10 @@ export function formatChangelogEntry(changelog: ParsedChangelog, version: string
           stdio: ['ignore', 'pipe', 'ignore'],
         }).toString()
 
-        const { added, updated } = getDependencyDiff(localPkgPath, upstreamContent)
+        const { added, updated, removed } = getDependencyDiff(localPkgPath, upstreamContent)
 
-        if (Object.keys(added).length > 0 || Object.keys(updated).length > 0) {
-          const allDeps = Object.entries({ ...added, ...updated }).sort((a, b) => a[0].localeCompare(b[0]))
+        if (Object.keys(added).length > 0 || Object.keys(updated).length > 0 || Object.keys(removed).length > 0) {
+          const allDeps = Object.entries({ ...added, ...updated, ...removed }).sort((a, b) => a[0].localeCompare(b[0]))
           const depsList = allDeps.map(([name, depVersion]) => `- ${name}@${depVersion}`).join('\n')
 
           output += `## 📦 Dependencies\n${depsList}\n\n`

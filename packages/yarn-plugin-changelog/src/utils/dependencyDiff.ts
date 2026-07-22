@@ -1,10 +1,10 @@
 import fs from 'fs'
 
 /**
- * Compares two package.json files and identifies added or updated dependencies.
+ * Compares two package.json files and identifies added, updated, and removed dependencies.
  * @param localPath - Path to the local package.json file.
  * @param upstreamContent - The content of the upstream package.json file.
- * @returns An object containing added and updated dependencies.
+ * @returns An object containing added, updated, and removed dependencies.
  */
 export function getDependencyDiff(
   localPath: string,
@@ -12,6 +12,7 @@ export function getDependencyDiff(
 ): {
   added: Record<string, string>
   updated: Record<string, string>
+  removed: Record<string, string>
 } {
   try {
     const localContent = fs.readFileSync(localPath, 'utf8')
@@ -35,6 +36,7 @@ export function getDependencyDiff(
 
     const added: Record<string, string> = {}
     const updated: Record<string, string> = {}
+    const removed: Record<string, string> = {}
 
     for (const [name, version] of Object.entries(localDeps)) {
       if (!upstreamDeps[name]) {
@@ -44,9 +46,15 @@ export function getDependencyDiff(
       }
     }
 
-    return { added, updated }
+    for (const [name, version] of Object.entries(upstreamDeps)) {
+      if (!localDeps[name]) {
+        removed[name] = version
+      }
+    }
+
+    return { added, updated, removed }
   } catch (error) {
     console.warn('Warning: Failed to parse package.json for diffing:', error)
-    return { added: {}, updated: {} }
+    return { added: {}, updated: {}, removed: {} }
   }
 }
