@@ -8,7 +8,7 @@ factory: function (require) {
 `,p=e.sections.map(a=>a.isEmpty?"":`### ${a.name}
 ${a.content.trim()}
 
-`).join("");if(r+=p,e.includeDependencies&&e.upstreamBranch)try{let a=process.cwd(),g=G.default.join(a,"package.json");if(!O.default.existsSync(g)){let o=O.default.readdirSync(process.cwd()).filter(i=>O.default.lstatSync(G.default.join(process.cwd(),i)).isDirectory()).find(i=>i.includes(e.packageName.split("/").pop()||""));o&&(a=G.default.join(process.cwd(),o),g=G.default.join(a,"package.json"))}if(O.default.existsSync(g)){let{upstreamBranch:c}=e,o=(0,re.execSync)(`git show ${c}:${g}`,{encoding:"utf8",stdio:["ignore","pipe","ignore"]}).toString(),{added:i,updated:m}=oe(g,o);if(Object.keys(i).length>0||Object.keys(m).length>0){let d=Object.entries({...i,...m}).sort((f,u)=>f[0].localeCompare(u[0])).map(([f,u])=>`- ${f}@${u}`).join(`
+`).join("");if(r+=p,e.includeDependencies&&e.upstreamBranch)try{let a=process.cwd(),g=G.default.join(a,"package.json");if(!O.default.existsSync(g)){let o=O.default.readdirSync(process.cwd()).filter(i=>O.default.lstatSync(G.default.join(process.cwd(),i)).isDirectory()).find(i=>i.includes(e.packageName.split("/").pop()||""));o&&(a=G.default.join(process.cwd(),o),g=G.default.join(a,"package.json"))}if(O.default.existsSync(g)){let{upstreamBranch:c}=e,o=(0,re.execFileSync)("git",["show",`${c}:${g}`],{encoding:"utf8",stdio:["ignore","pipe","ignore"]}).toString(),{added:i,updated:m}=oe(g,o);if(Object.keys(i).length>0||Object.keys(m).length>0){let d=Object.entries({...i,...m}).sort((f,u)=>f[0].localeCompare(u[0])).map(([f,u])=>`- ${f}@${u}`).join(`
 `);r+=`## \u{1F4E6} Dependencies
 ${d}
 
