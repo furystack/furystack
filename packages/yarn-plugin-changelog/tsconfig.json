@@ -1,15 +1,16 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./esm",
     "rootDir": "./src",
     "types": ["node"],
     "composite": true,
     "experimentalDecorators": true,
-    "module": "CommonJS",
+    "module": "esnext",
     "moduleResolution": "Bundler",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "verbatimModuleSyntax": false
   },
   "include": ["src"]
 }
