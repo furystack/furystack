@@ -30,11 +30,9 @@ appear before simple list items within each section.
 ## 🐛 Bug Fixes
 
 - Improved dependency listing logic to better handle various dependency types.
-- Fixed linting issues within the `yarn-plugin-changelog` package.
 
 ## 📚 Documentation
 
-- Updated agent documentation, including domain models, issue tracking, and triage labels.
 - Added detailed specifications for the dependency listing feature.
 
 ## ⚡ Performance
@@ -52,7 +50,3 @@ appear before simple list items within each section.
 ## 📦 Build
 
 - Updated the build bundle for the `@yarnpkg/plugin-changelog` dependency.
-
-## 🔧 Chores
-
-- Updated `.opencode` agents and rules for improved agent behavior.
