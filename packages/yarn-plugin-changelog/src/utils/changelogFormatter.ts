@@ -2,7 +2,7 @@ import type { ParsedChangelog } from './types'
 import { getDependencyDiff } from './dependencyDiff'
 import fs from 'fs'
 import path from 'path'
-import { execSync } from 'child_process'
+import { execFileSync } from 'child_process'
 
 /**
  * Format changelog content for inclusion in CHANGELOG.md
@@ -46,7 +46,7 @@ export function formatChangelogEntry(changelog: ParsedChangelog, version: string
 
       if (fs.existsSync(localPkgPath)) {
         const { upstreamBranch } = changelog
-        const upstreamContent = execSync(`git show ${upstreamBranch}:${localPkgPath}`, {
+        const upstreamContent = execFileSync('git', ['show', `${upstreamBranch}:${localPkgPath}`], {
           encoding: 'utf8',
           stdio: ['ignore', 'pipe', 'ignore'],
         }).toString()
