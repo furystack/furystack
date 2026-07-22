@@ -9,7 +9,8 @@
     "module": "CommonJS",
     "moduleResolution": "Bundler",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "verbatimModuleSyntax": false
   },
   "include": ["src"]
 }
