@@ -3,21 +3,21 @@ import { getDependencyDiff } from './dependencyDiff'
 import fs from 'fs'
 
 vi.mock('fs', () => ({
-  readFileSync: vi.fn().mockImplementation((filePath) => {
-    if (filePath.endsWith('package.json')) {
+  readFileSync: vi.fn().mockImplementation((filePath: string) => {
+    if (typeof filePath === 'string' && filePath.endsWith('package.json')) {
       return JSON.stringify({
         dependencies: {
-          'react': '18.0.0',
-          'lodash': '4.0.0',
+          react: '18.0.0',
+          lodash: '4.0.0',
         },
         devDependencies: {
-          'typescript': '5.0.0',
+          typescript: '5.0.0',
         },
       })
     }
     return ''
   }),
-  existsSync: vi.fn().mockImplementation((filePath) => filePath.endsWith('package.json')),
+  existsSync: vi.fn().mockImplementation((filePath: string) => filePath.endsWith('package.json')),
 }))
 
 describe('getDependencyDiff', () => {
@@ -25,21 +25,21 @@ describe('getDependencyDiff', () => {
     const localPkgPath = 'packages/test-pkg/package.json'
     const upstreamContent = JSON.stringify({
       dependencies: {
-        'react': '17.0.0',
-        'lodash': '4.0.0',
+        react: '17.0.0',
+        lodash: '4.0.0',
       },
       devDependencies: {
-        'typescript': '4.0.0',
+        typescript: '4.0.0',
       },
     })
 
     const { added, updated } = getDependencyDiff(localPkgPath, upstreamContent)
 
     expect(added).toEqual({
-      'typescript': '5.0.0',
+      typescript: '5.0.0',
     })
     expect(updated).toEqual({
-      'react': '18.0.0',
+      react: '18.0.0',
     })
   })
 
@@ -47,11 +47,11 @@ describe('getDependencyDiff', () => {
     const localPkgPath = 'packages/test-pkg/package.json'
     const upstreamContent = JSON.stringify({
       dependencies: {
-        'react': '18.0.0',
-        'lodash': '4.0.0',
+        react: '18.0.0',
+        lodash: '4.0.0',
       },
       devDependencies: {
-        'typescript': '5.0.0',
+        typescript: '5.0.0',
       },
     })
 
@@ -71,9 +71,9 @@ describe('getDependencyDiff', () => {
     const { added, updated } = getDependencyDiff(localPkgPath, upstreamContent)
 
     expect(added).toEqual({
-      'react': '18.0.0',
-      'lodash': '4.0.0',
-      'typescript': '5.0.0',
+      react: '18.0.0',
+      lodash: '4.0.0',
+      typescript: '5.0.0',
     })
     expect(updated).toEqual({})
   })

@@ -13,13 +13,15 @@ import { execSync } from 'child_process'
  */
 export function formatChangelogEntry(changelog: ParsedChangelog, version: string, date: string): string {
   let output = `## [${version}] - ${date}\n\n`
-  
-  const sections = changelog.sections.map(section => {
-    if (!section.isEmpty) {
-      return `### ${section.name}\n${section.content.trim()}\n\n`
-    }
-    return ''
-  }).join('')
+
+  const sections = changelog.sections
+    .map((section) => {
+      if (!section.isEmpty) {
+        return `### ${section.name}\n${section.content.trim()}\n\n`
+      }
+      return ''
+    })
+    .join('')
 
   output += sections
 
@@ -32,8 +34,10 @@ export function formatChangelogEntry(changelog: ParsedChangelog, version: string
 
       // If the current dir isn't the package dir, try to find the one matching changelog.packageName
       if (!fs.existsSync(localPkgPath)) {
-        const pkgDirs = fs.readdirSync(process.cwd()).filter(d => fs.lstatSync(path.join(process.cwd(), d)).isDirectory())
-        const match = pkgDirs.find(d => d.includes(changelog.packageName.split('/').pop() || ''))
+        const pkgDirs = fs
+          .readdirSync(process.cwd())
+          .filter((d) => fs.lstatSync(path.join(process.cwd(), d)).isDirectory())
+        const match = pkgDirs.find((d) => d.includes(changelog.packageName.split('/').pop() || ''))
         if (match) {
           pkgDir = path.join(process.cwd(), match)
           localPkgPath = path.join(pkgDir, 'package.json')
@@ -41,7 +45,7 @@ export function formatChangelogEntry(changelog: ParsedChangelog, version: string
       }
 
       if (fs.existsSync(localPkgPath)) {
-        const upstreamBranch = changelog.upstreamBranch
+        const { upstreamBranch } = changelog
         const upstreamContent = execSync(`git show ${upstreamBranch}:${localPkgPath}`, {
           encoding: 'utf8',
           stdio: ['ignore', 'pipe', 'ignore'],
@@ -51,15 +55,19 @@ export function formatChangelogEntry(changelog: ParsedChangelog, version: string
 
         if (Object.keys(added).length > 0 || Object.keys(updated).length > 0) {
           const allDeps = Object.entries({ ...added, ...updated }).sort((a, b) => a[0].localeCompare(b[0]))
-          let depsList = allDeps.map(([name, version]) => `- ${name}@${version}`).join('\n')
+          const depsList = allDeps.map(([name, depVersion]) => `- ${name}@${depVersion}`).join('\n')
 
           output += `## 📦 Dependencies\n${depsList}\n\n`
         }
       } else {
-        console.warn(`Warning: Could not find package.json for ${changelog.packageName} at ${localPkgPath}. Skipping dependency section.`)
+        console.warn(
+          `Warning: Could not find package.json for ${changelog.packageName} at ${localPkgPath}. Skipping dependency section.`,
+        )
       }
     } catch (error) {
-      console.warn(`Warning: Failed to retrieve upstream dependencies for ${changelog.packageName} from branch ${changelog.upstreamBranch}. Skipping section.`)
+      console.warn(
+        `Warning: Failed to retrieve upstream dependencies for ${changelog.packageName} from branch ${changelog.upstreamBranch}. Skipping section.`,
+      )
     }
   }
 
