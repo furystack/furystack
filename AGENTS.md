@@ -22,7 +22,6 @@
 - E2E UI tests:
   - Install Playwright browsers: `yarn workspace @furystack/shades-showcase-app e2e install --with-deps`.
   - Run tests: `yarn test:e2e`.
-  - (Ensure Docker services are running with `docker compose up -d`).
 
 ### Schema Generation
 
