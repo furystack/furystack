@@ -1,5 +1,8 @@
 ---
 name: reviewer-complexity
+mode: subagent
+permission:
+  edit: deny
 description: Audits branch-modified files against the COMPLEXITY rule heuristics. Use proactively during code reviews to flag overgrown components, services, and REST actions introduced or worsened by the branch.
 ---
 

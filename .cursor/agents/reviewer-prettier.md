@@ -1,5 +1,8 @@
 ---
 name: reviewer-prettier
+mode: subagent
+permission:
+  edit: deny
 description: Runs Prettier formatting checks during code reviews. Use proactively during code reviews to verify code formatting.
 ---
 

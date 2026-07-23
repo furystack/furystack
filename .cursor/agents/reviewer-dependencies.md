@@ -1,5 +1,8 @@
 ---
 name: reviewer-dependencies
+mode: subagent
+permission:
+  edit: deny
 description: Validates dependency changes during code reviews. Use proactively during code reviews to verify dependency consistency across packages and peer dependency alignment.
 inputs:
   - id: branch

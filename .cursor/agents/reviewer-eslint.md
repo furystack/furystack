@@ -1,5 +1,8 @@
 ---
 name: reviewer-eslint
+mode: subagent
+permission:
+  edit: deny
 description: Runs ESLint checks during code reviews. Use proactively during code reviews to verify code quality and linting rules.
 ---
 

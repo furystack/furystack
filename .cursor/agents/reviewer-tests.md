@@ -1,5 +1,8 @@
 ---
 name: reviewer-tests
+mode: subagent
+permission:
+  edit: deny
 description: Runs unit tests and assesses test coverage during code reviews. Use proactively during code reviews to verify all tests pass and new code has adequate coverage.
 ---
 

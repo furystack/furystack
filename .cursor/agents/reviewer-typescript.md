@@ -1,5 +1,8 @@
 ---
 name: reviewer-typescript
+mode: subagent
+permission:
+  edit: deny
 description: Runs TypeScript type checking during code reviews. Use proactively during code reviews to verify type safety.
 ---
 

@@ -1,5 +1,8 @@
 ---
 name: reviewer-versioning
+mode: subagent
+permission:
+  edit: deny
 description: Validates version bumps during code reviews. Use proactively during code reviews to verify version bumps are present and appropriate for the changes.
 inputs:
   - id: branch

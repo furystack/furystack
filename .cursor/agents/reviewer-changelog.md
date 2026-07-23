@@ -1,5 +1,8 @@
 ---
 name: reviewer-changelog
+mode: subagent
+permission:
+  edit: deny
 description: Validates changelog entries during code reviews. Use proactively during code reviews to verify changelog drafts are present and high quality.
 inputs:
   - id: branch
