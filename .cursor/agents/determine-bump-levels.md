@@ -29,4 +29,4 @@ Workflow:
 
 After processing each workspace, emit a concise progress line: `<workspace> → <level>`.
 
-Output a JSON string mapping workspace names to the chosen level and provide a short summary of what was changed in each workspace.
+Output a JSON string mapping workspace names to the chosen level and provide a short summary of what was changed in each workspace. Include decline as well.
