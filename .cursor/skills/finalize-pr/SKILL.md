@@ -1,40 +1,35 @@
 ---
 name: finalize-pr
-description: Finalize a pull request by bumping the version manifest yaml (yarn deferred version), creating changelog chunks and filling them, ensuring formatting. Triggered automatically after implementation and review are complete.
+description: Finalize a pull request by automatically determining which workspaces changed, bumping their versions, generating changelog entries, and formatting the codebase.
 disable-model-invocation: false
 inputs:
   - id: branch
     type: currentBranch
     description: The branch to finalize
-  - id: bumpLevels
-    type: object
-    description: Mapping of package names (or 'workspace') to version bump level ('patch', 'minor', 'major', or 'none' to skip)
 ---
 
 # finalize-pr
 
-## Preconditions
+## Step 1: Validate version configuration
 
-- Implementation completed successfully.
-- Code review finished without critical issues.
+Run `yarn version check`. If it fails, abort the workflow – a proper release strategy must exist for each package.
 
-## Step 1: Validate version config
+## Step 2: Determine bump levels
 
-Run `yarn version check`. Completion criterion: exit code 0 and output contains "OK". If fails, abort with error message.
+Invoke the `determine-bump-levels` skill (default baseBranch = origin/develop). The skill returns a JSON mapping of workspace paths to a default bump level (currently "patch" for every change).
 
-## Step 2: Bump version via `bump-versions`
+## Step 3: Bump versions via `bump-versions`
 
-Invoke the `bump-versions` skill, passing the `bumpLevels` mapping. The skill will run `yarn version <level> --deferred` for each package or workspace as specified.
-The resulting new versions are written to `.yarn/manifest.yml` files per package. Completion criterion: all packages have updated manifests and the output indicates success.
+Pass the mapping returned from step 2 to the `bump-versions` skill. It runs `yarn workspace <path> version ${level} --deferred` for each package, updating `package.json` and writing `.yarn/manifest.yml` files.
 
-## Step 3: Generate changelog chunks
+## Step 4: Generate changelog chunks
 
-Invoke the `fill-changelog` skill to create draft entries. Completion criterion: `fill-changelog` returns success.
+Invoke the `fill-changelog` skill to create draft entries based on the new versions. Completion criterion: `fill-changelog` returns success.
 
-## Step 4: Format codebase
+## Step 5: Format codebase
 
-Run `yarn format`. Completion criterion: exit code 0.
+Run `yarn format`. Completion criterion: exit code 0.
 
-## Post-Completion
+## Post‑Completion
 
-If all steps succeed, output a success message and close the PR (or mark it ready for merge).
+If all steps succeed, output a success message and mark the PR ready for merge.
