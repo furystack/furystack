@@ -294,7 +294,7 @@ describe('TextArea', () => {
 
       const computedStyle = window.getComputedStyle(textArea)
       expect(computedStyle.display).toBe('block')
-      expect(computedStyle.marginBottom).toBe('1em')
+      expect(computedStyle.marginBottom).toBe('var(--shades-theme-spacing-md)')
     })
   })
 
