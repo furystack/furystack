@@ -283,7 +283,14 @@ test.describe('Data Grid component', () => {
     // with a date ~6 months ago so roughly half the items match.
     await openFilterDropdown(7)
     await dropdown().getByText('After', { exact: true }).click()
-    await page.locator('[data-testid="date-filter-value"]').fill('2025-08-01T00:00')
+
+    const sixMonthsAgo = new Date()
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+
+    const pad = (value: number) => value.toString().padStart(2, '0')
+    const dateValue = `${sixMonthsAgo.getFullYear()}-${pad(sixMonthsAgo.getMonth() + 1)}-${pad(sixMonthsAgo.getDate())}T00:00`
+
+    await page.locator('[data-testid="date-filter-value"]').fill(dateValue)
     await dropdown().getByText('Apply').click()
 
     await expect(rows).not.toHaveCount(TOTAL_ROWS)
