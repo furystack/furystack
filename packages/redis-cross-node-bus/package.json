@@ -41,14 +41,14 @@
     "@furystack/cross-node-bus": "workspace:^",
     "@furystack/inject": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "redis": "^6.1.0"
+    "redis": "^6.2.1"
   },
   "devDependencies": {
     "@furystack/core": "workspace:^",
     "@furystack/rest-service": "workspace:^",
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.2.0",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=24.0.0"

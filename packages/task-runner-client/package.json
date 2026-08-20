@@ -47,8 +47,8 @@
     "@furystack/rest-service": "workspace:^",
     "@types/ws": "^8.18.1",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10",
-    "ws": "^8.21.1"
+    "vitest": "^4.1.11",
+    "ws": "^8.21.3"
   },
   "engines": {
     "node": ">=22.0.0"
