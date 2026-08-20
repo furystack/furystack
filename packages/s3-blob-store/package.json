@@ -38,15 +38,15 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1090.0",
-    "@aws-sdk/s3-request-presigner": "^3.1090.0",
+    "@aws-sdk/client-s3": "^3.1113.0",
+    "@aws-sdk/s3-request-presigner": "^3.1113.0",
     "@furystack/blob-store": "workspace:^",
     "@furystack/inject": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.2.0",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=22.0.0"

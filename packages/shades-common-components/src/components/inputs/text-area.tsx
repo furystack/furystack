@@ -20,7 +20,7 @@ export const TextArea = Shade<TextAreaProps>({
   css: {
     display: 'block',
     fontFamily: cssVariableTheme.typography.fontFamily,
-    marginBottom: '1em',
+    marginBottom: cssVariableTheme.spacing.md,
     '& label': {
       display: 'flex',
       flexDirection: 'column',
@@ -28,7 +28,7 @@ export const TextArea = Shade<TextAreaProps>({
       justifyContent: 'space-between',
       fontSize: cssVariableTheme.typography.fontSize.xs,
       color: cssVariableTheme.text.secondary,
-      padding: '1em',
+      padding: cssVariableTheme.spacing.md,
       borderRadius: cssVariableTheme.shape.borderRadius.md,
       border: 'none',
       transition: `color ${cssVariableTheme.transitions.duration.slow} ${cssVariableTheme.transitions.easing.default}`,
