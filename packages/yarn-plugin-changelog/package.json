@@ -40,7 +40,7 @@
     "clipanion": "^4.0.0-rc.4"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.3.0",
     "@yarnpkg/builder": "^4.2.4",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
