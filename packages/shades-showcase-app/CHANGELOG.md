@@ -1,5 +1,14 @@
 # Changelog
 
+## [10.0.3] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated `vite` to `^8.1.5`
+- Updated `monaco-editor` to `^0.56.0`
+- Updated dependencies
+- Raised dev `@playwright/test` to `^1.61.1`, `vite` to `^8.1.3`, `typescript` to `^7.0.2`, and `vitest` to `^4.1.10`. No source changes — dev-tooling bump only.
+
 ## [10.0.2] - 2026-06-05
 
 ### 👷 CI

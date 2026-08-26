@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.13] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+- Bumped `@yarnpkg/cli` to `^4.17.1` and `@yarnpkg/core` to `^4.9.0`, and raised dev `typescript` to `^7.0.2`, `@types/node` to `^26.1.1`, and `vitest` to `^4.1.10`. No source changes — dependency bump only.
+
 ## [1.0.12] - 2026-06-05
 
 ### 👷 CI

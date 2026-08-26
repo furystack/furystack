@@ -1,5 +1,12 @@
 # Changelog
 
+## [12.0.1] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+- Bumped `redis` to `^6.1.0` and raised dev `typescript` to `^7.0.2`, `@types/node` to `^26.1.1`, and `vitest` to `^4.1.10`. No source changes — dependency bump only.
+
 ## [12.0.0] - 2026-06-05
 
 ### 👷 CI

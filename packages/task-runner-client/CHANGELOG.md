@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated `ws` to `^8.21.1`
+- Updated dependencies
+- Raised dev `typescript` to `^7.0.2` and `vitest` to `^4.1.10`. No functional changes — dev-tooling and Prettier formatting updates only.
+
 ## [1.0.0] - 2026-06-05
 
 ### 💥 Breaking Changes

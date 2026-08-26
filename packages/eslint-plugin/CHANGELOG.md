@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.1.1] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated `@typescript-eslint/utils` to `^8.64.0`
+- Updated `@typescript-eslint/rule-tester` to `^8.64.0`
+- Updated dependencies
+- Bumped `@typescript-eslint/utils` to `^8.63.0` (and dev `@typescript-eslint/rule-tester` to match), added `@typescript/typescript6` `^6.0.2` for TypeScript 6-compatible rule analysis, and raised dev `vitest` to `^4.1.10`. No source changes — dependency bump only.
+
 ## [4.1.0] - 2026-06-05
 
 ### 👷 CI

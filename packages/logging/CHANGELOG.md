@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.0.3] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Raised dev `typescript` to `^7.0.2` and `vitest` to `^4.1.10`. No source changes — dev-tooling bump only.
+- Updated dependencies
+
 ## [9.0.2] - 2026-06-05
 
 ### 👷 CI

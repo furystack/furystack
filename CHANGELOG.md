@@ -1,5 +1,26 @@
 # Changelog
 
+## [9.0.4] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated `ws` to `^8.21.1`
+- Updated `typescript-eslint` to `^8.64.0`
+- Updated `vite` to `^8.1.5`
+- Updated `eslint-plugin-jsdoc` to `^63.2.0`
+- Updated `lint-staged` to `^17.1.0`
+- Updated `@typescript-eslint/utils` to `^8.64.0`
+- Updated `@typescript-eslint/rule-tester` to `^8.64.0`
+- Updated `@aws-sdk/client-s3` to `^3.1090.0`
+- Updated `@aws-sdk/s3-request-presigner` to `^3.1090.0`
+- Updated `monaco-editor` to `^0.56.0`
+- Updated dependencies
+- Updated root dev tooling: added `@typescript/native` (`npm:typescript@^7.0.2`) for TypeScript 7 preview, pinned the build `typescript` package to `npm:@typescript/typescript6@^6.0.2`, and bumped `eslint` `^10.7.0`, `typescript-eslint` `^8.63.0`, `eslint-plugin-jsdoc` `^63.0.13`, `vitest` `^4.1.10`, `@vitest/coverage-istanbul` `^4.1.10`, `vite` `^8.1.4`, `prettier` `^3.9.5`, and `lint-staged` `^17.0.8`.
+
+### 🔧 Chores
+
+- Upgraded the Yarn release to `4.17.1` (`packageManager` field, `.yarnrc.yml`, and `.yarn/releases/`).
+
 ## [9.0.3] - 2026-06-05
 
 ### 👷 CI

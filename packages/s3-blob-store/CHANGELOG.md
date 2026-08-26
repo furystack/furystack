@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated `@aws-sdk/client-s3` to `^3.1090.0`
+- Updated `@aws-sdk/s3-request-presigner` to `^3.1090.0`
+- Updated dependencies
+- Bumped `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner` to `^3.1085.0` and raised dev `typescript` to `^7.0.2`, `@types/node` to `^26.1.1`, and `vitest` to `^4.1.10`. No source changes — dependency bump only.
+
 ## [1.0.0] - 2026-06-05
 
 ### 💥 Breaking Changes

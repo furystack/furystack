@@ -1,5 +1,16 @@
 # Changelog
 
+## [17.0.3] - 2026-08-26
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+- Raised dev `typescript` to `^7.0.2` and `vitest` to `^4.1.10`. No functional changes — dev-tooling and Prettier formatting updates only.
+
+### 📚 Documentation
+
+- Reformatted the `fetch` example in `README.md` to match updated Prettier output.
+
 ## [17.0.2] - 2026-06-05
 
 ### 👷 CI
