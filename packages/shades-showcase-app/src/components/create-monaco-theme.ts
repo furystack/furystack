@@ -120,12 +120,19 @@ export const createMonacoTheme = (theme: DeepPartial<Theme>): { name: string; da
   mapWithAlpha('scrollbarSlider.hoverBackground', theme.text?.secondary, 0.35)
   mapWithAlpha('scrollbarSlider.activeBackground', theme.text?.secondary, 0.5)
 
+  map('editor.keyword', theme.text?.primary)
+
   return {
     name: SHADES_THEME_NAME,
     data: {
       base,
       inherit: true,
-      rules: [],
+      rules: [
+        { token: 'keyword', foreground: theme?.palette?.primary?.main },
+        { token: 'identifier', foreground: theme?.palette?.secondary?.main },
+        { token: 'string', foreground: theme?.palette?.secondary?.light },
+        { token: 'number', foreground: theme?.palette?.primary?.light },
+      ],
       colors,
     },
   }
