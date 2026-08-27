@@ -21,6 +21,7 @@
     "vitest": "^4.1.11"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.5",
     "@furystack/cache": "workspace:^",
     "@furystack/core": "workspace:^",
     "@furystack/i18n": "workspace:^",
@@ -34,6 +35,7 @@
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12",
+    "codemirror": "^6.0.2",
     "monaco-editor": "^0.56.0"
   },
   "engines": {

@@ -2,11 +2,11 @@ import { createComponent, defineNestedRoutes, LazyLoad } from '@furystack/shades
 import { icons } from '@furystack/shades-common-components'
 import { sleepAsync } from '@furystack/utils'
 
-import './route-meta-augmentation.js'
 import { ShowcaseReplaceRoute } from './app-routing.js'
 import { PageLoader } from './components/page-loader.js'
 import { ShowcaseLayout } from './components/showcase-layout.js'
 import { shadesInjector } from './index.js'
+import './route-meta-augmentation.js'
 
 /**
  * Top-level route definitions for the NestedRouter.
@@ -841,6 +841,19 @@ export const appRoutes = defineNestedRoutes({
         meta: { title: 'Integrations', icon: icons.plug },
         component: ({ outlet }) => outlet ?? <ShowcaseReplaceRoute path="/integrations/monaco" />,
         children: {
+          '/code-mirror': {
+            meta: { title: 'CodeMirror' },
+            component: () => (
+              <LazyLoad
+                viewTransition
+                loader={<PageLoader />}
+                component={async () => {
+                  const { CodeMirrorPage } = await import('./pages/integrations/code-mirror.tsx')
+                  return <CodeMirrorPage />
+                }}
+              />
+            ),
+          },
           '/monaco': {
             meta: { title: 'Monaco' },
 
