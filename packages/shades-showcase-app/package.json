@@ -22,6 +22,10 @@
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.9",
     "@furystack/cache": "workspace:^",
     "@furystack/core": "workspace:^",
     "@furystack/i18n": "workspace:^",
@@ -36,6 +40,7 @@
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12",
     "codemirror": "^6.0.2",
+    "codemirror-json-schema": "^0.8.1",
     "monaco-editor": "^0.56.0"
   },
   "engines": {
