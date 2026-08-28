@@ -34,17 +34,18 @@ test.describe('Monaco Editor', () => {
 
       await jsMarkersDialogList.waitFor({ state: 'detached' })
 
+      // Check if I remove all content, the errors should be gone
       const monacoTextArea = page.locator('.monaco-editor').nth(0)
-
       await monacoTextArea.click()
-
-      // 2. Select all text (works for both Windows/Linux 'Control' and macOS 'Meta')
       await page.keyboard.press('ControlOrMeta+KeyA')
-
-      // 3. Delete the selection
       await page.keyboard.press('Backspace')
-
       await expect(jsMarkersButton).toHaveText('No errors')
+
+      // Reset Monaco State - This tests the controlled value update
+      const resetButton = page.locator('button', { hasText: 'Reset' })
+      await resetButton.click()
+
+      await expect(jsMarkersButton).toHaveText('2 errors, 0 warnings')
     })
   })
 })
