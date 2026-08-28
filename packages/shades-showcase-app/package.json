@@ -36,6 +36,7 @@
     "@furystack/shades-i18n": "workspace:^",
     "@furystack/shades-lottie": "workspace:^",
     "@furystack/shades-mfe": "workspace:^",
+    "@furystack/shades-monaco": "workspace:^",
     "@furystack/shades-nipple": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@lottiefiles/lottie-player": "^2.0.12",

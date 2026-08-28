@@ -1433,6 +1433,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@furystack/shades-monaco@workspace:^, @furystack/shades-monaco@workspace:packages/shades-monaco":
+  version: 0.0.0-use.local
+  resolution: "@furystack/shades-monaco@workspace:packages/shades-monaco"
+  dependencies:
+    "@furystack/shades": "workspace:^"
+    "@furystack/shades-common-components": "workspace:^"
+    "@furystack/utils": "workspace:^"
+    monaco-editor: "npm:^0.56.0"
+    typescript: "npm:^7.0.2"
+    vitest: "npm:^4.1.11"
+  peerDependencies:
+    monaco-editor: ^0.56.0
+  languageName: unknown
+  linkType: soft
+
 "@furystack/shades-nipple@workspace:^, @furystack/shades-nipple@workspace:packages/shades-nipple":
   version: 0.0.0-use.local
   resolution: "@furystack/shades-nipple@workspace:packages/shades-nipple"
@@ -1466,6 +1481,7 @@ __metadata:
     "@furystack/shades-i18n": "workspace:^"
     "@furystack/shades-lottie": "workspace:^"
     "@furystack/shades-mfe": "workspace:^"
+    "@furystack/shades-monaco": "workspace:^"
     "@furystack/shades-nipple": "workspace:^"
     "@furystack/utils": "workspace:^"
     "@lottiefiles/lottie-player": "npm:^2.0.12"

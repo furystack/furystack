@@ -862,7 +862,7 @@ export const appRoutes = defineNestedRoutes({
                 viewTransition
                 loader={<PageLoader />}
                 component={async () => {
-                  const { MonacoEditorPage } = await import('./pages/integrations/monaco.js')
+                  const { MonacoEditorPage } = await import('./pages/integrations/monaco/monaco.js')
                   return <MonacoEditorPage />
                 }}
               />
