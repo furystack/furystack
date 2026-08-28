@@ -13,7 +13,20 @@ export const MonacoJs = Shade({
     position: 'relative',
   },
   render: ({ useState }) => {
-    const [value, setValue] = useState('JSValue', '')
+    const [value, setValue] = useState(
+      'JSValue',
+      `
+/**
+ * JavaScript Example
+ */
+const array = [1,2,3]
+array.toSorted() // <= This is a valid method
+
+array.foo() // <== This should indicate an error: Property 'foo' does not exist on type 'number[]'.
+
+array = 1 // <== This should also indicate an error: Cannot assign to 'array' because it is a constant.
+`,
+    )
 
     return (
       <MonacoEditor
@@ -23,7 +36,8 @@ export const MonacoJs = Shade({
           automaticLayout: true,
         }}
         value={value}
-        onchange={(v) => setValue(v as string)}
+        onValueChange={(v) => setValue(v as string)}
+        onMarkersChange={console.log}
       />
     )
   },

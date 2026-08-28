@@ -1,20 +1,15 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ThemeProviderService } from '@furystack/shades-common-components'
-import { createMonacoTheme } from '@furystack/shades-monaco'
+import { ObservableValue } from '@furystack/utils'
 import type { editor as editorTypes } from 'monaco-editor/editor'
 import { editor } from 'monaco-editor/editor/editor.api'
-
-const registerShadesTheme = (themeProvider: ThemeProviderService) => {
-  const monacoTheme = createMonacoTheme(themeProvider.getAssignedTheme())
-  editor.defineTheme(monacoTheme.name, monacoTheme.data)
-  return monacoTheme.name
-}
+import { useEditorInstance } from './use-editor-instance.js'
 
 export interface MonacoEditorProps {
   options: editor.IStandaloneEditorConstructionOptions
   value?: string
-  onchange?: (value: string) => void
+  onValueChange?: (value: string) => void
   style?: Partial<CSSStyleDeclaration>
+  onMarkersChange?: (newMarkers: editorTypes.IMarker[]) => void
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   customElementName: 'monaco-editor',
@@ -31,39 +26,43 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
       useHostProps({ style: props.style as Record<string, string> })
     }
 
-    useDisposable('editor-init', () => {
-      let editorInstance: editorTypes.IStandaloneCodeEditor | undefined
-      let themeSub: Disposable | undefined
+    queueMicrotask(() => {
+      if (!containerRef.current) {
+        return
+      }
 
-      queueMicrotask(() => {
-        if (!containerRef.current) return
-        const themeProvider = injector.get(ThemeProviderService)
+      const { editorInstance } = useDisposable('editor-instance', () =>
+        useEditorInstance({ element: containerRef.current!, injector, options: props.options }),
+      )
 
-        const themeName = registerShadesTheme(themeProvider)
-
-        editorInstance = editor.create(containerRef.current, {
-          theme: themeName,
-          ...props.options,
+      editorInstance.setValue(props.value || '')
+      if (props.onValueChange) {
+        editorInstance.onDidChangeModelContent(() => {
+          const newValue = editorInstance.getValue()
+          if (newValue !== props.value) {
+            props.onValueChange?.(newValue)
+          }
         })
-        editorInstance.setValue(props.value || '')
-        if (props.onchange) {
-          editorInstance.onKeyUp(() => {
-            const value = editorInstance!.getValue()
-            props.onchange?.(value)
+      }
+
+      if (props.onMarkersChange) {
+        const markers = useDisposable('markers', () => {
+          const obs = new ObservableValue([] as editorTypes.IMarker[], {
+            compare: (a, b) => JSON.stringify(a) !== JSON.stringify(b),
           })
-        }
 
-        themeSub = themeProvider.subscribe('themeChanged', () => {
-          const updatedName = registerShadesTheme(themeProvider)
-          editor.setTheme(updatedName)
+          if (props?.onMarkersChange) {
+            obs.subscribe(props.onMarkersChange)
+          }
+
+          return obs
         })
-      })
 
-      return {
-        [Symbol.dispose]: () => {
-          themeSub?.[Symbol.dispose]()
-          editorInstance?.dispose()
-        },
+        editorInstance.onDidChangeModelDecorations(() => {
+          const model = editorInstance?.getModel()
+          const currentMarkers = editor.getModelMarkers({ resource: model?.uri })
+          markers.setValue(currentMarkers)
+        })
       }
     })
 
