@@ -2,8 +2,8 @@ import { createComponent, Shade } from '@furystack/shades'
 import { Button, Dialog, Icon, icons } from '@furystack/shades-common-components'
 import { MarkerSeverity, type editor } from 'monaco-editor'
 
-export const MonacoJsMarkers = Shade<{ markers: editor.IMarker[] }>({
-  customElementName: 'monaco-js-markers',
+export const MonacoMarkers = Shade<{ markers: editor.IMarker[] }>({
+  customElementName: 'monaco-markers',
 
   render: ({ props, useState, useHostProps }) => {
     useHostProps({

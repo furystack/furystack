@@ -5,7 +5,7 @@ import type { editor } from 'monaco-editor'
 
 import 'monaco-editor/features/register.all'
 import 'monaco-editor/languages/register.all'
-import { MonacoJsMarkers } from './monaco-js-markers.tsx'
+import { MonacoMarkers } from './monaco-markers.tsx'
 
 const defaultJsValue = `
 /**
@@ -44,7 +44,7 @@ export const MonacoJs = Shade({
           </Button>
           <div style={{ flex: '1' }} />
 
-          <MonacoJsMarkers markers={markers} />
+          <MonacoMarkers markers={markers} />
         </div>
 
         <MonacoEditor
