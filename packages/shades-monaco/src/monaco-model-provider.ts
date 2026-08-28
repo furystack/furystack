@@ -9,11 +9,11 @@ export const MonacoModelProvider = defineService({
     const nameUriCache = new Map<string, Uri>()
 
     return {
-      getModelUriForEntityType({ schemaName, jsonSchema }: { schemaName: string; jsonSchema: JSONSchema }) {
-        if (nameUriCache.has(schemaName)) {
-          return nameUriCache.get(schemaName) as Uri
+      getModelUriForEntityType({ uri, jsonSchema }: { uri: string; jsonSchema: JSONSchema }) {
+        if (nameUriCache.has(uri)) {
+          return nameUriCache.get(uri) as Uri
         }
-        const modelUri = Uri.parse(`furystack://json-tools/model-schemas-${schemaName}.json`)
+        const modelUri = Uri.parse(uri)
         jsonDefaults.setDiagnosticsOptions({
           validate: true,
           enableSchemaRequest: true,
@@ -22,13 +22,13 @@ export const MonacoModelProvider = defineService({
           schemas: [
             ...(jsonDefaults.diagnosticsOptions.schemas || []),
             {
-              uri: `furystack://json-tools/model-schemas-${schemaName}.json`,
+              uri,
               fileMatch: [modelUri.toString()],
               schema: { ...jsonSchema },
             },
           ],
         })
-        nameUriCache.set(schemaName, modelUri)
+        nameUriCache.set(uri, modelUri)
         return modelUri
       },
     }

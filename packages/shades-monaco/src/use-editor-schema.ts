@@ -19,7 +19,7 @@ export const useEditorSchema = ({
     /**
      * An unique schema name used to generate unique Schema URIs
      */
-    schemaName: string
+    uri: string
     /**
      * The JSON Schema Definition
      */
@@ -31,8 +31,9 @@ export const useEditorSchema = ({
   const monacoModelProvider = injector.get(MonacoModelProvider)
   const uri = monacoModelProvider.getModelUriForEntityType(schema)
 
-  const newModel = editor.createModel(oldModel.getValue(), 'json', uri)
-
-  editorInstance.setModel(newModel)
-  oldModel.dispose()
+  if (oldModel.uri !== uri) {
+    const newModel = editor.createModel(oldModel.getValue(), 'json', uri)
+    editorInstance.setModel(newModel)
+    oldModel.dispose()
+  }
 }

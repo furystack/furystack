@@ -10,7 +10,7 @@ export interface MonacoEditorProps {
   onValueChange?: (value: string) => void
   style?: Partial<CSSStyleDeclaration>
   onMarkersChange?: (newMarkers: editor.IMarker[]) => void
-  schema?: { schemaName: string; jsonSchema: JSONSchema }
+  schema?: { uri: string; jsonSchema: JSONSchema }
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   customElementName: 'monaco-editor',

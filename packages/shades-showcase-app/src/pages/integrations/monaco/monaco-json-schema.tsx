@@ -16,6 +16,7 @@ const userSchema = {
     isAdmin: { type: 'boolean', default: false },
   },
   required: ['username', 'age'],
+  additionalProperties: false,
 } satisfies JSONSchema
 
 const addressSchema = {
@@ -25,6 +26,8 @@ const addressSchema = {
     city: { type: 'string', description: 'The City Name' },
     zip: { type: 'string', description: 'The ZIP Code' },
   },
+  required: ['country', 'city', 'zip'],
+  additionalProperties: false,
 } satisfies JSONSchema
 
 const initialDoc = JSON.stringify({ username: 'fury_fred', age: 8, isAdmin: false }, undefined, 2)
@@ -41,8 +44,8 @@ export const MonacoJsonSchema = Shade({
     const [value, setValue] = useState('JSValue', initialDoc)
     const [markers, setMarkers] = useState('markers', [] as editor.IMarker[])
 
-    const [schema, setSchema] = useState<{ schemaName: string; jsonSchema: JSONSchema }>('schema', {
-      schemaName: 'userSchema',
+    const [schema, setSchema] = useState<{ uri: string; jsonSchema: JSONSchema }>('schema', {
+      uri: 'file://userSchema.json',
       jsonSchema: userSchema,
     })
 
@@ -52,14 +55,14 @@ export const MonacoJsonSchema = Shade({
           <Button onclick={() => setValue(initialDoc)}>Reset</Button>
           <Select
             options={[
-              { label: 'User Schema', value: 'userSchema' },
-              { label: 'Address Schema', value: 'addressSchema' },
+              { label: 'User Schema', value: 'file://userSchema.json' },
+              { label: 'Address Schema', value: 'file://addressSchema.json' },
             ]}
             onValueChange={(newValue) => {
               if (newValue === 'userSchema') {
-                setSchema({ schemaName: newValue, jsonSchema: userSchema })
+                setSchema({ uri: newValue, jsonSchema: userSchema })
               } else if (newValue === 'addressSchema') {
-                setSchema({ schemaName: newValue, jsonSchema: addressSchema })
+                setSchema({ uri: newValue, jsonSchema: addressSchema })
               }
             }}
           />
