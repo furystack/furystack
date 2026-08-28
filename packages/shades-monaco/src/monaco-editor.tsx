@@ -1,7 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { ObservableValue } from '@furystack/utils'
-import type { editor as editorTypes } from 'monaco-editor/editor'
-import { editor } from 'monaco-editor/editor/editor.api'
+import type { editor } from 'monaco-editor/editor/editor.api'
 import { useEditorInstance } from './use-editor-instance.js'
 
 export interface MonacoEditorProps {
@@ -9,7 +7,7 @@ export interface MonacoEditorProps {
   value?: string
   onValueChange?: (value: string) => void
   style?: Partial<CSSStyleDeclaration>
-  onMarkersChange?: (newMarkers: editorTypes.IMarker[]) => void
+  onMarkersChange?: (newMarkers: editor.IMarker[]) => void
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   customElementName: 'monaco-editor',
@@ -31,38 +29,20 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
         return
       }
 
-      const { editorInstance } = useDisposable('editor-instance', () =>
-        useEditorInstance({ element: containerRef.current!, injector, options: props.options }),
+      const editor = useDisposable('editor-instance', () =>
+        useEditorInstance({
+          element: containerRef.current!,
+          injector,
+          options: props.options,
+          value: props.value,
+          onValueChange: props.onValueChange,
+          onMarkersChange: props.onMarkersChange,
+        }),
       )
 
-      editorInstance.setValue(props.value || '')
-      if (props.onValueChange) {
-        editorInstance.onDidChangeModelContent(() => {
-          const newValue = editorInstance.getValue()
-          if (newValue !== props.value) {
-            props.onValueChange?.(newValue)
-          }
-        })
-      }
-
-      if (props.onMarkersChange) {
-        const markers = useDisposable('markers', () => {
-          const obs = new ObservableValue([] as editorTypes.IMarker[], {
-            compare: (a, b) => JSON.stringify(a) !== JSON.stringify(b),
-          })
-
-          if (props?.onMarkersChange) {
-            obs.subscribe(props.onMarkersChange)
-          }
-
-          return obs
-        })
-
-        editorInstance.onDidChangeModelDecorations(() => {
-          const model = editorInstance?.getModel()
-          const currentMarkers = editor.getModelMarkers({ resource: model?.uri })
-          markers.setValue(currentMarkers)
-        })
+      // Allow controlled mode changes
+      if (props.value && editor.editorInstance.getValue() !== props.value) {
+        editor.editorInstance.setValue(props.value)
       }
     })
 
