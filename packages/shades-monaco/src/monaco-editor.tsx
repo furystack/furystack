@@ -1,6 +1,8 @@
 import { Shade, createComponent } from '@furystack/shades'
 import type { editor } from 'monaco-editor/editor/editor.api'
+import type { JSONSchema } from 'monaco-editor/languages/features/json/register.js'
 import { useEditorInstance } from './use-editor-instance.js'
+import { useEditorSchema } from './use-editor-schema.js'
 
 export interface MonacoEditorProps {
   options: editor.IStandaloneEditorConstructionOptions
@@ -8,6 +10,7 @@ export interface MonacoEditorProps {
   onValueChange?: (value: string) => void
   style?: Partial<CSSStyleDeclaration>
   onMarkersChange?: (newMarkers: editor.IMarker[]) => void
+  schema?: { schemaName: string; jsonSchema: JSONSchema }
 }
 export const MonacoEditor = Shade<MonacoEditorProps>({
   customElementName: 'monaco-editor',
@@ -43,6 +46,10 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
       // Allow controlled mode changes
       if (props.value && editor.editorInstance.getValue() !== props.value) {
         editor.editorInstance.setValue(props.value)
+      }
+
+      if (props.schema && editor.editorInstance) {
+        useEditorSchema({ injector, editorInstance: editor.editorInstance, schema: props.schema })
       }
     })
 

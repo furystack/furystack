@@ -1,10 +1,14 @@
 import { createComponent, Shade } from '@furystack/shades'
+import { Button, Select } from '@furystack/shades-common-components'
 import { MonacoEditor } from '@furystack/shades-monaco'
+import type { editor } from 'monaco-editor'
 
 import 'monaco-editor/features/register.all'
+import type { JSONSchema } from 'monaco-editor/languages/features/json/register.js'
 import 'monaco-editor/languages/register.all'
+import { MonacoMarkers } from './monaco-markers.tsx'
 
-const myCustomJsonSchema = {
+const userSchema = {
   type: 'object',
   properties: {
     username: { type: 'string', description: 'The unique handle for the user account.' },
@@ -12,7 +16,16 @@ const myCustomJsonSchema = {
     isAdmin: { type: 'boolean', default: false },
   },
   required: ['username', 'age'],
-}
+} satisfies JSONSchema
+
+const addressSchema = {
+  type: 'object',
+  properties: {
+    country: { type: 'string', description: 'The Country Name' },
+    city: { type: 'string', description: 'The City Name' },
+    zip: { type: 'string', description: 'The ZIP Code' },
+  },
+} satisfies JSONSchema
 
 const initialDoc = JSON.stringify({ username: 'fury_fred', age: 8, isAdmin: false }, undefined, 2)
 
@@ -26,19 +39,44 @@ export const MonacoJsonSchema = Shade({
   },
   render: ({ useState }) => {
     const [value, setValue] = useState('JSValue', initialDoc)
+    const [markers, setMarkers] = useState('markers', [] as editor.IMarker[])
 
-    useState('JsonSchema', myCustomJsonSchema)
+    const [schema, setSchema] = useState<{ schemaName: string; jsonSchema: JSONSchema }>('schema', {
+      schemaName: 'userSchema',
+      jsonSchema: userSchema,
+    })
 
     return (
-      <MonacoEditor
-        style={{ flex: '1', minHeight: '0' }}
-        options={{
-          language: 'json',
-          automaticLayout: true,
-        }}
-        value={value}
-        onValueChange={(v) => setValue(v as string)}
-      />
+      <>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button onclick={() => setValue(initialDoc)}>Reset</Button>
+          <Select
+            options={[
+              { label: 'User Schema', value: 'userSchema' },
+              { label: 'Address Schema', value: 'addressSchema' },
+            ]}
+            onValueChange={(newValue) => {
+              if (newValue === 'userSchema') {
+                setSchema({ schemaName: newValue, jsonSchema: userSchema })
+              } else if (newValue === 'addressSchema') {
+                setSchema({ schemaName: newValue, jsonSchema: addressSchema })
+              }
+            }}
+          />
+          <div style={{ flex: '1' }} />
+          <MonacoMarkers markers={markers} />
+        </div>
+        <MonacoEditor
+          style={{ flex: '1', minHeight: '0' }}
+          options={{
+            language: 'json',
+            automaticLayout: true,
+          }}
+          value={value}
+          onMarkersChange={setMarkers}
+          schema={schema}
+        />
+      </>
     )
   },
 })
