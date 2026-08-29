@@ -7,6 +7,16 @@ description: Fill changelog entries for the current branch. Use when the user as
 
 Automate filling changelog entries based on the changes in the current branch.
 
+---
+
+name: fill-changelog
+description: Fill changelog entries for the current branch. Use when the user asks to fill changelog, write changelog entries, update changelog, or prepare changelog for a PR.
+---
+
+# fill-changelog
+
+Automate filling changelog entries based on the changes in the current branch.
+
 ## Prerequisites
 
 Version bumps MUST be configured before running this skill. If `yarn version check` fails, version files need to be adjusted first using `yarn version patch/minor/major` or `yarn bumpVersions` (interactive).
@@ -51,6 +61,13 @@ Use Glob to find `.yarn/changelogs/*.md` files, then Read to load their content.
 ### Step 5: Fill Changelog Entries
 
 Map changes to the appropriate sections and fill the changelog drafts.
+
+## Scope Guidelines
+
+When filling changelogs, distinguish between package-specific changes and workspace-level changes:
+
+- **Package-Specific Changes:** Only include changes that directly affect the package being processed (e.g., changes within its directory, updates to its specific dependencies, or changes to its public API).
+- **Workspace-Level Changes:** Changes to shared infrastructure, global configuration, or shared documentation (e.g., `.opencode/`, global `docs/` that aren't package-specific, `scripts/`, or global CI/CD configs) should be grouped in the root/workspace changelog (e.g., `furystack.md`) and excluded from individual package changelogs.
 
 ## Section Mapping
 
