@@ -90,9 +90,7 @@ export const MonacoJsonSchema = Shade({
           value={value}
           onValueChange={setValue}
           onMarkersChange={setMarkers}
-          schema={{
-            ...schema,
-          }}
+          schema={schema}
         />
       </>
     )
