@@ -1,5 +1,5 @@
 import { Shade, createComponent } from '@furystack/shades'
-import { editor } from 'monaco-editor/editor/editor.api'
+import type { editor } from 'monaco-editor/editor/editor.api'
 import type { DiagnosticsOptions, JSONSchema } from 'monaco-editor/languages/features/json/register.js'
 import { MonacoModelProvider } from './monaco-model-provider.js'
 import { useEditorInstance } from './use-editor-instance.js'
@@ -75,7 +75,17 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
         useEditorInstance({
           element: containerRef.current!,
           injector,
-          options: props.options,
+          options: {
+            ...(props.schema
+              ? {
+                  model: injector.get(MonacoModelProvider).getModelForEntityType({
+                    ...props.schema,
+                    value: props.value,
+                  }),
+                }
+              : {}),
+            ...props.options,
+          },
           value: props.value,
           onValueChange: props.onValueChange,
           onMarkersChange: props.onMarkersChange,
@@ -87,14 +97,15 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
         createdEditor.editorInstance.setValue(props.value)
       }
 
-      // Allow controlled schema changes
-      if (props.schema && createdEditor.editorInstance) {
+      if (props.schema) {
+        const model = injector.get(MonacoModelProvider).getModelForEntityType({
+          ...props.schema,
+          value: props.value,
+        })
         const oldModel = createdEditor.editorInstance.getModel()
-        const newUri = injector.get(MonacoModelProvider).getModelUriForEntityType(props.schema)
-
-        if (oldModel?.uri.toString() !== newUri.toString()) {
+        if (oldModel !== model) {
           oldModel?.dispose()
-          createdEditor.editorInstance.setModel(editor.createModel(props.value || '', 'json', newUri))
+          createdEditor.editorInstance.setModel(model)
         }
       }
     })

@@ -1,5 +1,5 @@
 import { defineService } from '@furystack/inject'
-import { Uri } from 'monaco-editor'
+import { editor, Uri } from 'monaco-editor'
 import { jsonDefaults, type DiagnosticsOptions, type JSONSchema } from 'monaco-editor/languages/features/json/register'
 
 export const MonacoModelProvider = defineService({
@@ -7,37 +7,44 @@ export const MonacoModelProvider = defineService({
   lifetime: 'singleton',
   factory: () => {
     return {
-      getModelUriForEntityType({
+      getModelForEntityType({
+        value = '',
         uri,
         jsonSchema,
         diagnosticOptions,
       }: {
+        value?: string
         uri: string
         jsonSchema: JSONSchema
         diagnosticOptions: DiagnosticsOptions
       }) {
         const modelUri = Uri.parse(uri)
-        if (jsonDefaults.diagnosticsOptions.schemas?.some((schema) => schema.uri === uri)) {
-          return modelUri
+
+        const stringUri = modelUri.toString()
+
+        const existingModel = editor.getModel(modelUri)
+        if (existingModel) {
+          existingModel.setValue(value)
+          return existingModel
         }
 
         jsonDefaults.setDiagnosticsOptions({
           validate: true,
           enableSchemaRequest: false,
           schemaValidation: 'error',
-
           ...diagnosticOptions,
           schemas: [
-            ...(diagnosticOptions?.schemas || []),
+            ...(diagnosticOptions?.schemas?.filter((schema) => schema.uri === uri) || []),
             ...(jsonDefaults.diagnosticsOptions.schemas?.filter((schema) => schema.uri === uri) || []),
             {
-              uri,
-              fileMatch: [modelUri.toString()],
-              schema: { ...jsonSchema },
+              uri: stringUri,
+              fileMatch: [stringUri],
+              schema: jsonSchema,
             },
           ],
         })
-        return modelUri
+
+        return editor.createModel(value, 'json', modelUri)
       },
     }
   },
