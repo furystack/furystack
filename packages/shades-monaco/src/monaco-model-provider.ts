@@ -24,7 +24,6 @@ export const MonacoModelProvider = defineService({
 
         const existingModel = editor.getModel(modelUri)
         if (existingModel) {
-          existingModel.setValue(value)
           return existingModel
         }
 

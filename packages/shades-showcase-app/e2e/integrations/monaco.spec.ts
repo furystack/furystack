@@ -114,6 +114,19 @@ test.describe('Monaco Editor', () => {
       await jsMarkersButton.click()
       await expect(modalBody).toHaveText('[ERROR] Value is below the minimum of 18. @L3')
       await modalClose.click()
+
+      // Type test
+      const monacoTextArea = page.locator('.monaco-editor').nth(0)
+      await monacoTextArea.click()
+      await page.keyboard.press('PageUp')
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('End')
+      await page.keyboard.press('ArrowLeft')
+      await page.keyboard.press('ArrowLeft')
+      await page.keyboard.press('5')
+
+      await expect(page.locator('monaco-markers')).toHaveText('No errors')
     })
   })
 })
