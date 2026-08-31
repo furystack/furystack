@@ -105,6 +105,7 @@ test.describe('Monaco Editor', () => {
       const jsButton = page.locator('shade-tabs [is=shade-tab-header]', { hasText: 'Javascript' })
       await jsButton.click()
       await expect(jsButton).toHaveAttribute('data-active')
+      await expect(jsMarkersButton).toHaveText('2 errors, 0 warnings')
 
       await jsonSchemaButton.click()
       await expect(jsonSchemaButton).toHaveAttribute('data-active')
