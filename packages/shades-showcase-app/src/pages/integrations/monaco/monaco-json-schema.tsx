@@ -72,6 +72,9 @@ export const MonacoJsonSchema = Shade({
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <Button onclick={() => setValue(initialDoc)}>Reset</Button>
           <Select
+            labelTitle="Select Schema"
+            size="small"
+            data-testid="schema-selector"
             options={schemas.map((s) => ({ label: s.uri, value: s.uri }))}
             value={schema.uri}
             onValueChange={(newValue) => {
