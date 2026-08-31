@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import type { Theme } from '@furystack/shades-common-components'
 import type { DeepPartial } from '@furystack/utils'
@@ -32,7 +32,26 @@ describe('createMonacoTheme', () => {
       expect(result.name).toBe('shades-theme')
       expect(result.data).toBeDefined()
       expect(result.data.inherit).toBe(true)
-      expect(result.data.rules).toEqual([])
+      expect(result.data.rules).toMatchInlineSnapshot(`
+        [
+          {
+            "foreground": "#4fc3f7",
+            "token": "keyword",
+          },
+          {
+            "foreground": undefined,
+            "token": "identifier",
+          },
+          {
+            "foreground": undefined,
+            "token": "string",
+          },
+          {
+            "foreground": undefined,
+            "token": "number",
+          },
+        ]
+      `)
     })
   })
 
@@ -47,9 +66,10 @@ describe('createMonacoTheme', () => {
       expect(result.data.base).toBe('vs')
     })
 
-    it('should default to vs-dark when no background is provided', () => {
-      const result = createMonacoTheme({})
-      expect(result.data.base).toBe('vs-dark')
+    it('should throw an error when no background is provided', () => {
+      expect(() => createMonacoTheme({})).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Cannot determine the theme mode for theme "undefined" - Maybe background color or text color is missing, or cannot be recognized?]`,
+      )
     })
   })
 
@@ -107,13 +127,6 @@ describe('createMonacoTheme', () => {
   })
 
   describe('missing theme values', () => {
-    it('should skip undefined color mappings', () => {
-      const result = createMonacoTheme({})
-      expect(result.data.colors['editor.background']).toBeUndefined()
-      expect(result.data.colors['editor.foreground']).toBeUndefined()
-      expect(result.data.colors['editorCursor.foreground']).toBeUndefined()
-    })
-
     it('should only include colors for provided theme tokens', () => {
       const minimal: DeepPartial<Theme> = {
         background: { default: '#000000' },
@@ -128,28 +141,14 @@ describe('createMonacoTheme', () => {
   })
 
   describe('unresolvable colors', () => {
-    it('should skip colors that throw during conversion', () => {
+    it('should throw an error for colors that are not resolvable', () => {
       const theme: DeepPartial<Theme> = {
         background: { default: '#1a1a2e' },
         text: { primary: 'bad-color' },
       }
-      const result = createMonacoTheme(theme)
-      expect(result.data.colors['editor.foreground']).toBeUndefined()
-      expect(result.data.colors['editor.background']).toBe('#1a1a2e')
-    })
-  })
-
-  describe('base theme fallback', () => {
-    it('should fall back to vs-dark and warn when getTextColor throws', () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-      const theme: DeepPartial<Theme> = {
-        background: { default: 'not-a-color' },
-      }
-      const result = createMonacoTheme(theme)
-      expect(result.data.base).toBe('vs-dark')
-      expect(warnSpy).toHaveBeenCalledOnce()
-      warnSpy.mockRestore()
+      expect(() => createMonacoTheme(theme)).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Color format 'bad-color' is not supported.]`,
+      )
     })
   })
 })
