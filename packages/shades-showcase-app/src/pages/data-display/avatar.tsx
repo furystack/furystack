@@ -1,5 +1,6 @@
 import { createComponent, Shade } from '@furystack/shades'
 import { Avatar, Icon, icons, PageContainer, PageHeader, Paper } from '@furystack/shades-common-components'
+import avatar from './avatar.jpg'
 
 export const AvatarPage = Shade({
   customElementName: 'shades-avatar-page',
@@ -13,7 +14,7 @@ export const AvatarPage = Shade({
         />
         <Paper elevation={3} style={{ padding: '32px' }}>
           <div style={{ display: 'flex', gap: '16px' }}>
-            <Avatar title="Avatar" avatarUrl="avatar.jpg" />
+            <Avatar title="Avatar" avatarUrl={avatar} />
             <Avatar title="Broken Avatar without fallback" avatarUrl="broken.jpg" />
             <Avatar title="Broken Avatar with fallback" avatarUrl="broken.jpg" fallback={<>👽</>} />
           </div>

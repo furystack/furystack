@@ -10,12 +10,12 @@ import {
   Typography,
 } from '@furystack/shades-common-components'
 
-const SAMPLE_IMAGES = [
-  'https://picsum.photos/seed/shades1/400/300',
-  'https://picsum.photos/seed/shades2/400/300',
-  'https://picsum.photos/seed/shades3/400/300',
-  'https://picsum.photos/seed/shades4/400/300',
-]
+import sample1 from './sample1.jpg'
+import sample2 from './sample2.jpg'
+import sample3 from './sample3.jpg'
+import sample4 from './sample4.jpg'
+
+const SAMPLE_IMAGES = [sample1, sample2, sample3, sample4]
 
 const SectionTitle = ({ title }: { title: string }) => (
   <Typography variant="h6" style={{ margin: '0 0 12px' }}>
