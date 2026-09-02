@@ -1,8 +1,8 @@
 import { Shade, createComponent } from '@furystack/shades'
 import { buildTransition, cssVariableTheme } from '../services/css-variable-theme.js'
 import { promisifyAnimation } from '../utils/promisify-animation.js'
-import { Icon } from './icons/icon.js'
 import { close, imageBroken, rotate, search, zoomIn, zoomOut } from './icons/icon-definitions.js'
+import { Icon } from './icons/icon.js'
 
 export type ImageProps = {
   /**
@@ -325,8 +325,8 @@ const toolbarButtonStyle = (): Partial<CSSStyleDeclaration> => ({
   width: cssVariableTheme.spacing.xl,
   height: cssVariableTheme.spacing.xl,
   border: 'none',
-  background: 'transparent',
-  color: cssVariableTheme.background.paper,
+  background: cssVariableTheme.background.paper,
+  color: cssVariableTheme.text.primary,
   borderRadius: cssVariableTheme.shape.borderRadius.sm,
   cursor: 'pointer',
   fontSize: cssVariableTheme.typography.fontSize.lg,
@@ -342,8 +342,8 @@ const navButtonStyle = (): Partial<CSSStyleDeclaration> => ({
   width: '40px',
   height: '40px',
   border: 'none',
-  background: cssVariableTheme.action.backdrop,
-  color: cssVariableTheme.background.paper,
+  background: cssVariableTheme.background.paper,
+  color: cssVariableTheme.text.primary,
   borderRadius: cssVariableTheme.shape.borderRadius.full,
   cursor: 'pointer',
   fontSize: cssVariableTheme.typography.fontSize.xl,
@@ -408,8 +408,8 @@ export const Image = Shade<ImageProps>({
         ['transform', cssVariableTheme.transitions.duration.fast, cssVariableTheme.transitions.easing.default],
       ),
       pointerEvents: 'none',
-      backgroundColor: cssVariableTheme.action.backdrop,
-      color: cssVariableTheme.background.paper,
+      backgroundColor: cssVariableTheme.background.paper,
+      color: cssVariableTheme.text.primary,
       borderRadius: cssVariableTheme.shape.borderRadius.full,
       width: '40px',
       height: '40px',

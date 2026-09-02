@@ -75,6 +75,9 @@
       "path": "./shades-common-components"
     },
     {
+      "path": "./shades-monaco"
+    },
+    {
       "path": "./shades-nipple"
     },
     {

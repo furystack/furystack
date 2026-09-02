@@ -1,0 +1,55 @@
+{
+  "name": "@furystack/shades-monaco",
+  "version": "0.0.1",
+  "description": "Monaco Editor and Diff Editor logic for FuryStack",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --outDir ./esm"
+  },
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
+  "files": [
+    "esm",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furystack/furystack.git"
+  },
+  "keywords": [
+    "FuryStack",
+    "Shades",
+    "Monaco-Editor",
+    "Editor"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Gallay Lajos <gallay.lajos@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/furystack/furystack/issues"
+  },
+  "homepage": "https://github.com/furystack/furystack",
+  "devDependencies": {
+    "monaco-editor": "^0.56.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "@furystack/shades": "workspace:^",
+    "@furystack/shades-common-components": "workspace:^",
+    "@furystack/utils": "workspace:^"
+  },
+  "peerDependencies": {
+    "monaco-editor": "^0.56.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "sideEffects": false
+}
