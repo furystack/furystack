@@ -30,7 +30,9 @@ export const MonacoJs = Shade({
   render: ({ useState }) => {
     const [value, setValue] = useState('jsValue', defaultJsValue)
 
-    const [markers, setMarkers] = useState('markers', [] as editor.IMarker[])
+    const [markers, setMarkers] = useState<editor.IMarker[] | null>('markers', null)
+
+    const [isUpdating, setIsUpdating] = useState('isUpdating', false)
 
     return (
       <>
@@ -44,7 +46,7 @@ export const MonacoJs = Shade({
           </Button>
           <div style={{ flex: '1' }} />
 
-          <MonacoMarkers markers={markers} />
+          <MonacoMarkers markers={markers} isUpdating={isUpdating} />
         </div>
 
         <MonacoEditor
@@ -58,6 +60,8 @@ export const MonacoJs = Shade({
             setValue(v)
           }}
           onMarkersChange={setMarkers}
+          onStartUpdate={() => setIsUpdating(true)}
+          onEndUpdate={() => setIsUpdating(false)}
         />
       </>
     )

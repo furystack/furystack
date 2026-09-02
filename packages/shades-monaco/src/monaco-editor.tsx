@@ -42,6 +42,11 @@ export type MonacoEditorProps = {
    * @param newMarkers The new markers
    */
   onMarkersChange?: (newMarkers: editor.IMarker[]) => void
+
+  onStartUpdate?: () => void
+
+  onEndUpdate?: () => void
+
   /**
    * Additional options to validate JSON Schemas. Only works with JSON types.
    */
@@ -89,6 +94,8 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
           value: props.value,
           onValueChange: props.onValueChange,
           onMarkersChange: props.onMarkersChange,
+          onStartUpdate: props.onStartUpdate,
+          onEndUpdate: props.onEndUpdate,
         }),
       )
 

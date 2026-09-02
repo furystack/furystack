@@ -35,6 +35,16 @@ export type UseEditorInstanceOptions = {
    * @param newMarkers A list of new markers
    */
   onMarkersChange?: (newMarkers: editor.IMarker[]) => void
+
+  /**
+   * Callback that will be called when the editor starts updating
+   */
+  onStartUpdate?: () => void
+
+  /**
+   * Callback that will be called when the editor ends updating
+   */
+  onEndUpdate?: () => void
 }
 
 /**
@@ -50,6 +60,8 @@ export const useEditorInstance = ({
   value,
   onValueChange,
   onMarkersChange,
+  onStartUpdate,
+  onEndUpdate,
 }: UseEditorInstanceOptions) => {
   const themeName = registerShadesTheme({ injector })
 
@@ -82,6 +94,15 @@ export const useEditorInstance = ({
 
   const markerSubscription = markerObserver.subscribe((newMarkers) => {
     onMarkersChange?.(newMarkers)
+  })
+
+
+  editorInstance.onBeginUpdate(() => {
+    onStartUpdate?.()
+  })
+
+  editorInstance.onEndUpdate(() => {
+    onEndUpdate?.()
   })
 
   return {

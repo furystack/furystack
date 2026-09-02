@@ -59,7 +59,9 @@ export const MonacoJsonSchema = Shade({
   },
   render: ({ useState }) => {
     const [value, setValue] = useState('JSValue', initialDoc)
-    const [markers, setMarkers] = useState('markers', [] as editor.IMarker[])
+    const [markers, setMarkers] = useState<editor.IMarker[] | null>('markers', null)
+
+    const [isUpdating, setIsUpdating] = useState('isUpdating', false)
 
     const [schema, setSchema] = useState<{
       uri: string
@@ -82,7 +84,7 @@ export const MonacoJsonSchema = Shade({
             }}
           />
           <div style={{ flex: '1' }} />
-          <MonacoMarkers markers={markers} />
+          <MonacoMarkers markers={markers} isUpdating={isUpdating} />
         </div>
         <MonacoEditor
           style={{ flex: '1', minHeight: '0' }}
@@ -94,6 +96,8 @@ export const MonacoJsonSchema = Shade({
           onValueChange={setValue}
           onMarkersChange={setMarkers}
           schema={schema}
+          onStartUpdate={() => setIsUpdating(true)}
+          onEndUpdate={() => setIsUpdating(false)}
         />
       </>
     )
