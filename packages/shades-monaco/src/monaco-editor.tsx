@@ -1,7 +1,7 @@
 import { Shade, createComponent } from '@furystack/shades'
 import type { editor } from 'monaco-editor/editor/editor.api'
 import type { DiagnosticsOptions, JSONSchema } from 'monaco-editor/languages/features/json/register.js'
-import { MonacoModelProvider } from './monaco-model-provider.js'
+import { provideMonacoModel } from './provide-monaco-model.js'
 import { useEditorInstance } from './use-editor-instance.js'
 
 export type SchemaOptions = {
@@ -83,7 +83,7 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
           options: {
             ...(props.schema
               ? {
-                  model: injector.get(MonacoModelProvider).getModelForEntityType({
+                  model: provideMonacoModel({
                     ...props.schema,
                     value: props.value,
                   }),
@@ -105,7 +105,7 @@ export const MonacoEditor = Shade<MonacoEditorProps>({
       }
 
       if (props.schema) {
-        const model = injector.get(MonacoModelProvider).getModelForEntityType({
+        const model = provideMonacoModel({
           ...props.schema,
           value: props.value,
         })
