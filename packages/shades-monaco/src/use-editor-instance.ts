@@ -2,7 +2,7 @@ import { ThemeProviderService } from '@furystack/shades-common-components'
 import { ObservableValue } from '@furystack/utils'
 import { editor } from 'monaco-editor'
 import type { Injector } from '../../inject/src/injector.js'
-import { registerShadesTheme } from './register-shades-theme.js'
+import { provideShadesTheme } from './provide-shades-theme.js'
 import { useEditorValueTracking } from './use-editor-value-tracking.js'
 
 export type UseEditorInstanceOptions = {
@@ -63,7 +63,7 @@ export const useEditorInstance = ({
   onStartUpdate,
   onEndUpdate,
 }: UseEditorInstanceOptions) => {
-  const themeName = registerShadesTheme({ injector })
+  const themeName = provideShadesTheme({ injector })
 
   const editorInstance = editor.create(element, {
     theme: themeName,
@@ -73,7 +73,7 @@ export const useEditorInstance = ({
 
   const themeProvider = injector.get(ThemeProviderService)
   const themeSub = themeProvider.subscribe('themeChanged', () => {
-    const updatedName = registerShadesTheme({ injector })
+    const updatedName = provideShadesTheme({ injector })
     editor.setTheme(updatedName)
   })
 

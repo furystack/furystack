@@ -9,7 +9,7 @@ import { createMonacoTheme } from './create-monaco-theme.js'
  * @param injector The Injector instance that can be used to retrieve the theme provider
  * @returns The registered theme name
  */
-export const registerShadesTheme = ({ injector }: { injector: Injector }) => {
+export const provideShadesTheme = ({ injector }: { injector: Injector }) => {
   const themeProvider = injector.get(ThemeProviderService)
 
   const monacoTheme = createMonacoTheme(themeProvider.getAssignedTheme())
