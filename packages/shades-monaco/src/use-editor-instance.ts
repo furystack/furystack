@@ -96,7 +96,6 @@ export const useEditorInstance = ({
     onMarkersChange?.(newMarkers)
   })
 
-
   editorInstance.onBeginUpdate(() => {
     onStartUpdate?.()
   })
