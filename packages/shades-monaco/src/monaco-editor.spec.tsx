@@ -2,11 +2,12 @@ import { createInjector } from '@furystack/inject'
 import { createComponent, flushUpdates, initializeShadeRoot } from '@furystack/shades'
 import { defaultDarkTheme, ThemeProviderService } from '@furystack/shades-common-components'
 import { usingAsync } from '@furystack/utils'
+import { editor, Uri } from 'monaco-editor'
 import 'monaco-editor/features/register.all'
 import type { JSONSchema } from 'monaco-editor/languages/features/json/register.js'
 import 'monaco-editor/languages/register.all'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { MonacoEditor, type MonacoEditorProps } from './monaco-editor.js'
+import { MonacoEditor, type MonacoEditorProps, type SchemaOptions } from './monaco-editor.js'
 
 vi.hoisted(() => {
   global.document.queryCommandSupported = () => false
@@ -47,12 +48,12 @@ describe('MonacoEditor', { timeout: 30 * 1000 }, () => {
 
       await flushUpdates()
 
-      const editor = document.querySelector('monaco-editor')
-      expect(editor).not.toBeNull()
+      const editorInstance = document.querySelector('monaco-editor')
+      expect(editorInstance).not.toBeNull()
       await expect
         .poll(
           () => {
-            return editor?.textContent
+            return editorInstance?.textContent
           },
           { timeout: 20 * 1000 },
         )
@@ -87,6 +88,16 @@ describe('MonacoEditor', { timeout: 30 * 1000 }, () => {
         additionalProperties: false,
       } satisfies JSONSchema
 
+      const modelUri = 'furystack://my-custom-schema.json'
+
+      const schema = {
+        uri: modelUri,
+        diagnosticOptions: {
+          schemaValidation: 'error',
+        },
+        jsonSchema: userSchema,
+      } satisfies SchemaOptions
+
       const onMarkersChangeFn = vi.fn()
       const onValueChangeFn = vi.fn()
 
@@ -101,28 +112,29 @@ describe('MonacoEditor', { timeout: 30 * 1000 }, () => {
             value={''}
             onMarkersChange={onMarkersChangeFn}
             onValueChange={onValueChangeFn}
-            schema={{
-              uri: 'furystack://my-custom-schema.json',
-              diagnosticOptions: {
-                schemaValidation: 'error',
-              },
-              jsonSchema: userSchema,
-            }}
+            schema={schema}
           />
         ),
       })
 
       await flushUpdates()
 
-      const editor = document.querySelector('monaco-editor') as HTMLTextAreaElement & JSX.Element<MonacoEditorProps>
+      const editorInstance = document.querySelector('monaco-editor') as HTMLTextAreaElement &
+        JSX.Element<MonacoEditorProps>
 
-      editor.props.value = exampleValue
-      editor.updateComponent()
+      editorInstance.props.value = exampleValue
+      editorInstance.updateComponent()
 
       await flushUpdates()
 
       await expect.poll(() => onValueChangeFn, { timeout: 10 * 1000 }).toHaveBeenCalledOnce()
       expect(onValueChangeFn).toHaveBeenCalledExactlyOnceWith(exampleValue)
+
+      const modelUriInstance = Uri.parse(modelUri)
+      const existingModel = editor.getModel(modelUriInstance)
+
+      expect(existingModel).toBeDefined()
+      expect(existingModel!.uri).toStrictEqual(modelUriInstance)
     })
   })
 })
