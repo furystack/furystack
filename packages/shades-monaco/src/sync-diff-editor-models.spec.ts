@@ -87,6 +87,8 @@ describe('syncDiffEditorModels', () => {
 
     const createModel = vi.spyOn(editor, 'createModel')
 
+    createModel.mockClear()
+
     syncDiffEditorModels(
       diffEditor as unknown as editor.IStandaloneDiffEditor,
       { value: 'old-updated' },
