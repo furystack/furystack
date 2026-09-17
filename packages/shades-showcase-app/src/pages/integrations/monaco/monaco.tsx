@@ -65,6 +65,21 @@ export const MonacoEditorPage = Shade({
                   />
                 ),
               },
+              {
+                hash: 'diff',
+                header: <span>Diff</span>,
+                component: (
+                  <LazyLoad
+                    style={{ height: '100%', width: '100%' }}
+                    viewTransition
+                    loader={<Skeleton style={{ height: '100%', width: '100%' }} />}
+                    component={async () => {
+                      const { MonacoDiff } = await import('./monaco-diff.tsx')
+                      return <MonacoDiff />
+                    }}
+                  />
+                ),
+              },
             ]}
           />
         </Paper>

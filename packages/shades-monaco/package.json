@@ -41,6 +41,7 @@
     "vitest": "^4.1.11"
   },
   "dependencies": {
+    "@furystack/inject": "workspace:^",
     "@furystack/shades": "workspace:^",
     "@furystack/shades-common-components": "workspace:^",
     "@furystack/utils": "workspace:^"
