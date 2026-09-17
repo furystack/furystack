@@ -73,7 +73,7 @@ export default defineConfig({
             'packages/shades-nipple/src/**/*.spec.(ts|tsx)',
             'packages/shades-i18n/src/**/*.spec.(ts|tsx)',
             'packages/shades-mfe/src/**/*.spec.(ts|tsx)',
-            'packages/shades-monaco/src/**/*.spec.ts',
+            'packages/shades-monaco/src/**/*.spec.(ts|tsx)',
             'packages/shades-showcase-app/src/**/*.spec.(ts|tsx)',
           ],
           setupFiles: ['./vitest.setup.ts'],
