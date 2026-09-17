@@ -20,8 +20,8 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
- - Added new package for Shades Monaco integration: `@furystack/shades-monaco`
- - Extended the Showcase app with Monaco and CodeMirror examples
+- Added new package for Shades Monaco integration: `@furystack/shades-monaco`
+- Extended the Showcase app with Monaco and CodeMirror examples
 
 ## 🐛 Bug Fixes
 

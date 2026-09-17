@@ -24,12 +24,12 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
- - Added integration examples for CodeMirror as a lightweight code editor example
- - Improved Monaco integration examples - Added JS, JSON Schema and DIFF Editor examples using the `@furystack/shades-monaco` package
+- Added integration examples for CodeMirror as a lightweight code editor example
+- Improved Monaco integration examples - Added JS, JSON Schema and DIFF Editor examples using the `@furystack/shades-monaco` package
 
 ## 🐛 Bug Fixes
 
- - Fixed sample images on Images data display page
+- Fixed sample images on Images data display page
 
 ## 📚 Documentation
 

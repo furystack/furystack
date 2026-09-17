@@ -1437,6 +1437,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@furystack/shades-monaco@workspace:packages/shades-monaco"
   dependencies:
+    "@furystack/inject": "workspace:^"
     "@furystack/shades": "workspace:^"
     "@furystack/shades-common-components": "workspace:^"
     "@furystack/utils": "workspace:^"

@@ -20,7 +20,7 @@ appear before simple list items within each section.
 
 ## 💥 Breaking Changes
 
- - Initial release
+- Initial release
 
 ## 🗑️ Deprecated
 
@@ -28,8 +28,8 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
- - `<MonacoEditor />` component for code, text, json schema editing
- - `<MonacoDiffEditor />` component for managing DIFFs
+- `<MonacoEditor />` component for code, text, json schema editing
+- `<MonacoDiffEditor />` component for managing DIFFs
 
 ## 🐛 Bug Fixes
 

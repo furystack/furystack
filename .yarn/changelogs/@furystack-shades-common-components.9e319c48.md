@@ -20,11 +20,11 @@ appear before simple list items within each section.
 
 ## ✨ Features
 
- - `<PageHeader />` component will accept a JSX.Element as a Description
- - Added `getLuminance()` helper
- - Extended `getRgbFromColorString()` - a DOM element parameter as root can be specified - this will be used when css variable evaluation is needed
- - Added `getThemeMode()` helper - This will determine if the theme is `light` or `dark`, based on the luminence diff between the text and background color
- - 
+- `<PageHeader />` component will accept a JSX.Element as a Description
+- Added `getLuminance()` helper
+- Extended `getRgbFromColorString()` - a DOM element parameter as root can be specified - this will be used when css variable evaluation is needed
+- Added `getThemeMode()` helper - This will determine if the theme is `light` or `dark`, based on the luminence diff between the text and background color
+-
 
 ## 🐛 Bug Fixes
 
