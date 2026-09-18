@@ -12,7 +12,7 @@ export type PageHeaderProps = {
   /** The page title */
   title: string
   /** Optional description text displayed below the title */
-  description?: string
+  description?: JSX.Element | string
   /** Optional action elements (buttons, etc.) aligned to the right */
   actions?: JSX.Element
 }

@@ -114,6 +114,48 @@ describe('getRgbFromColorString', () => {
     })
   })
 
+  describe('Fallback color segment extraction', () => {
+    it('Should extract the first well-known color', () => {
+      const result = getRgbFromColorString('linear-gradient(45deg, red, black)')
+      expect(result.r).toBe(255)
+      expect(result.g).toBe(0)
+      expect(result.b).toBe(0)
+      expect(result.a).toBe(1)
+    })
+
+    it('Should extract the first #rgb color', () => {
+      const result = getRgbFromColorString('linear-gradient(45deg, xxx, #0F0)')
+      expect(result.r).toBe(0)
+      expect(result.g).toBe(255)
+      expect(result.b).toBe(0)
+      expect(result.a).toBe(1)
+    })
+
+    it('Should extract the first #rrggbb color', () => {
+      const result = getRgbFromColorString('linear-gradient(45deg,  #0000FF)')
+      expect(result.r).toBe(0)
+      expect(result.g).toBe(0)
+      expect(result.b).toBe(255)
+      expect(result.a).toBe(1)
+    })
+
+    it('Should extract the first rgb(r,g,b) color', () => {
+      const result = getRgbFromColorString('linear-gradient(45deg,  rgb(5,10,15))')
+      expect(result.r).toBe(5)
+      expect(result.g).toBe(10)
+      expect(result.b).toBe(15)
+      expect(result.a).toBe(1)
+    })
+
+    it('Should extract the first rgba(r,g,b,a) color', () => {
+      const result = getRgbFromColorString('linear-gradient(45deg,  rgb(20,25,30,0.3))')
+      expect(result.r).toBe(20)
+      expect(result.g).toBe(25)
+      expect(result.b).toBe(30)
+      expect(result.a).toBe(0.3)
+    })
+  })
+
   describe('unsupported formats', () => {
     it('should throw error for unsupported color format', () => {
       expect(() => getRgbFromColorString('not-a-color')).toThrow("Color format 'not-a-color' is not supported.")

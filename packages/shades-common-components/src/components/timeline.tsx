@@ -225,6 +225,7 @@ export const Timeline = Shade<TimelineProps>({
       flexDirection: 'row',
       width: '100%',
       paddingTop: '0',
+      marginLeft: '50%',
     },
 
     '&[data-orientation="horizontal"] > shade-timeline-item .timeline-tail': {

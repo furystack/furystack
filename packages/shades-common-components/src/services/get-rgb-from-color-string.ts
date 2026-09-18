@@ -50,25 +50,57 @@ const NAMED_COLORS: Record<string, [r: number, g: number, b: number]> = {
   yellow: [255, 255, 0],
 }
 
+const colorNames = Object.keys(NAMED_COLORS)
+const escapedNames = colorNames.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+
+const colorRegex = new RegExp(
+  `${
+    String.raw`(?:`
+    // #rgb, #rgba, #rrggbb, #rrggbbaa
+  }#[0-9a-fA-F]{3,4}(?![0-9a-fA-F])` +
+    `|#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?` +
+    // rgb(...) / rgba(...)
+    `|rgba?\\(\\s*[^)]*\\s*\\)` +
+    // Named colors
+    `|\\b(?:${escapedNames})\\b` +
+    `)`,
+  'gi',
+)
+
 /**
  * Parses a CSS color string and returns its RGBA representation.
  * Supports hex (#rgb, #rrggbb), rgb(), rgba(), CSS variables (var(--…)),
  * and common named colors.
  * @param color The color string to parse
+ * @param root The root element to get the CSS variable from. Optional, defaults to `:root`.
  * @returns The parsed RGBA values
  */
-export const getRgbFromColorString = (color: string): RgbColor => {
+export const getRgbFromColorString = (color: string, root?: HTMLElement): RgbColor => {
+  /**
+   * CSS Variables - The variable will be evaluated and the method will be called on the evaluated value
+   */
   if (color.startsWith('var(--')) {
-    return getRgbFromColorString(getCssVariable(color))
+    return getRgbFromColorString(getCssVariable(color, root))
   }
 
+  // Common values, like "red", "yellow" or "magenta"
+  const named = NAMED_COLORS[color.toLowerCase()]
+  if (named) {
+    return new RgbColor(named[0], named[1], named[2])
+  }
+
+  /**
+   * #rgb or #rrggbb formatted strings
+   */
   if (color.startsWith('#')) {
+    // #rrggbb
     if (color.length === 7) {
       const r = parseInt(color.substring(1, 3), 16)
       const g = parseInt(color.substring(3, 5), 16)
       const b = parseInt(color.substring(5, 7), 16)
       return new RgbColor(r, g, b)
     }
+    // #rgb
     if (color.length === 4) {
       const r = parseInt(color[1] + color[1], 16)
       const g = parseInt(color[2] + color[2], 16)
@@ -77,6 +109,7 @@ export const getRgbFromColorString = (color: string): RgbColor => {
     }
   }
 
+  // rgb(red,green,blue) or rgba(red,green,blue,alpha) matches
   const rgbaMatch = /^rgba?\(\s*(?<red>\d+),\s*(?<green>\d+),\s*(?<blue>\d+)(?:,\s*(?<alpha>[\d.]+))?\s*\)$/.exec(color)
   if (rgbaMatch?.groups) {
     return new RgbColor(
@@ -87,9 +120,11 @@ export const getRgbFromColorString = (color: string): RgbColor => {
     )
   }
 
-  const named = NAMED_COLORS[color.toLowerCase()]
-  if (named) {
-    return new RgbColor(named[0], named[1], named[2])
+  // Fallback: If it contains a substring in one of the supported format(s), use that - e.g.: for gradients
+  const foundSegment = color.match(colorRegex)
+
+  if (foundSegment && foundSegment[0].length) {
+    return getRgbFromColorString(foundSegment[0])
   }
 
   throw Error(`Color format '${color}' is not supported.`)

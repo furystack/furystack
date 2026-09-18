@@ -72,7 +72,7 @@ const categories = [
     name: 'Integrations',
     url: '/integrations/monaco',
     pages: [
-      { name: 'Monaco', url: '/integrations/monaco' },
+      { name: 'Monaco Editor', url: '/integrations/monaco' },
       { name: 'Lottie', url: '/integrations/lottie' },
       { name: 'Nipple', url: '/integrations/nipple' },
       { name: 'MFE', url: '/integrations/mfe' },

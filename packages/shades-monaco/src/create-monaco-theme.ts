@@ -1,6 +1,6 @@
 import type { DeepPartial } from '@furystack/utils'
 
-import { getRgbFromColorString, getTextColor, type Theme } from '@furystack/shades-common-components'
+import { getRgbFromColorString, getThemeMode, type Theme } from '@furystack/shades-common-components'
 import type { editor } from 'monaco-editor/editor/editor.api'
 
 const SHADES_THEME_NAME = 'shades-theme'
@@ -27,15 +27,9 @@ const withAlpha = (hex: string, alpha: number): string => {
  * and maps Shades design tokens to Monaco editor chrome colors.
  */
 export const createMonacoTheme = (theme: DeepPartial<Theme>): { name: string; data: editor.IStandaloneThemeData } => {
-  const bg = theme.background?.default
-  let base: editor.BuiltinTheme = 'vs-dark'
-  try {
-    if (bg) {
-      base = getTextColor(bg, 'vs', 'vs-dark') as editor.BuiltinTheme
-    }
-  } catch (e) {
-    console.warn('Failed to determine Monaco base theme from background color, falling back to vs-dark', e)
-  }
+  const themeMode = getThemeMode(theme)
+
+  const base: editor.BuiltinTheme = themeMode === 'dark' ? 'vs-dark' : 'vs'
 
   const colors: Record<string, string> = {}
 
@@ -131,7 +125,12 @@ export const createMonacoTheme = (theme: DeepPartial<Theme>): { name: string; da
     data: {
       base,
       inherit: true,
-      rules: [],
+      rules: [
+        { token: 'keyword', foreground: theme?.palette?.primary?.main },
+        { token: 'identifier', foreground: theme?.palette?.secondary?.main },
+        { token: 'string', foreground: theme?.palette?.secondary?.light },
+        { token: 'number', foreground: theme?.palette?.primary?.light },
+      ],
       colors,
     },
   }
