@@ -1,5 +1,20 @@
 # Changelog
 
+## [10.1.0] - 2026-09-18
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
+### ✨ Features
+
+- Added integration examples for CodeMirror as a lightweight code editor example
+- Improved Monaco integration examples - Added JS, JSON Schema and DIFF Editor examples using the `@furystack/shades-monaco` package
+
+### 🐛 Bug Fixes
+
+- Fixed sample images on Images data display page
+
 ## [10.0.3] - 2026-08-26
 
 ### ⬆️ Dependencies

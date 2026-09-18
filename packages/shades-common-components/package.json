@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "17.0.3",
+  "version": "17.1.0",
   "description": "Common UI components for FuryStack Shades",
   "type": "module",
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-monaco",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Monaco Editor and Diff Editor logic for FuryStack",
   "type": "module",
   "scripts": {

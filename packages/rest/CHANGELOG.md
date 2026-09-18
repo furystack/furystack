@@ -1,5 +1,11 @@
 # Changelog
 
+## [10.0.4] - 2026-09-18
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [10.0.3] - 2026-08-26
 
 ### ⬆️ Dependencies

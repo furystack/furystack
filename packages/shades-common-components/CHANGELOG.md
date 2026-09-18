@@ -1,5 +1,19 @@
 # Changelog
 
+## [17.1.0] - 2026-09-18
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
+### ✨ Features
+
+- `<PageHeader />` component will accept a JSX.Element as a Description
+- Added `getLuminance()` helper
+- Extended `getRgbFromColorString()` - a DOM element parameter as root can be specified - this will be used when css variable evaluation is needed
+- Added `getThemeMode()` helper - This will determine if the theme is `light` or `dark`, based on the luminence diff between the text and background color
+-
+
 ## [17.0.3] - 2026-08-26
 
 ### ⬆️ Dependencies

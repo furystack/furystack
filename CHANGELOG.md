@@ -1,5 +1,16 @@
 # Changelog
 
+## [9.0.5] - 2026-09-18
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
+### ✨ Features
+
+- Added new package for Shades Monaco integration: `@furystack/shades-monaco`
+- Extended the Showcase app with Monaco and CodeMirror examples
+
 ## [9.0.4] - 2026-08-26
 
 ### ⬆️ Dependencies

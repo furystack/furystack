@@ -1,6 +1,6 @@
 {
   "name": "@furystack/sequelize-store",
-  "version": "7.0.3",
+  "version": "7.0.4",
   "description": "Sequelize-based Store implementation for FuryStack",
   "type": "module",
   "scripts": {

@@ -1,5 +1,0 @@
-releases:
-  "@furystack/shades-common-components": minor
-  "@furystack/shades-monaco": major
-  "@furystack/shades-showcase-app": minor
-  furystack: patch
