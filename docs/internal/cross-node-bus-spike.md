@@ -738,7 +738,7 @@ state.
 - [x] **M0.1 — Wire `getTags` into `UserResolutionCache`.** Widen the
       internal `Cache` generic from `Cache<User, [string]>` to
       `Cache<User, [string], \`user:${string}\`>`for typed-tag safety
-  and add`getTags: (user) => [\`user:${user.username}\`]`to
+and add`getTags: (user) => [\`user:${user.username}\`]`to
  the constructor. Expose`invalidateByUser(username)`on the
 `UserResolutionCache`interface, backed by
 `cache.removeByTag(\`user:${username}\`)`. Useful in single-node
