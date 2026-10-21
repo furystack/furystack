@@ -167,7 +167,7 @@ describe('RedisCrossNodeBus (integration)', () => {
         await bus.publish(topic, { n: 3 })
         // Look up the actual stream id of the first entry to use as fromSeq.
         const range = await client.xRange(topic, '-', '+', { COUNT: 1 })
-        const firstId = range[0]?.id
+        const firstId = range?.[0]?.id
         if (!firstId) throw new Error('expected at least one entry')
         const yielded = await collect(bus.replay(topic, firstId))
         expect(yielded.map((m) => (m.payload as { n: number }).n)).toEqual([2, 3])
@@ -193,7 +193,7 @@ describe('RedisCrossNodeBus (integration)', () => {
       await usingAsync(await setupBus({ nodeId: 'a' }), async ({ bus, client }) => {
         await bus.publish(topic, { n: 1 })
         const range = await client.xRange(topic, '-', '+', { COUNT: 1 })
-        const lastId = range[range.length - 1]?.id
+        const lastId = range?.[range.length - 1]?.id
         if (!lastId) throw new Error('expected at least one entry')
         const yielded = await collect(bus.replay(topic, lastId))
         expect(yielded).toEqual([])
@@ -207,7 +207,7 @@ describe('RedisCrossNodeBus (integration)', () => {
         await bus.publish(topic, null)
         await bus.publish(topic, null)
         const range = await client.xRange(topic, '-', '+', { COUNT: 2 })
-        const [first, second] = range
+        const [first, second] = range ?? []
         if (!first || !second) throw new Error('expected two entries')
         expect(bus.compareSeq(first.id, second.id)).toBeLessThan(0)
         expect(bus.compareSeq(second.id, first.id)).toBeGreaterThan(0)
@@ -223,7 +223,7 @@ describe('RedisCrossNodeBus (integration)', () => {
         await bus.publish(topic, null)
         await waitFor(() => received.length === 1)
         const range = await client.xRange(topic, '-', '+', { COUNT: 1 })
-        expect(bus.oldestSeq(topic)).toBe(range[0]?.id)
+        expect(bus.oldestSeq(topic)).toBe(range?.[0]?.id)
       })
     })
   })
