@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import {
   ReplayWindowExceededError,
   type BusMessage,
@@ -6,6 +5,7 @@ import {
   type CrossNodeBusCapabilities,
   type CrossNodeBusTelemetry,
 } from '@furystack/cross-node-bus'
+import { randomUUID } from 'node:crypto'
 import type { RedisClientType } from 'redis'
 import { compareRedisStreamId } from './compare-redis-stream-id.js'
 
@@ -99,7 +99,7 @@ type XReadStreamReply = Array<{
   messages: Array<{ id: string; message: Record<string, string> }>
 }>
 
-type XRangeReply = Array<{ id: string; message: Record<string, string> }>
+type XRangeReply = Awaited<ReturnType<RedisLikeClient['xRange']>>
 
 /**
  * Redis Streams adapter for {@link CrossNodeBus}. Persists messages on the
@@ -342,7 +342,7 @@ export class RedisCrossNodeBus implements CrossNodeBus {
         this.#telemetry?.emit('onCrossNodeError', { topic, error, phase: 'replay' })
         throw error
       }
-      if (entries.length === 0) {
+      if (!entries || entries.length === 0) {
         if (oldestObserved !== undefined) this.#oldestSeqCache.set(wire, oldestObserved)
         return
       }
