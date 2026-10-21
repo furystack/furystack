@@ -3243,62 +3243,62 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/coverage-istanbul@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "@vitest/coverage-istanbul@npm:5.0.1"
+"@vitest/coverage-istanbul@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "@vitest/coverage-istanbul@npm:5.0.5"
   dependencies:
     "@jridgewell/gen-mapping": "npm:^0.3.13"
     "@jridgewell/trace-mapping": "npm:0.3.31"
-    "@vitest/istanbul-lib-coverage": "npm:^1.0.0"
-    "@vitest/istanbul-lib-instrument": "npm:^1.0.0"
-    "@vitest/istanbul-lib-report": "npm:^1.0.0"
-    "@vitest/istanbul-lib-source-maps": "npm:^1.0.0"
-    magicast: "npm:^0.5.4"
-    obug: "npm:^2.1.4"
-    tinyrainbow: "npm:^3.1.1"
+    "@vitest/istanbul-lib-coverage": "npm:^1.0.2"
+    "@vitest/istanbul-lib-instrument": "npm:^1.0.2"
+    "@vitest/istanbul-lib-report": "npm:^1.0.2"
+    "@vitest/istanbul-lib-source-maps": "npm:^1.0.2"
+    magicast: "npm:^0.5.5"
+    obug: "npm:^3.0.0"
+    tinyrainbow: "npm:^3.2.0"
   peerDependencies:
-    vitest: 5.0.1
-  checksum: 10c0/f7049c8a849f4f0ea48c9cbb3cf59cf7bf106ff52cf7a3e138dccf209d510f2616d2fe49adbc8c380cd30487d238059022fd7c8a0af0d192c57848c608d795f1
+    vitest: 5.0.5
+  checksum: 10c0/02ac31527fe0ef97c05e72d455b18d1782b05702fa630b8df99423e476eaded003a5b5540e75c18837bd2323117a32e2814389fab996c560e0cb930af4c2a506
   languageName: node
   linkType: hard
 
-"@vitest/istanbul-lib-coverage@npm:1.0.1, @vitest/istanbul-lib-coverage@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "@vitest/istanbul-lib-coverage@npm:1.0.1"
-  checksum: 10c0/5259767db6c748a018c39554951e19818268fb6f72f74b74d2370471c7d83df990c3371247caea7d38f8e315df6dd461427dc242a1e7f5071e4b28863524f354
+"@vitest/istanbul-lib-coverage@npm:1.0.2, @vitest/istanbul-lib-coverage@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@vitest/istanbul-lib-coverage@npm:1.0.2"
+  checksum: 10c0/c839315f8c54fb1eb7d51c61cd908f78c2909bbd17ee0d3d8824764f7eed2785471c40ab29f065eee18b577b8275ece8d4100f0ca6c7a05a39a4128683c57292
   languageName: node
   linkType: hard
 
-"@vitest/istanbul-lib-instrument@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "@vitest/istanbul-lib-instrument@npm:1.0.1"
+"@vitest/istanbul-lib-instrument@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@vitest/istanbul-lib-instrument@npm:1.0.2"
   dependencies:
     "@babel/core": "npm:^8.0.1"
     "@babel/parser": "npm:^8.0.4"
     "@istanbuljs/schema": "npm:^0.1.3"
     "@jridgewell/trace-mapping": "npm:^0.3.23"
-    "@vitest/istanbul-lib-coverage": "npm:1.0.1"
-  checksum: 10c0/627f2323f28ca8c4b7dd2c0842c1642f4a7b0058f7119eed9b7c909920a660cda73926f8aeda66b678947ac91ef0cfcaa0721e208879aaf4908170c8a5925319
+    "@vitest/istanbul-lib-coverage": "npm:1.0.2"
+  checksum: 10c0/b031cd6b85d80775376bf1a9679bcc82fed1333b3418403c1e6ffba3ca19196c6c2506ec450cd3ada29bf81f0977c7955306ed1ff65f45ad94aca39523656478
   languageName: node
   linkType: hard
 
-"@vitest/istanbul-lib-report@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "@vitest/istanbul-lib-report@npm:1.0.1"
+"@vitest/istanbul-lib-report@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@vitest/istanbul-lib-report@npm:1.0.2"
   dependencies:
-    "@vitest/istanbul-lib-coverage": "npm:1.0.1"
-  checksum: 10c0/1a76d4cd4c6284da0b897230d672769a5191235b3a0df41a3c861e3e12659d1790012705df6bad0f540e3f14b7b017f3611f99c9b9eb96972f8b55a3fb9270fe
+    "@vitest/istanbul-lib-coverage": "npm:1.0.2"
+  checksum: 10c0/9b0b3c898448dfe99a51a51238fd564efb1efdfd3dc46570ad6b51a592c9f26811de7be6d07756782d4d0ee71d2431b0592c63be0921f7776bf213a22d87f4d3
   languageName: node
   linkType: hard
 
-"@vitest/istanbul-lib-source-maps@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "@vitest/istanbul-lib-source-maps@npm:1.0.1"
+"@vitest/istanbul-lib-source-maps@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@vitest/istanbul-lib-source-maps@npm:1.0.2"
   dependencies:
     "@jridgewell/trace-mapping": "npm:^0.3.23"
-    "@vitest/istanbul-lib-coverage": "npm:1.0.1"
+    "@vitest/istanbul-lib-coverage": "npm:1.0.2"
     obug: "npm:^2.1.4"
-  checksum: 10c0/819e1f7b7d6b3cc2c34c91430fa966d3f0046842296ff8c2139d3e2237f97ca6fff9bfa285fccc073960e10ba6bea1bb09d115db2808acd0cff8dba4014b6e14
+  checksum: 10c0/670c20838a071ecd084fe9e09b3f6e548c257cc29bcf9bc9f331682c7ef61170d0789ca7d5e6397a5f32ac867bc80e53a80e34ae04ce7ba58923b2ad908d2339
   languageName: node
   linkType: hard
 
@@ -5278,7 +5278,7 @@ __metadata:
     "@eslint/js": "npm:^10.0.1"
     "@types/jsdom": "npm:^30.0.0"
     "@typescript/native": "npm:typescript@^7.0.2"
-    "@vitest/coverage-istanbul": "npm:^5.0.1"
+    "@vitest/coverage-istanbul": "npm:^5.0.5"
     ajv: "npm:^8.20.0"
     eslint: "npm:^10.13.0"
     eslint-config-prettier: "npm:^10.1.8"
@@ -6291,7 +6291,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magicast@npm:^0.5.4":
+"magicast@npm:^0.5.5":
   version: 0.5.5
   resolution: "magicast@npm:0.5.5"
   dependencies:
@@ -8008,10 +8008,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyrainbow@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "tinyrainbow@npm:3.1.1"
-  checksum: 10c0/f9d2743832c6191f753408f36224fe817620b8abcef572b2e570204c673a901d753ff84ca8e7b88f9c79e934295b3ffc6fcbc56a06f126e24e1ec6186dcad40d
+"tinyrainbow@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "tinyrainbow@npm:3.2.0"
+  checksum: 10c0/22d9c303cd807026898dcb5ac5ffbf725b5a2cc8d042449769aed8f1266be94de5e95206b76cac948f68facafba5b80e9a9257c82e5fed2651be3fecf2b624ab
   languageName: node
   linkType: hard
 
