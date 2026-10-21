@@ -15,17 +15,17 @@
   "devDependencies": {
     "@codecov/vite-plugin": "^2.0.1",
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.1",
     "typescript": "^7.0.2",
-    "vite": "^8.3.0",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/lang-json": "^6.0.2",
     "@codemirror/lint": "^6.9.7",
-    "@codemirror/state": "^6.7.5",
-    "@codemirror/view": "^6.43.12",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.15",
     "@furystack/cache": "workspace:^",
     "@furystack/core": "workspace:^",
     "@furystack/i18n": "workspace:^",
@@ -42,7 +42,7 @@
     "@lottiefiles/lottie-player": "^2.0.12",
     "codemirror": "^6.0.2",
     "codemirror-json-schema": "^0.8.1",
-    "monaco-editor": "^0.56.0"
+    "monaco-editor": "^0.57.0"
   },
   "engines": {
     "node": ">=24.0.0"

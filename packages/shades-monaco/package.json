@@ -36,9 +36,9 @@
   },
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
-    "monaco-editor": "^0.56.0",
+    "monaco-editor": "^0.57.0",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.5"
   },
   "dependencies": {
     "@furystack/inject": "workspace:^",

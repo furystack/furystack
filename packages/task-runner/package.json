@@ -53,13 +53,13 @@
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@furystack/websocket-api": "workspace:^",
-    "ws": "^8.21.3"
+    "ws": "^8.22.0"
   },
   "devDependencies": {
-    "@types/node": "^26.6.1",
-    "@types/ws": "^8.18.1",
+    "@types/node": "^26.6.5",
+    "@types/ws": "^8.18.2",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.5"
   },
   "engines": {
     "node": ">=22.0.0"
