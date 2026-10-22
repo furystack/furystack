@@ -57,10 +57,12 @@ git diff origin/develop...HEAD --name-only
 
 ## Execution Strategy
 
-**IMPORTANT:** Launch ALL applicable subagents in a SINGLE parallel batch.
+Reviewer prompts live in `.cursor/agents/` at the repository root (not relative to this skill directory). In runtimes that expose `reviewer-*` subagents (for example Cursor), launch them by name. In OpenCode, those named reviewers are not registered: launch one `general` subagent per reviewer and pass it the matching `.cursor/agents/reviewer-*.md` prompt, or run the reviewer's command directly.
+
+**IMPORTANT:** Launch ALL applicable reviewers in a SINGLE parallel batch.
 Do NOT wait for one group to finish before starting another.
 
-In one tool call batch, launch all applicable reviewers:
+In one tool call batch, run all applicable reviewers:
 
 - `reviewer-prettier` (always)
 - `reviewer-versioning` (always)
