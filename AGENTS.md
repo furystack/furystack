@@ -22,14 +22,14 @@
 ## Change workflow
 
 - `develop` is the integration branch (not master); releases are automated from `develop`.
-- Every PR branch needs a package version bump (`yarn version patch|minor|major` or `yarn bumpVersions`) and a changelog entry (`yarn changelog create`, fill, `yarn changelog check`). CI enforces both; use the `fill-changelog` skill.
+- Every PR branch needs a version bump for each changed workspace, including the private root `furystack` workspace for repo-level files (`AGENTS.md`, `.agents/**`, `.cursor/**`), plus a changelog entry. Use `yarn version patch|minor|major` or `yarn bumpVersions`, then `yarn changelog create`, fill, and `yarn changelog check`. CI enforces both; use the `fill-changelog` skill.
 - If `packages/yarn-plugin-changelog` changes, commit the rebuilt `bundles/` output; CI fails if `yarn build` leaves a diff there.
 - Pre-commit runs lint-staged (`eslint --fix`, `prettier --write`).
 
 ## Conventions agents miss
 
 - `.cursor/rules/*.mdc` are the source of truth for FuryStack conventions: `CODE_STYLE`, `TYPESCRIPT_GUIDELINES`, `COMPLEXITY`, `LIBRARY_DEVELOPMENT`, `SHADES_RENDER`, `TESTING_GUIDELINES`, `CACHE_HANDLING`. Read the relevant file before editing.
-- Public API only via `src/index.ts`; no import-time side effects; JSDoc required on exports.
+- Public API only through `package.json` `exports` (normally `src/index.ts`); no import-time side effects; JSDoc required on exports.
 - Functional DI only (no decorators). App code resolves `DataSetToken`, not the underlying `StoreToken`. Tests wrap disposables in `using` / `usingAsync`; Shade DOM assertions need `await flushUpdates()`.
 - Tests are co-located `*.spec.ts(x)`. Prefer `injector.bind` over mocks.
 - Use `.agents/skills/` for create-shade-component, implement-store-adapter, write-tests, fill-changelog, and review-changes.

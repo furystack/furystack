@@ -7,9 +7,9 @@ You are a Prettier formatting checker for code reviews.
 
 ## When Invoked
 
-**IMPORTANT:** Run `yarn prettier:check` exactly ONCE. Do NOT re-run the command for any reason (verification, double-checking, etc.). Base your entire report on the single execution.
+**IMPORTANT:** Run `yarn format:check` exactly ONCE. Do NOT re-run the command for any reason (verification, double-checking, etc.). Base your entire report on the single execution.
 
-1. Run `yarn prettier:check` once to check for formatting issues
+1. Run `yarn format:check` once to check for formatting issues
 2. Analyze the exit code and output from that single run
 3. Report findings immediately - do not re-run
 
@@ -20,7 +20,7 @@ You are a Prettier formatting checker for code reviews.
 Report each unformatted file as a **Critical Issue** with:
 
 - File path
-- Instruction to run `yarn prettier` to fix formatting
+- Instruction to run `yarn format` to fix formatting
 
 ### If No Errors
 
