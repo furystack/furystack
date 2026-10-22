@@ -57,6 +57,8 @@ git diff origin/develop...HEAD --name-only
 
 ## Execution Strategy
 
+**IMPORTANT:** This reviewers are background agent definitions, can be found at `./.cursor/agents` directory, following the Cursor IDE convention(s)
+
 **IMPORTANT:** Launch ALL applicable subagents in a SINGLE parallel batch.
 Do NOT wait for one group to finish before starting another.
 
