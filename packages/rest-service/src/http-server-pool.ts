@@ -158,16 +158,26 @@ export const HttpServerPoolToken: Token<HttpServerPool, 'scoped'> = defineServic
       servers.clear()
     })
 
+    const applyServerTimeouts = (server: Server, options: ServerOptions): void => {
+      // shortcut: timeout values are per listening server (shared by port); later explicit values override
+      if (options.requestTimeout !== undefined) server.requestTimeout = options.requestTimeout
+      if (options.headersTimeout !== undefined) server.headersTimeout = options.headersTimeout
+      if (options.keepAliveTimeout !== undefined) server.keepAliveTimeout = options.keepAliveTimeout
+    }
+
     return {
       acquire: async (options) => {
         const url = buildHostUrl(options)
         const existing = servers.get(url)
         if (existing) {
+          applyServerTimeouts(existing.server, options)
           return existing
         }
         const pending = pendingCreates.get(url)
         if (pending) {
-          return pending
+          const record = await pending
+          applyServerTimeouts(record.server, options)
+          return record
         }
         const createPromise = createRecord(url, options)
         pendingCreates.set(url, createPromise)

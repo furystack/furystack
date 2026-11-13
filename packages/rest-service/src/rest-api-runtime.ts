@@ -134,44 +134,70 @@ const executeAction = async (
       isAuthorized: (...roles) => httpUserContext.isAuthorized(req, ...roles),
       isAuthenticated: () => httpUserContext.isAuthenticated(req),
     }))
-    try {
-      const runAction = async () => {
-        const actionResult = await action({
-          request: req,
-          response: res,
-          injector: scope,
-          getBody: () => readPostBody<never>(req, maxBodyBytes === undefined ? undefined : { maxBytes: maxBodyBytes }),
-          headers: req.headers,
-          getQuery: () =>
-            deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
-          getUrlParams: () => params as object,
-        })
-        res.sendActionResult(actionResult)
-      }
 
-      if (actionTimeoutMs && actionTimeoutMs > 0) {
-        let timer: ReturnType<typeof setTimeout> | undefined
-        // shortcut: timed-out action may keep running (no AbortSignal), dispose scope after responding
-        await Promise.race([
-          runAction(),
-          new Promise<never>((_, reject) => {
-            timer = setTimeout(() => reject(new RequestError('Request Timeout', 504)), actionTimeoutMs)
-          }),
-        ]).finally(() => {
-          if (timer) clearTimeout(timer)
-        })
-      } else {
-        await runAction()
-      }
-    } catch (error) {
+    const canRespond = () => !res.writableEnded && !res.headersSent
+    const sendResult = (actionResult: Awaited<ReturnType<typeof action>>) => {
+      if (canRespond()) res.sendActionResult(actionResult)
+    }
+    const sendError = async (error: unknown) => {
+      if (!canRespond()) return
       const errorActionResult = await ErrorAction({
         request: req,
         response: res,
         injector: scope,
         getBody: async () => error,
       })
-      res.sendActionResult(errorActionResult)
+      if (canRespond()) res.sendActionResult(errorActionResult)
     }
+
+    const runAction = async () =>
+      action({
+        request: req,
+        response: res,
+        injector: scope,
+        // shortcut: actionTimeoutMs does not abort in-progress body reads; use server/request timeouts for slow clients
+        getBody: () => readPostBody<never>(req, maxBodyBytes === undefined ? undefined : { maxBytes: maxBodyBytes }),
+        headers: req.headers,
+        getQuery: () =>
+          deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
+        getUrlParams: () => params as object,
+      })
+
+    if (!actionTimeoutMs || actionTimeoutMs <= 0) {
+      try {
+        sendResult(await runAction())
+      } catch (error) {
+        await sendError(error)
+      }
+      return
+    }
+
+    let timedOut = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    // shortcut: timed-out action may keep running (no AbortSignal) and scope may dispose before it settles; late writes/errors are suppressed
+    const actionPromise = runAction().then(
+      async (actionResult) => {
+        if (timedOut) return
+        sendResult(actionResult)
+      },
+      async (error) => {
+        if (timedOut) return
+        await sendError(error)
+      },
+    )
+
+    await new Promise<void>((resolve) => {
+      timer = setTimeout(() => {
+        timedOut = true
+        void sendError(new RequestError('Request Timeout', 504)).finally(resolve)
+      }, actionTimeoutMs)
+      void actionPromise.finally(() => {
+        if (!timedOut) {
+          if (timer) clearTimeout(timer)
+          resolve()
+        }
+      })
+    })
   })
 }
 
