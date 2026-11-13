@@ -35,7 +35,7 @@ export const readPostBodyRaw = async (incomingMessage: IncomingMessage, options?
       received += buffer.length
       if (received > maxBytes) {
         cleanup()
-        incomingMessage.destroy()
+        incomingMessage.resume()
         reject(new RequestError('Payload Too Large', 413))
         return
       }
