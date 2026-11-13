@@ -11,6 +11,12 @@ import { ServerTelemetryToken } from './server-telemetry.js'
 export interface ServerOptions {
   hostName?: string
   port: number
+  /** Socket inactivity timeout in ms. Defaults to Node's `server.requestTimeout`. */
+  requestTimeout?: number
+  /** Time allowed for receiving request headers in ms. Defaults to Node's `server.headersTimeout`. */
+  headersTimeout?: number
+  /** Keep-alive idle timeout in ms. Defaults to Node's `server.keepAliveTimeout`. */
+  keepAliveTimeout?: number
 }
 
 /** Payload passed to every {@link ServerApi.onRequest} invocation. */
@@ -99,6 +105,9 @@ export const HttpServerPoolToken: Token<HttpServerPool, 'scoped'> = defineServic
         }
         res.destroy()
       })
+      if (options.requestTimeout !== undefined) server.requestTimeout = options.requestTimeout
+      if (options.headersTimeout !== undefined) server.headersTimeout = options.headersTimeout
+      if (options.keepAliveTimeout !== undefined) server.keepAliveTimeout = options.keepAliveTimeout
       server.on('upgrade', (req, socket, head) => {
         const apiMatch = apis.find((api) => api.shouldExec({ req, res: {} as ServerResponse }))
         if (apiMatch?.onUpgrade) {
@@ -149,16 +158,26 @@ export const HttpServerPoolToken: Token<HttpServerPool, 'scoped'> = defineServic
       servers.clear()
     })
 
+    const applyServerTimeouts = (server: Server, options: ServerOptions): void => {
+      // shortcut: timeout values are per listening server (shared by port); later explicit values override
+      if (options.requestTimeout !== undefined) server.requestTimeout = options.requestTimeout
+      if (options.headersTimeout !== undefined) server.headersTimeout = options.headersTimeout
+      if (options.keepAliveTimeout !== undefined) server.keepAliveTimeout = options.keepAliveTimeout
+    }
+
     return {
       acquire: async (options) => {
         const url = buildHostUrl(options)
         const existing = servers.get(url)
         if (existing) {
+          applyServerTimeouts(existing.server, options)
           return existing
         }
         const pending = pendingCreates.get(url)
         if (pending) {
-          return pending
+          const record = await pending
+          applyServerTimeouts(record.server, options)
+          return record
         }
         const createPromise = createRecord(url, options)
         pendingCreates.set(url, createPromise)

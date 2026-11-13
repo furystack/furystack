@@ -49,13 +49,21 @@ export interface ImplementApiOptions<T extends RestApi> {
   version?: string
   /** Maximum request body size in bytes. Defaults to 1 MiB. */
   maxBodyBytes?: number
+  /** Maximum time in ms for handling a request action. When exceeded, responds with 504. Does not abort in-progress body reads. */
+  actionTimeoutMs?: number
+  /** Socket inactivity timeout in ms for the underlying HTTP server (shared per listening port). */
+  requestTimeout?: number
+  /** Time allowed for receiving request headers in ms (shared per listening port). */
+  headersTimeout?: number
+  /** Keep-alive idle timeout in ms (shared per listening port). */
+  keepAliveTimeout?: number
 }
 
 /**
  * Acquires a pooled HTTP server (creating one if needed), compiles `api`
  * and attaches a {@link ServerApi} that dispatches matching requests.
  * Multiple `useRestService` calls on the same `port` + `hostName` share a
- * single underlying HTTP server.
+ * single underlying HTTP server. Server timeout options apply to that shared server.
  */
 export const useRestService = async <T extends RestApi>(options: ImplementApiOptions<T>): Promise<ServerApi> => {
   const {
@@ -71,6 +79,10 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
     description,
     version,
     maxBodyBytes,
+    actionTimeoutMs,
+    requestTimeout,
+    headersTimeout,
+    keepAliveTimeout,
   } = options
 
   const extendedApi: typeof api = enableGetSchema
@@ -108,11 +120,12 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
         hostName,
         deserializeQueryParams,
         maxBodyBytes,
+        actionTimeoutMs,
       }),
   }
 
   const pool = injector.get(HttpServerPoolToken)
-  const record = await pool.acquire({ port, hostName })
+  const record = await pool.acquire({ port, hostName, requestTimeout, headersTimeout, keepAliveTimeout })
   record.apis.push(serverApi)
   return serverApi
 }
