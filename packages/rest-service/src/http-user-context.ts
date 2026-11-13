@@ -140,7 +140,7 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
   private buildCookie(value: string, maxAgeSeconds?: number): string {
     const { cookieName, cookieSameSite = 'Lax', cookieSecure, cookieMaxAgeSeconds } = this.authentication
     const parts = [`${cookieName}=${value}`, 'Path=/', 'HttpOnly', `SameSite=${cookieSameSite}`]
-    if (cookieSecure) {
+    if (cookieSecure || cookieSameSite === 'None') {
       parts.push('Secure')
     }
     const age = maxAgeSeconds ?? cookieMaxAgeSeconds
