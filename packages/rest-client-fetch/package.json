@@ -40,11 +40,11 @@
   "homepage": "https://github.com/furystack/furystack",
   "dependencies": {
     "@furystack/rest": "workspace:^",
-    "path-to-regexp": "^8.4.2"
+    "path-to-regexp": "^9.0.0"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": ">=24.0.0"
