@@ -19,7 +19,7 @@ export const createPatchEndpoint = <
     const { id } = getUrlParams()
     const patchData = await getBody()
     const ds = injector.get(dataSet)
-    await ds.update(injector, id, patchData)
+    await ds.update(injector, id, patchData as unknown as Partial<T>)
     return JsonResult({})
   }
 }
