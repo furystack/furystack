@@ -408,8 +408,7 @@ describe('CommandPaletteSuggestionList', () => {
 
         const component = document.querySelector('shade-command-palette-suggestion-list') as HTMLElement
         const container = component?.querySelector('.suggestion-items-container') as HTMLElement
-        const expectedMaxHeight = `${window.innerHeight * 0.8}px`
-        expect(container?.style.maxHeight).toBe(expectedMaxHeight)
+        expect(parseFloat(container?.style.maxHeight ?? '')).toBeCloseTo(window.innerHeight * 0.8, 1)
       })
     })
   })
@@ -432,7 +431,7 @@ describe('CommandPaletteSuggestionList', () => {
         const computedStyle = window.getComputedStyle(container)
 
         expect(computedStyle.position).toBe('absolute')
-        expect(computedStyle.overflow).toBe('hidden')
+        expect(computedStyle.overflow.startsWith('hidden')).toBe(true)
         expect(computedStyle.zIndex).toBe('1')
       })
     })

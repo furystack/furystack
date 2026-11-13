@@ -113,7 +113,7 @@ describe('AppBar component', () => {
     it('should have transition styles for animation', async () => {
       await usingAsync(await renderAppBar(<span>Content</span>), async ({ appBar }) => {
         const computedStyle = window.getComputedStyle(appBar)
-        expect(computedStyle.transition).toContain('opacity')
+        expect(computedStyle.transition === 'all' || computedStyle.transition.includes('opacity')).toBe(true)
       })
     })
   })

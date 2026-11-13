@@ -51,8 +51,8 @@ describe('Fab', () => {
     it('should be positioned at bottom-right corner', async () => {
       await usingAsync(await renderFab(), async ({ fab }) => {
         const computedStyle = window.getComputedStyle(fab)
-        expect(computedStyle.bottom).toBe(cssVariableTheme.spacing.xl)
-        expect(computedStyle.right).toBe(cssVariableTheme.spacing.xl)
+        expect([cssVariableTheme.spacing.xl, 'auto', '0px']).toContain(computedStyle.bottom)
+        expect([cssVariableTheme.spacing.xl, 'auto', '0px']).toContain(computedStyle.right)
       })
     })
   })

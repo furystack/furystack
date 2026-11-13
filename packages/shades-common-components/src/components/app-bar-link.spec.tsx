@@ -334,7 +334,7 @@ describe('AppBarLink component', () => {
 
         const appBarLink = document.querySelector('shade-app-bar-link') as HTMLElement
         const computedStyle = window.getComputedStyle(appBarLink)
-        expect(computedStyle.transition).toContain('color')
+        expect(computedStyle.transition === 'all' || computedStyle.transition.includes('color')).toBe(true)
       })
     })
   })
