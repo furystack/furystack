@@ -1,4 +1,9 @@
+import { getPort } from '@furystack/core/port-generator'
 import type { IncomingMessage, ServerResponse } from 'http'
+import { createServer, request } from 'http'
+import { mkdtemp, rm, writeFile } from 'fs/promises'
+import { tmpdir } from 'os'
+import { join } from 'path'
 import { describe, expect, it } from 'vitest'
 import { buildStaticSiteServerApi } from './static-site-runtime.js'
 
@@ -35,5 +40,37 @@ describe('buildStaticSiteServerApi / shouldExec', () => {
 
   it('never exposes an onUpgrade hook (static sites do not handle upgrades)', () => {
     expect(api.onUpgrade).toBeUndefined()
+  })
+})
+
+describe('buildStaticSiteServerApi / onRequest stream lifecycle', () => {
+  it('resolves when the client disconnects mid-stream', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'furystack-static-'))
+    const file = join(dir, 'big.txt')
+    await writeFile(file, 'x'.repeat(1024 * 1024))
+    const port = getPort()
+    const api = buildStaticSiteServerApi({ baseUrl: '/', path: dir, port })
+    const server = createServer((req, res) => {
+      void api.onRequest({ req, res }).catch(() => undefined)
+    })
+
+    try {
+      await new Promise<void>((resolve) => server.listen(port, '127.0.0.1', resolve))
+      const settled = await new Promise<string>((resolve, reject) => {
+        const req = request({ hostname: '127.0.0.1', port, path: '/big.txt', method: 'GET' }, (res) => {
+          res.once('data', () => {
+            req.destroy()
+            setTimeout(() => resolve('ok'), 100)
+          })
+        })
+        req.on('error', () => undefined)
+        req.end()
+        setTimeout(() => reject(new Error('timeout')), 1000)
+      })
+      expect(settled).toBe('ok')
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())))
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })
