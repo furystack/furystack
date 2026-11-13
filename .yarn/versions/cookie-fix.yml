@@ -1,0 +1,3 @@
+releases:
+  "@furystack/rest-service": patch
+  furystack: patch
