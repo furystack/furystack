@@ -1,0 +1,5 @@
+releases:
+  "@furystack/rest-service": patch
+
+declined:
+  - furystack

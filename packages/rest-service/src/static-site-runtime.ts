@@ -35,10 +35,26 @@ const sendFile = async ({
     'Content-Length': size,
     'Content-Type': getMimeForFile(fullPath),
   }
-  Object.entries(head).forEach(([key, value]) => res.setHeader(key, value))
-  await new Promise<void>((fulfill, reject) =>
-    createReadStream(fullPath, { autoClose: true }).once('finish', fulfill).once('error', reject).pipe(res),
-  )
+  Object.entries(head).forEach(([key, value]) => {
+    if (value !== undefined) {
+      res.setHeader(key, value)
+    }
+  })
+  await new Promise<void>((done, reject) => {
+    const stream = createReadStream(fullPath, { autoClose: true })
+    const onError = (error: Error) => {
+      stream.destroy()
+      reject(error)
+    }
+    stream.once('error', onError)
+    res.once('error', onError)
+    res.once('close', () => {
+      stream.destroy()
+      done()
+    })
+    res.once('finish', done)
+    stream.pipe(res)
+  })
 }
 
 /**
