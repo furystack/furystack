@@ -137,6 +137,19 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     throw new UnauthenticatedError()
   }
 
+  private buildCookie(value: string, maxAgeSeconds?: number): string {
+    const { cookieName, cookieSameSite = 'Lax', cookieSecure, cookieMaxAgeSeconds } = this.authentication
+    const parts = [`${cookieName}=${value}`, 'Path=/', 'HttpOnly', `SameSite=${cookieSameSite}`]
+    if (cookieSecure) {
+      parts.push('Secure')
+    }
+    const age = maxAgeSeconds ?? cookieMaxAgeSeconds
+    if (age !== undefined) {
+      parts.push(`Max-Age=${age}`)
+    }
+    return parts.join('; ')
+  }
+
   public async cookieLogin(
     user: User,
     response: { setHeader: (header: string, value: string) => void },
@@ -144,7 +157,7 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     const sessionId = randomBytes(32).toString('hex')
     const sessionDataSet = this.systemInjector.get(this.authentication.sessionDataSet)
     await sessionDataSet.add(this.systemInjector, { sessionId, username: user.username })
-    response.setHeader('Set-Cookie', `${this.authentication.cookieName}=${sessionId}; Path=/; HttpOnly`)
+    response.setHeader('Set-Cookie', this.buildCookie(sessionId))
     this.emit('onLogin', { user })
     return user
   }
@@ -154,7 +167,7 @@ class HttpUserContextImpl extends EventHub<HttpUserContextEvents> implements Htt
     response: { setHeader: (header: string, value: string) => void },
   ): Promise<void> {
     const sessionId = this.getSessionIdFromRequest(request)
-    response.setHeader('Set-Cookie', `${this.authentication.cookieName}=; Path=/; HttpOnly`)
+    response.setHeader('Set-Cookie', this.buildCookie('', 0))
 
     if (sessionId) {
       const sessionDataSet = this.systemInjector.get(this.authentication.sessionDataSet)

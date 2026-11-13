@@ -25,6 +25,7 @@ appear before simple list items within each section.
 ## 🐛 Bug Fixes
 
 - Prevent path traversal in static file serving by rejecting resolved paths outside the configured root directory
+- Set `SameSite`, optional `Secure`, and `Max-Age` attributes on session cookies and apply the same attributes when clearing them
 
 ## 📚 Documentation
 

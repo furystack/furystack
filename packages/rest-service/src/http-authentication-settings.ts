@@ -52,6 +52,20 @@ export interface HttpAuthenticationSettings {
    * {@link DEFAULT_USER_CACHE_CAPACITY} is used by `UserResolutionCache`.
    */
   userCacheCapacity?: number
+  /**
+   * SameSite attribute for the session cookie. Defaults to `'Lax'`.
+   */
+  cookieSameSite?: 'Lax' | 'Strict' | 'None'
+  /**
+   * When `true`, adds the `Secure` attribute so browsers only send the cookie
+   * over HTTPS. Defaults to `false` to allow plain HTTP development setups.
+   */
+  cookieSecure?: boolean
+  /**
+   * Max-Age in seconds for the session cookie. Omit to create a session cookie
+   * without an explicit lifetime attribute.
+   */
+  cookieMaxAgeSeconds?: number
 }
 
 /** Default TTL applied to the user-resolution cache (30 seconds). */
@@ -72,6 +86,8 @@ export const defaultHttpAuthenticationSettings = (): HttpAuthenticationSettings 
   authenticationProviders: [],
   userCacheTtlMs: DEFAULT_USER_CACHE_TTL_MS,
   userCacheCapacity: DEFAULT_USER_CACHE_CAPACITY,
+  cookieSameSite: 'Lax',
+  cookieSecure: false,
 })
 
 /**
