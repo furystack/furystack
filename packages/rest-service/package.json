@@ -49,15 +49,15 @@
     "@furystack/utils": "workspace:^",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "path-to-regexp": "^8.4.2"
+    "path-to-regexp": "^9.0.0"
   },
   "devDependencies": {
     "@furystack/rest-client-fetch": "workspace:^",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/ws": "^8.18.2",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5",
-    "ws": "^8.22.0"
+    "vitest": "^5.1.0",
+    "ws": "^8.22.2"
   },
   "engines": {
     "node": ">=24.0.0"
