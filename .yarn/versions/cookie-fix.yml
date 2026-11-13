@@ -5,6 +5,7 @@ releases:
   "@furystack/filesystem-blob-store": patch
   "@furystack/redis-cross-node-bus": patch
   "@furystack/rest-service": patch
+  "@furystack/redis-task-runner": patch
   "@furystack/task-runner": patch
   "@furystack/task-runner-client": patch
   "@furystack/task-runner-examples": patch
