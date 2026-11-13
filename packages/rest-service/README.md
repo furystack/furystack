@@ -240,6 +240,14 @@ await useRestService<MyApi>({ injector: myInjector, ...apiOptions })
 persistent implementations, and for passing the `DataSetToken` that backs
 user lookups.
 
+Session cookie options (set via `HttpAuthenticationSettings` / `useHttpAuthentication`):
+
+- `cookieSameSite` (`'Lax' | 'Strict' | 'None'`, default `'Lax'`)
+- `cookieSecure` (`boolean`, default `false`, set `true` for HTTPS-only cookies; plain HTTP remains supported by default)
+- `cookieMaxAgeSeconds` (`number`, optional) adds `Max-Age` to align the cookie with your session lifetime
+
+`SameSite=None` requires `Secure` in modern browsers; the cookie builder enforces this by adding `Secure` automatically when `cookieSameSite` is `'None'`.
+
 ### Static File Serving
 
 You can serve static files using the `useStaticFiles` helper:

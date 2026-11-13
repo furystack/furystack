@@ -370,6 +370,56 @@ describe('HttpUserContext', () => {
   })
 
   describe('cookieLogin / cookieLogout', () => {
+    it('sets SameSite=Lax and HttpOnly on login and can add Secure and Max-Age', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        ctx.authentication.cookieSecure = true
+        ctx.authentication.cookieMaxAgeSeconds = 3600
+        const setHeader = vi.fn()
+
+        await ctx.cookieLogin(testUser, { setHeader })
+        expect(setHeader).toHaveBeenCalledWith(
+          'Set-Cookie',
+          expect.stringContaining('Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=3600'),
+        )
+      })
+    })
+
+    it('uses settings-driven Max-Age and a custom cookie name on login', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        ctx.authentication.cookieName = 'sid'
+        ctx.authentication.cookieMaxAgeSeconds = 1800
+        const setHeader = vi.fn()
+
+        await ctx.cookieLogin(testUser, { setHeader })
+        expect(setHeader).toHaveBeenCalledWith(
+          'Set-Cookie',
+          expect.stringMatching(/^sid=[^;]+; Path=\/; HttpOnly; SameSite=Lax; Max-Age=1800$/),
+        )
+      })
+    })
+
+    it('supports SameSite=Strict and forces Secure for SameSite=None', async () => {
+      await usingAsync(createInjector(), async (i) => {
+        prepareInjector(i)
+        const ctx = i.get(HttpUserContext)
+        const strictHeader = vi.fn()
+        ctx.authentication.cookieSameSite = 'Strict'
+        await ctx.cookieLogin(testUser, { setHeader: strictHeader })
+        expect(strictHeader).toHaveBeenCalledWith('Set-Cookie', expect.stringContaining('; SameSite=Strict'))
+        expect(strictHeader).toHaveBeenCalledWith('Set-Cookie', expect.not.stringContaining('; Secure'))
+
+        const noneHeader = vi.fn()
+        ctx.authentication.cookieSameSite = 'None'
+        ctx.authentication.cookieSecure = false
+        await ctx.cookieLogin(testUser, { setHeader: noneHeader })
+        expect(noneHeader).toHaveBeenCalledWith('Set-Cookie', expect.stringContaining('; SameSite=None; Secure'))
+      })
+    })
+
     it('persists the session, sets the cookie and emits onLogin', async () => {
       await usingAsync(createInjector(), async (i) => {
         prepareInjector(i)
@@ -381,6 +431,10 @@ describe('HttpUserContext', () => {
         const result = await ctx.cookieLogin(testUser, { setHeader })
         expect(result).toBe(testUser)
         expect(setHeader).toHaveBeenCalledTimes(1)
+        expect(setHeader).toHaveBeenCalledWith(
+          'Set-Cookie',
+          expect.stringMatching(/^fss=[^;]+; Path=\/; HttpOnly; SameSite=Lax$/),
+        )
         expect(onLogin).toHaveBeenCalledWith({ user: testUser })
 
         await usingAsync(useSystemIdentityContext({ injector: i, username: 'spec' }), async (systemScope) => {
@@ -411,7 +465,7 @@ describe('HttpUserContext', () => {
         )
         expect(logoutSetHeader).toHaveBeenCalledWith(
           'Set-Cookie',
-          `${ctx.authentication.cookieName}=; Path=/; HttpOnly`,
+          `${ctx.authentication.cookieName}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,
         )
         expect(onLogout).toHaveBeenCalledWith(undefined)
 
