@@ -1,0 +1,14 @@
+releases:
+  "@furystack/rest-service": patch
+
+declined:
+  - furystack
+  - "@furystack/auth-google"
+  - "@furystack/auth-jwt"
+  - "@furystack/entity-sync-service"
+  - "@furystack/filesystem-blob-store"
+  - "@furystack/redis-cross-node-bus"
+  - "@furystack/task-runner"
+  - "@furystack/task-runner-client"
+  - "@furystack/task-runner-examples"
+  - "@furystack/websocket-api"
