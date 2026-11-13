@@ -49,6 +49,14 @@ export interface ImplementApiOptions<T extends RestApi> {
   version?: string
   /** Maximum request body size in bytes. Defaults to 1 MiB. */
   maxBodyBytes?: number
+  /** Maximum time in ms for handling a request action. When exceeded, responds with 504. */
+  actionTimeoutMs?: number
+  /** Socket inactivity timeout in ms for the underlying HTTP server. */
+  requestTimeout?: number
+  /** Time allowed for receiving request headers in ms. */
+  headersTimeout?: number
+  /** Keep-alive idle timeout in ms. */
+  keepAliveTimeout?: number
 }
 
 /**
@@ -71,6 +79,10 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
     description,
     version,
     maxBodyBytes,
+    actionTimeoutMs,
+    requestTimeout,
+    headersTimeout,
+    keepAliveTimeout,
   } = options
 
   const extendedApi: typeof api = enableGetSchema
@@ -108,11 +120,12 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
         hostName,
         deserializeQueryParams,
         maxBodyBytes,
+        actionTimeoutMs,
       }),
   }
 
   const pool = injector.get(HttpServerPoolToken)
-  const record = await pool.acquire({ port, hostName })
+  const record = await pool.acquire({ port, hostName, requestTimeout, headersTimeout, keepAliveTimeout })
   record.apis.push(serverApi)
   return serverApi
 }

@@ -59,6 +59,8 @@ export type OnRestApiMessageOptions = OnRequest & {
   deserializeQueryParams?: (param: string) => Record<string, unknown>
   /** Maximum request body size in bytes. Defaults to 1 MiB. */
   maxBodyBytes?: number
+  /** Maximum time in ms for handling a request action. When exceeded, responds with 504. */
+  actionTimeoutMs?: number
 }
 
 /**
@@ -124,7 +126,7 @@ const executeAction = async (
     params: unknown
   },
 ): Promise<void> => {
-  const { injector, req, res, fullUrl, action, deserializeQueryParams, params, maxBodyBytes } = options
+  const { injector, req, res, fullUrl, action, deserializeQueryParams, params, maxBodyBytes, actionTimeoutMs } = options
   await usingAsync(injector.createScope({ owner: action }), async (scope) => {
     const httpUserContext = scope.get(HttpUserContext)
     scope.bind(IdentityContext, () => ({
@@ -133,17 +135,34 @@ const executeAction = async (
       isAuthenticated: () => httpUserContext.isAuthenticated(req),
     }))
     try {
-      const actionResult = await action({
-        request: req,
-        response: res,
-        injector: scope,
-        getBody: () => readPostBody<never>(req, maxBodyBytes === undefined ? undefined : { maxBytes: maxBodyBytes }),
-        headers: req.headers,
-        getQuery: () =>
-          deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
-        getUrlParams: () => params as object,
-      })
-      res.sendActionResult(actionResult)
+      const runAction = async () => {
+        const actionResult = await action({
+          request: req,
+          response: res,
+          injector: scope,
+          getBody: () => readPostBody<never>(req, maxBodyBytes === undefined ? undefined : { maxBytes: maxBodyBytes }),
+          headers: req.headers,
+          getQuery: () =>
+            deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),
+          getUrlParams: () => params as object,
+        })
+        res.sendActionResult(actionResult)
+      }
+
+      if (actionTimeoutMs && actionTimeoutMs > 0) {
+        let timer: ReturnType<typeof setTimeout> | undefined
+        // shortcut: timed-out action may keep running (no AbortSignal), dispose scope after responding
+        await Promise.race([
+          runAction(),
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => reject(new RequestError('Request Timeout', 504)), actionTimeoutMs)
+          }),
+        ]).finally(() => {
+          if (timer) clearTimeout(timer)
+        })
+      } else {
+        await runAction()
+      }
     } catch (error) {
       const errorActionResult = await ErrorAction({
         request: req,

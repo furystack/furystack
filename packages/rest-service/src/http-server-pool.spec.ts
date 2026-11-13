@@ -217,4 +217,20 @@ describe('HttpServerPool', () => {
       await injector[Symbol.asyncDispose]()
     }
   })
+
+  it('Should apply explicit server timeout options', async () => {
+    await usingAsync(createInjector(), async (injector) => {
+      const pool = injector.get(HttpServerPoolToken)
+      const port = getPort()
+      const record = await pool.acquire({
+        port,
+        requestTimeout: 12_345,
+        headersTimeout: 23_456,
+        keepAliveTimeout: 3_456,
+      })
+      expect(record.server.requestTimeout).toBe(12_345)
+      expect(record.server.headersTimeout).toBe(23_456)
+      expect(record.server.keepAliveTimeout).toBe(3_456)
+    })
+  })
 })
