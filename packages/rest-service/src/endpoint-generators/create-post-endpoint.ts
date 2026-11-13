@@ -2,7 +2,6 @@ import type { WithOptionalId } from '@furystack/core'
 import type { DataSetToken } from '@furystack/repository'
 import type { PostEndpoint } from '@furystack/rest'
 import { RequestError } from '@furystack/rest'
-import { readPostBody } from '../read-post-body.js'
 import { JsonResult, type RequestAction } from '../request-action-implementation.js'
 
 /**
@@ -17,9 +16,9 @@ export const createPostEndpoint = <
 >(
   dataSet: DataSetToken<T, TPrimaryKey, TWritableData>,
 ): RequestAction<PostEndpoint<T, TPrimaryKey, TWritableData>> => {
-  return async ({ injector, request }) => {
+  return async ({ injector, getBody }) => {
     const ds = injector.get(dataSet)
-    const entityToCreate = await readPostBody<TWritableData>(request)
+    const entityToCreate = await getBody()
     const { created } = await ds.add(injector, entityToCreate)
     if (!created || !created.length) {
       throw new RequestError('Entity not found', 404)

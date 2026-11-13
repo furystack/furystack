@@ -47,6 +47,8 @@ export interface ImplementApiOptions<T extends RestApi> {
   description?: string
   /** OpenAPI version. */
   version?: string
+  /** Maximum request body size in bytes. Defaults to 1 MiB. */
+  maxBodyBytes?: number
 }
 
 /**
@@ -68,6 +70,7 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
     name,
     description,
     version,
+    maxBodyBytes,
   } = options
 
   const extendedApi: typeof api = enableGetSchema
@@ -104,6 +107,7 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
         injector,
         hostName,
         deserializeQueryParams,
+        maxBodyBytes,
       }),
   }
 

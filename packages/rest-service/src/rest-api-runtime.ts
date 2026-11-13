@@ -57,6 +57,8 @@ export type OnRestApiMessageOptions = OnRequest & {
   cors?: CorsOptions
   supportedMethods: string[]
   deserializeQueryParams?: (param: string) => Record<string, unknown>
+  /** Maximum request body size in bytes. Defaults to 1 MiB. */
+  maxBodyBytes?: number
 }
 
 /**
@@ -122,7 +124,7 @@ const executeAction = async (
     params: unknown
   },
 ): Promise<void> => {
-  const { injector, req, res, fullUrl, action, deserializeQueryParams, params } = options
+  const { injector, req, res, fullUrl, action, deserializeQueryParams, params, maxBodyBytes } = options
   await usingAsync(injector.createScope({ owner: action }), async (scope) => {
     const httpUserContext = scope.get(HttpUserContext)
     scope.bind(IdentityContext, () => ({
@@ -135,7 +137,7 @@ const executeAction = async (
         request: req,
         response: res,
         injector: scope,
-        getBody: () => readPostBody<never>(req),
+        getBody: () => readPostBody<never>(req, maxBodyBytes === undefined ? undefined : { maxBytes: maxBodyBytes }),
         headers: req.headers,
         getQuery: () =>
           deserializeQueryParams ? deserializeQueryParams(fullUrl.search) : deserializeQueryString(fullUrl.search),

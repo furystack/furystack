@@ -36,6 +36,7 @@ await useRestService<MyApi>({
   injector: myInjector,
   port: 8080, // The port to listen on
   root: '/api', // Routes will be joined on this root path
+  maxBodyBytes: 1024 * 1024, // Optional body size limit in bytes (default: 1 MiB)
   cors: {
     // Enable CORS
     credentials: true, // Enable cookies for CORS
@@ -59,6 +60,8 @@ await useRestService<MyApi>({
 Endpoint generators now take a `DataSetToken` directly. Define the token
 once with `defineDataSet` in a shared module and import it in both the
 server and any generators that need it.
+
+Request bodies are limited to 1 MiB by default to prevent unbounded memory use. Configure `maxBodyBytes` in `useRestService` (per API) to change the limit. Requests exceeding the limit are rejected with `413 Payload Too Large`.
 
 ### Endpoint Generators (Based on DataSets)
 
