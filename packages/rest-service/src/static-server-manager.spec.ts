@@ -1,6 +1,10 @@
 import { getPort } from '@furystack/core/port-generator'
 import { createInjector } from '@furystack/inject'
 import { sleepAsync, usingAsync } from '@furystack/utils'
+import { mkdtemp, mkdir, rm, writeFile } from 'fs/promises'
+import { request } from 'http'
+import { tmpdir } from 'os'
+import { join } from 'path'
 import { describe, expect, it, vi } from 'vitest'
 import { useStaticFiles } from './helpers.js'
 import { HttpServerPoolToken } from './http-server-pool.js'
@@ -73,6 +77,41 @@ describe('useStaticFiles / buildStaticSiteServerApi', () => {
         const result = await fetch(`http://localhost:${port}/packages/utils/README.md`)
         expect(result.headers.get('content-type')).toBe('text/markdown')
       })
+    })
+
+    it('rejects path traversal outside the static root', async () => {
+      const root = await mkdtemp(join(tmpdir(), 'furystack-static-'))
+      try {
+        const publicDir = join(root, 'public')
+        await mkdir(publicDir)
+        await writeFile(join(publicDir, 'ok.txt'), 'ok', 'utf-8')
+        await writeFile(join(root, 'secret.txt'), 'secret', 'utf-8')
+
+        await usingAsync(createInjector(), async (i) => {
+          const port = getPort()
+          await useStaticFiles({ injector: i, baseUrl: '/static', path: publicDir, port })
+
+          const { statusCode, body } = await new Promise<{ statusCode: number; body: string }>((fulfill, reject) => {
+            const req = request(
+              { hostname: '127.0.0.1', port, path: '/static/../secret.txt', method: 'GET' },
+              (res) => {
+                let data = ''
+                res.on('data', (chunk) => {
+                  data += String(chunk)
+                })
+                res.on('end', () => fulfill({ statusCode: res.statusCode ?? 0, body: data }))
+              },
+            )
+            req.on('error', reject)
+            req.end()
+          })
+
+          expect(statusCode).toBe(404)
+          expect(body).not.toBe('secret')
+        })
+      } finally {
+        await rm(root, { recursive: true, force: true })
+      }
     })
   })
 
