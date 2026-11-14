@@ -1,6 +1,6 @@
 {
   "name": "@furystack/inject",
-  "version": "13.0.4",
+  "version": "13.0.5",
   "description": "Dependency Injection framework for FuryStack",
   "type": "module",
   "scripts": {
@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": ">=24.0.0"

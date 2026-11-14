@@ -68,10 +68,12 @@ describe('PasswordAuthenticator', () => {
         const authenticator = i.get(PasswordAuthenticator)
         const credential = await authenticator.hasher.createCredential('someone', 'pw')
         await i.get(PasswordCredentialStore).add(credential)
+        const verifySpy = vi.spyOn(authenticator.hasher, 'verifyCredential')
 
         const failure = (await authenticator.checkPasswordForUser('nobody', 'pw')) as PasswordCheckFailedResult
         expect(failure.isValid).toBe(false)
         expect(failure.reason).toBe('badUsernameOrPassword')
+        expect(verifySpy).toHaveBeenCalled()
       })
     })
 
@@ -171,7 +173,7 @@ describe('PasswordAuthenticator', () => {
   })
 
   describe('resetPasswordForUser', () => {
-    it('rotates the credential when the token is valid', async () => {
+    it('rotates the credential when the token is valid and removes the token', async () => {
       await usingAsync(createInjector(), async (i) => {
         const userName = randomString()
         const lastPassword = randomString()
@@ -190,6 +192,10 @@ describe('PasswordAuthenticator', () => {
         expect(
           ((await authenticator.checkPasswordForUser(userName, lastPassword)) as PasswordCheckFailedResult).reason,
         ).toBe('badUsernameOrPassword')
+        expect(await i.get(PasswordResetTokenStore).count()).toBe(0)
+        await expect(authenticator.resetPasswordForUser(token, randomString())).rejects.toBeInstanceOf(
+          UnauthenticatedError,
+        )
       })
     })
 

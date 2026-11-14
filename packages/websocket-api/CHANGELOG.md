@@ -1,5 +1,24 @@
 # Changelog
 
+## [14.1.4] - 2026-11-14
+
+### ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/security` dependency.
+- Patch release to include updated `@furystack/rest-service` dependency.
+- Updated dependencies
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+- Patch release to include updated FuryStack dependencies
+
+### 🐛 Bug Fixes
+
+- Patch release to include updated \@furystack/rest-service\ dependency.
+- Patch release to include updated `@furystack/rest-service` dependency
+- Patch release to include updated `@furystack/rest-service` dependency.
+
 ## [14.1.3] - 2026-09-18
 
 ### ⬆️ Dependencies

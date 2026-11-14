@@ -14,17 +14,33 @@ FuryStack is a flexible, end-to-end framework that allows you to build complex s
 
 ## Getting Started
 
-Install any FuryStack package using npm or yarn:
+- **In-repo full-stack recipe (versioned with this code):** [docs/getting-started/fullstack-monorepo.md](docs/getting-started/fullstack-monorepo.md) — `common` + `backend` + `frontend` monorepo layout, auth/store/dataset bootstrap, seeding, validation, and frontend↔backend dev/prod wiring
+- **Step-by-step guides:** [furystack.github.io/getting-started](https://furystack.github.io/getting-started/) (recommended for new users)
+  - [Build from scratch](https://furystack.github.io/getting-started/from-scratch/) — minimal monorepo, DI, store/dataset, REST, and Shades UI
+  - [Use the boilerplate](https://furystack.github.io/getting-started/boilerplate/) — ready-made full-stack template
+  - Core concepts: [Dependency Injection](https://furystack.github.io/getting-started/inject/), [Data Stores](https://furystack.github.io/getting-started/data-stores/), [Repository/DataSets](https://furystack.github.io/getting-started/repository/), [REST](https://furystack.github.io/getting-started/rest/), [Data Validation](https://furystack.github.io/getting-started/data-validation/)
+
+Install packages as needed with npm or yarn:
 
 ```bash
-# Using npm
 npm install @furystack/core @furystack/inject
-
-# Using yarn
+# or
 yarn add @furystack/core @furystack/inject
 ```
 
-Check out the [boilerplate repository](https://github.com/furystack/boilerplate) for a working example with both backend and frontend setup.
+### Prerequisites
+
+- **Node.js**: `>=24` (see `package.json` engines)
+- **Yarn**: `4.x` via Corepack (`packageManager` in `package.json`)
+- **Docker** (optional, for full local parity): integration and UI test flows may require services like MongoDB/Redis/MinIO (`docker-compose.yml`)
+
+### Recommended starting points
+
+- **Minimal backend/DI + in-memory data:** `@furystack/inject`, `@furystack/core`, `@furystack/repository`
+- **Type-safe REST API:** add `@furystack/rest`, `@furystack/rest-service`, and `@furystack/rest-client-fetch` (share API types in a common package)
+- **Persistent storage:** add a store adapter such as `@furystack/filesystem-store`, `@furystack/mongodb-store`, `@furystack/redis-store`, or `@furystack/sequelize-store`
+- **Auth:** add `@furystack/security` and `@furystack/rest-service` HTTP auth helpers (and `@furystack/auth-jwt` / `@furystack/auth-google` as needed)
+- **UI:** `@furystack/shades` (+ `@furystack/shades-common-components` for ready-made components)
 
 ## Packages
 
@@ -40,13 +56,16 @@ Check out the [boilerplate repository](https://github.com/furystack/boilerplate)
 
 ### Data Storage
 
-| Package                                                            | Version                                                                                                                                       | Description                                                          |
-| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| [@furystack/repository](packages/repository/README.md)             | [![npm](https://img.shields.io/npm/v/@furystack/repository.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/repository)             | Repository pattern with DataSets, authorization, and event callbacks |
-| [@furystack/filesystem-store](packages/filesystem-store/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/filesystem-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/filesystem-store) | File-based store for development and testing                         |
-| [@furystack/mongodb-store](packages/mongodb-store/README.md)       | [![npm](https://img.shields.io/npm/v/@furystack/mongodb-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/mongodb-store)       | MongoDB document store implementation                                |
-| [@furystack/redis-store](packages/redis-store/README.md)           | [![npm](https://img.shields.io/npm/v/@furystack/redis-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/redis-store)           | Redis key-value store implementation                                 |
-| [@furystack/sequelize-store](packages/sequelize-store/README.md)   | [![npm](https://img.shields.io/npm/v/@furystack/sequelize-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/sequelize-store)   | SQL databases via Sequelize ORM                                      |
+| Package                                                                      | Version                                                                                                                                                 | Description                                                          |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [@furystack/repository](packages/repository/README.md)                       | [![npm](https://img.shields.io/npm/v/@furystack/repository.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/repository)                       | Repository pattern with DataSets, authorization, and event callbacks |
+| [@furystack/filesystem-store](packages/filesystem-store/README.md)           | [![npm](https://img.shields.io/npm/v/@furystack/filesystem-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/filesystem-store)           | File-based store for development and testing                         |
+| [@furystack/mongodb-store](packages/mongodb-store/README.md)                 | [![npm](https://img.shields.io/npm/v/@furystack/mongodb-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/mongodb-store)                 | MongoDB document store implementation                                |
+| [@furystack/redis-store](packages/redis-store/README.md)                     | [![npm](https://img.shields.io/npm/v/@furystack/redis-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/redis-store)                     | Redis key-value store implementation                                 |
+| [@furystack/sequelize-store](packages/sequelize-store/README.md)             | [![npm](https://img.shields.io/npm/v/@furystack/sequelize-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/sequelize-store)             | SQL databases via Sequelize ORM                                      |
+| [@furystack/blob-store](packages/blob-store/README.md)                       | [![npm](https://img.shields.io/npm/v/@furystack/blob-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/blob-store)                       | Transport-agnostic large-binary storage primitive                    |
+| [@furystack/filesystem-blob-store](packages/filesystem-blob-store/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/filesystem-blob-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/filesystem-blob-store) | Filesystem-backed blob store adapter                                 |
+| [@furystack/s3-blob-store](packages/s3-blob-store/README.md)                 | [![npm](https://img.shields.io/npm/v/@furystack/s3-blob-store.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/s3-blob-store)                 | S3-compatible blob store adapter                                     |
 
 ### REST API
 
@@ -63,6 +82,7 @@ Check out the [boilerplate repository](https://github.com/furystack/boilerplate)
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | [@furystack/security](packages/security/README.md)       | [![npm](https://img.shields.io/npm/v/@furystack/security.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/security)       | Password management and authorization utilities |
 | [@furystack/auth-google](packages/auth-google/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/auth-google.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/auth-google) | Google OAuth integration                        |
+| [@furystack/auth-jwt](packages/auth-jwt/README.md)       | [![npm](https://img.shields.io/npm/v/@furystack/auth-jwt.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/auth-jwt)       | JWT authentication provider                     |
 
 ### Internationalization
 
@@ -80,32 +100,38 @@ Check out the [boilerplate repository](https://github.com/furystack/boilerplate)
 | [@furystack/shades-mfe](packages/shades-mfe/README.md)                             | [![npm](https://img.shields.io/npm/v/@furystack/shades-mfe.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-mfe)                             | Micro-frontend support                                |
 | [@furystack/shades-lottie](packages/shades-lottie/README.md)                       | [![npm](https://img.shields.io/npm/v/@furystack/shades-lottie.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-lottie)                       | Lottie animation wrapper                              |
 | [@furystack/shades-nipple](packages/shades-nipple/README.md)                       | [![npm](https://img.shields.io/npm/v/@furystack/shades-nipple.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-nipple)                       | NippleJS joystick wrapper                             |
+| [@furystack/shades-monaco](packages/shades-monaco/README.md)                       | [![npm](https://img.shields.io/npm/v/@furystack/shades-monaco.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-monaco)                       | Monaco Editor and Diff Editor components              |
 | [@furystack/shades-showcase-app](packages/shades-showcase-app/README.md)           | [![npm](https://img.shields.io/npm/v/@furystack/shades-showcase-app.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/shades-showcase-app)           | Demo application                                      |
+
+### Messaging & Synchronization
+
+| Package                                                                    | Version                                                                                                                                               | Description                                                  |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| [@furystack/cross-node-bus](packages/cross-node-bus/README.md)             | [![npm](https://img.shields.io/npm/v/@furystack/cross-node-bus.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/cross-node-bus)             | Transport-agnostic cross-process publish/subscribe primitive |
+| [@furystack/redis-cross-node-bus](packages/redis-cross-node-bus/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/redis-cross-node-bus.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/redis-cross-node-bus) | Redis Streams adapter for cross-node messaging               |
+| [@furystack/entity-sync](packages/entity-sync/README.md)                   | [![npm](https://img.shields.io/npm/v/@furystack/entity-sync.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/entity-sync)                   | Shared protocol types for entity synchronization             |
+| [@furystack/entity-sync-client](packages/entity-sync-client/README.md)     | [![npm](https://img.shields.io/npm/v/@furystack/entity-sync-client.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/entity-sync-client)     | Client-side entity synchronization                           |
+| [@furystack/entity-sync-service](packages/entity-sync-service/README.md)   | [![npm](https://img.shields.io/npm/v/@furystack/entity-sync-service.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/entity-sync-service)   | Server-side entity synchronization                           |
+
+### Background Tasks
+
+| Package                                                                    | Version                                                                                                                                           | Description                                                     |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [@furystack/task-runner](packages/task-runner/README.md)                   | [![npm](https://img.shields.io/npm/v/@furystack/task-runner.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/task-runner)               | Transport-agnostic distributed task runner                      |
+| [@furystack/task-runner-client](packages/task-runner-client/README.md)     | [![npm](https://img.shields.io/npm/v/@furystack/task-runner-client.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/task-runner-client) | Browser-side SDK for the task runner                            |
+| [@furystack/redis-task-runner](packages/redis-task-runner/README.md)       | [![npm](https://img.shields.io/npm/v/@furystack/redis-task-runner.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/redis-task-runner)   | Redis Streams adapter for task runner queues                    |
+| [@furystack/task-runner-examples](packages/task-runner-examples/README.md) | -                                                                                                                                                 | Worked examples for the task runner (private workspace package) |
 
 ### Tooling
 
-| Package                                                                      | Version                                                                                                                                                 | Description                                 |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| [@furystack/yarn-plugin-changelog](packages/yarn-plugin-changelog/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/yarn-plugin-changelog.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/yarn-plugin-changelog) | Changelog generation from version manifests |
+| Package                                                                      | Version                                                                                                                                                 | Description                                  |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| [@furystack/yarn-plugin-changelog](packages/yarn-plugin-changelog/README.md) | [![npm](https://img.shields.io/npm/v/@furystack/yarn-plugin-changelog.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/yarn-plugin-changelog) | Changelog generation from version manifests  |
+| [@furystack/eslint-plugin](packages/eslint-plugin/README.md)                 | [![npm](https://img.shields.io/npm/v/@furystack/eslint-plugin.svg?maxAge=3600)](https://www.npmjs.com/package/@furystack/eslint-plugin)                 | Custom ESLint rules for FuryStack and Shades |
 
 ## Contributing
 
-Contributions are welcome! This is a monorepo managed with Yarn workspaces.
-
-```bash
-# Clone the repository
-git clone https://github.com/furystack/furystack.git
-cd furystack
-
-# Install dependencies
-yarn install
-
-# Build all packages
-yarn build
-
-# Run tests
-yarn test
-```
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, build/test workflows, and contribution notes. This is a Yarn workspaces monorepo (`packages/*`). For framework usage docs, prefer the [public guides](https://furystack.github.io/getting-started/).
 
 ## License
 

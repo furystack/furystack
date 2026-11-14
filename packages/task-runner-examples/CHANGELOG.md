@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.0.5] - 2026-11-14
+
+### 📚 Documentation
+
+- Added a package `README.md` describing the included example and how to run it.
+
+### 🧹 Chores
+
+- Aligned the Node.js engine requirement with the repository baseline (`>=24.0.0`).
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+- Patch release to include updated FuryStack dependencies
+
+### ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/rest-service` dependency.
+- Updated dependencies
+
+### 🐛 Bug Fixes
+
+- Patch release to include updated \@furystack/rest-service\ dependency.
+- Patch release to include updated `@furystack/rest-service` dependency
+- Patch release to include updated `@furystack/rest-service` dependency.
+
 ## [0.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

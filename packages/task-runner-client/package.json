@@ -1,6 +1,6 @@
 {
   "name": "@furystack/task-runner-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Browser-side SDK for the FuryStack distributed task runner",
   "type": "module",
   "scripts": {
@@ -47,11 +47,11 @@
     "@furystack/rest-service": "workspace:^",
     "@types/ws": "^8.18.2",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5",
-    "ws": "^8.22.0"
+    "vitest": "^5.1.0",
+    "ws": "^8.22.2"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

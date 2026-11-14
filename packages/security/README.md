@@ -2,6 +2,8 @@
 
 Password management, authentication, and authorization utilities for FuryStack.
 
+For an end-to-end app bootstrap (password policy, stores, auth wiring, seeding first user), see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md).
+
 ## Installation
 
 ```bash

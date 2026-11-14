@@ -1,5 +1,15 @@
 # Changelog
 
+## [7.0.5] - 2026-11-14
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [7.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

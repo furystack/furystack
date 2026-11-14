@@ -12,6 +12,8 @@ npm install @furystack/repository
 yarn add @furystack/repository
 ```
 
+> New to FuryStack? See the [Repository/DataSets guide](https://furystack.github.io/getting-started/repository/) and [Data Stores guide](https://furystack.github.io/getting-started/data-stores/) for the recommended setup flow. For an in-repo full-stack app recipe (datasets, system-identity seeding, REST wiring), see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md).
+
 ## Setting Up a DataSet
 
 A DataSet is declared with `defineDataSet`. It takes the underlying

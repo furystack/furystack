@@ -1,6 +1,6 @@
 {
   "name": "@furystack/yarn-plugin-changelog",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Yarn plugin for managing changelogs from version manifests",
   "license": "GPL-2.0",
   "main": "./src/index.ts",
@@ -40,10 +40,10 @@
     "clipanion": "^4.0.0-rc.4"
   },
   "devDependencies": {
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@yarnpkg/builder": "^4.2.4",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": ">=24.0.0"

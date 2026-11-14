@@ -49,7 +49,6 @@ Each model registration accepts these options:
 ```ts
 type EntitySyncModelConfig = {
   dataSet: DataSetToken<unknown, never>
-  changelogRetentionMs?: number // How long to keep change entries for delta sync (default: 5 min)
   debounceMs?: number // Debounce window for batching notifications (default: 0 = immediate)
   queryTtlMs?: number // TTL for cached find() results on collections (default: 0 = no cache)
 }
@@ -63,7 +62,7 @@ so callers never have to repeat them.
 The `SubscriptionManager` (singleton) tracks changes to registered DataSets:
 
 1. **Change tracking** — listens to `onEntityAdded`, `onEntityUpdated`, `onEntityRemoved` events on the DataSet
-2. **Changelog** — maintains a per-model changelog with sequence numbers for delta sync support
+2. **Replay** — uses the configured cross-node bus replay window for sequence numbers and delta sync when the bus retains the gap; otherwise falls back to snapshots
 3. **Subscriptions** — when a client subscribes, the manager sends an initial snapshot (or delta if `lastSeq` is provided), then pushes incremental changes
 4. **Debouncing** — optionally batches rapid changes before re-evaluating collection subscriptions
 5. **Query caching** — optionally caches `find()` results for collection subscriptions to reduce database load
@@ -104,8 +103,7 @@ const manager = injector.get(SubscriptionManager)
 // Register a DataSet (usually done via useEntitySync)
 manager.registerModel(UserDataSet, { debounceMs: 100 })
 
-// Notify an entity change (usually handled automatically via DataSet events)
-manager.notifyEntityAdded(User, newUser)
-manager.notifyEntityUpdated(User, userId, { name: 'New Name' })
-manager.notifyEntityRemoved(User, userId)
+// Inspect registrations and active subscriptions
+manager.getModelRegistration('User')
+manager.getActiveSubscriptions()
 ```

@@ -12,7 +12,9 @@ yarn add @furystack/rest-service
 
 ## Usage
 
-Start by importing your custom API endpoint interface (see `@furystack/rest`) and use the `.useRestService<MyApi>(...)` injector extension method. You can define multiple REST services per injector (even on the same port).
+Start by importing your custom API endpoint interface (see `@furystack/rest`) and call `useRestService<MyApi>(...)` with your injector and API implementation. You can define multiple REST services per injector (even on the same port).
+
+For a guided walkthrough, see the [REST getting-started guide](https://furystack.github.io/getting-started/rest/) and [Build from scratch](https://furystack.github.io/getting-started/from-scratch/). For an in-repo, versioned recipe covering `common` + `backend` + `frontend` wiring, auth bootstrap order, seeding, validation, and dev/prod integration, see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md). For runtime payload validation, see [Data Validation](https://furystack.github.io/getting-started/data-validation/).
 
 ### Implementing a Custom API
 
@@ -36,6 +38,7 @@ await useRestService<MyApi>({
   injector: myInjector,
   port: 8080, // The port to listen on
   root: '/api', // Routes will be joined on this root path
+  maxBodyBytes: 1024 * 1024, // Optional body size limit in bytes (default: 1 MiB)
   cors: {
     // Enable CORS
     credentials: true, // Enable cookies for CORS
@@ -59,6 +62,8 @@ await useRestService<MyApi>({
 Endpoint generators now take a `DataSetToken` directly. Define the token
 once with `defineDataSet` in a shared module and import it in both the
 server and any generators that need it.
+
+Request bodies are limited to 1 MiB by default to prevent unbounded memory use. Configure `maxBodyBytes` in `useRestService` (per API) to change the limit. Requests exceeding the limit are rejected with `413 Payload Too Large`.
 
 ### Endpoint Generators (Based on DataSets)
 
@@ -211,7 +216,13 @@ In that way, you will get full validation for _all_ defined endpoint data (heade
 
 ### Authentication and HttpUserContext
 
-You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. You can use it with the `useHttpAuthentication()` helper:
+You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. Use the `useHttpAuthentication()` helper after wiring the required dependencies.
+
+**Prerequisites (important):**
+
+- Bind `UserStore` and `SessionStore` to persistent store implementations (they throw by default).
+- Provide a `userDataSet` token (`DataSetToken` / `ApplicationUserDataSet`) that backs user lookups.
+- Ensure the backing stores/datasets are registered on the injector before calling `useHttpAuthentication()`.
 
 ```ts
 import { createInjector } from '@furystack/inject'
@@ -235,10 +246,19 @@ await useRestService<MyApi>({ injector: myInjector, ...apiOptions })
 ```
 
 `useHttpAuthentication` binds the `HttpAuthenticationSettings` and
-`HttpUserContext` tokens. Your app is responsible for binding the
-`UserStore` / `SessionStore` tokens (which throw by default) to concrete
-persistent implementations, and for passing the `DataSetToken` that backs
-user lookups.
+`HttpUserContext` tokens. Your app remains responsible for binding the
+`UserStore` / `SessionStore` tokens to concrete persistent implementations and
+for passing the `DataSetToken` that backs user lookups. For JWT-based auth, see
+[`@furystack/auth-jwt`](../auth-jwt/README.md). For an end-to-end example, see
+the [REST guide](https://furystack.github.io/getting-started/rest/).
+
+Session cookie options (set via `HttpAuthenticationSettings` / `useHttpAuthentication`):
+
+- `cookieSameSite` (`'Lax' | 'Strict' | 'None'`, default `'Lax'`)
+- `cookieSecure` (`boolean`, default `false`, set `true` for HTTPS-only cookies; plain HTTP remains supported by default)
+- `cookieMaxAgeSeconds` (`number`, optional) adds `Max-Age` to align the cookie with your session lifetime
+
+`SameSite=None` requires `Secure` in modern browsers; the cookie builder enforces this by adding `Secure` automatically when `cookieSameSite` is `'None'`.
 
 ### Static File Serving
 

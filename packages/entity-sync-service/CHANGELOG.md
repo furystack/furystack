@@ -1,5 +1,27 @@
 # Changelog
 
+## [4.0.0] - 2026-11-14
+
+### 💥 Breaking Changes
+
+- Removed the deprecated `changelogRetentionMs` option from `ModelSyncOptions` and `registerModel()`. Replay retention is owned by the configured cross-node bus adapter.
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+- Patch release to include updated FuryStack dependencies
+
+### ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/rest-service` dependency.
+- Updated dependencies
+
+### 🐛 Bug Fixes
+
+- Patch release to include updated \@furystack/rest-service\ dependency.
+- Patch release to include updated `@furystack/rest-service` dependency
+- Patch release to include updated `@furystack/rest-service` dependency.
+
 ## [3.0.3] - 2026-09-18
 
 ### ⬆️ Dependencies

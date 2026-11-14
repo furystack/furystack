@@ -47,13 +47,23 @@ export interface ImplementApiOptions<T extends RestApi> {
   description?: string
   /** OpenAPI version. */
   version?: string
+  /** Maximum request body size in bytes. Defaults to 1 MiB. */
+  maxBodyBytes?: number
+  /** Maximum time in ms for handling a request action. When exceeded, responds with 504. Does not abort in-progress body reads. */
+  actionTimeoutMs?: number
+  /** Socket inactivity timeout in ms for the underlying HTTP server (shared per listening port). */
+  requestTimeout?: number
+  /** Time allowed for receiving request headers in ms (shared per listening port). */
+  headersTimeout?: number
+  /** Keep-alive idle timeout in ms (shared per listening port). */
+  keepAliveTimeout?: number
 }
 
 /**
  * Acquires a pooled HTTP server (creating one if needed), compiles `api`
  * and attaches a {@link ServerApi} that dispatches matching requests.
  * Multiple `useRestService` calls on the same `port` + `hostName` share a
- * single underlying HTTP server.
+ * single underlying HTTP server. Server timeout options apply to that shared server.
  */
 export const useRestService = async <T extends RestApi>(options: ImplementApiOptions<T>): Promise<ServerApi> => {
   const {
@@ -68,6 +78,11 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
     name,
     description,
     version,
+    maxBodyBytes,
+    actionTimeoutMs,
+    requestTimeout,
+    headersTimeout,
+    keepAliveTimeout,
   } = options
 
   const extendedApi: typeof api = enableGetSchema
@@ -104,11 +119,13 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
         injector,
         hostName,
         deserializeQueryParams,
+        maxBodyBytes,
+        actionTimeoutMs,
       }),
   }
 
   const pool = injector.get(HttpServerPoolToken)
-  const record = await pool.acquire({ port, hostName })
+  const record = await pool.acquire({ port, hostName, requestTimeout, headersTimeout, keepAliveTimeout })
   record.apis.push(serverApi)
   return serverApi
 }
@@ -118,9 +135,13 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
  * chain (Basic + Cookie by default), appends any caller-provided providers
  * and rebinds {@link HttpAuthenticationSettings}.
  *
- * Prerequisite: {@link UserStore} and {@link SessionStore} must be bound to
- * persistent implementations before calling this helper, since the Basic
- * and Cookie providers need to read users and sessions immediately.
+ * Prerequisites:
+ * - Bind {@link UserStore} and {@link SessionStore} to persistent store implementations first.
+ * - Ensure the backing user/session stores and datasets are registered on the injector.
+ * - Provide `overrides.userDataSet` (or configure a valid `HttpAuthenticationSettings.userDataSet`)
+ *   so user lookups can be resolved.
+ *
+ * The Basic and Cookie providers read users/sessions during setup, so missing bindings will fail early.
  */
 export const useHttpAuthentication = (injector: Injector, overrides?: Partial<HttpAuthenticationSettings>): void => {
   const mergedSettings: HttpAuthenticationSettings = {

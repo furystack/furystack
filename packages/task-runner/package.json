@@ -1,6 +1,6 @@
 {
   "name": "@furystack/task-runner",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Transport-agnostic distributed task runner for FuryStack",
   "type": "module",
   "scripts": {
@@ -53,16 +53,16 @@
     "@furystack/rest-service": "workspace:^",
     "@furystack/utils": "workspace:^",
     "@furystack/websocket-api": "workspace:^",
-    "ws": "^8.22.0"
+    "ws": "^8.22.2"
   },
   "devDependencies": {
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@types/ws": "^8.18.2",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

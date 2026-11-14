@@ -1,6 +1,6 @@
 {
   "name": "@furystack/utils",
-  "version": "9.0.4",
+  "version": "9.0.5",
   "description": "Utility functions and helpers for FuryStack including observables, events, and disposables",
   "type": "module",
   "scripts": {
@@ -39,7 +39,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": ">=24.0.0"

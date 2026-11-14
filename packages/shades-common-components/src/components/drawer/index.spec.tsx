@@ -401,7 +401,7 @@ describe('Drawer component', () => {
         await flushUpdates()
 
         container = document.querySelector('.drawer-container') as HTMLElement
-        expect(container.style.transform).toBe('translateX(0)')
+        expect(['translateX(0)', 'translateX(0px)']).toContain(container.style.transform)
       })
     })
   })

@@ -1,5 +1,15 @@
 # Changelog
 
+## [17.1.4] - 2026-11-14
+
+### Documentation
+
+- Added links to the public getting-started guides to help new users navigate DI, store, and repository concepts
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [17.1.3] - 2026-09-18
 
 ### ⬆️ Dependencies

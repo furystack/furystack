@@ -1,5 +1,30 @@
 # Changelog
 
+## [9.0.6] - 2026-11-14
+
+### 📚 Documentation
+
+- Updated repository docs and the root package catalog to match the current workspace layout and packages, and removed stale pipeline TODO comments.
+
+### Documentation
+
+- Improved root onboarding with links to the public FuryStack getting-started guides, prerequisites, and recommended package starting points
+- Added `CONTRIBUTING.md` and `CONTEXT-MAP.md` and aligned repository orientation docs for new users and contributors
+- Added an in-repo [full-stack monorepo guide](docs/getting-started/fullstack-monorepo.md) covering common + ackend + rontend layout, auth/store/dataset bootstrap, first-run seeding, request validation, and frontend↔backend dev/prod wiring
+- Updated README.md and CONTEXT-MAP.md to point to the versioned in-repo onboarding guide alongside public getting-started links
+
+### ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/security` and `@furystack/rest-service` dependencies.
+- Updated dependencies
+
+### 🐛 Bug Fixes
+
+- Patch release for rest-service session cookie attribute fix.
+- Patch release for request body size limit enforcement in `@furystack/rest-service`
+- Patch release to include updated `@furystack/rest-service` dependency
+- Patch release to include updated `@furystack/rest-service` dependency.
+
 ## [9.0.5] - 2026-09-18
 
 ### ⬆️ Dependencies

@@ -1,5 +1,27 @@
 # Changelog
 
+## [4.0.5] - 2026-11-14
+
+### ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/security` dependency.
+- Patch release to include updated `@furystack/security` and `@furystack/rest-service` dependencies.
+- Updated dependencies
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+
+### 🐛 Bug Fixes
+
+- Patch release to include updated \@furystack/rest-service\ dependency.
+- Patch release to include updated `@furystack/rest-service` dependency
+- Patch release to include updated `@furystack/rest-service` dependency.
+
+### Documentation
+
+- Added cross-link to the in-repo [full-stack monorepo guide](../../docs/getting-started/fullstack-monorepo.md) for integrating JWT auth in a full app setup
+
 ## [4.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

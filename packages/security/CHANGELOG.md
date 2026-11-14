@@ -1,5 +1,28 @@
 # Changelog
 
+## [8.0.5] - 2026-11-14
+
+### 🧹 Chores
+
+- Cleaned up `PasswordCheckResult` by removing an obsolete TODO from the failed-result reason type.
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+
+### 🐛 Bug Fixes
+
+- `resetPasswordForUser` now removes the reset token after a successful password reset so tokens cannot be reused
+- `checkPasswordForUser` performs a dummy verification when the user does not exist to reduce username timing differences
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
+### Documentation
+
+- Added cross-link to the in-repo [full-stack monorepo guide](../../docs/getting-started/fullstack-monorepo.md) for password/auth bootstrap and first-user seeding patterns
+
 ## [8.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

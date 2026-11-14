@@ -1,6 +1,6 @@
 {
   "name": "@furystack/cross-node-bus",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Transport-agnostic cross-process publish/subscribe primitive for FuryStack",
   "type": "module",
   "scripts": {
@@ -45,9 +45,9 @@
     "@furystack/utils": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": ">=24.0.0"

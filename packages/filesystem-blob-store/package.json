@@ -1,6 +1,6 @@
 {
   "name": "@furystack/filesystem-blob-store",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Filesystem-backed adapter for the @furystack/blob-store primitive",
   "type": "module",
   "scripts": {
@@ -45,12 +45,12 @@
     "@furystack/rest-service": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

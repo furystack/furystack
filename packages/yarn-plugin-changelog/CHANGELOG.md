@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.15] - 2026-11-14
+
+### 🐛 Bug Fixes
+
+- Fixed changelog draft parsing to handle CRLF line endings so sections are detected correctly on Windows.
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [1.0.14] - 2026-09-18
 
 ### ⬆️ Dependencies

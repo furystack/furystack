@@ -1,7 +1,6 @@
 import type { WithOptionalId } from '@furystack/core'
 import type { DataSetToken } from '@furystack/repository'
 import type { PatchEndpoint } from '@furystack/rest'
-import { readPostBody } from '../read-post-body.js'
 import { JsonResult, type RequestAction } from '../request-action-implementation.js'
 
 /**
@@ -16,11 +15,11 @@ export const createPatchEndpoint = <
 >(
   dataSet: DataSetToken<T, TPrimaryKey, TWritableData>,
 ): RequestAction<PatchEndpoint<T, TPrimaryKey, TWritableData>> => {
-  return async ({ injector, request, getUrlParams }) => {
+  return async ({ injector, getBody, getUrlParams }) => {
     const { id } = getUrlParams()
-    const patchData = await readPostBody<T>(request)
+    const patchData = await getBody()
     const ds = injector.get(dataSet)
-    await ds.update(injector, id, patchData)
+    await ds.update(injector, id, patchData as unknown as Partial<T>)
     return JsonResult({})
   }
 }

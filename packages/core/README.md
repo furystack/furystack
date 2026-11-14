@@ -11,6 +11,8 @@ npm install @furystack/core
 yarn add @furystack/core
 ```
 
+> New to FuryStack? Start with the [getting started guides](https://furystack.github.io/getting-started/), especially [Dependency Injection](https://furystack.github.io/getting-started/inject/), [Data Stores](https://furystack.github.io/getting-started/data-stores/), and [Repository/DataSets](https://furystack.github.io/getting-started/repository/).
+
 ## Concepts
 
 ### Physical Store

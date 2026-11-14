@@ -2,7 +2,7 @@ import { PathHelper } from '@furystack/utils'
 import { createReadStream } from 'fs'
 import { access, stat } from 'fs/promises'
 import type { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
-import { join, normalize, sep } from 'path'
+import { resolve, sep } from 'path'
 import type { ServerApi } from './http-server-pool.js'
 import { getMimeForFile } from './mime-types.js'
 
@@ -35,10 +35,26 @@ const sendFile = async ({
     'Content-Length': size,
     'Content-Type': getMimeForFile(fullPath),
   }
-  Object.entries(head).forEach(([key, value]) => res.setHeader(key, value))
-  await new Promise<void>((resolve, reject) =>
-    createReadStream(fullPath, { autoClose: true }).once('finish', resolve).once('error', reject).pipe(res),
-  )
+  Object.entries(head).forEach(([key, value]) => {
+    if (value !== undefined) {
+      res.setHeader(key, value)
+    }
+  })
+  await new Promise<void>((done, reject) => {
+    const stream = createReadStream(fullPath, { autoClose: true })
+    const onError = (error: Error) => {
+      stream.destroy()
+      reject(error)
+    }
+    stream.once('error', onError)
+    res.once('error', onError)
+    res.once('close', () => {
+      stream.destroy()
+      done()
+    })
+    res.once('finish', done)
+    stream.pipe(res)
+  })
 }
 
 /**
@@ -47,16 +63,33 @@ const sendFile = async ({
  * `options.fallback` (if set) for missing files, otherwise responds with 404.
  */
 export const buildStaticSiteServerApi = (options: StaticServerOptions): ServerApi => {
+  const rootPath = resolve(options.path)
+  const isInsideRoot = (filePath: string) => filePath === rootPath || filePath.startsWith(`${rootPath}${sep}`)
+
   const onRequest = async ({ req, res }: { req: IncomingMessage; res: ServerResponse }): Promise<void> => {
     const extractedPath = PathHelper.extractPath(req.url as string, options.baseUrl)
     const filePath = (extractedPath || '/').replaceAll('/', sep)
-    const fullPath = normalize(join(options.path, filePath))
+    const fullPath = resolve(rootPath, `.${sep}${filePath}`)
+
+    if (!isInsideRoot(fullPath)) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' })
+      res.end('Not found')
+      return
+    }
+
     try {
       await sendFile({ fullPath, res, headers: options.headers })
     } catch {
       if (options.fallback) {
-        await sendFile({ fullPath: normalize(join(options.path, options.fallback)), res, headers: options.headers })
-        return
+        const fallbackPath = resolve(rootPath, options.fallback)
+        if (isInsideRoot(fallbackPath)) {
+          try {
+            await sendFile({ fullPath: fallbackPath, res, headers: options.headers })
+            return
+          } catch {
+            // fall through to 404
+          }
+        }
       }
       res.writeHead(404, { 'Content-Type': 'text/plain' })
       res.end('Not found')

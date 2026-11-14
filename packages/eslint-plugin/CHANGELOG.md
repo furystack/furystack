@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.1.3] - 2026-11-14
+
+### 📚 Documentation
+
+- Added a package `README.md` with basic installation and usage guidance.
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [4.1.2] - 2026-09-18
 
 ### ⬆️ Dependencies

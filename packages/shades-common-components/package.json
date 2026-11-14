@@ -1,6 +1,6 @@
 {
   "name": "@furystack/shades-common-components",
-  "version": "17.1.0",
+  "version": "17.1.1",
   "description": "Common UI components for FuryStack Shades",
   "type": "module",
   "scripts": {
@@ -45,7 +45,7 @@
   "homepage": "https://github.com/furystack/furystack",
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.0"
   },
   "dependencies": {
     "@furystack/cache": "workspace:^",
@@ -53,7 +53,7 @@
     "@furystack/inject": "workspace:^",
     "@furystack/shades": "workspace:^",
     "@furystack/utils": "workspace:^",
-    "path-to-regexp": "^8.4.2"
+    "path-to-regexp": "^9.0.0"
   },
   "engines": {
     "node": ">=24.0.0"

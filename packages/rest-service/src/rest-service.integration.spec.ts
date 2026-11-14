@@ -179,6 +179,82 @@ describe('@furystack/rest-service integration tests', () => {
       expect(result.message).toBe('Failed to decode URL path parameter')
     })
   })
+
+  it('returns 504 when an action exceeds actionTimeoutMs', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const port = getPort()
+      await useRestService<{ GET: { '/slow': { result: { ok: boolean } } } }>({
+        injector: i,
+        root: '/api',
+        port,
+        actionTimeoutMs: 50,
+        api: {
+          GET: {
+            '/slow': async () => new Promise<never>(() => {}),
+          },
+        },
+      })
+      const response = await fetch(`http://127.0.0.1:${port}/api/slow`)
+      expect(response.status).toBe(504)
+      await expect(response.json()).resolves.toMatchObject({ message: 'Request Timeout' })
+    })
+  })
+
+  it('returns a single 504 when an action resolves after timeout', async () => {
+    await usingAsync(createInjector(), async (i) => {
+      const port = getPort()
+      await useRestService<{ GET: { '/late-ok': { result: { ok: boolean } } } }>({
+        injector: i,
+        root: '/api',
+        port,
+        actionTimeoutMs: 30,
+        api: {
+          GET: {
+            '/late-ok': async () => {
+              await new Promise((r) => setTimeout(r, 80))
+              return JsonResult({ ok: true })
+            },
+          },
+        },
+      })
+      const response = await fetch(`http://127.0.0.1:${port}/api/late-ok`)
+      expect(response.status).toBe(504)
+      await expect(response.json()).resolves.toMatchObject({ message: 'Request Timeout' })
+      await new Promise((r) => setTimeout(r, 120))
+    })
+  })
+
+  it('returns a single 504 without unhandled rejection when an action rejects after timeout', async () => {
+    const unhandled: unknown[] = []
+    const onUnhandled = (reason: unknown) => unhandled.push(reason)
+    process.on('unhandledRejection', onUnhandled)
+    try {
+      await usingAsync(createInjector(), async (i) => {
+        const port = getPort()
+        await useRestService<{ GET: { '/late-fail': { result: { ok: boolean } } } }>({
+          injector: i,
+          root: '/api',
+          port,
+          actionTimeoutMs: 30,
+          api: {
+            GET: {
+              '/late-fail': async () => {
+                await new Promise((r) => setTimeout(r, 80))
+                throw new Error('late boom')
+              },
+            },
+          },
+        })
+        const response = await fetch(`http://127.0.0.1:${port}/api/late-fail`)
+        expect(response.status).toBe(504)
+        await expect(response.json()).resolves.toMatchObject({ message: 'Request Timeout' })
+        await new Promise((r) => setTimeout(r, 120))
+      })
+      expect(unhandled).toEqual([])
+    } finally {
+      process.off('unhandledRejection', onUnhandled)
+    }
+  })
 })
 
 describe('HttpServerPool telemetry', () => {
