@@ -14,17 +14,32 @@ FuryStack is a flexible, end-to-end framework that allows you to build complex s
 
 ## Getting Started
 
-Install any FuryStack package using npm or yarn:
+- **Step-by-step guides:** [furystack.github.io/getting-started](https://furystack.github.io/getting-started/) (recommended for new users)
+  - [Build from scratch](https://furystack.github.io/getting-started/from-scratch/) — minimal monorepo, DI, store/dataset, REST, and Shades UI
+  - [Use the boilerplate](https://furystack.github.io/getting-started/boilerplate/) — ready-made full-stack template
+  - Core concepts: [Dependency Injection](https://furystack.github.io/getting-started/inject/), [Data Stores](https://furystack.github.io/getting-started/data-stores/), [Repository/DataSets](https://furystack.github.io/getting-started/repository/), [REST](https://furystack.github.io/getting-started/rest/), [Data Validation](https://furystack.github.io/getting-started/data-validation/)
+
+Install packages as needed with npm or yarn:
 
 ```bash
-# Using npm
 npm install @furystack/core @furystack/inject
-
-# Using yarn
+# or
 yarn add @furystack/core @furystack/inject
 ```
 
-Check out the [boilerplate repository](https://github.com/furystack/boilerplate) for a working example with both backend and frontend setup.
+### Prerequisites
+
+- **Node.js**: `>=24` (see `package.json` engines)
+- **Yarn**: `4.x` via Corepack (`packageManager` in `package.json`)
+- **Docker** (optional, for full local parity): integration and UI test flows may require services like MongoDB/Redis/MinIO (`docker-compose.yml`)
+
+### Recommended starting points
+
+- **Minimal backend/DI + in-memory data:** `@furystack/inject`, `@furystack/core`, `@furystack/repository`
+- **Type-safe REST API:** add `@furystack/rest`, `@furystack/rest-service`, and `@furystack/rest-client-fetch` (share API types in a common package)
+- **Persistent storage:** add a store adapter such as `@furystack/filesystem-store`, `@furystack/mongodb-store`, `@furystack/redis-store`, or `@furystack/sequelize-store`
+- **Auth:** add `@furystack/security` and `@furystack/rest-service` HTTP auth helpers (and `@furystack/auth-jwt` / `@furystack/auth-google` as needed)
+- **UI:** `@furystack/shades` (+ `@furystack/shades-common-components` for ready-made components)
 
 ## Packages
 
@@ -115,22 +130,7 @@ Check out the [boilerplate repository](https://github.com/furystack/boilerplate)
 
 ## Contributing
 
-Contributions are welcome! This is a monorepo managed with Yarn workspaces.
-
-```bash
-# Clone the repository
-git clone https://github.com/furystack/furystack.git
-cd furystack
-
-# Install dependencies
-yarn install
-
-# Build all packages
-yarn build
-
-# Run tests
-yarn test
-```
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, build/test workflows, and contribution notes. This is a Yarn workspaces monorepo (`packages/*`). For framework usage docs, prefer the [public guides](https://furystack.github.io/getting-started/).
 
 ## License
 

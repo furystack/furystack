@@ -12,7 +12,9 @@ yarn add @furystack/rest-service
 
 ## Usage
 
-Start by importing your custom API endpoint interface (see `@furystack/rest`) and use the `.useRestService<MyApi>(...)` injector extension method. You can define multiple REST services per injector (even on the same port).
+Start by importing your custom API endpoint interface (see `@furystack/rest`) and call `useRestService<MyApi>(...)` with your injector and API implementation. You can define multiple REST services per injector (even on the same port).
+
+For a guided walkthrough, see the [REST getting-started guide](https://furystack.github.io/getting-started/rest/) and [Build from scratch](https://furystack.github.io/getting-started/from-scratch/). For runtime payload validation, see [Data Validation](https://furystack.github.io/getting-started/data-validation/).
 
 ### Implementing a Custom API
 
@@ -214,7 +216,13 @@ In that way, you will get full validation for _all_ defined endpoint data (heade
 
 ### Authentication and HttpUserContext
 
-You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. You can use it with the `useHttpAuthentication()` helper:
+You can use the built-in authentication that comes with this package. It contains a session (~cookie) based authentication and Basic Auth. Use the `useHttpAuthentication()` helper after wiring the required dependencies.
+
+**Prerequisites (important):**
+
+- Bind `UserStore` and `SessionStore` to persistent store implementations (they throw by default).
+- Provide a `userDataSet` token (`DataSetToken` / `ApplicationUserDataSet`) that backs user lookups.
+- Ensure the backing stores/datasets are registered on the injector before calling `useHttpAuthentication()`.
 
 ```ts
 import { createInjector } from '@furystack/inject'
@@ -238,10 +246,11 @@ await useRestService<MyApi>({ injector: myInjector, ...apiOptions })
 ```
 
 `useHttpAuthentication` binds the `HttpAuthenticationSettings` and
-`HttpUserContext` tokens. Your app is responsible for binding the
-`UserStore` / `SessionStore` tokens (which throw by default) to concrete
-persistent implementations, and for passing the `DataSetToken` that backs
-user lookups.
+`HttpUserContext` tokens. Your app remains responsible for binding the
+`UserStore` / `SessionStore` tokens to concrete persistent implementations and
+for passing the `DataSetToken` that backs user lookups. For JWT-based auth, see
+[`@furystack/auth-jwt`](../auth-jwt/README.md). For an end-to-end example, see
+the [REST guide](https://furystack.github.io/getting-started/rest/).
 
 Session cookie options (set via `HttpAuthenticationSettings` / `useHttpAuthentication`):
 

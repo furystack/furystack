@@ -135,9 +135,13 @@ export const useRestService = async <T extends RestApi>(options: ImplementApiOpt
  * chain (Basic + Cookie by default), appends any caller-provided providers
  * and rebinds {@link HttpAuthenticationSettings}.
  *
- * Prerequisite: {@link UserStore} and {@link SessionStore} must be bound to
- * persistent implementations before calling this helper, since the Basic
- * and Cookie providers need to read users and sessions immediately.
+ * Prerequisites:
+ * - Bind {@link UserStore} and {@link SessionStore} to persistent store implementations first.
+ * - Ensure the backing user/session stores and datasets are registered on the injector.
+ * - Provide `overrides.userDataSet` (or configure a valid `HttpAuthenticationSettings.userDataSet`)
+ *   so user lookups can be resolved.
+ *
+ * The Basic and Cookie providers read users/sessions during setup, so missing bindings will fail early.
  */
 export const useHttpAuthentication = (injector: Injector, overrides?: Partial<HttpAuthenticationSettings>): void => {
   const mergedSettings: HttpAuthenticationSettings = {
