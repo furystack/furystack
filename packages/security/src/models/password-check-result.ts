@@ -5,7 +5,7 @@ export interface PasswordCheckSuccessResult {
 
 export interface PasswordCheckFailedResult {
   isValid: false
-  reason: 'badUsernameOrPassword' | 'passwordExpired' // TODO | 'challengeNeeded'
+  reason: 'badUsernameOrPassword' | 'passwordExpired'
 }
 
 export type PasswordCheckResult = PasswordCheckFailedResult | PasswordCheckSuccessResult
