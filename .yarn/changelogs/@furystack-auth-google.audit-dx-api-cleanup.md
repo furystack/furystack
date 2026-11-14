@@ -1,0 +1,7 @@
+<!-- version-type: patch -->
+
+# @furystack/auth-google
+
+## ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/rest-service` dependency.

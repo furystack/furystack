@@ -107,11 +107,3 @@ jobs:
         displayName: 'Publish Artifact: test-results'
         inputs:
           PathtoPublish: 'packages/shades-showcase-app/e2e'
-
-      # TODO: Check me
-      # - task: PublishTestResults@2
-      #   displayName: Publish test results
-      #   condition: succeededOrFailed()
-      #   inputs:
-      #     testRunner: JUnit
-      #     testResultsFiles: 'packages/shades-showcase-app/test-results'
