@@ -10,6 +10,8 @@ npm install @furystack/inject
 yarn add @furystack/inject
 ```
 
+> New to FuryStack? Start with the [Dependency Injection guide](https://furystack.github.io/getting-started/inject/) and the [Build from scratch tutorial](https://furystack.github.io/getting-started/from-scratch/).
+
 ## Injector
 
 An `Injector` is a container: it resolves tokens to service instances, caches
