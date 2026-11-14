@@ -1,8 +1,9 @@
 import { useSystemIdentityContext } from '@furystack/core'
 import { defineService, type Token } from '@furystack/inject'
+import { randomBytes } from 'crypto'
 import { UnauthenticatedError } from './errors/index.js'
 import { PasswordComplexityError } from './errors/password-complexity-error.js'
-import type { PasswordCheckResult } from './models/index.js'
+import type { PasswordCheckResult, PasswordCredential } from './models/index.js'
 import { PasswordCredentialDataSet, PasswordResetTokenDataSet } from './password-credential-store.js'
 import type { PasswordHasher } from './password-hasher.js'
 import { SecurityPolicyManager } from './security-policy-manager.js'
@@ -53,10 +54,17 @@ export const PasswordAuthenticator: Token<PasswordAuthenticator, 'singleton'> = 
     const tokenDataSet = inject(PasswordResetTokenDataSet)
     const systemInjector = useSystemIdentityContext({ injector, username: 'PasswordAuthenticator' })
     onDispose(() => systemInjector[Symbol.asyncDispose]())
+    let dummyCredentialPromise: Promise<PasswordCredential> | undefined
+
+    const getDummyCredential = () => {
+      dummyCredentialPromise ??= hasher.createCredential('__dummy__', randomBytes(16).toString('hex'))
+      return dummyCredentialPromise
+    }
 
     const checkPasswordForUser = async (userName: string, plainPassword: string): Promise<PasswordCheckResult> => {
       const entry = await passwordDataSet.get(systemInjector, userName)
       if (!entry) {
+        await hasher.verifyCredential(plainPassword, await getDummyCredential())
         return { isValid: false, reason: 'badUsernameOrPassword' }
       }
       const result = await hasher.verifyCredential(plainPassword, entry)
@@ -101,6 +109,7 @@ export const PasswordAuthenticator: Token<PasswordAuthenticator, 'singleton'> = 
         throw new PasswordComplexityError(complexityResult.errors)
       }
       await replaceCredential(token.userName, plainPassword)
+      await tokenDataSet.remove(systemInjector, resetToken)
     }
 
     return {

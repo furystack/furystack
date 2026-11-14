@@ -19,6 +19,17 @@ export const addCorsHeaders = (
     options.origins.some((origin) => origin === incomingMessage.headers.origin)
   ) {
     serverResponse.setHeader('Access-Control-Allow-Origin', incomingMessage.headers.origin as string)
+    const existingVary = serverResponse.getHeader('Vary')
+    const varyValues = Array.isArray(existingVary)
+      ? existingVary.flatMap((value) => `${value}`.split(','))
+      : `${existingVary ?? ''}`.split(',')
+    const normalizedVary = varyValues.map((value) => value.trim()).filter(Boolean)
+    if (!normalizedVary.some((value) => value.toLowerCase() === 'origin')) {
+      normalizedVary.push('Origin')
+    }
+    if (normalizedVary.length) {
+      serverResponse.setHeader('Vary', normalizedVary.join(', '))
+    }
     if (options.credentials) {
       serverResponse.setHeader('Access-Control-Allow-Credentials', 'true')
     }
