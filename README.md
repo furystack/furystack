@@ -14,6 +14,7 @@ FuryStack is a flexible, end-to-end framework that allows you to build complex s
 
 ## Getting Started
 
+- **In-repo full-stack recipe (versioned with this code):** [docs/getting-started/fullstack-monorepo.md](docs/getting-started/fullstack-monorepo.md) — `common` + `backend` + `frontend` monorepo layout, auth/store/dataset bootstrap, seeding, validation, and frontend↔backend dev/prod wiring
 - **Step-by-step guides:** [furystack.github.io/getting-started](https://furystack.github.io/getting-started/) (recommended for new users)
   - [Build from scratch](https://furystack.github.io/getting-started/from-scratch/) — minimal monorepo, DI, store/dataset, REST, and Shades UI
   - [Use the boilerplate](https://furystack.github.io/getting-started/boilerplate/) — ready-made full-stack template

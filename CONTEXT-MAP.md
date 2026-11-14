@@ -24,8 +24,9 @@ Each package typically contains its own `README.md`, `src/`, tests, and package 
 
 ## Documentation and planning
 
+- `docs/getting-started/` — in-repo, versioned app/bootstrap guides (e.g. [full-stack monorepo recipe](docs/getting-started/fullstack-monorepo.md))
 - `docs/agents/` — repository workflow notes (issues, labels, domain)
 - `docs/internal/` — internal design/implementation notes
 - `docs/migrations/` — migration guides/notes
 - `plans/` — design and planning documents
-- Public user-facing guides: https://furystack.github.io/getting-started/
+- Public user-facing guides: https://furystack.github.io/getting-started/ (keep in sync with in-repo APIs/examples)

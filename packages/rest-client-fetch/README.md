@@ -4,6 +4,8 @@ REST client for FuryStack with native Fetch implementation.
 
 This package provides a type-safe client for consuming REST APIs defined with `@furystack/rest` in the browser.
 
+For an end-to-end `common` + `backend` + `frontend` setup (client `credentials`, dev proxy/CORS, cookie auth), see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md).
+
 ## Installation
 
 ```bash

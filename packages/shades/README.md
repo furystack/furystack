@@ -12,7 +12,7 @@ yarn add @furystack/shades
 
 ## Usage
 
-You can check the [@furystack/boilerplate](https://github.com/furystack/boilerplate) repository for a working example.
+You can check the [@furystack/boilerplate](https://github.com/furystack/boilerplate) repository for a working example. For an in-repo recipe that wires a Shades frontend to a FuryStack backend in a `common` + `backend` + `frontend` monorepo, see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md). `packages/shades-showcase-app` in this repo is frontend-only.
 
 ### A Shade (Component)
 

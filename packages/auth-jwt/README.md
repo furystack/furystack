@@ -2,6 +2,8 @@
 
 JWT Bearer token authentication for FuryStack with built-in token fingerprinting for XSS protection.
 
+For integrating JWT into a full `common` + `backend` + `frontend` app (store bindings, actions, client flow), see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md).
+
 ## Installation
 
 ```bash
