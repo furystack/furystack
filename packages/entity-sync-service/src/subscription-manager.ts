@@ -78,13 +78,6 @@ const dedupKey = (modelName: string, originId: string): string => `${modelName}\
  * Options for model registration.
  */
 export type ModelSyncOptions = {
-  /**
-   * @deprecated The bus owns retention now — adapters define the window
-   * (in-process: 1 000 messages per topic; Redis Streams: `MAXLEN`).
-   * Configure on the adapter, not per-model. The field is accepted for
-   * backwards compatibility and silently ignored.
-   */
-  changelogRetentionMs?: number
   /** Debounce window in ms for batching notifications (default: 0 = immediate) */
   debounceMs?: number
   /** TTL in ms for cached find() results on collection subscriptions (default: 0 = no cache) */
@@ -241,11 +234,10 @@ class SubscriptionManagerImpl implements SubscriptionManager {
 
   public registerModel<T, TPrimaryKey extends keyof T>(
     dataSetToken: DataSetToken<T, TPrimaryKey>,
-    _options?: ModelSyncOptions,
+    options: ModelSyncOptions = {},
   ): void {
     const modelName = dataSetToken.model.name
     const primaryKey = dataSetToken.primaryKey as string
-    const options = _options ?? {}
 
     if (this.modelRegistrations.has(modelName)) {
       const existing = this.modelRegistrations.get(modelName)!

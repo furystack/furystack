@@ -51,7 +51,7 @@
     "ws": "^8.22.2"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "sideEffects": false
 }

@@ -23,7 +23,7 @@ const PACKAGE_NAME_HEADING_PATTERN = /^# (.+)$/m
 /**
  * Section heading regex pattern
  */
-const SECTION_HEADING_PATTERN = /^## (.+)$/
+const SECTION_HEADING_PATTERN = /^## (.+)$/m
 
 // Re-export types for backwards compatibility
 export type { ChangelogSection, ChunkType, ParsedChangelog, ValidateChangelogOptions } from './types'
@@ -40,7 +40,7 @@ export { classifyChunk, formatMergedChunks } from './chunkUtils'
  * @returns Parsed changelog structure
  */
 export function parseChangelogDraft(content: string): ParsedChangelog {
-  const lines = content.split('\n')
+  const lines = content.split(/\r?\n/)
 
   // Extract version type from comment
   const versionTypeMatch = content.match(VERSION_TYPE_COMMENT_PATTERN)
