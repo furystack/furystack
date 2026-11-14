@@ -14,7 +14,7 @@ yarn add @furystack/rest-service
 
 Start by importing your custom API endpoint interface (see `@furystack/rest`) and call `useRestService<MyApi>(...)` with your injector and API implementation. You can define multiple REST services per injector (even on the same port).
 
-For a guided walkthrough, see the [REST getting-started guide](https://furystack.github.io/getting-started/rest/) and [Build from scratch](https://furystack.github.io/getting-started/from-scratch/). For runtime payload validation, see [Data Validation](https://furystack.github.io/getting-started/data-validation/).
+For a guided walkthrough, see the [REST getting-started guide](https://furystack.github.io/getting-started/rest/) and [Build from scratch](https://furystack.github.io/getting-started/from-scratch/). For an in-repo, versioned recipe covering `common` + `backend` + `frontend` wiring, auth bootstrap order, seeding, validation, and dev/prod integration, see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md). For runtime payload validation, see [Data Validation](https://furystack.github.io/getting-started/data-validation/).
 
 ### Implementing a Custom API
 

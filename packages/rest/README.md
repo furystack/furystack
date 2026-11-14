@@ -4,6 +4,8 @@ REST API type definitions and contracts for FuryStack.
 
 This package provides the foundation for building type-safe REST APIs that are shared between your backend and frontend.
 
+For an in-repo end-to-end app recipe (shared contract, backend/frontend wiring, validation), see [Full-stack monorepo app](../../docs/getting-started/fullstack-monorepo.md).
+
 ## Installation
 
 ```bash
