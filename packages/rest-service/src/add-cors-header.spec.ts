@@ -49,6 +49,7 @@ describe('AddCorsHeaders', () => {
     } as any as IncomingMessage
     const resp: ServerResponse = {
       setHeader: vi.fn(),
+      getHeader: vi.fn(),
     } as unknown as ServerResponse
 
     addCorsHeaders(
@@ -58,8 +59,9 @@ describe('AddCorsHeaders', () => {
       req,
       resp,
     )
-    expect(resp.setHeader).toBeCalledTimes(1)
+    expect(resp.setHeader).toBeCalledTimes(2)
     expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Origin', 'http://localhost/')
+    expect(resp.setHeader).toBeCalledWith('Vary', 'Origin')
   })
 
   it('Should add allow-credentials header if enabled', () => {
@@ -68,6 +70,7 @@ describe('AddCorsHeaders', () => {
     } as any as IncomingMessage
     const resp: ServerResponse = {
       setHeader: vi.fn(),
+      getHeader: vi.fn(),
     } as unknown as ServerResponse
 
     addCorsHeaders(
@@ -80,8 +83,9 @@ describe('AddCorsHeaders', () => {
       req,
       resp,
     )
-    expect(resp.setHeader).toBeCalledTimes(2)
+    expect(resp.setHeader).toBeCalledTimes(3)
     expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Origin', 'http://localhost/')
+    expect(resp.setHeader).toBeCalledWith('Vary', 'Origin')
     expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Credentials', 'true')
     // expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Headers', 'my-custom-header, header-2')
     // expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Methods', 'DELETE, GET, POST, PUT, PATCH')
@@ -93,6 +97,7 @@ describe('AddCorsHeaders', () => {
     } as any as IncomingMessage
     const resp: ServerResponse = {
       setHeader: vi.fn(),
+      getHeader: vi.fn(),
     } as unknown as ServerResponse
 
     addCorsHeaders(
@@ -104,8 +109,9 @@ describe('AddCorsHeaders', () => {
       req,
       resp,
     )
-    expect(resp.setHeader).toBeCalledTimes(2)
+    expect(resp.setHeader).toBeCalledTimes(3)
     expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Origin', 'http://localhost/')
+    expect(resp.setHeader).toBeCalledWith('Vary', 'Origin')
     expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Headers', 'my-custom-header, header-2')
     // expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Methods', 'DELETE, GET, POST, PUT, PATCH')
   })
@@ -116,6 +122,7 @@ describe('AddCorsHeaders', () => {
     } as any as IncomingMessage
     const resp: ServerResponse = {
       setHeader: vi.fn(),
+      getHeader: vi.fn(),
     } as unknown as ServerResponse
 
     addCorsHeaders(
@@ -126,8 +133,28 @@ describe('AddCorsHeaders', () => {
       req,
       resp,
     )
-    expect(resp.setHeader).toBeCalledTimes(2)
+    expect(resp.setHeader).toBeCalledTimes(3)
     expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Origin', 'http://localhost/')
+    expect(resp.setHeader).toBeCalledWith('Vary', 'Origin')
     expect(resp.setHeader).toBeCalledWith('Access-Control-Allow-Methods', 'DELETE, GET, POST, PUT, PATCH')
+  })
+
+  it('Should merge Origin into existing Vary header', () => {
+    const req: IncomingMessage = {
+      headers: { origin: 'http://localhost/', host: 'http://github.com' },
+    } as any as IncomingMessage
+    const resp: ServerResponse = {
+      setHeader: vi.fn(),
+      getHeader: vi.fn().mockReturnValue('Accept-Encoding'),
+    } as unknown as ServerResponse
+
+    addCorsHeaders(
+      {
+        origins: ['http://localhost/'],
+      },
+      req,
+      resp,
+    )
+    expect(resp.setHeader).toBeCalledWith('Vary', 'Accept-Encoding, Origin')
   })
 })
