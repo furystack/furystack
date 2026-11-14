@@ -1,5 +1,19 @@
 # Changelog
 
+## [10.0.5] - 2026-11-14
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
+### Documentation
+
+- Linked the shared REST contract docs to the in-repo [full-stack monorepo guide](../../docs/getting-started/fullstack-monorepo.md) for end-to-end common + ackend + rontend wiring
+
 ## [10.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

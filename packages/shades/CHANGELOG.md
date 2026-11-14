@@ -1,5 +1,19 @@
 # Changelog
 
+## [15.0.5] - 2026-11-14
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
+### Documentation
+
+- Clarified frontend-only scope of packages/shades-showcase-app and linked the in-repo [full-stack monorepo guide](../../docs/getting-started/fullstack-monorepo.md) for wiring a Shades frontend to a FuryStack backend
+
 ## [15.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

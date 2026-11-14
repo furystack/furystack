@@ -1,5 +1,15 @@
 # Changelog
 
+## [13.0.5] - 2026-11-14
+
+### Documentation
+
+- Added links to the public dependency injection and from-scratch guides for faster onboarding
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [13.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

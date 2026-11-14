@@ -1,5 +1,16 @@
 # Changelog
 
+## [11.0.5] - 2026-11-14
+
+### Documentation
+
+- Added links to the public repository and data-store guides to clarify the recommended DataSet setup flow
+- Added cross-link to the in-repo [full-stack monorepo guide](../../docs/getting-started/fullstack-monorepo.md) for dataset usage in app bootstraps and system-identity seeding
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [11.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

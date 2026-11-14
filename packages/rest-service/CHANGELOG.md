@@ -1,5 +1,41 @@
 # Changelog
 
+## [14.1.4] - 2026-11-14
+
+### 🐛 Bug Fixes
+
+- Prevent path traversal in static file serving by rejecting resolved paths outside the configured root directory
+- Set `SameSite`, optional `Secure`, and `Max-Age` attributes on session cookies and apply the same attributes when clearing them
+- `addCorsHeaders` now adds/merges `Vary: Origin` when returning origin-specific CORS headers to avoid incorrect cache reuse
+- Set `SameSite`, optional `Secure`, and `Max-Age` attributes on session cookies and apply the same attributes when clearing them.
+- Enforce `Secure` when `SameSite=None` to prevent browsers rejecting cross-site session cookies.
+- Enforced a configurable maximum request body size (default 1 MiB) when reading POST bodies, returning `413 Payload Too Large` for oversized requests
+- Added `maxBodyBytes` option to `useRestService` for per-API configuration
+- Switched request body reading to buffered chunks with single decode to avoid unbounded string growth
+- Added configurable HTTP server timeouts (`requestTimeout`, `headersTimeout`, `keepAliveTimeout`) to limit slow client connections on the shared listener
+- Added `actionTimeoutMs` to request handling to return `504 Request Timeout` for stuck actions and prevent late writes/unhandled errors after timeout
+- Exposed the new timeout options through `useRestService`
+- Fixed sendFile in static file serving to resolve/reject from the response stream lifecycle and clean up the read stream on disconnect or error, preventing requests from hanging when clients abort downloads.
+
+### ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/security` dependency.
+- Updated dependencies
+
+### Documentation
+
+- Clarified `useRestService` usage and authentication setup prerequisites in the README and linked to the public REST and validation guides
+- Improved JSDoc for `useHttpAuthentication` to document required store/dataset bindings and setup expectations
+- Added guidance for end-to-end app bootstrap and cross-linked the in-repo [full-stack monorepo guide](../../docs/getting-started/fullstack-monorepo.md) (auth prerequisites/order, validation, and integration notes)
+
+### ?? Bug Fixes
+
+- Prevent path traversal in static file serving by rejecting resolved paths outside the configured root directory
+
+### ?? Dependencies
+
+- Updated dependencies
+
 ## [14.1.3] - 2026-09-18
 
 ### ⬆️ Dependencies

@@ -1,5 +1,19 @@
 # Changelog
 
+## [9.0.5] - 2026-11-14
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
+### Documentation
+
+- Documented browser client setup in the context of full-stack apps and linked the in-repo [full-stack monorepo guide](../../docs/getting-started/fullstack-monorepo.md) for credentials, CORS/proxy, and cookie-auth wiring
+
 ## [9.0.4] - 2026-09-18
 
 ### ⬆️ Dependencies

@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.3] - 2026-11-14
+
+### 🧹 Chores
+
+- Aligned the Node.js engine requirement with the repository baseline (`>=24.0.0`).
+
+### Dependencies
+
+- Patch release to include updated FuryStack dependency versions
+
+### ⬆️ Dependencies
+
+- Updated dependencies
+
 ## [1.0.2] - 2026-09-18
 
 ### ⬆️ Dependencies
