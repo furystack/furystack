@@ -2,4 +2,6 @@
 
 # @furystack/redis-cross-node-bus
 
-Patch release to include updated `@furystack/rest-service` dependency.
+## ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/rest-service` dependency.

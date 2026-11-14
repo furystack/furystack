@@ -2,4 +2,6 @@
 
 # @furystack/auth-google
 
-Patch release to include updated `@furystack/security` and `@furystack/rest-service` dependencies.
+## ⬆️ Dependencies
+
+- Patch release to include updated `@furystack/security` and `@furystack/rest-service` dependencies.
