@@ -15,15 +15,15 @@
   "devDependencies": {
     "@codecov/vite-plugin": "^2.0.1",
     "@furystack/logging": "workspace:^",
-    "@playwright/test": "^1.65.0",
+    "@playwright/test": "^1.65.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/lang-json": "^6.0.2",
-    "@codemirror/lint": "^6.9.7",
+    "@codemirror/lint": "^6.9.8",
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.15",
     "@furystack/cache": "workspace:^",
